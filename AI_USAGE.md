@@ -83,3 +83,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Revisión por Frainer:** pendiente; los cambios solicitados no equivalen a revisión humana completada. Verificación técnica registrada en el resultado de esta tarea.
 
 - Nombres provinciales de presentación normalizados (Hermanas Mirabal, Elías Piña, El Seibo) contra [Ministerio de Medio Ambiente](https://ambiente.gob.do/informacion-ambiental/informacion-provincial/), consultado 2026-11-14. Geometrías y nombres originales de Natural Earth preservados.
+
+- Se amplió `web/public/data/manifest.json` con los 33 contextos POWER, límites provinciales y SHA-256 recalculados; el service worker precarga esa evidencia. Correcciones de lifecycle realtime y etiquetas accesibles revisadas con pruebas de navegador.

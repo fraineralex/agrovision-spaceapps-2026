@@ -1,69 +1,74 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MapPanel } from "@/components/map";
-import { Button } from "@/components/ui/button";
+import { FarmIcon } from "@/components/farm-icon";
+import { VoiceAssistant } from "@/components/voice-assistant";
 import { OfflineStatus } from "@/components/offline";
 import { catalog, climate, ndvi, getComparison, orderScenarios, priorityLabels, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
-import { fallbackExplanation } from "@/lib/explanation";
+import { nationalCenter, provinces, provinceAt, type Location } from "@/lib/geography";
+import type { ClimateContext } from "@/lib/location-climate";
+import type { VoiceSelection } from "@/lib/voice-context";
 import parcels from "@/public/data/demo-parcels.json";
-
-const months = Array.from({ length: 12 }, (_, index) => new Date(2024, index).toLocaleString("en", { month: "long" }));
+const months = Array.from({ length:12 },(_,i) => new Date(2024,i).toLocaleString("es",{month:"long"}));
 export default function Home() {
-  const [month, setMonth] = useState(11);
-  const comparison = useMemo(() => getComparison(month), [month]);
-  const [selectedParcel, setSelectedParcel] = useState("demo-01");
-  const [priority, setPriority] = useState<Priority>("water");
-  const [irrigation, setIrrigation] = useState<Irrigation>("unconfirmed");
-  const [explanation, setExplanation] = useState<{ text: string; mode: string; key: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const onSelect = useCallback((id: string) => { setSelectedParcel(id); setIrrigation("unconfirmed"); }, []);
-  const ordered = useMemo(() => orderScenarios(comparison.scenarios, priority), [comparison.scenarios, priority]);
-  const requestKey = `${selectedParcel}/${priority}/${month}/${irrigation}`;
-  async function explain() {
-    setLoading(true);
-    const input = { priority, month, irrigation };
-    try {
-      if (!navigator.onLine) throw new Error("Offline");
-      const response = await fetch("/api/explain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input), signal: AbortSignal.timeout(14_000) });
-      if (!response.ok) throw new Error("Unavailable");
-      const data = await response.json();
-      if (typeof data.explanation !== "string") throw new Error("Invalid response");
-      setExplanation({ text: data.explanation, mode: data.mode === "ai-generated" ? "AI-generated explanation · OpenAI GPT-4.1 mini via Vercel AI Gateway · constrained evidence selection" : "Deterministic explanation · no AI generation", key: requestKey });
-    } catch { setExplanation({ text: fallbackExplanation(input), mode: "Deterministic offline explanation · no AI generation", key: requestKey }); }
-    finally { setLoading(false); }
-  }
+  const [month,setMonth] = useState(11);
+  const [selectedParcel,setSelectedParcel] = useState("location");
+  const [location,setLocation] = useState<Location>(nationalCenter);
+  const [priority,setPriority] = useState<Priority>("water");
+  const [irrigation,setIrrigation] = useState<Irrigation>("unconfirmed");
+  const [context,setContext] = useState<{key:string;data:ClimateContext} | null>(null);
+  const [climateStatus,setClimateStatus] = useState("");
+  const [provinceSearch,setProvinceSearch] = useState("");
+  const locationKey = `${location.longitude.toFixed(3)},${location.latitude.toFixed(3)}`;
+  const onSelect = useCallback((id:string) => { const parcel = parcels.features.find(p => p.id === id); if (!parcel) return; const p = parcel.geometry.coordinates[0][0]; setLocation({longitude:p[0]+.005,latitude:p[1]+.004});setSelectedParcel(id);setIrrigation("unconfirmed"); },[]);
+  const onLocation = useCallback((point:Location) => {setLocation(point);setSelectedParcel("location");setIrrigation("unconfirmed");},[]);
+  useEffect(() => {
+    if (selectedParcel !== "location") return;
+    const controller = new AbortController();
+    const load = async () => {
+      setClimateStatus("Consultando clima…");
+      try {
+        let data:ClimateContext;
+        try { const saved = localStorage.getItem(`power:${locationKey}`); if (!saved) throw new Error(); data = JSON.parse(saved); }
+        catch { const bundled = await fetch(`/data/power/${locationKey}.json`,{signal:controller.signal}); if (bundled.ok) data = await bundled.json(); else { const response = await fetch(`/api/climate?longitude=${location.longitude}&latitude=${location.latitude}`,{signal:controller.signal}); if (!response.ok) throw new Error(); data = await response.json(); } }
+        if (controller.signal.aborted) return;
+        setContext({key:locationKey,data});setClimateStatus("");try {localStorage.setItem(`power:${locationKey}`,JSON.stringify(data));} catch { /* Storage is optional. */ }
+      } catch {if (!controller.signal.aborted) setClimateStatus("Clima no disponible aquí. Prueba una provincia o vuelve a conectar.");}
+    };
+    void load();return () => controller.abort();
+  },[locationKey,location.longitude,location.latitude,selectedParcel]);
+  const comparison = useMemo(() => getComparison(month),[month]);
+  const ordered = useMemo(() => orderScenarios(comparison.scenarios,priority),[comparison.scenarios,priority]);
+  const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
+  const selection = useMemo<VoiceSelection>(() => ({parcelId:selectedParcel as VoiceSelection["parcelId"],location,priority,month,irrigation}),[selectedParcel,location,priority,month,irrigation]);
+  const province = provinceAt(location);
+  const waterMax = Math.max(...comparison.scenarios.map(s => s.coefficientDays));
+  const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   return <main className="app-shell">
-    <header className="topbar"><div className="brand"><span className="brand-mark">✳</span><span>AgroVision</span></div><div className="top-meta"><OfflineStatus /><span>San Juan Valley · Dominican Republic</span></div></header>
+    <header className="topbar"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <div className="workspace">
-      <div className="heading-row"><div><div className="eyebrow">Field Shift · Rotation explorer</div><h1>Compare what comes next.</h1><p className="subtitle">Explore crop rotation scenarios with environmental evidence for the San Juan Valley.</p></div><span className="offline-pill">● Offline-ready case</span></div>
-      <div className="main-grid">
-        <section className="card map-card" aria-label="Map and NASA layers"><div className="map-head"><div><h2>San Juan Valley</h2><div className="small-label">Pilot landscape · approximate demo boundaries</div></div><span className="map-badge">NASA Earth observations</span></div><MapPanel selected={selectedParcel} onSelect={onSelect} /></section>
-        <section className="card panel" aria-label="Selected demo parcel"><div className="eyebrow">Selected demo area</div><h2 style={{ marginTop: 6 }}>Parcel context</h2>
-          <div className="parcel-select"><select aria-label="Choose a demo area" value={selectedParcel} onChange={(event) => onSelect(event.target.value)}>{parcels.features.map((parcel) => <option key={parcel.id} value={parcel.id}>{parcel.properties.name}</option>)}</select><span className="parcel-tag">Approximate</span></div>
-          <label className="control-label">Declared water access <select aria-label="Declared water access" value={irrigation} onChange={(event) => setIrrigation(event.target.value as Irrigation)}><option value="unconfirmed">Unconfirmed</option><option value="irrigated">Irrigated (declared)</option><option value="rainfed">Rainfed (declared)</option></select></label>
-          <div className="data-note">Synthetic demo area, not an identified farm. Water access is user-declared, not satellite-confirmed. {irrigation === "rainfed" ? "The water proxy does not establish rainfed suitability; seasonal rainfall and soil storage are missing." : "Verify water access with a local technician before discussing rotations."}</div>
-          <div className="section-row"><h2>Regional climate context</h2><select aria-label="Climate month" value={month} onChange={(event) => setMonth(Number(event.target.value))}>{months.map((label, index) => <option key={label} value={index + 1}>{label}</option>)}</select></div>
-          <div className="climate-strip"><div className="climate-cell"><div className="climate-val">{comparison.climate.temperatureC} °C</div><div className="climate-label">Air temperature</div></div><div className="climate-cell"><div className="climate-val">{comparison.climate.precipitationMmDay}</div><div className="climate-label">Rain · mm/day</div></div><div className="climate-cell"><div className="climate-val">{comparison.climate.relativeHumidityPct}%</div><div className="climate-label">Relative humidity</div></div></div>
-          <p className="source-line"><a href={comparison.provenance.url}>NASA POWER</a> · {comparison.provenance.periodStart}–{comparison.provenance.periodEnd} · calendar-month daily mean · reanalysis · ~50 km regional grid. Quality: unvalidated locally; tropical rainfall is limited, excluded from scores. Same grid context for every demo area.</p>
-          <details className="evidence-details"><summary>Temperature history · 12 calendar-month means</summary><div className="climate-chart" role="img" aria-label="Regional monthly temperature means, degrees Celsius, 2016 to 2025">{climate.monthlyClimatology.map((item) => <button key={item.month} title={`${months[item.month - 1]}: ${item.temperatureC} °C`} aria-label={`${months[item.month - 1]}: ${item.temperatureC} degrees Celsius`} onClick={() => setMonth(item.month)} style={{ height: `${item.temperatureC * 3}px` }}><span>{item.month}</span></button>)}</div><p className="source-line">Absolute height from 0 °C. NASA POWER · regional · 2016–2025 · local validation pending.</p></details>
-          <details className="evidence-details" open><summary>Landsat NDVI · real point sample</summary>
-            <p><a href={ndvi.source.url}>USGS/NASA Landsat 8–9 Collection 2 Level-2</a> via Microsoft Planetary Computer · six selected 2024 dates · one 30 m pixel per demo area · unitless NDVI · quality-masked satellite observation. Confidence: preliminary; no field validation.</p>
-            <table className="ndvi-table"><caption>Historical vegetation signal · {parcels.features.find((item) => item.id === selectedParcel)?.properties.name}</caption><thead><tr><th>Date</th><th>NDVI</th><th>Exploratory signal</th></tr></thead><tbody>{ndvi.rows.filter((row) => row.parcelId === selectedParcel).map((row) => <tr key={row.date}><td>{row.date}</td><td>{row.ndvi?.toFixed(3) ?? "Missing"}</td><td>{row.signal}</td></tr>)}</tbody></table>
-            <p className="source-line">Uncalibrated signal thresholds: below 0.2 = low vegetation; 0.2–0.4 = ambiguous; at least 0.4 = vegetation. Low vegetation may include bare soil; it does not confirm bare soil or crop identity. Missing/cloudy pixels are not filled. Irrigation classification and supervised ML remain pending labeled data; no accuracy is claimed.</p>
-          </details>
-        </section>
-      </div>
-      <div className="section-row"><div><div className="eyebrow">Scenario comparison</div><h2>Compare the evidence by pillar</h2></div><label className="priority-wrap">Your priority <select className="priority-select" aria-label="Your priority" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>{Object.entries(priorityLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label></div>
-      <p className="comparison-note" aria-live="polite">{priority === "water" ? "Ordered by the water proxy only. Scores are relative within these scenarios: 5 means a smaller coefficient-day proxy, not proven suitability or savings." : `No verified ${priorityLabels[priority].toLowerCase()} ranking. The baseline stays first; missing evidence is never treated as favorable.`}</p>
-      <div className="scenario-grid">{ordered.map((scenario) => <article key={scenario.id} data-scenario={scenario.id} className="card scenario-card"><div className="scenario-top"><span className="scenario-name">{scenario.label}</span><span className="scenario-type">{scenario.status}</span></div><div className="crops">{scenario.crops.join(" → ")}</div>
-        <div className="score-grid">{scoreDefinitions.map((pillar) => <div className="score-item" key={pillar.id}><div className="score-head"><span>{pillar.label}</span><span>0–5</span></div><div className={`score ${scenario.scores[pillar.id] === null ? "unknown" : ""}`}>{scenario.scores[pillar.id] === null ? "Insufficient data" : `${scenario.scores[pillar.id]?.toFixed(1)} / 5`}</div><div className="score-quality">{pillar.id === "water" ? "Water proxy only · low confidence; soil unknown" : "Confidence unavailable · evidence missing"}</div></div>)}</div>
-        <details className="evidence-details"><summary>Sources, method & missing evidence</summary><p>Water proxy: {scenario.coefficientDays} Kc·day per illustrative two-crop sequence. <a href={catalog.source.url}>FAO-56, tables 11–12 (1998)</a>. Published rule, generic regional examples, not calibrated in San Juan. Low local confidence; no measured soil health.</p><p>Integral of the example Kc curve, summed across crops. Score = 5 × (largest proxy − proxy) / (largest proxy − smallest proxy). No ETo or rainfall correction; excludes paddy percolation, irrigation losses and actual crop dates.</p><p>Climate: POWER context available; crop-specific suitability unverified. Pests: verified IDIAF host rules missing. Market: cleaned Ministry price sample missing; Santo Domingo prices would not equal farmgate prices. These three scores remain null.</p><p>{scenario.citation} {scenario.sourceUrl && <a href={scenario.sourceUrl}>IDIAF context source (local fit unverified)</a>}</p></details>
-        <p className="scenario-foot">Illustrative scenario. Discuss with a local agricultural technician. No farm validation, yield prediction or guaranteed profit.</p>
+      <div className="heading-row"><div><div className="eyebrow">REPÚBLICA DOMINICANA</div><h1>Tu tierra. Tu próxima cosecha.</h1><p className="subtitle">Elige tu zona y compara opciones.</p></div></div>
+      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>1 · ¿Dónde cultivas?</h2><span>{province ?? "Selecciona un punto terrestre"}</span></div>
+        <div className="location-controls"><label>Buscar provincia<input type="search" placeholder="Escribe el nombre…" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label><label>Provincia<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.filter(p => p.name === province || p.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(provinceSearch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase())).map(p => <option key={p.name}>{p.name}</option>)}</select></label></div>
+        <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation}/>
+        <details className="evidence-details"><summary>Explorar áreas de ejemplo · San Juan</summary><div className="field-buttons">{parcels.features.map((p,i) => <button key={p.id} onClick={() => onSelect(p.id)} aria-pressed={selectedParcel === p.id}><FarmIcon name="field"/>Área {String.fromCharCode(65+i)}</button>)}</div><p>Límites sintéticos y aproximados. No identifican fincas reales.</p></details>
+      </section>
+      <section className="card climate-card" aria-label="Clima regional"><div className="section-row"><h2>Clima de tu zona</h2><select aria-label="Mes del clima" value={month} onChange={e => setMonth(Number(e.target.value))}>{months.map((m,i) => <option key={m} value={i+1}>{m}</option>)}</select></div>
+        {selectedClimate ? <><div className="climate-strip"><div className="climate-cell"><FarmIcon name="climate"/><div className="climate-val">{selectedClimate.temperatureC ?? "—"} °C</div><div>Temperatura</div></div><div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay ?? "—"}</div><div>Lluvia · mm/día</div></div><div className="climate-cell"><FarmIcon name="soil"/><div className="climate-val">{selectedClimate.relativeHumidityPct ?? "—"}%</div><div>Humedad del aire</div></div></div><details className="evidence-details"><summary>Fuente y límites del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia tropical tiene limitaciones; no se usa para puntuar rotaciones.</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
+      </section>
+      <div className="section-row"><h2>2 · Compara rotaciones</h2><label className="priority-wrap">Prioridad<select aria-label="Prioridad" className="priority-select" value={priority} onChange={e => setPriority(e.target.value as Priority)}>{Object.entries(priorityLabels).map(([id,label]) => <option key={id} value={id}>{label}</option>)}</select></label></div>
+      <div className="pillar-legend"><span><i className="light green"/>Menor indicador</span><span><i className="light amber"/>Intermedio</span><span><i className="light red"/>Mayor indicador</span><span><i className="light gray"/>Sin datos</span></div>
+      <p className="comparison-note">{priority === "water" ? "Ordenadas por un indicador relativo de agua. No mide litros ni ahorro." : "Sin evidencia suficiente para ordenar por esta prioridad."}</p>
+      <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}><div className="scenario-top"><strong className="scenario-name">{s.label}</strong><span className="scenario-type">{s.status === "baseline" ? "Referencia" : "Ejemplo"}</span></div><div className="crop-journey">{s.cropIds.map((id,i) => <div className="crop-step" key={id}>{i>0 && <span className="crop-arrow">→</span>}<span className={`crop-illustration crop-${id}`}><FarmIcon name={id} size={62}/><strong>{s.crops[i]}</strong></span></div>)}</div>
+        <div className="water-gauge"><div className="gauge-label"><FarmIcon name="water"/><strong>Indicador de agua</strong></div><div className="gauge-track" role="meter" aria-label={`Indicador de agua: ${s.label}`} aria-valuemin={0} aria-valuemax={waterMax} aria-valuenow={s.coefficientDays} aria-valuetext={`${s.coefficientDays} Kc por día; confianza baja; no es volumen de riego`}><span style={{width:`${s.coefficientDays/waterMax*100}%`}}/></div><div className="gauge-caption"><strong>{s.coefficientDays} Kc·día</strong><span>Regla genérica · confianza baja</span></div></div>
+        <div className="score-grid">{scoreDefinitions.map(p => {const score=s.scores[p.id];const color=score===null?"gray":score>=3.34?"green":score>=1.67?"amber":"red";return <div key={p.id} className={`score-item pillar-${p.id}`}><div className="score-head"><FarmIcon name={p.id} size={30}/>{p.label}</div><div className="score"><i className={`light ${color}`}/>{score===null?"Sin datos":`${score.toFixed(1)} / 5`}</div><div className="score-quality">{p.id==="water"?"Solo agua · suelo pendiente":"Sin evidencia local verificada"}</div></div>;})}</div>
+        <details className="evidence-details"><summary>Ver fuentes y límites</summary><p><a href={catalog.source.url}>FAO-56 · 1998 · tablas 11–12</a>. Regla publicada, ejemplos genéricos regionales. Confianza local baja. Integral Kc × duración de etapas, sumada por secuencia. Puntuación relativa 0–5: 5 × (máximo − indicador) / (máximo − mínimo).</p><p>No incluye lluvia, ETo, pérdidas de riego, percolación ni fechas reales. No es demanda de riego ni ahorro. Aptitud climática, suelo, relaciones de plagas y precios locales verificados: sin datos para estos escenarios.</p>{s.sourceUrl && <p><a href={s.sourceUrl}>IDIAF · compendio de habichuela · 2013</a>: contexto de arroz–habichuela, pertinencia local sin verificar.</p>}</details><p className="scenario-foot">Ejemplo para revisar con un técnico. Sin predicción de plagas, rendimiento ni ganancias.</p>
       </article>)}</div>
-      <div className="card ai-row"><div><div className="scenario-name">Explain these results</div><p>Optional AI evidence selection. A local template remains available without network or an API key.</p></div><Button className="ai-button" onClick={explain} disabled={loading}>{loading ? "Preparing…" : "Explain comparison →"}</Button></div>
-      {explanation?.key === requestKey && <div className="card explanation" aria-live="polite"><strong>{explanation.mode}</strong><p>{explanation.text}</p><a href="/data/manifest.json">Bundled evidence manifest</a></div>}
-      <div className="provenance"><span>NASA POWER · NASA EOSDIS GIBS · FAO-56 · IDIAF context. Data bundle: 2026-11-14. Synthetic demo areas; no farmer data.</span><a href="/data/manifest.json">Sources & data version ↗</a></div>
+      <div className="field-controls"><label className="control-label">Acceso al agua<select aria-label="Acceso al agua" value={irrigation} onChange={e => setIrrigation(e.target.value as Irrigation)}><option value="unconfirmed">Sin confirmar</option><option value="irrigated">Riego · declarado</option><option value="rainfed">Secano · declarado</option></select></label></div>
+      <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}`} selection={selection}/>
+      {selectedParcel !== "location" && <details className="card landscape-details"><summary>Vegetación observada · área de ejemplo</summary><p>Landsat 8–9, Collection 2 Level-2 · 2024 · píxel de 30 m · NDVI sin unidad · observación satelital con máscara de calidad · confianza preliminar, sin validación de campo.</p><div className="ndvi-bars">{ndvi.rows.filter(r => r.parcelId===selectedParcel).map(r => <div key={r.date}><span>{r.date}</span><meter min={-1} max={1} value={r.ndvi??-1} aria-label={`NDVI ${r.date}`}/><strong>{r.ndvi?.toFixed(2)??"Sin dato"}</strong></div>)}</div><p><a href={ndvi.source.url}>Fuente Landsat / Planetary Computer</a>. Una señal baja no confirma campo pelado. Clasificación de riego y secano pendiente de validación.</p></details>}
+      <footer className="provenance"><span>NASA POWER · NASA GIBS · FAO-56 · IDIAF. Ejemplos sin validación en finca.</span><a href="/data/manifest.json">Fuentes y versión de datos</a></footer>
     </div>
   </main>;
 }

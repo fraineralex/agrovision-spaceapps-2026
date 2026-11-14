@@ -29,6 +29,10 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     },
     onError: () => { releaseMedia(); setNotice("Voz no disponible. Puedes escribir o escuchar el resumen local."); },
   });
+  // connect() initiates transport; only the SDK status confirms a live session.
+  useEffect(() => {
+    if (realtime.status === "disconnected" && media.current) releaseMedia();
+  },[realtime.status]);
   const controls = useRef(realtime);
   useEffect(() => { controls.current = realtime; }, [realtime]);
   function releaseMedia() {
@@ -64,7 +68,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
       }, 70);
       vad.current = { context, timer };
       await realtime.connect({ stream });
-      setMode("Voz de IA · Vercel AI Gateway"); setNotice("Micrófono encendido. Habla de nuevo para interrumpir.");
+
     } catch { releaseMedia(); setNotice("Voz no disponible. Escribe o escucha el resumen local."); }
     finally { starting.current = false; }
   }
@@ -117,13 +121,13 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   return <section className="card voice-card" aria-label="Asistente de voz">
     <div className="voice-intro"><span className="step-label">3 · CONVERSEMOS</span><h2>Hablemos de tu parcela</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
     <div className="voice-actions"><button className={`mic-button ${active ? "listening" : ""}`} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}><FarmIcon name={active ? "stop" : "mic"} size={40}/><span>{active ? "Terminar" : "Hablar"}</span></button><button className="secondary-action" onClick={interrupt}><FarmIcon name="stop"/>Silenciar</button></div>
-    <p role="status">{realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
+    <p role="status">{realtime.status === "connected" ? "Micrófono encendido. Habla de nuevo para interrumpir." : realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
     <div className="voice-transcript" role="log" aria-label="Transcripción de la conversación" aria-live="polite">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
     </div>
     <form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Pregunta sobre esta parcela…" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar →</button></form>
     <div className="voice-bottom"><button className="secondary-action" onClick={() => { interrupt(); const text = localSummary(); setMessages([{ role: "assistant", content: text }]); setMode("Resumen local · sin IA · voz del navegador"); speak(text); }}><FarmIcon name="sound"/>Escuchar resumen</button><label><input type="checkbox" checked={readAloud} onChange={event => { setReadAloud(event.target.checked); window.speechSynthesis?.cancel(); }}/> Leer en voz alta</label></div>
-    <small>{mode}. La conversación requiere conexión y permiso de micrófono. Con el micrófono encendido se envía audio a AI Gateway. La aplicación no guarda grabaciones; el proveedor aplica sus políticas de datos.</small>
+    <small>{realtime.status === "connected" ? "Voz de IA · Vercel AI Gateway" : mode}. La conversación requiere conexión y permiso de micrófono. Con el micrófono encendido se envía audio a AI Gateway. La aplicación no guarda grabaciones; el proveedor aplica sus políticas de datos.</small>
   </section>;
 }

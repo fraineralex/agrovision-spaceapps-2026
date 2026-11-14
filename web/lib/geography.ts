@@ -1,6 +1,9 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
 import { z } from "zod";
-import boundaries from "@/public/data/provinces.json";
+import rawBoundaries from "@/public/data/provinces.json";
+// Modern display names verified against https://ambiente.gob.do/informacion-ambiental/informacion-provincial/ (2026-11-14). Source geometry/names remain intact on disk.
+const displayNames:Record<string,string> = {"Hermanas":"Hermanas Mirabal","La Estrelleta":"Elías Piña","El Seybo":"El Seibo"};
+const boundaries = {...rawBoundaries,features:rawBoundaries.features.map(feature => ({...feature,properties:{...feature.properties,shapeName:displayNames[feature.properties.shapeName]??feature.properties.shapeName}}))};
 export const locationSchema = z.object({ longitude: z.number().finite().min(-72.1).max(-68), latitude: z.number().finite().min(17.4).max(20) }).strict().refine(isInCountry, "Selecciona un punto terrestre de República Dominicana");
 export type Location = { longitude: number; latitude: number };
 function inRing(point: Location, ring: number[][]) {

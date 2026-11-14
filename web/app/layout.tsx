@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AgroVision | San Juan Valley",
+  title: "AgroVision | República Dominicana",
   icons: { icon: "/icon.svg" },
-  description: "Explore evidence and illustrative crop rotation scenarios for the San Juan Valley.",
+  description: "Explora datos y compara ejemplos de rotación agrícola en República Dominicana.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="es"><body>{children}</body></html>;
 }

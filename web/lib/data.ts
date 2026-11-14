@@ -5,10 +5,11 @@ import rawRotations from "../public/data/rotation-scenarios.json";
 import rawCatalog from "../public/data/crop-catalog.json";
 import rawNdvi from "../public/data/ndvi-series.json";
 
+export const cropLabels: Record<string, string> = { rice:"Arroz", beans:"Habichuela", maize:"Maíz", "sweet-potato":"Batata" };
 export type Priority = "water" | "soil" | "climate" | "pests" | "market";
 export type Irrigation = "unconfirmed" | "irrigated" | "rainfed";
-export const priorityLabels: Record<Priority, string> = { water: "Water demand proxy", soil: "Soil health", climate: "Climate", pests: "Pest management", market: "Market" };
-export const scoreDefinitions = [{ id: "water", label: "Water & soil" }, { id: "climate", label: "Climate" }, { id: "pests", label: "Pests" }, { id: "market", label: "Market" }] as const;
+export const priorityLabels: Record<Priority, string> = { water: "Agua", soil: "Suelo", climate: "Clima", pests: "Plagas", market: "Mercado" };
+export const scoreDefinitions = [{ id: "water", label: "Agua y suelo" }, { id: "climate", label: "Clima" }, { id: "pests", label: "Plagas" }, { id: "market", label: "Mercado" }] as const;
 const finite = z.number().finite();
 export const ndvi = z.object({
   source: z.object({ name: z.string(), url: z.url(), period: z.string(), scale: z.string(), quality: z.string(), method: z.string() }),
@@ -43,7 +44,7 @@ export function getComparison(month = 11) {
       if (!crop) throw new Error(`Missing crop: ${id}`);
       return crop;
     });
-    return { ...scenario, coefficientDays: Math.round(crops.reduce((sum, crop) => sum + coefficientDays(crop), 0) * 100) / 100 };
+    return { ...scenario, label: scenario.cropIds.map(id => cropLabels[id] ?? id).join(" → "), crops: scenario.cropIds.map(id => cropLabels[id] ?? id), coefficientDays: Math.round(crops.reduce((sum, crop) => sum + coefficientDays(crop), 0) * 100) / 100 };
   });
   const values = raw.map((scenario) => scenario.coefficientDays);
   return { climate: context, provenance: climate.source, scenarios: raw.map((scenario) => ({ ...scenario,
