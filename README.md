@@ -68,3 +68,31 @@ Offline products merged beside the web demo, and not yet consumed by `web/`:
 - Derived files and their limits: [docs/02_recursos_datos.md](docs/02_recursos_datos.md)
 
 Submission target: Sunday, November 15, 2026, 11:59 PM AST for Santo Domingo; confirm the active portal time and requirements before submission. Unverified 2026 limits are listed in [docs/00_reglas_envio_y_evaluacion.md](docs/00_reglas_envio_y_evaluacion.md). No submission was performed by this task.
+
+## Interfaz nacional en español y voz (14-11-2026)
+
+La aplicación inicia sobre toda República Dominicana. Busca una provincia o toca un punto terrestre: NASA POWER consulta esa ubicación (contexto de grilla, no promedio provincial ni medición de finca). San Juan mantiene muestras Landsat y áreas sintéticas como caso más rico. Las rotaciones usan el mismo indicador genérico FAO-56 para explorar opciones; no prueban aptitud de ningún lugar. Los pilares sin evidencia integrada muestran «Sin datos».
+
+En `web/`: `npm ci`, `cp .env.example .env.local`, `npm run dev`. Para comprobar producción: `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`. No se ejecuta despliegue en esta ampliación.
+
+```dotenv
+# web/.env.local — único secreto; nunca NEXT_PUBLIC_...
+AI_GATEWAY_API_KEY=
+```
+
+Con clave y cuenta Gateway habilitada, el botón **Hablar** abre audio bidireccional nativo con `openai/gpt-realtime-mini` mediante AI SDK 7 experimental. El servidor emite un token efímero (60 segundos para conectar); la clave no sale del servidor. Hay transcripción visible, VAD del navegador y del servidor, interrupción y herramientas de lectura `get_parcel_metrics` / `compare_rotations`. Las respuestas son en español y se limitan al JSON de métricas y rotaciones con sus fuentes. El audio es generado por IA; no se promete latencia medida ni predicción agrícola.
+
+Si realtime no está disponible, puedes escribir: con clave se usa `streamText` (`openai/gpt-4.1-mini`) por Gateway y lectura por frases con voz del navegador. **Sin clave tampoco es posible generar texto vía Gateway**: se muestra un resumen local determinista y se ofrece `speechSynthesis` si el navegador lo admite. No hay reconocimiento de voz garantizado en ese modo. La voz del navegador depende de las voces españolas instaladas. Se requiere HTTPS o localhost y permiso de micrófono para conversar; al terminar o cambiar selección se cierran micrófono y sesión. La aplicación no persiste grabaciones; revisar políticas del proveedor para su tratamiento.
+
+Las rutas de voz validan origen, tamaño, selecciones y herramientas. El límite por instancia no sustituye un control global de gasto: configurar presupuesto en AI Gateway antes de compartir una instalación con clave. Los tokens son credenciales efímeras ligadas al modelo; las instrucciones de sesión no son un aislamiento frente a clientes modificados.
+
+Caché: `data/cache/power/` conserva respuestas NASA originales; `web/public/data/power/` incluye 32 puntos provinciales y vista inicial, disponibles offline después de cargar/guardar la app. Nuevos puntos necesitan red la primera vez; se guardan en el navegador. No se trasladan datos de San Juan a otra zona si falla la consulta. Los límites geoBoundaries son generalizados y no catastrales, por lo que la selección cerca de costa/frontera puede requerir un punto interior. Reproducir:
+
+```bash
+cd web
+npx tsx -e 'import {provinces} from "./lib/geography"; console.log(JSON.stringify(provinces))' > /tmp/province-points.json
+cd ..
+python3 scripts/geography/cache_power.py /tmp/province-points.json
+```
+
+Fuentes consultadas 2026-11-14: [Gateway: realtime, speech y transcription](https://vercel.com/changelog/realtime-voice-speech-and-transcription-now-supported-on-ai-gateway), [guía realtime](https://vercel.com/blog/realtime-voice-agents-on-ai-gateway), [AI SDK Gateway](https://ai-sdk.dev/providers/ai-sdk-providers/ai-gateway), [NASA POWER API](https://power.larc.nasa.gov/docs/services/api/temporal/climatology/), [geoBoundaries DOM ADM1](https://www.geoboundaries.org/api/current/gbOpen/DOM/ADM1/) (Natural Earth, 2022, dominio público; procedencia en `data/cache/geography/provinces.metadata.json`). Asistencia Codex/OpenAI, revisión por Frainer pendiente; ver `AI_USAGE.md`.

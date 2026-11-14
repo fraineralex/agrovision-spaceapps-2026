@@ -4,9 +4,9 @@ Generado con asistencia de IA (Codex, OpenAI), revisado por el equipo
 
 ## Objetivo y definición de terminado
 
-Construir una web de apoyo a decisiones para el Valle de San Juan. Compara la rotación actual con dos o tres escenarios usando cuatro pilares: agua y suelo, clima, plagas según reglas IDIAF (sin predicción) y mercado con precios semanales del Ministerio de Agricultura (MA, 2017–2026). El sistema calcula y presenta evidencia; no es un chatbot ni sustituye al agricultor o técnico. La IA de imágenes clasifica observaciones satelitales; la IA generativa solo explica métricas ya calculadas y serializadas como JSON.
+Construir una web de apoyo a decisiones para toda República Dominicana; San Juan conserva el caso de demostración más rico. Compara la rotación actual con dos o tres escenarios usando cuatro pilares: agua y suelo, clima, plagas según reglas IDIAF (sin predicción) y mercado con precios semanales del Ministerio de Agricultura (MA, 2017–2026). El sistema calcula y presenta evidencia; no es un chatbot ni sustituye al agricultor o técnico. La IA de imágenes clasifica observaciones satelitales; la IA generativa solo explica métricas ya calculadas y serializadas como JSON.
 
-La demo terminada debe arrancar localmente y estar desplegada en Vercel, funcionar con datos precalculados sin conexión al proveedor de datos, tener interfaz en inglés, mostrar el Valle de San Juan y 2–3 fincas demo, y explicar las fuentes, escala, período, confianza y limitaciones de cada métrica. Las alternativas son escenarios ilustrativos, no prescripciones.
+La demo terminada debe arrancar localmente y estar desplegada en Vercel, funcionar con datos precalculados sin conexión al proveedor de datos, tener interfaz en español, iniciar en el mapa nacional y permitir seleccionar cualquier provincia o punto terrestre de RD; mostrar el Valle de San Juan y 2–3 fincas demo, y explicar las fuentes, escala, período, confianza y limitaciones de cada métrica. Las alternativas son escenarios ilustrativos, no prescripciones.
 
 **Corte interno:** domingo 15 de noviembre de 2026, 6:00 PM AST. Congelar nuevas funciones, verificar URL desplegada y grabar evidencia antes del corte. Deadline interno, no afirmar que sea el deadline oficial del evento. Revisar en el portal el límite vigente del video: los documentos consultados no lo verifican. Preparar primero una pieza de 30 segundos y extender solo si el portal lo permite.
 
@@ -24,11 +24,11 @@ La demo terminada debe arrancar localmente y estar desplegada en Vercel, funcion
 
 ## Experiencia de usuario
 
-1. **National map:** mapa de República Dominicana, centrado inicialmente en Valle de San Juan; capas NASA GIBS con toggles (NDVI, lluvia IMERG, SMAP humedad y temperatura) y línea de tiempo. Mostrar leyenda, fecha, producto, resolución y atribución. Las capas solo se habilitan si hay cobertura compatible; alternativa estática/local ante fallo de red.
+1. **National map:** mapa de República Dominicana, centrado inicialmente en RD ([-70.2, 18.8], zoom 7.3); capas NASA GIBS con toggles (NDVI, lluvia IMERG, SMAP humedad y temperatura) y línea de tiempo. Mostrar leyenda, fecha, producto, resolución y atribución. Las capas solo se habilitan si hay cobertura compatible; alternativa estática/local ante fallo de red.
 2. **Valle:** al acercar, mostrar límites aproximados de la zona piloto y 2–3 parcelas/fincas demo GeoJSON. Indicar “demo parcel / approximate boundary”; no almacenar parcelas reales sensibles.
 3. **Parcel panel:** historial NDVI con fechas y faltantes visibles, clase ML y confianza si existe, necesidad relativa de agua por rotación, selectores para cultivo previo y condición de riego/secano/no confirmado, y prioridad del usuario (agua, suelo, clima o mercado).
 4. **Compare:** rotación actual + tres rotaciones candidatas comparadas en las cuatro tarjetas de pilares. Cada score 0–5 incluye razones, métricas, fuente, fecha/período, unidad, escala espacial, confianza/estado, datos faltantes y riesgo a revisar con técnico. La prioridad cambia orden/resumen de escenarios, no oculta evidencia ni altera los datos fuente.
-5. **Explain with AI:** botón opcional “Explain these results” en inglés, con divulgación visible de texto generado por IA. En ausencia de API key, error o red, mostrar explicación determinista basada en plantillas y las mismas métricas.
+5. **Explain with AI:** botón opcional “Hablemos de tu parcela” en español, con divulgación visible de texto generado por IA. En ausencia de API key, error o red, mostrar explicación determinista basada en plantillas y las mismas métricas.
 6. **Offline/demo:** todos los datos del caso, límites y gráficos incluidos localmente; no poner la ruta principal detrás de NASA GIBS, Gateway ni descargas.
 
 ### Casos de rotación
@@ -156,7 +156,7 @@ Cada función `scoreX(input): PillarResult` es pura, está cubierta por ejemplos
 - [ ] Integrar MapLibre con estilo base y vista nacional centrada en RD.
 - [ ] Añadir capa GIBS probada y controles de capas + timeline; fallos de red muestran aviso y conservan mapa/caso local.
 - [ ] Añadir navegación a Valle de San Juan y cargar GeoJSON de fincas demo.
-- [ ] Interfaz, botones y etiquetas de producto en inglés; fuentes y créditos legibles.
+- [ ] Interfaz, botones y etiquetas de producto en español; fuentes y créditos legibles.
 
 **Aceptación:** `npm run dev` abre aplicación sin errores; toggles/timeline funcionan para al menos una capa habilitada; parcelas demo se seleccionan; capa no disponible queda desactivada con estado claro. Anotar que GIBS requiere conexión y que la ruta offline usa datos locales.
 
@@ -214,6 +214,26 @@ Cada función `scoreX(input): PillarResult` es pura, está cubierta por ejemplos
 
 **Aceptación:** URL abre; camino central se completa sin errores; comparador offline y fallback de explicación funcionan; errores de capa remota no bloquean; versión de datos y fuentes son visibles; video breve muestra problema, señal NASA, comparación de pilares y límite/uso responsable.
 
+### Fase adicional — Farmer-first visual UX + voice (14 noviembre 2026)
+
+<!-- Asistencia material: Codex/OpenAI, 2026-11-14; revisión por Frainer pendiente. -->
+
+Esta ampliación autorizada por Frainer prevalece sobre las restricciones previas de piloto exclusivo e interfaz inglesa. No se solicita despliegue en este cambio.
+
+- Cobertura nacional: vista inicial [-70.2, 18.8], zoom 7.3; búsqueda y selector de las 31 provincias y Distrito Nacional; clic en tierra dominicana validado contra límites generalizados geoBoundaries/Natural Earth. Los puntos provinciales son referencias visuales calculadas, no ubicaciones de fincas ni promedios provinciales.
+- NASA POWER por punto seleccionado, climatología 2016–2025 y GIBS por ventana del mapa. Caché reproducible de los 32 puntos provinciales y vista inicial en `data/cache/power/` y `web/public/data/power/`; memoria/Next cache para consultas nuevas; caché del navegador para puntos visitados. No sustituir falta de datos por valores de San Juan. Las muestras Landsat y parcelas sintéticas de San Juan siguen como ejemplos opcionales.
+- UI en español, móvil primero, botones de al menos 48 px, micrófono de 96 px, iconos grandes de cultivos y pilares, cifras legibles, indicador de agua, semáforos con etiquetas además del color. Fuentes y límites en detalles desplegables, sin tablas densas. Desconocido se muestra como «Sin datos», nunca como verde.
+- La comparación FAO-56 es una regla genérica de escenarios ilustrativos aplicable como exploración nacional, sin afirmar aptitud local. Plagas, mercado, suelo y aptitud climática siguen desconocidos donde falte evidencia integrada. No confundir un indicador Kc·día con volumen de riego o ahorro.
+- Voz opcional, secundaria a las métricas: AI SDK 7 `experimental_useRealtime` y `gateway.experimental_realtime`, modelo `openai/gpt-realtime-mini`. Gateway soporta audio bidireccional nativo: no hace falta encadenar STT/LLM/TTS. VAD del navegador corta reproducción al detectar voz; VAD de sesión delimita turnos. Transcripción, respuesta en español, interrupción y dos herramientas de solo lectura: `get_parcel_metrics`, `compare_rotations`.
+- Único secreto: `AI_GATEWAY_API_KEY` en servidor. Ruta `api/voice/setup` entrega token efímero limitado al modelo (60 s para conectar), nunca la clave. La sesión experimental aplica las instrucciones al conectarse; un token efímero no constituye un sandbox de instrucciones frente a un cliente modificado. Presupuestos Gateway y límites por instancia reducen abuso; no son autenticación global.
+- Contexto factual limitado a JSON seleccionado y fuentes locales; los tools reconstruyen selección con esquema estricto. No enviar geometrías ni nombres personales. Respuestas breves con incertidumbre; no predicciones de plagas, rendimiento o rentabilidad. Audio generado por IA identificado.
+- Si realtime falla pero existe clave: `streamText` vía Gateway, respuesta leída por frases con `speechSynthesis` del navegador. Si falta clave, Gateway tampoco puede generar texto: usar resumen determinista español + `speechSynthesis`. El navegador no ofrece transcripción local garantizada; sin realtime queda entrada escrita. No fingir conexión a IA ni prometer voz natural homogénea en el fallback.
+- Verificación: lint, build de producción en `web/`, pruebas de límites de ubicación, ausencia de claves, herramientas, selección de provincias, móvil y recarga offline. Conversación real y barge-in acústico requieren micrófono físico, permiso y cuenta Gateway habilitada; no declarar validación de campo ni latencia medida sin prueba.
+
+**Fuentes consultadas 2026-11-14:** [Gateway audio / AI SDK 7](https://vercel.com/changelog/realtime-voice-speech-and-transcription-now-supported-on-ai-gateway), [guía de voz realtime](https://vercel.com/blog/realtime-voice-agents-on-ai-gateway), [AI SDK Gateway provider](https://ai-sdk.dev/providers/ai-sdk-providers/ai-gateway), [NASA POWER climatology API](https://power.larc.nasa.gov/docs/services/api/temporal/climatology/), [geoBoundaries API](https://www.geoboundaries.org/api.html). APIs de voz experimentales; versiones exactas en lockfile.
+
+**Aceptación:** cualquier provincia se selecciona y muestra datos propios o ausencia explícita; vista inicial nacional; comparación y resumen local disponibles sin clave; UI española sin desbordamiento móvil; `npm run lint`, `npm test`, `npm run build` y pruebas de navegador pasan. Publicación de código autorizada, sin ejecutar despliegue.
+
 ### Fase 7 — Congelar y entregar (dom. 15, 16:00–18:00 interno)
 
 - [ ] No integrar features nuevas después de 16:00 salvo reparación de bloqueo de demo.
@@ -253,7 +273,7 @@ Commits en inglés, Conventional Commits: `feat: add San Juan parcel comparison`
 ## Citas de IA y datos
 
 - Encabezado de este documento: declarar asistencia IA y revisión del equipo.
-- Mantener `docs/AI_USAGE.md` con herramienta/modelo/fecha si conocidos, secciones generadas, revisión humana y uso concreto. Registrar Vercel AI Gateway/AI SDK y el proveedor/modelo de explicación cuando quede fijado. En la interfaz, rotular texto generado; no atribuir conclusiones al modelo sin evidencia.
+- Mantener `AI_USAGE.md` con herramienta/modelo/fecha si conocidos, secciones generadas, revisión humana y uso concreto. Registrar Vercel AI Gateway/AI SDK y el proveedor/modelo de explicación cuando quede fijado. En la interfaz, rotular texto generado; no atribuir conclusiones al modelo sin evidencia.
 - Junto a cada dato incluir fuente, fecha/período, unidad, escala y método. Citar NASA POWER, GPM IMERG, NASA GIBS, Landsat/HLS, SMAP, SRTM, MA precios, FAO-56 y referencias IDIAF pertinentes. Mantener las advertencias de resolución en vista y metodología.
 - IA de imágenes y explicación son productos diferentes: el clasificador produce clases/probabilidades a partir de features; el LLM parafrasea JSON de métricas. Ninguno predice brotes, rendimiento o ingresos.
 
@@ -276,7 +296,7 @@ Commits en inglés, Conventional Commits: `feat: add San Juan parcel comparison`
 
 Orden de recorte, manteniendo el flujo de extremo a extremo:
 
-1. Quitar deck.gl, SAM, login, sensores, otras regiones, proyección climática, gráficas extra y capas GIBS no estables.
+1. Quitar deck.gl, SAM, login, sensores, proyección climática, gráficas extra y capas GIBS no estables.
 2. Reducir el modelo a baseline RandomForest o una capa prototipo etiquetada si no hay etiquetas; enseñar NDVI y confianza antes que una clasificación dudosa.
 3. Mantener para la demo una serie climática y una serie NDVI pequeña, con atribución; no descargar nuevos datasets durante integración.
 4. Si precios no están suficientemente limpios, mostrar serie marcada `preliminary` y no puntuar mercado o puntuar `null`; nunca inventar normalización.
@@ -296,5 +316,5 @@ Orden de recorte, manteniendo el flujo de extremo a extremo:
 - [ ] Scripts Python reproducibles y JSON/GeoJSON precalculados en `web/public/data/`.
 - [ ] Clasificador NDVI/Sentinel-2/HLS con validación o etiqueta de prototipo; SAM solo si aporta.
 - [ ] AI SDK vía Vercel AI Gateway recibe JSON de métricas únicamente; env `AI_GATEWAY_API_KEY` servidor; divulgación y fallback.
-- [ ] UI en inglés, commits Conventional Commits en inglés y `AI_USAGE.md` con revisión humana.
+- [ ] UI en español, commits Conventional Commits en inglés y `AI_USAGE.md` con revisión humana.
 - [ ] Demo local sin red de datos externos, deploy Vercel validado y guion/video adaptado al límite oficial verificado.
