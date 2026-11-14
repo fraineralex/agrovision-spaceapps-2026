@@ -1,0 +1,128 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "demo-01",
+      "properties": {
+        "parcelId": "demo-01",
+        "name": "Demo area A",
+        "status": "approximate demo boundary",
+        "irrigation": "unconfirmed",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.275,
+              18.79
+            ],
+            [
+              -71.265,
+              18.79
+            ],
+            [
+              -71.265,
+              18.798
+            ],
+            [
+              -71.275,
+              18.798
+            ],
+            [
+              -71.275,
+              18.79
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "demo-02",
+      "properties": {
+        "parcelId": "demo-02",
+        "name": "Demo area B",
+        "status": "approximate demo boundary",
+        "irrigation": "unconfirmed",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.245,
+              18.81
+            ],
+            [
+              -71.235,
+              18.81
+            ],
+            [
+              -71.235,
+              18.818
+            ],
+            [
+              -71.245,
+              18.818
+            ],
+            [
+              -71.245,
+              18.81
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "demo-03",
+      "properties": {
+        "parcelId": "demo-03",
+        "name": "Demo area C",
+        "status": "approximate demo boundary",
+        "irrigation": "unconfirmed",
+        "demo": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.205,
+              18.77
+            ],
+            [
+              -71.195,
+              18.77
+            ],
+            [
+              -71.195,
+              18.778
+            ],
+            [
+              -71.205,
+              18.778
+            ],
+            [
+              -71.205,
+              18.77
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "provenance": {
+    "method": "user_input",
+    "quality": "Synthetic demonstration geometries; no real parcel boundaries",
+    "period": "Demo authored 2026-11-14",
+    "scale": "Illustrative areas near San Juan"
+  }
+}

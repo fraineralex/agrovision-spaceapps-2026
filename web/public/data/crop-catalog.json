@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "source": {
+    "name": "FAO Irrigation and Drainage Paper 56, chapter 6, tables 11 and 12",
+    "url": "https://www.fao.org/4/x0490e/x0490e0b.htm",
+    "period": "1998 publication; accessed 2026-11-14",
+    "scale": "Published example regions; not calibrated for San Juan",
+    "quality": "Published rule; low local confidence",
+    "method": "published_rule"
+  },
+  "crops": [
+    {
+      "id": "rice",
+      "label": "Rice",
+      "stages": [
+        30,
+        30,
+        60,
+        30
+      ],
+      "kc": [
+        1.05,
+        1.2,
+        0.9
+      ],
+      "region": "Tropics / Mediterranean; upper Kc end of 0.60\u20130.90 range"
+    },
+    {
+      "id": "beans",
+      "label": "Beans",
+      "stages": [
+        15,
+        25,
+        35,
+        20
+      ],
+      "kc": [
+        0.4,
+        1.15,
+        0.35
+      ],
+      "region": "Pakistan / California dry beans example"
+    },
+    {
+      "id": "maize",
+      "label": "Maize",
+      "stages": [
+        20,
+        35,
+        40,
+        30
+      ],
+      "kc": [
+        0.3,
+        1.2,
+        0.6
+      ],
+      "region": "Nigeria humid example; non field-dried maize Kc end"
+    },
+    {
+      "id": "sweet-potato",
+      "label": "Sweet potato",
+      "stages": [
+        15,
+        30,
+        50,
+        30
+      ],
+      "kc": [
+        0.5,
+        1.15,
+        0.65
+      ],
+      "region": "Tropical rainy season example"
+    }
+  ]
+}
