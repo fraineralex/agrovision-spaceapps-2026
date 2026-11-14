@@ -31,6 +31,7 @@ Leer en orden según [AGENTS.md](AGENTS.md). La dirección oficial y el inventar
 - `docs/00_reglas_envio_y_evaluacion.md`: reglas confirmadas, elementos sin verificar y checklist de envío.
 - `docs/02_recursos_datos.md`: tabla de las 33 fuentes y estados.
 - `docs/04_producto_mvp.md`, `docs/05_arquitectura.md`: alcance y arquitectura de la demo.
+- `docs/10_plan_tecnico.md`: plan técnico de implementación y revisión.
 - `docs/08_premios.md`: correspondencia con descripciones oficiales publicadas; ponderaciones 2026 sin verificar.
 - `AI_USAGE.md`: registro de asistencia de IA.
 
