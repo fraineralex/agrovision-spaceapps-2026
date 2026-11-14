@@ -21,7 +21,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const starting = useRef(false);
   const greeted = useRef(false);
   const [level, setLevel] = useState(0);
-  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(selection).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [selection]);
+  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(selection).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [selection]);
   const config = useMemo(() => ({ instructions: voiceInstructions(selection), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [selection]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
