@@ -9,10 +9,12 @@ import { OfflineStatus } from "@/components/offline";
 import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
+import { Fold } from "@/components/fold";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
-import { adviseNextCrop, defaultCrops, monthNames, toTareas, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, cropEmoji, cropNames, defaultCrops, marketFor, monthNames, toTareas, unitWord, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { droughtSignal, faoProvince } from "@/lib/fao-giews";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
 import { fieldMeta, type FieldInfo } from "@/lib/map/fields";
@@ -83,6 +85,7 @@ export default function Home() {
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
   const topCrop = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority, crops })[0]?.crop ?? "habichuela_roja", [province, irrigation, previous, month, priority, crops]);
+  const topMarket = marketFor(topCrop);
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   return <main className="app-shell">
@@ -92,7 +95,8 @@ export default function Home() {
       <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
 
       <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={priority} crops={crops} onEdit={() => setOnboarding(true)}/>
-      <MarketCard key={topCrop} initialCrop={topCrop}/>
+      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
+      <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>3 · Tu finca en el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
         <div className="location-controls">
           <button type="button" className="gps-button" onClick={useGps}>📍 Usar mi ubicación</button>
@@ -117,19 +121,20 @@ export default function Home() {
           </details>
         </article>}
       </section>
+      </Fold>
 
-      {province && <FaoDroughtCard province={province}/>}
+      {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
 
-      {chosen && <section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
+      {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
         {selectedClimate ? <><div className="climate-strip">
           <div className="climate-cell"><FarmIcon name="climate"/><div className="climate-val">{selectedClimate.temperatureC != null ? Math.round(selectedClimate.temperatureC) : "—"} °C</div><div>Temperatura media</div></div>
           <div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</div><div>{selectedClimate.precipitationMmDay != null ? `unos ${Math.round(selectedClimate.precipitationMmDay * 30)} mm en el mes` : "Lluvia"}</div></div>
         </div>
         <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
         <details className="evidence-details"><summary>Ver detalles del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
-      </section>}
+      </section></Fold>}
 
-      <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/>
+      <Fold icon="🎙️" title="Pregúntale a AgroVision" teaser="Habla como en una llamada o escribe tu pregunta"><VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/></Fold>
 
       <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>

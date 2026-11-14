@@ -30,7 +30,6 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
 }
 
 export function AdvisorCard(p: Props) {
-  const [showAll, setShowAll] = useState(false);
   const [sources, setSources] = useState<CropAdvice | null>(null);
   const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
   const top = advice[0];
@@ -43,7 +42,6 @@ export function AdvisorCard(p: Props) {
     } catch { /* Speech is optional. */ }
   };
   const light = lightFor(top?.overall ?? null);
-  const shown = showAll ? advice : advice.slice(0, 3);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
       <span>📍 {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${cropNames[p.previous].toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
@@ -63,9 +61,9 @@ export function AdvisorCard(p: Props) {
       </div>
     </div>
 
-    <h3 className="list-title">Cómo quedan tus cultivos</h3>
-    <ul className="crop-list" aria-label="Comparación de cultivos">{shown.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
-    {advice.length > 3 && <button type="button" className="ob-link more" onClick={() => setShowAll(!showAll)}>{showAll ? "Ver menos" : `Ver los ${advice.length} cultivos`}</button>}
+    <details className="compare-fold"><summary>📊 Comparar con tus otros cultivos ({advice.length})</summary>
+      <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
+    </details>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
     <details className="evidence-details"><summary>Ver detalles: cómo se calcula</summary>

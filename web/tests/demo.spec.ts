@@ -19,6 +19,7 @@ test("first visit onboarding leads to personalized advice that changes with answ
  await expect(page.locator(".profile-line")).toContainText("San Juan");
  const verdict=page.locator(".verdict-text");
  await expect(verdict).toContainText("después de arroz");
+ await page.getByText("Precio y mercado",{exact:true}).click();
  await expect(page.locator(".market .price-big")).toContainText("RD$");
  await page.locator(".verdict").getByRole("button",{name:/De dónde sale esto/}).click();
  const src=page.getByRole("dialog",{name:/De dónde sale la recomendación/});
@@ -36,6 +37,7 @@ test("first visit onboarding leads to personalized advice that changes with answ
  await page.getByRole("button",{name:"Cambiar"}).click();
  await expect(ob).toBeVisible();
  await ob.getByRole("button",{name:"Saltar"}).click();
+ await page.getByText("Pregúntale a AgroVision",{exact:true}).click();
  await page.getByRole("button",{name:"Escuchar resumen"}).click();
  await expect(page.getByRole("log")).toContainText("Conviene sembrar");
  await page.screenshot({path:"test-results/farmer-mobile.png",fullPage:true});
@@ -65,6 +67,7 @@ test("missing realtime credentials release microphone and preserve text input",a
  });
  await page.goto("/");
  await page.getByRole("dialog",{name:"Cuéntanos de tu finca"}).getByRole("button",{name:"Saltar"}).click();
+ await page.getByText("Pregúntale a AgroVision",{exact:true}).click();
  await page.getByRole("button",{name:"Iniciar conversación"}).click();
  await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la conversación/)).toBeVisible();
  expect(await page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
