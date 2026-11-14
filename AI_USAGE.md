@@ -181,3 +181,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Resúmenes visuales para el productor
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** sustituir texto repetido por un gráfico diario de lluvia, una línea de tiempo de siembra y cosecha, y señales claras para el cálculo de venta. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,options-card,rain-card,sale-budget}.tsx`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Fecha de riego elegida o asignada
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** registrar el próximo riego según quién fija la fecha y conservar turnos ya guardados. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench,onboarding}.tsx`, `web/lib/farms.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.

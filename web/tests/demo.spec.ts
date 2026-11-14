@@ -121,17 +121,23 @@ test("farm switcher: add a second farm, switch between them, delete one; saved a
  await page.getByRole("button",{name:"Sí, borrar"}).click();
  await expect(page.getByRole("tab")).toHaveCount(1);
 });
-test("grower saves a planting plan and irrigation turn, then checks a buyer offer offline", async ({page,context}) => {
+test("grower can keep an old turn or choose their own irrigation date and use the farm tools offline", async ({page,context}) => {
  await page.clock.setFixedTime(new Date("2026-11-16T14:00:00Z"));
  await page.route("https://**", route => route.abort());
  await page.route("**/api/rain**", route => route.fulfill({ json: rainMock }));
  await page.addInitScript(() => {
    if (localStorage.getItem("agrovision:farms")) return;
-   localStorage.setItem("agrovision:farms", JSON.stringify([{ id:"f1", name:"Conuco", province:"San Juan", location:{longitude:-71.23, latitude:18.8}, pieces:[], previous:"habichuela_roja", irrigation:"irrigated", crops:["habichuela_roja","maiz"], sowMonth:11, priority:"water" }]));
+   localStorage.setItem("agrovision:farms", JSON.stringify([{ id:"f1", name:"Conuco", province:"San Juan", location:{longitude:-71.23, latitude:18.8}, pieces:[], previous:"habichuela_roja", irrigation:"irrigated", crops:["habichuela_roja","maiz"], sowMonth:11, priority:"water", waterTurn:"2026-11-18" }]));
  });
  await page.goto("/");
- await page.getByLabel("Fecha que te dio la junta").fill("2026-11-19");
- await page.getByRole("button", {name:"Guardar turno"}).click();
+ await expect(page.getByRole("radio", {name:"Me dan turno"})).toBeChecked();
+ await expect(page.getByLabel("Fecha del turno")).toHaveValue("2026-11-18");
+ await page.getByLabel("Fecha del turno").fill("2026-11-19");
+ await page.getByRole("button", {name:"Guardar fecha"}).click();
+ await expect(page.locator(".turn-summary")).toContainText("Turno asignado");
+ await page.getByRole("radio", {name:"Yo elijo"}).check();
+ await page.getByRole("button", {name:"Guardar fecha"}).click();
+ await expect(page.locator(".turn-summary")).toContainText("Fecha elegida");
  await expect(page.locator(".week-turn")).toContainText("14 mm · 80%");
  await page.getByLabel("Mes para comparar").selectOption("12");
  await page.getByLabel("Cultivo para tu plan").selectOption("maiz");
@@ -142,7 +148,8 @@ test("grower saves a planting plan and irrigation turn, then checks a buyer offe
  await page.reload();
  await expect(page.locator(".saved-plan")).toContainText("Maíz en diciembre");
  await expect(page.getByLabel("Mes para comparar")).toHaveValue("12");
- await expect(page.getByLabel("Fecha que te dio la junta")).toHaveValue("2026-11-19");
+ await expect(page.getByRole("radio", {name:"Yo elijo"})).toBeChecked();
+ await expect(page.getByLabel("Fecha de riego")).toHaveValue("2026-11-19");
  await expect(page.getByText("Copia guardada", {exact:true})).toBeVisible();
  await expect(page.locator(".week-turn")).toContainText("Sin pronóstico actualizado");
  await page.getByLabel("Gasto total (RD$)").fill("25000");

@@ -51,7 +51,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     }, () => setGps("No se pudo obtener tu ubicación. Escribe tu provincia."), { timeout: 10000 });
   };
   const matches = search.trim() ? provinces.filter(p => fold(p.name).includes(fold(search.trim()))).slice(0, 8) : provinces.slice(0, 0);
-  const finish = () => location && onDone({ id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces, province, location: centroid(pieces) ?? location, previous, irrigation, crops: crops.length ? crops : defaultCrops, sowMonth, priority, plan: initial.plan, waterTurn: initial.waterTurn });
+  const finish = () => location && onDone({ id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces, province, location: centroid(pieces) ?? location, previous, irrigation, crops: crops.length ? crops : defaultCrops, sowMonth, priority, plan: initial.plan, waterTurn: initial.waterTurn, irrigationDate: initial.irrigationDate });
 
   return <div className="onboarding" role="dialog" aria-modal="true" aria-label="Cuéntanos de tu finca">
     <div className="ob-card">

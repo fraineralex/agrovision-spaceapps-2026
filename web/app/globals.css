@@ -458,6 +458,11 @@ h1 { color: var(--monte); }
 .crop-alerts summary { color:#684500; }
 .turn-summary { display:flex; align-items:center; gap:8px; flex-wrap:wrap; color:#214c63; }
 .turn-summary time { padding:3px 7px; border-radius:7px; background:#fff; font-weight:800; }
+.irrigation-modes { display:flex; flex:0 0 100%; flex-wrap:wrap; gap:8px; padding:0; margin:0 0 4px; border:0; min-width:0; }
+.irrigation-modes .irrigation-choice { display:inline-flex; align-items:center; gap:6px; min-height:48px; padding:6px 10px; border-radius:9px; border:1px solid #879a86; background:#fff; cursor:pointer; }
+.irrigation-choice:has(:checked) { border-color:var(--monte); background:var(--monte-claro); box-shadow:inset 0 0 0 1px var(--monte); }
+.irrigation-choice input[type=radio] { appearance:auto; width:18px; height:18px; min-height:0; margin:0; padding:0; accent-color:var(--monte); }
+.irrigation-choice svg { width:18px; height:18px; }
 .visual-verdict { display:block; border-width:1px; margin:8px 0 12px; }
 .crop-feature { display:flex; align-items:center; gap:12px; }
 .crop-feature > span { font-size:38px; line-height:1; }

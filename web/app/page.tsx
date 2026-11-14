@@ -69,7 +69,7 @@ export default function Home() {
   },[applyProfile]);
   const selectFarm = (id:string) => { const f = farms.find(x => x.id === id); if (!f) return; setActiveId(id); applyProfile(f); saveFarms(farms, id); window.scrollTo({top:0}); };
   const deleteFarm = (id:string) => { const rest = farms.filter(f => f.id !== id); setFarms(rest); const next = rest[0] ?? null; setActiveId(next?.id ?? null); if (next) applyProfile(next); else { setChosen(false); setPrevious("unknown"); setIrrigation("unconfirmed"); setOnboarding(true); } saveFarms(rest, next?.id ?? null); };
-  const updateFarm = (patch: Partial<Pick<Farm, "plan" | "waterTurn">>) => {
+  const updateFarm = (patch: Partial<Pick<Farm, "plan" | "irrigationDate" | "waterTurn">>) => {
     if (!activeFarm) return false;
     const list = farms.map(farm => farm.id === activeFarm.id ? { ...farm, ...patch } : farm);
     if (!saveFarms(list, activeFarm.id)) return false;
@@ -137,7 +137,7 @@ export default function Home() {
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
       <WorkbenchNav/>
-      <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} onTurn={waterTurn => updateFarm({ waterTurn: waterTurn || undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
+      <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
       <div className="home-grid">
       <div className="col-main">
       <Fold id="siembra" icon="🌱" title="Plan de siembra">

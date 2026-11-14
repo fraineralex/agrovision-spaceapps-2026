@@ -32,4 +32,6 @@ El diagnóstico del FIDA identifica sequía recurrente en zonas como San Juan y 
 
 La segunda iteración resume la lluvia con barras, fechas, milímetros y probabilidad. La siembra muestra cultivo y meses con iconos, y la venta muestra el precio mínimo y la diferencia con la oferta. La fuente, la fecha, los avisos del cultivo y el contexto técnico se abren a demanda. Los estados tienen etiquetas además del color.
 
+En «Próximo riego», el productor distingue «Yo elijo» para fechas elegidas por él y «Me dan turno» para fechas asignadas. La fuente física del agua no determina quién fija la fecha: un canal puede operar con turno o permitir que el productor organice su riego. Las fechas anotadas antes del cambio se muestran como turnos asignados.
+
 El recorrido automatizado cubre alta con y sin mapa, cambio entre fincas, comparación, consulta de fuentes, ficha compartible, guardado de turno y plan, y cálculo de una oferta después de recargar sin red. Se usa un pronóstico de prueba con fechas fijas para verificar la interfaz y el caché. Las revisiones automatizadas de accesibilidad y el control de ancho a 360 px complementan la inspección de escritorio a 1280 px. La prueba de voz verifica el manejo de un error de credenciales con audio sintético. Faltan la prueba con productores, el micrófono físico y la validación agronómica local.
