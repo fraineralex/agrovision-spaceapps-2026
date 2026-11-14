@@ -1,5 +1,6 @@
 /* AI: Claude (Anthropic), 2026-11-14 — share the farm card by WhatsApp (image via Web Share, text fallback). Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { Share2 } from "lucide-react";
 import { useState } from "react";
 
 export type ShareSummary = { farm: string; place: string; area: string; advice: string; rain?: string; profit?: string; oversupply?: string };
@@ -51,7 +52,7 @@ export function ShareButton({ summary }: { summary: ShareSummary }) {
     setStatus("Abriendo WhatsApp…");
   };
   return <div className="share">
-    <button type="button" className="share-button" onClick={share}>📲 Compartir por WhatsApp</button>
+    <button type="button" className="share-button" onClick={share}><Share2 aria-hidden="true" size={22} /> Compartir por WhatsApp</button>
     <a className="ob-link" href={whatsappUrl(summary)} target="_blank" rel="noreferrer" data-testid="wa-link">Enviar solo el texto</a>
     {status && <span role="status">{status}</span>}
   </div>;

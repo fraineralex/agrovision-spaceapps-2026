@@ -105,7 +105,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField }: 
   }, [activeLayer, remote, date, opacity, mapReady]);
   const layer = layers.find((item) => item.id === activeLayer);
   return <>
-    <div className="map-wrap"><div id="map" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
+    <div className="map-wrap"><div id="map" role="region" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
       {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Preparando mapa… Puedes seleccionar una provincia arriba.</p></div>}
     </div>
     <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>Ver fincas de San Juan</Button></div>

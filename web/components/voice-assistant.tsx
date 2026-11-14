@@ -128,7 +128,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   }
   const active = realtime.status === "connecting" || realtime.status === "connected";
   return <section className="card voice-card" aria-label="Asistente de voz">
-    <div className="voice-intro"><span className="step-label">4 · PREGÚNTALE A AGROVISION</span><h2>Pregunta con tu voz</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
+    <div className="voice-intro"><h3>Pregunta con tu voz</h3><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
     <div className="voice-actions">
       <button className={`voice-orb ${realtime.isPlaying ? "speaking" : active ? "listening" : ""}`} style={{ ["--lvl" as string]: String(realtime.isPlaying ? 0.6 : level) }} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}>
         <span className="orb-core"><FarmIcon name={active ? "stop" : "mic"} size={44}/></span>

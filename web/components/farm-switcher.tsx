@@ -1,5 +1,6 @@
 /* AI: Claude (Anthropic), 2026-11-14 — switch, add, edit and delete saved farms. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { Home, Plus } from "lucide-react";
 import { useState } from "react";
 import { areaLabel, piecesAreaM2, type Farm } from "@/lib/farms";
 
@@ -8,9 +9,9 @@ export function FarmSwitcher({ farms, activeId, onSelect, onAdd, onEdit, onDelet
   const active = farms.find(f => f.id === activeId) ?? farms[0];
   const area = active ? piecesAreaM2(active.pieces) : 0;
   return <nav className="farm-switcher" aria-label="Mis fincas">
-    <div className="farm-tabs" role="tablist">
-      {farms.map(f => <button key={f.id} role="tab" aria-selected={f.id === active?.id} className={f.id === active?.id ? "farm-tab on" : "farm-tab"} onClick={() => onSelect(f.id)}>🏡 {f.name}</button>)}
-      <button type="button" className="farm-tab add" onClick={onAdd}>＋ Agregar finca</button>
+    <div className="farm-tabs"><div role="tablist" aria-label="Elige una finca" className="farm-tablist">
+      {farms.map(f => <button key={f.id} role="tab" aria-selected={f.id === active?.id} className={f.id === active?.id ? "farm-tab on" : "farm-tab"} onClick={() => onSelect(f.id)}><Home aria-hidden="true" size={20} /> {f.name}</button>)}</div>
+      <button type="button" className="farm-tab add" onClick={onAdd}><Plus aria-hidden="true" size={20} /> Agregar finca</button>
     </div>
     {active && <div className="farm-meta">
       <span>{active.province} · {area ? areaLabel(area) : "sin marcar en el mapa"}</span>
