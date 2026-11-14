@@ -50,3 +50,30 @@ La IA del MVP analiza datos: clasifica con Landsat los meses con suelo/campo pel
 4. **Mercado:** estacionalidad de precios mayoristas/minoristas dominicanos con advertencia visible: mercados de Santo Domingo no equivalen al precio recibido por productor.
 
 Las alternativas de rotación son escenarios para conversar con un técnico, no prescripciones. Cada métrica debe indicar fuente, fecha/período, unidad, escala espacial y confianza. Mantener la demo utilizable con archivos públicos precargados en `data/cache/` cuando no haya conexión.
+
+## Productos en `data/derived/` (14-11-2026)
+
+<!-- Asistencia: Grok (xAI), 2026-11-14. Revisión de Frainer pendiente. Ver AI_USAGE.md. -->
+
+Las filas 1–33 de arriba conservan el estado anotado en el inventario del equipo. Esta sección describe solo archivos que ya están en el repositorio. No están cableados en `web/`. Método, límites y reproducción:
+
+- Clasificador de unidades: [scripts/ml/README.md](../scripts/ml/README.md)
+- Agua y clima: [docs/11_water_climate_method.md](11_water_climate_method.md)
+- Precios: [scripts/market/README.md](../scripts/market/README.md)
+- Borradores de envío: [docs/submission/](submission/)
+
+| Archivo | Qué contiene | Fuente, período y escala | Calidad |
+|---|---|---|---|
+| `data/derived/parcels_san_juan.geojson` | 585 unidades SLIC (`san-juan-ml-pilot`). No son fincas ni catastro. Clases de cobertura y régimen de agua con confianza del modelo y etiquetas débiles. | Sentinel-2 L2A, 2024-01-01 a 2026-11-14; ventana aproximada lon -71.28 a -71.24, lat 18.77 a 18.81; grilla 10 m. No es Landsat ni todo el valle. | `prototype_preliminary`. Sin validación de campo. |
+| `data/derived/model_report.json` | RandomForest (semilla 42, 300 árboles), 70 escenas, 35 meses, reglas débiles, importancia y acuerdo espacial. | Misma adquisición Sentinel-2 y WorldCover 2021. | El informe dice que el acuerdo con las reglas débiles no es exactitud independiente. Soporte de suelo pelado en la prueba: 2. `fieldAccuracy` no sustituye revisión humana. |
+| `data/derived/parcels_san_juan.png` | Figura de confianza y cobertura de esas unidades. | Misma ventana y período que el GeoJSON. | Preliminar; revisión visual humana pendiente. |
+| `data/derived/market_prices.json` | 4,037 observaciones, 926 medias mensuales y 372 filas de estacionalidad. `marketScore` es null. | Ministerio de Agricultura, mayorista Santo Domingo, 2017-08 a 2026-10. No es precio de finca en San Juan. | `preliminary_requires_human_review`. |
+| `data/derived/water_climate/power_daily_ag_18.8_-71.23_2016-01-01_2025-12-31.csv` | Serie diaria POWER (3,653 fechas más cabecera) en 18.8 N, 71.23 W. | NASA POWER, comunidad AG, 2016-01-01 a 2025-12-31. Celda ~0.5°. | Observación/reanálisis de celda, no de parcela. Elevación de la celda 935.34 m. |
+| `data/derived/water_climate/power_request.json` | URL, versión de API, fuentes MERRA-2 / SYN1DEG / POWER y unidades. | Misma petición POWER. | Metadato de la descarga. |
+| `data/derived/water_climate/climate_series.json` | Climatología, ET0 FAO-56, meses de calor, cuartil seco y meses secos. | POWER 2016–2025 en el punto anterior. Lluvia: `PRECTOTCORR`. | Lluvia con confianza 0.35. No es índice oficial de ONAMET ni INDRHI. |
+| `data/derived/water_climate/crop_water.json` | ETc, lluvia efectiva y riego neto de tres rotaciones ilustrativas. | FAO-56 y lluvia POWER; año plantilla 2021. | Estimación de regla. Sin balance de suelo ni calibración local. |
+| `data/derived/water_climate/pillar_scores.json` | Puntajes 0–5 de `water_soil` y `climate` para `habichuela_maiz`, `leguminosa_maiz` y `habichuela_guandul_maiz`. | Relativos a esas tres secuencias. Plagas y mercado no están en este archivo. | Preliminar. El 0 y el 5 son los extremos de este trío, no aptitud absoluta. |
+| `data/derived/water_climate/remote_access.json` | Comprobación del 14-11-2026: IMERG y SMAP sin valores numéricos utilizables. | Bbox del valle lon -71.40 a -71.05, lat 18.65 a 18.95. | Sin milímetros IMERG ni humedad SMAP en m³/m³. |
+| `data/derived/water_climate/water_climate_climatology.png` | Climatología mensual de lluvia POWER y ET0, y riego neto de las tres secuencias. | Mismos JSON de agua y clima. | Figura de los derivados; no es una medición nueva. |
+
+Los números de agua y clima están en [docs/11_water_climate_method.md](11_water_climate_method.md). No usar estos archivos para afirmar rendimiento, brote de plagas, rentabilidad ni fecha óptima de siembra.

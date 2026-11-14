@@ -70,3 +70,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 | 14-11-2026 | Codex (OpenAI) | Resolución del conflicto en `AI_USAGE.md` conservando las contribuciones de main y mercado/envío; actualización de la base sin editar `web/` ni `scripts/ml/` | Pendiente: Frainer |
 
 | 14-11-2026 | Codex (OpenAI) | Reconciliación de materiales de envío con los nuevos artefactos POWER/Landsat/GIBS/FAO de main y el modelo configurado `openai/gpt-4.1-mini`; aclaración de mercado aún sin integración web | `docs/submission/nasa_data_used.md`, `docs/submission/ai_disclosure.md`, `docs/submission/project_summary.md`, `docs/submission/README.md`, `docs/submission/slides_outline.md`, `docs/DATA_SOURCES.md`, `docs/METHODOLOGY.md`, `AI_USAGE.md`; revisión de Frainer pendiente |
+
+| 14-11-2026 | Grok (xAI) | Integración de las ramas de clasificador, envío/mercado y agua/clima; enlace en el README y descripción de `data/derived/` en `docs/02` | `AI_USAGE.md`, `.gitignore`, `README.md`, `docs/02_recursos_datos.md` | Pendiente de revisión por Frainer |

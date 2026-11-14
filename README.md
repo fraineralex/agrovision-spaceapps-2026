@@ -49,8 +49,8 @@ Import the repository as a Vercel project with **Root Directory `web`** and fram
 
 - POWER daily cache is real; a three-day independent API comparison matches the original CSV, with the response preserved in cache.
 - Landsat source pixel values, QA bands and request URLs are preserved. The six-date sample does not establish monthly bare-field duration. **Validated bare-soil / irrigation ML classification remains pending labeled samples and field/visual review.** The current signal thresholds are exploratory rules, not a trained AI model.
-- Climate suitability, pest and market scores remain **null / “Insufficient data”**. Crop tolerances/windows, verified IDIAF pest relations and a cleaned Ministry price sample are missing. No scores are invented. Future Santo Domingo wholesale/retail prices must not be described as farmgate prices.
-- Local soil, ETo, numeric IMERG time series and agronomic calibration are pending. The FAO proxy alone does not establish rainfed suitability or actual irrigation requirements.
+- In the web demo, climate suitability, pest and market scores remain **null / “Insufficient data”**. Crop tolerances/windows and verified IDIAF pest relations are still missing. No scores are invented inside `web/`. Santo Domingo wholesale prices must not be described as farmgate prices.
+- Numeric IMERG millimeters and SMAP soil moisture were not retrieved. Local soil and agronomic calibration remain pending. The web FAO proxy alone does not establish rainfed suitability or actual irrigation requirements.
 - Rice–bean rotation context comes from the team's IDIAF inventory citation; local fit is unverified. The other sequences are illustrative. No yield, pest outbreak, guaranteed profit, universal optimal dates or validated farm outcomes are claimed.
 - Frainer's human review, agronomic validation, deployment, submission and video are pending. Deployment was explicitly excluded from this task.
 
@@ -59,5 +59,12 @@ Sources, attribution and quality: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md). 
 ## Team direction and submission
 
 Read [AGENTS.md](AGENTS.md) and the ordered context documents. Official direction: [team summary](docs/fuentes_equipo/resumen_equipo.txt) and [data inventory](docs/fuentes_equipo/inventario_datos.txt). Implementation plan: [docs/10_plan_tecnico.md](docs/10_plan_tecnico.md). Central planned AI analyzes satellite data; the optional explanation is secondary. Sensors are future work.
+
+Offline products merged beside the web demo, and not yet consumed by `web/`:
+
+- Water and climate method: [docs/11_water_climate_method.md](docs/11_water_climate_method.md)
+- Submission drafts: [docs/submission/](docs/submission/)
+- Parcel classifier: [scripts/ml/README.md](scripts/ml/README.md)
+- Derived files and their limits: [docs/02_recursos_datos.md](docs/02_recursos_datos.md)
 
 Submission target: Sunday, November 15, 2026, 11:59 PM AST for Santo Domingo; confirm the active portal time and requirements before submission. Unverified 2026 limits are listed in [docs/00_reglas_envio_y_evaluacion.md](docs/00_reglas_envio_y_evaluacion.md). No submission was performed by this task.
