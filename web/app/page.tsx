@@ -1,6 +1,7 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaoDroughtCard } from "@/components/fao-giews";
 import { MapPanel } from "@/components/map";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceAssistant } from "@/components/voice-assistant";
@@ -81,6 +82,7 @@ export default function Home() {
       <section className="card climate-card" aria-label="Clima regional"><div className="section-row"><h2>Clima de tu zona</h2><select aria-label="Mes del clima" value={month} onChange={e => setMonth(Number(e.target.value))}>{months.map((m,i) => <option key={m} value={i+1}>{m}</option>)}</select></div>
         {selectedClimate ? <><div className="climate-strip"><div className="climate-cell"><FarmIcon name="climate"/><div className="climate-val">{selectedClimate.temperatureC ?? "—"} °C</div><div>Temperatura</div></div><div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay ?? "—"}</div><div>Lluvia · mm/día</div></div><div className="climate-cell"><FarmIcon name="soil"/><div className="climate-val">{selectedClimate.relativeHumidityPct ?? "—"}%</div><div>Humedad del aire</div></div></div><details className="evidence-details"><summary>Fuente y límites del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia tropical tiene limitaciones; no se usa para puntuar rotaciones.</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section>
+      <FaoDroughtCard province={province}/>
       <div className="section-row"><h2>2 · Compara rotaciones</h2><label className="priority-wrap">Prioridad<select aria-label="Prioridad" className="priority-select" value={priority} onChange={e => setPriority(e.target.value as Priority)}>{Object.entries(priorityLabels).map(([id,label]) => <option key={id} value={id}>{label}</option>)}</select></label></div>
       <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
         <h3>{s.label}</h3>

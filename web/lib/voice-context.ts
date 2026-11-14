@@ -1,4 +1,5 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
+import { faoProvince, faoScoreRule } from "@/lib/fao-giews";
 import { locationSchema, provinceAt } from "@/lib/geography";
 import { z } from "zod";
 import { getComparison, ndvi } from "@/lib/data";
@@ -9,15 +10,16 @@ export type VoiceSelection = z.infer<typeof voiceSelection>;
 export const REALTIME_MODEL = "openai/gpt-realtime-mini";
 export const TEXT_MODEL = "openai/gpt-4.1-mini";
 export function parcelMetrics(input: VoiceSelection) {
-  const comparison = getComparison(input.month);
+  const comparison = getComparison(input.month, input.location ? provinceAt(input.location) : "San Juan");
   return { parcelId: input.parcelId, demo: input.parcelId !== "location", waterAccess: { value: input.irrigation, method: "user declaration", confidence: "unverified" }, month: input.month,
     climate: input.parcelId === "location" ? null : comparison.climate, climateSource: input.parcelId === "location" ? null : comparison.provenance, province: input.parcelId === "location" && input.location ? provinceAt(input.location) : "San Juan",
+    fao: faoProvince(input.location ? provinceAt(input.location) : "San Juan"),
     ndvi: { source: ndvi.source, rows: ndvi.rows.filter(row => row.parcelId === input.parcelId), limitation: ndvi.limitation },
     limits: "Selected location is approximate; demo parcel boundaries are synthetic. Climate is regional reanalysis, not a parcel measurement or forecast. NDVI is a six-date 2024 point sample, uncalibrated. Bare-soil and irrigation classification pending. No yield or pest prediction." };
 }
 export function rotationMetrics(input: VoiceSelection) {
   const sanJuan = input.parcelId !== "location" || Boolean(input.location && provinceAt(input.location) === "San Juan");
-  return {priority:input.priority,scenarios:getFarmerComparison(sanJuan,null,input.priority),
+  return {priority:input.priority,scenarios:getFarmerComparison(sanJuan,null,input.priority),droughtRule:faoScoreRule,
     limits:"Preliminary illustrative sequences. National climate requires the selected POWER cache and is unknown in this tool; consult the parcel climate tool. Water is regional modeled irrigation for San Juan, a generic coefficient proxy elsewhere. Pest rules cover only cited relationships; wholesale seasonal prices are Santo Domingo references, never farm income. No farm validation or predictions."};
 }
 export function voiceInstructions(input: VoiceSelection) {
