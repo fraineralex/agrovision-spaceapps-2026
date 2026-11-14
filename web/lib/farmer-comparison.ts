@@ -2,13 +2,13 @@
 import evidence from "@/public/data/farmer-pillars.json";
 import { pestPrecautions } from "./pests";
 import type { ClimateContext } from "./location-climate";
-import type { Priority } from "./data";
+import type { AdvicePriority } from "./advisor";
 export type Pillar = "water" | "climate" | "pests" | "market";
 export const pillarColor = (score: number | null) => score === null ? "gray" : score >= 3.34 ? "green" : score >= 1.67 ? "amber" : "red";
 const labels: Record<string,string> = {habichuela_roja:"Habichuela",maiz:"Maíz",leguminosa_pulse:"Leguminosa de ejemplo",guandul_cover_proxy:"Guandul (aproximación)"};
 const series: Record<string,string> = {habichuela_roja:"red_bean:jose_beta_short:primera:DOP/lb",maiz:"maize:frances_largo:primera:DOP/lb"};
 const round = (n:number) => Math.round(n*100)/100;
-export function getFarmerComparison(sanJuan:boolean, context:ClimateContext | null, priority:Priority) {
+export function getFarmerComparison(sanJuan:boolean, context:ClimateContext | null, priority:AdvicePriority) {
   const proxies = evidence.rotations.map(r => r.cycles.reduce((sum,c) => {
     const [a,b,d,e]=c.stageDays;
     return sum+a*c.kcIni+b*(c.kcIni+c.kcMid)/2+d*c.kcMid+e*(c.kcMid+c.kcEnd)/2;
@@ -49,6 +49,6 @@ export function getFarmerComparison(sanJuan:boolean, context:ClimateContext | nu
       sourceUrls:{water:"https://www.fao.org/4/x0490e/x0490e0b.htm",climate:context?.source.url ?? "https://power.larc.nasa.gov/",pests:evidence.pestRule.url,market:evidence.market.sources[0].url},
     };
   });
-  const key: Pillar = priority === "soil" ? "water" : priority;
-  return priority === "soil" ? scenarios : [...scenarios].sort((a,b)=>(b.scores[key]??-1)-(a.scores[key]??-1));
+  if (priority === "soil" || priority === "balanced") return scenarios;
+  return [...scenarios].sort((a,b)=>(b.scores[priority]??-1)-(a.scores[priority]??-1));
 }

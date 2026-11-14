@@ -160,7 +160,7 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await expect(page.locator(".budget-result")).toContainText("Te faltan RD$1,000");
 });
 test("voice tools, location validation and honest missing-key fallback",async({request})=>{
- const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"water",month:11,irrigation:"unconfirmed"};
+ const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"balanced",month:11,irrigation:"unconfirmed"};
  const setup=await request.post(`/api/voice/setup?${new URLSearchParams(Object.entries(selection).map(([k,v])=>[k,typeof v === "object"?JSON.stringify(v):String(v)]))}`);
  expect(setup.status()).toBe(503);expect(JSON.stringify(await setup.json())).not.toContain("token");
  const chat=await request.post("/api/voice/chat",{data:{selection,messages:[{role:"user",content:"¿Qué sabes del agua?"}]}});
@@ -188,8 +188,9 @@ test("missing realtime credentials release microphone and preserve text input",a
   };
  });
  await page.goto("/");
- await page.getByRole("button",{name:"Iniciar conversación"}).click();
- await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la conversación/)).toBeVisible();
+ await page.getByRole("button",{name:"Hablar",exact:true}).click();
+ await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la voz/)).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
+ await page.getByText("Escribir", {exact:true}).click();
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
 });

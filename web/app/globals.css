@@ -437,6 +437,7 @@ h1 { color: var(--monte); }
 }
 
 /* Visual summaries for farmers. AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
+.workbench-nav { grid-template-columns:repeat(5,minmax(0,1fr)); }
 .workbench-nav a { justify-content:center; }
 .workbench-nav a svg { width:23px; height:23px; }
 .field-week .rain-days { grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
@@ -478,8 +479,25 @@ h1 { color: var(--monte); }
 .budget-balance { width:fit-content; padding:5px 8px; border-radius:7px; background:#f3faee; font-weight:750; }
 .budget-balance.budget-short { color:#862920; background:#ffefe9; }
 .visual-extras { padding:4px 12px; margin-bottom:16px; }
+
+/* Compact voice controls. AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
+.voice-compact { color:var(--tinta); }
+.voice-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.voice-controls button { min-height:48px; display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border:0; border-radius:999px; font-weight:800; }
+.voice-start { background:var(--monte); color:#fff; }
+.voice-end { background:#9a311f; color:#fff; }
+.voice-controls [role=status] { display:inline-flex; align-items:center; gap:6px; font-size:15px; color:#3d5543; }
+.voice-controls svg, .voice-alternatives svg { width:19px; height:19px; }
+.voice-alternatives { display:flex; gap:16px; align-items:start; flex-wrap:wrap; }
+.voice-alternatives details[open] { flex:1 1 100%; }
+.voice-compact .voice-form { margin:0 0 8px; }
+.voice-compact .voice-form input { min-height:48px; border:1px solid #879a86; background:#fff; }
+.voice-compact .voice-form button { min-height:48px; }
+.voice-compact-log { max-height:180px; overflow:auto; }
+.voice-compact-log p { overflow-wrap:anywhere; }
+.voice-privacy { border-top:1px solid #d5dccd; }
 @media(max-width:650px) {
-  .workbench-nav { grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-block:12px; }
+  .workbench-nav { gap:5px; margin-block:12px; }
   .workbench-nav a { flex-direction:column; gap:4px; font-size:13px; padding:7px 3px; }
   .field-week .rain-days { gap:3px; }
   .field-week .rain-days li { font-size:11px; }

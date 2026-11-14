@@ -1,7 +1,7 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
-import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Sprout } from "lucide-react";
+import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Mic, Sprout } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
 import type { Farm, IrrigationDate } from "@/lib/farms";
@@ -15,6 +15,7 @@ export function WorkbenchNav() {
     <a href="#siembra"><Sprout aria-hidden="true"/> Siembra</a>
     <a href="#cuanto-me-deja"><Coins aria-hidden="true"/> Venta</a>
     <a href="#tu-finca-en-el-mapa"><MapPin aria-hidden="true"/> Mapa</a>
+    <a href="#voz"><Mic aria-hidden="true"/> Voz</a>
   </nav>;
 }
 
