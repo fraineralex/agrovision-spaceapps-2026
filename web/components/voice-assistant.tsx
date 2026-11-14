@@ -1,4 +1,4 @@
-/* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
+/* AI: Codex/OpenAI, 2026-11-14; conversational voice UI by Claude (Anthropic), 2026-11-14. Frainer review pending. */
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
@@ -19,19 +19,24 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const vad = useRef<{ context: AudioContext; timer: ReturnType<typeof setInterval> | null } | null>(null);
   const generation = useRef(0);
   const starting = useRef(false);
+  const greeted = useRef(false);
+  const [level, setLevel] = useState(0);
   const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(selection).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [selection]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(selection), voice: "alloy", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe" }, turnDetection: { type: "server-vad" as const, threshold: 0.55, silenceDurationMs: 550, prefixPaddingMs: 300 } }), [selection]);
+  const config = useMemo(() => ({ instructions: voiceInstructions(selection), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [selection]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
     },
-    onError: () => { releaseMedia(); setNotice("Voz no disponible. Puedes escribir o escuchar el resumen local."); },
+    onError: () => { releaseMedia(); setNotice("Se cortó la conversación de voz. Revisa tu internet y toca Hablar otra vez, o escribe tu pregunta."); },
   });
   // connect() initiates transport; only the SDK status confirms a live session.
   useEffect(() => {
     if (realtime.status === "disconnected" && media.current) releaseMedia();
-  },[realtime.status]);
+    // Like a phone call: once connected, AgroVision speaks first with a short greeting.
+    if (realtime.status === "connected" && !greeted.current) { greeted.current = true; realtime.requestResponse(); }
+    if (realtime.status !== "connected") greeted.current = false;
+  },[realtime.status, realtime]);
   const controls = useRef(realtime);
   useEffect(() => { controls.current = realtime; }, [realtime]);
   function releaseMedia() {
@@ -62,13 +67,18 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
         analyser.getFloatTimeDomainData(samples);
         const rms = Math.sqrt(samples.reduce((sum, value) => sum + value * value, 0) / samples.length);
         sustained = rms > 0.08 ? sustained + 1 : 0;
+        setLevel(Math.min(1, rms * 8));
         // Local VAD cuts queued playback immediately; Gateway VAD owns turn completion.
         if (sustained === 3 && controls.current.isPlaying) { controls.current.cancelResponse(); controls.current.stopPlayback(); }
       }, 70);
       vad.current = { context, timer };
       await realtime.connect({ stream });
 
-    } catch { releaseMedia(); setNotice("Voz no disponible. Escribe o escucha el resumen local."); }
+    } catch (error) {
+      releaseMedia();
+      const name = error instanceof Error ? error.name : "";
+      setNotice(name === "NotAllowedError" ? "No diste permiso al micrófono. Toca el candado junto a la dirección web, permite el micrófono y vuelve a tocar Hablar." : !navigator.onLine ? "Sin internet: la voz necesita conexión. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos micrófono en este equipo." : "No se pudo iniciar la voz. Toca Hablar otra vez o escribe tu pregunta.");
+    }
     finally { starting.current = false; }
   }
   function stopVoice() { generation.current++; realtime.disconnect(); releaseMedia(); interrupt(); setNotice("Micrófono apagado. Puedes escribir tu pregunta."); }
@@ -119,7 +129,13 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const active = realtime.status === "connecting" || realtime.status === "connected";
   return <section className="card voice-card" aria-label="Asistente de voz">
     <div className="voice-intro"><span className="step-label">4 · PREGÚNTALE A AGROVISION</span><h2>Pregunta con tu voz</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
-    <div className="voice-actions"><button className={`mic-button ${active ? "listening" : ""}`} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}><FarmIcon name={active ? "stop" : "mic"} size={40}/><span>{active ? "Terminar" : "Hablar"}</span></button><button className="secondary-action" onClick={interrupt}><FarmIcon name="stop"/>Silenciar</button></div>
+    <div className="voice-actions">
+      <button className={`voice-orb ${realtime.isPlaying ? "speaking" : active ? "listening" : ""}`} style={{ ["--lvl" as string]: String(realtime.isPlaying ? 0.6 : level) }} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}>
+        <span className="orb-core"><FarmIcon name={active ? "stop" : "mic"} size={44}/></span>
+      </button>
+      <strong className="orb-label">{realtime.status === "connecting" ? "Conectando…" : realtime.isPlaying ? "AgroVision está hablando… (háblale para interrumpir)" : realtime.status === "connected" ? "Te escucho… habla cuando quieras" : "Toca para hablar"}</strong>
+      {active && <button className="secondary-action" onClick={stopVoice}><FarmIcon name="stop"/>Colgar</button>}
+    </div>
     <p role="status">{realtime.status === "connected" ? "Micrófono encendido. Habla de nuevo para interrumpir." : realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
     <div className="voice-transcript" role="log" aria-label="Transcripción de la conversación" aria-live="polite">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
