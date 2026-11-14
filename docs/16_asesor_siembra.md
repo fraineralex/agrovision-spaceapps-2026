@@ -85,3 +85,5 @@ El catálogo incluye insectos, ácaros y nematodos de los 27 cultivos de la list
 Una coincidencia de taxón con evidencia local, o la repetición del cultivo, descuenta 0,5 puntos del resultado final (1 punto si se priorizan plagas). Una coincidencia basada en una referencia externa (†) se muestra para confirmar localmente y no modifica el puntaje. Los nombres generales sin taxón, como «trips», no se cruzan. Una coincidencia por género indica posible hospedero compartido y requiere identificar la especie en campo. El respaldo específico del IDIAF para la secuencia habichuela a maíz sigue aportando al promedio ponderado.
 
 Estas reglas comparan asociaciones documentadas; la ficha no mide incidencia ni actividad por provincia o mes. El puntaje es una regla del prototipo, pendiente de revisión agronómica.
+
+El asesor, la lectura en voz y las rotaciones de ejemplo muestran precauciones para cada transición concreta. Si hay un hospedero compartido, indican revisar el historial del cultivo anterior; también destacan una plaga del cultivo siguiente. Las referencias externas se presentan como pendientes de confirmación.

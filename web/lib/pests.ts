@@ -137,3 +137,24 @@ export function sharedPests(previous: string, crop: string) {
     external: Boolean(pest.external || before.some(other => other.taxon === pest.taxon && other.external)),
   }));
 }
+
+export function pestPrecautions(previous: string, crop: string): string[] {
+  const candidate = pestsFor(crop);
+  if (!candidate) return [];
+  const shared = sharedPests(previous, crop);
+  const before = pestsFor(previous);
+  const sharedNames = shared.map(p => p.name.toLowerCase() + (p.external ? " (por confirmar localmente)" : ""));
+  const messages: string[] = [];
+  if (before && sharedNames.length) {
+    messages.push(`Antes de sembrar ${candidate.name.toLowerCase()}, revisa si hubo ${sharedNames.join(", ")} en ${before.name.toLowerCase()}. Si observaste daño, confirma la plaga con tu técnico antes de repetir un hospedero.`);
+  }
+  const next = candidate.pests.find(p => !p.external && !shared.some(other => other.taxon && other.taxon === p.taxon));
+  if (next) {
+    const action = next.name.toLowerCase().includes("nematodo")
+      ? "Si hubo plantas débiles o raíces dañadas, consulta si hace falta analizar raíces o suelo."
+      : "Revisa las plantas desde el establecimiento y consulta a tu técnico si ves daño.";
+    messages.push(`En ${candidate.name.toLowerCase()}, vigila ${next.name.toLowerCase()}. ${action}`);
+  }
+  if (!messages.length && candidate.pests.length) messages.push("Consulta con tu técnico qué plagas del cultivo conviene vigilar en tu zona y época de siembra.");
+  return messages;
+}

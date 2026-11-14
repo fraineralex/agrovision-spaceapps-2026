@@ -6,7 +6,6 @@ import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
 import type { Irrigation } from "@/lib/data";
 
 import { pestLimit, pestSources, pestsFor } from "@/lib/pests";
-import { PestList } from "./pest-catalog";
 
 const IDIAF_URL = "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf";
 const money = (n: number) => `RD$${Math.round(n).toLocaleString("es-DO")}`;
@@ -64,8 +63,8 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
       </Block>
 
       <Block icon="🐛" title="Plagas" verdict={advice.words.pests} links={pestLinks}>
-        {pestEntry ? <><p>Plagas que conviene vigilar en {advice.name.toLowerCase()}.</p><PestList pests={pestEntry.pests} /></> : <p>Este cultivo no tiene ficha de plagas en el catálogo.</p>}
-        {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p><PestList pests={shared} /></>}
+        {advice.pestPrecautions.map(note => <p key={note}>{note}</p>)}
+        {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p></>}
         {advice.scores.pests === 5 && <p>El IDIAF cita el maíz como opción de rotación después de habichuela para problemas específicos de ese cultivo.</p>}
         {advice.scores.pests === 1 && <p>El puntaje baja por repetición del cultivo o por plagas en común respaldadas por referencias locales.</p>}
         {advice.scores.pests === null && <p>Este criterio no cambia el puntaje de la combinación.</p>}

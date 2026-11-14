@@ -148,3 +148,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Herramienta:** Codex (OpenAI). **Propósito:** incorporar la lista de plagas solicitada al catálogo, a la puntuación del asesor y al contexto de voz. **Archivos:** `web/lib/{pests,advisor,advisor.test,voice-context}.ts`, `web/components/{advisor-card,onboarding,sources-sheet,pest-catalog}.tsx` y `docs/16_asesor_siembra.md`.
 - **Fuentes y límites:** referencias del catálogo enlazadas por cultivo. Las referencias externas requieren confirmación local. El descuento es una regla del prototipo sin validación agronómica. No se estima incidencia provincial o mensual.
 - **Verificación:** lint, TypeScript, 15 pruebas y build local con Webpack. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Precauciones de plagas por rotación
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** mostrar medidas de vigilancia para el cultivo anterior y el siguiente en las sugerencias, las rotaciones de ejemplo y la voz. El catálogo se conserva como fuente interna. **Archivos:** `web/{app/page.tsx,components/{advisor-card,sources-sheet,pest-catalog}.tsx,lib/{pests,advisor,advisor.test,farmer-comparison,voice-context}.ts}` y `docs/16_asesor_siembra.md`.
+- **Fuentes y límites:** catálogo existente, con referencias en los detalles. Las precauciones no diagnostican presencia ni incidencia. **Revisión por Frainer:** pendiente.

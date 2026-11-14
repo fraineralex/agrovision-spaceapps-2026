@@ -66,3 +66,11 @@ test("catalog preserves external references and excludes ambiguous group names f
   assert.equal(sharedPests("name", "yautia").find(p => p.taxon === "Scutellonema bradys")?.external, true);
   assert.equal(sharedPests("aji", "cacao").length, 0);
 });
+
+test("precautions follow the actual transition and include surveillance for the next crop", async () => {
+  const { pestPrecautions } = await import("./pests");
+  assert.match(pestPrecautions("habichuela_roja", "tomate")[0], /mosca blanca.*habichuela roja/);
+  assert.match(pestPrecautions("unknown", "tomate")[0], /En tomate, vigila mosca blanca/);
+  assert.match(pestPrecautions("name", "yautia")[0], /por confirmar localmente/);
+  assert.deepEqual(pestPrecautions("tomate", "unknown"), []);
+});

@@ -1,5 +1,5 @@
 /* AI: Claude (Anthropic), 2026-11-14 — next-crop advisor for the farmer view. Frainer review pending. See AI_USAGE.md. */
-import { pestCatalog, pestsFor, sharedPests, type PestCrop } from "./pests";
+import { pestCatalog, pestsFor, pestPrecautions, sharedPests, type PestCrop } from "./pests";
 import market from "@/public/data/market-insights.json";
 import { droughtScore, droughtSignal, faoProvince } from "./fao-giews";
 import type { Irrigation, Priority } from "./data";
@@ -67,6 +67,7 @@ export type Pillar = "water" | "climate" | "pests" | "market";
 export type CropAdvice = {
   crop: CropId; name: string; cycleDays: number; harvestMonth: number;
   scores: Record<Pillar, number | null>; overall: number | null; viable: boolean;
+  pestPrecautions: string[];
   sharedPests: ReturnType<typeof sharedPests>;
   words: Record<Pillar, string>; warnings: string[]; kcDays: number; faoRow: string;
 };
@@ -109,7 +110,6 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     else if (opts.previous !== "unknown" && opts.previous !== "otro" && (opts.previous === crop || (bean(opts.previous) && bean(crop)))) pests = 1;
     if (reported.length) {
       pests = 1;
-      warnings.push(`Vigila ${reported.map(pest => pest.name.toLowerCase()).join(", ")}: aparecen en la lista de ambos cultivos.`);
     }
     const m = marketFor(crop);
     const idx = perennial ? null : m?.seasonalIndex?.[String(harvestMonth)] ?? null;
@@ -131,7 +131,7 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
       pests: reported.length ? "Plagas en común" : pests === 5 ? "Rotación citada por IDIAF" : pests === 1 ? "Repetición de cultivo" : shared.length ? "Plaga en común por confirmar †" : "Sin puntaje de plagas",
       market: perennial ? "Permanente: sin mes de cosecha" : pctVsAvg === null ? "Sin precio de referencia" : `Cosecha en ${monthNames[harvestMonth - 1]}: precio ${pctVsAvg > 0 ? `${pctVsAvg}% sobre` : pctVsAvg < 0 ? `${-pctVsAvg}% bajo` : "igual al"} promedio`,
     };
-    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
+    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
   // Permanent crops are investments, not the next rotation: list them after seasonal crops.
   return advice.sort((a, b) => Number(a.cycleDays === 0) - Number(b.cycleDays === 0) || (b.overall ?? -1) - (a.overall ?? -1));
