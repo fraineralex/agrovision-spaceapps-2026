@@ -29,6 +29,9 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops, w
           <p className="option-crop"><span aria-hidden="true">{cropEmoji[a.crop]}</span> {a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</p>
           <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>{pillars.map(({ id, label, Icon: P }) => { const c = lightFor(a.scores[id]); return <li key={id} className={`pill ${c}`}><P aria-hidden="true" /><span className="sr-only">{label}: </span>{a.words[id]}</li>; })}</ul>
           {a.warnings[0] && <p className="option-warn">{a.warnings[0]}</p>}
+          {a.viable && a.pestPrecautions.length > 0 && <ul className="option-warn" aria-label="Precauciones de plagas">
+            {a.pestPrecautions.map(note => <li key={note}>{note}</li>)}
+          </ul>}
           <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> ¿De dónde sale esto?</button>
         </> : <p className="option-crop muted">{o.note ?? "Sin datos para esta opción."}</p>}
       </li>; })}
