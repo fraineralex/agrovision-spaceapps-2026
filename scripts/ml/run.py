@@ -142,6 +142,7 @@ def build(n_segments=600):
             'demo': True, 'boundaryType': 'approximate_slic_analysis_unit', 'status': 'prototype_preliminary',
             'class': selected['class'] if selected else None,
             'confidence': selected['confidence'] if selected else None,
+            'coverValidationStatus': cover_report['status'], 'waterValidationStatus': water_report['status'],
             'coverClass': cover['class'] if cover else None, 'coverConfidence': cover['confidence'] if cover else None,
             'waterRegimeClass': water['class'] if water else None, 'waterConfidence': water['confidence'] if water else None,
             'classificationProvenance': model_prov, 'confidenceMeaning': 'Uncalibrated model vote; not field accuracy',

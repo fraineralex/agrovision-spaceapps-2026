@@ -81,6 +81,7 @@ def segment_and_features(cache, n_segments=600):
                         'observed_months': int(good.sum()),
                         'latest_month': months[last_index],
                         'worldcover_majority': majority, 'crop_fraction': crop_fraction,
+                        'agricultural_fraction': crop_fraction + bare_fraction,
                         'cover_weak_label': cover, 'water_weak_label': irrigation})
     if not records:
         raise RuntimeError('No analysis units have sufficient observed months')
