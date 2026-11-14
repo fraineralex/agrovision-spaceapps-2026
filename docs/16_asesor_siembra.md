@@ -53,3 +53,10 @@ Los precios son mayoristas de Santo Domingo, no precio en finca, y son nominales
   - Ahora saluda al conectar y habla en español dominicano cálido.
   - Muestra una esfera animada que reacciona al nivel del micrófono y a cuando habla AgroVision.
   - Da mensajes claros si falta el permiso del micrófono o la conexión.
+
+## Cultivos comunes de RD (14-11-2026)
+- Se quitó el sorgo. Quedan 22 cultivos: habichuela roja y negra, maíz, arroz, batata, yuca, plátano, guineo, maní, tomate, cebolla, ají, auyama, papa, pepino, berenjena, repollo, zanahoria, piña, café, cacao y aguacate.
+- Los coeficientes de los cultivos nuevos salen de FAO-56 (tablas 11 y 12), verificados en la página de la FAO.
+- Café, cacao y aguacate son permanentes: el agua se cuenta por un año, no tienen mes de cosecha y se listan después de los cultivos de temporada.
+- Café y cacao no tienen precio mayorista ni siembra en las fuentes del Ministerio, así que aparecen sin precio.
+- La habichuela roja y la negra son la misma especie (*Phaseolus vulgaris*), por eso comparten la regla de plagas del IDIAF.
