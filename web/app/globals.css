@@ -257,3 +257,16 @@ body { font-size:17px; }
 .src-links { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
 .src-links a { font-size:16px; font-weight:700; color:#0b57a4; }
 @media(min-width:760px){ .src-overlay{align-items:center} .src-sheet{border-radius:24px} }
+/* Folded sections for a short phone page — Claude (Anthropic), 2026-11-14. */
+.fold { padding:0; margin-bottom:12px; overflow:hidden; }
+.fold > summary { list-style:none; display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; min-height:64px; }
+.fold > summary::-webkit-details-marker { display:none; }
+.fold-icon { font-size:28px; }
+.fold-text { display:flex; flex-direction:column; flex:1; } .fold-text strong { font-size:19px; } .fold-text small { font-size:15px; color:#2f4a3d; }
+.fold-chevron { font-size:28px; transition:transform .2s; } .fold[open] .fold-chevron { transform:rotate(90deg); }
+.fold-body { padding:0 12px 12px; }
+.fold-body > .card { box-shadow:none; border:0; margin:0; padding:8px 4px; }
+.fold-body .location-card > .section-row h2, .fold-body .market > .section-row h2, .fold-body .climate-card > .section-row h2 { display:none; }
+.fold-body .voice-card { border-radius:18px; }
+.compare-fold > summary { font-weight:800; font-size:18px; padding:12px 0; cursor:pointer; }
+@media(max-width:650px){ h1{font-size:28px;margin:0} .subtitle{font-size:16px;margin-top:6px} .heading-row{margin-bottom:12px} .workspace{padding-top:14px} .advisor{padding:14px} }
