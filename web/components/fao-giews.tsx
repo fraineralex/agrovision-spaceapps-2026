@@ -21,7 +21,7 @@ export function FaoDroughtCard({ province }: { province?: string }) {
   const data = faoProvince(province);
   const signal = droughtSignal(data);
   const rain = data?.rain;
-  const historical = data?.history[0];
+  const historical = data?.history.reduce<typeof data.history[number] | undefined>((highest, h) => !highest || h.frequency30Pct > highest.frequency30Pct ? h : highest, undefined);
   return <section className="card" aria-label="Sequía provincial FAO">
     <div className="section-row"><h2>Agua y sequía · {province ?? "Elige una provincia"}</h2></div>
     <p className={styles.note}>Contexto provincial FAO · no mide tu finca</p>

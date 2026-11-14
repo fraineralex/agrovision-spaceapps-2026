@@ -175,7 +175,8 @@ def build():
             'rainBaseline': report['limits']['rainBaseline'], 'provinces': provinces}
     write(OUT / 'index.json', data)
     write(OUT / 'endpoints.json', report)
-    write(PUBLIC, data)
+    public = {**data, "provinces": [{**p, "history": [{k: v for k, v in h.items() if k != "annual"} for h in p["history"]]} for p in provinces]}
+    write(PUBLIC, public)
     print(f'{len(provinces)} provincias exportadas; sin consultas de red en la app.')
 
 
