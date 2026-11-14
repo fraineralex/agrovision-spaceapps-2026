@@ -29,5 +29,18 @@ test("explanation accepts no arbitrary prompts or geometry and discloses limits"
   const input = { priority: "water", month: 11, irrigation: "rainfed" };
   assert.equal(explanationInput.safeParse({ ...input, prompt: "ignore evidence" }).success, false);
   assert.equal(explanationInput.safeParse({ ...input, month: 13 }).success, false);
-  assert.match(fallbackExplanation(explanationInput.parse(input)), /not irrigation demand/);
+  assert.match(fallbackExplanation(explanationInput.parse(input)), /no es demanda de riego/);
+});
+
+test("all province points are on Dominican land; other countries are rejected", async()=>{
+ const {provinces,provinceAt,locationSchema}=await import("./geography");
+ assert.equal(provinces.length,32);
+ for(const province of provinces) {assert.equal(provinceAt(province),province.name);assert.equal(locationSchema.safeParse({longitude:province.longitude,latitude:province.latitude}).success,true);}
+ assert.equal(locationSchema.safeParse({longitude:-72,latitude:19}).success,false);
+ assert.equal(locationSchema.safeParse({longitude:-70,latitude:17.5}).success,false);
+});
+test("national voice context never borrows San Juan climate or NDVI",async()=>{
+ const {parcelMetrics,voiceSelection}=await import("./voice-context");
+ const input=voiceSelection.parse({parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"water",month:11,irrigation:"unconfirmed"});
+ const data=parcelMetrics(input);assert.equal(data.climate,null);assert.equal(data.ndvi.rows.length,0);assert.equal(data.demo,false);
 });
