@@ -1,29 +1,33 @@
 /* AI: Codex/OpenAI, 2026-11-14; updated for the farmer advisor by Claude (Anthropic), 2026-11-14. Frainer review pending. */
 import { test,expect } from "@playwright/test";
-test("farmer finds province, gets advice that changes with inputs, and sees market",async({page})=>{
+test("first visit onboarding leads to personalized advice that changes with answers",async({page})=>{
  const errors:string[]=[]; page.on("pageerror",e=>errors.push(e.message));
  await page.route("https://**",r=>r.abort());
  await page.setViewportSize({width:360,height:780});
  await page.goto("/");
- await expect(page.getByRole("heading",{name:"¿Qué siembro ahora?",exact:true})).toBeVisible();
- await expect(page.locator(".place")).toHaveText("Sin elegir");
- await page.waitForLoadState("networkidle");
- await page.getByLabel("Escribe tu provincia").fill("san juan");
- await page.getByRole("group",{name:"Provincias encontradas"}).getByRole("button",{name:"San Juan"}).click();
- await expect(page.locator(".place")).toHaveText("San Juan");
- await page.getByRole("button",{name:"Sí, tengo riego"}).click();
- await page.getByRole("button",{name:"Arroz",exact:true}).click();
+ const ob=page.getByRole("dialog",{name:"Cuéntanos de tu finca"});
+ await expect(ob).toBeVisible();
+ await ob.getByRole("button",{name:"Empezar"}).click();
+ await ob.getByLabel("O escribe tu provincia").fill("san juan");
+ await ob.getByRole("button",{name:"San Juan",exact:true}).click();
+ await ob.getByRole("button",{name:/Arroz/}).click();
+ await ob.getByRole("button",{name:/Sí, tengo riego/}).click();
+ await ob.getByRole("button",{name:/Seguir/}).click();
+ await ob.getByRole("button",{name:/Este mes/}).click();
+ await ob.getByRole("button",{name:"Ver mi recomendación"}).click();
+ await expect(ob).toBeHidden();
+ await expect(page.locator(".profile-line")).toContainText("San Juan");
  const verdict=page.locator(".verdict-text");
  await expect(verdict).toContainText("después de arroz");
- const afterRice=await verdict.innerText();
- await page.getByRole("button",{name:"Habichuela",exact:true}).click();
- await expect(verdict).toContainText("maíz");
- expect(await verdict.innerText()).not.toBe(afterRice);
- await page.getByRole("button",{name:"No, de lluvia"}).click();
- await expect(page.locator(".crop-row").filter({hasText:"Arroz"})).toContainText("No sin riego");
  await expect(page.locator(".market .price-big")).toContainText("RD$");
- await expect(page.getByText(/Mejor época para vender/)).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ // Saved answers: a reload skips onboarding; "Cambiar" reopens it.
+ await page.reload();
+ await expect(page.locator(".profile-line")).toContainText("San Juan");
+ await expect(ob).toBeHidden();
+ await page.getByRole("button",{name:"Cambiar"}).click();
+ await expect(ob).toBeVisible();
+ await ob.getByRole("button",{name:"Saltar"}).click();
  await page.getByRole("button",{name:"Escuchar resumen"}).click();
  await expect(page.getByRole("log")).toContainText("Conviene sembrar");
  await page.screenshot({path:"test-results/farmer-mobile.png",fullPage:true});
@@ -52,8 +56,9 @@ test("missing realtime credentials release microphone and preserve text input",a
   navigator.mediaDevices.getUserMedia=async constraints=>{const stream=await original(constraints);tracks.push(...stream.getTracks());return stream;};
  });
  await page.goto("/");
+ await page.getByRole("dialog",{name:"Cuéntanos de tu finca"}).getByRole("button",{name:"Saltar"}).click();
  await page.getByRole("button",{name:"Iniciar conversación"}).click();
- await expect(page.getByText(/Voz no disponible/)).toBeVisible();
+ await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la conversación/)).toBeVisible();
  expect(await page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
 });

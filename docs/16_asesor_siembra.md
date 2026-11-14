@@ -38,3 +38,25 @@ Los precios son mayoristas de Santo Domingo, no precio en finca, y son nominales
 - La voz usa la misma recomendación y los mismos datos de mercado.
 - Se dice quién hace la app.
 - “Caso guardado sin conexión” se cambió por un estado claro.
+
+## Actualización (14-11-2026, tarde)
+- **Onboarding** (`web/components/onboarding.tsx`): la primera visita hace 6 preguntas: dónde está la finca, qué sembró, si tiene riego, qué cultivos puede sembrar, cuándo siembra y qué le importa más. Las respuestas se guardan solo en ese teléfono (`localStorage`) y se pueden cambiar con “Cambiar”.
+- **13 cultivos**: habichuela, maíz, arroz, batata, yuca, plátano, maní, tomate, cebolla, ají, auyama, papa y sorgo.
+  - Los coeficientes FAO-56 (tablas 11 y 12) se comprobaron en la página de la FAO el 14-11-2026. Para el Kc inicial se usan los valores de grupo que imprime la tabla; para los rangos, el punto medio.
+  - El agua se compara en una escala fija entre los 13 cultivos.
+  - Guandul queda fuera porque FAO-56 no lo incluye.
+- **Precios nuevos**: plátano (por unidad), yuca, tomate, cebolla, ají, auyama y papa, tomados del CSV mayorista del Ministerio de Agricultura.
+  - El pronóstico solo se muestra si el error del backtest es de 50% o menos; la papa queda sin pronóstico.
+  - Maní y sorgo no tienen precio mayorista en la fuente.
+- **Voz**:
+  - Funciona en producción: comprobado el 14-11-2026 con conexión real y una pregunta por texto dentro de la llamada. El micrófono físico debe probarse en un celular.
+  - Ahora saluda al conectar y habla en español dominicano cálido.
+  - Muestra una esfera animada que reacciona al nivel del micrófono y a cuando habla AgroVision.
+  - Da mensajes claros si falta el permiso del micrófono o la conexión.
+
+## Cultivos comunes de RD (14-11-2026)
+- Se quitó el sorgo. Quedan 22 cultivos: habichuela roja y negra, maíz, arroz, batata, yuca, plátano, guineo, maní, tomate, cebolla, ají, auyama, papa, pepino, berenjena, repollo, zanahoria, piña, café, cacao y aguacate.
+- Los coeficientes de los cultivos nuevos salen de FAO-56 (tablas 11 y 12), verificados en la página de la FAO.
+- Café, cacao y aguacate son permanentes: el agua se cuenta por un año, no tienen mes de cosecha y se listan después de los cultivos de temporada.
+- Café y cacao no tienen precio mayorista ni siembra en las fuentes del Ministerio, así que aparecen sin precio.
+- La habichuela roja y la negra son la misma especie (*Phaseolus vulgaris*), por eso comparten la regla de plagas del IDIAF.

@@ -208,3 +208,35 @@ body { font-size:17px; }
 .topbar { flex-wrap:wrap; }
 .offline-pill { white-space:normal; max-width:100%; }
 .pillar-chip svg, .crop-row-head svg { flex-shrink:0; }
+/* Onboarding and profile — Claude (Anthropic), 2026-11-14. */
+.onboarding { position:fixed; inset:0; z-index:50; background:#f4f5e9; overflow-y:auto; display:flex; justify-content:center; padding:16px; }
+.ob-card { width:100%; max-width:560px; }
+.ob-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+.ob-progress { display:flex; gap:6px; } .ob-progress i { width:22px; height:6px; border-radius:6px; background:#c7d6c9; } .ob-progress i.on { background:#185b3c; }
+.ob-link { background:none; border:0; color:#185b3c; font-weight:700; font-size:17px; text-decoration:underline; padding:8px 4px; }
+.ob-step h2 { font-size:clamp(26px,6vw,34px); line-height:1.15; margin:8px 0 14px; }
+.ob-step p { font-size:18px; }
+.ob-hero { font-size:72px; text-align:center; margin:20px 0 4px; }
+.ob-primary { width:100%; margin:14px 0; background:#185b3c; color:#fff; border:0; border-radius:16px; font-size:20px; font-weight:800; padding:16px; min-height:58px; }
+.ob-primary:disabled { opacity:.5; }
+.ob-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+.ob-col { display:grid; gap:10px; margin:10px 0; }
+.ob-choice { display:flex; align-items:center; gap:10px; text-align:left; border:2px solid #8ca38f; background:#fff; color:#132f26; border-radius:16px; padding:12px 14px; font-size:18px; font-weight:700; min-height:58px; }
+.ob-choice.on { border-color:#185b3c; background:#185b3c; color:#fff; }
+.ob-emoji { font-size:26px; }
+.ob-label { display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:17px; margin:12px 0; }
+.ob-label input, .ob-label select { font-size:18px; padding:10px 12px; border:2px solid #8ca38f; border-radius:12px; background:#fff; }
+.profile-line { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; background:#eef3e6; border-radius:14px; padding:8px 12px; font-size:16px; margin-bottom:10px; }
+.crop-emoji { font-size:28px; }
+.list-title { font-size:20px; margin:18px 0 10px; }
+.more { display:block; margin:10px 0; }
+/* Conversational voice orb — Claude (Anthropic), 2026-11-14. */
+.voice-actions { display:flex; flex-direction:column; align-items:center; gap:14px; margin:12px 0; }
+.voice-orb { --lvl:0; width:150px; height:150px; border-radius:50%; border:0; display:grid; place-items:center; color:#143d2d; background:radial-gradient(circle at 35% 30%, #fffbe0, #cfe9a6 55%, #8cc06a); box-shadow:0 0 0 calc(8px + var(--lvl) * 40px) rgba(207,233,166,.25), 0 10px 30px rgba(0,0,0,.25); transition:box-shadow .12s ease, transform .2s ease; cursor:pointer; }
+.voice-orb.listening { animation:orb-breathe 2.4s ease-in-out infinite; }
+.voice-orb.speaking { background:radial-gradient(circle at 35% 30%, #ffffff, #a8d8ff 55%, #4f9fd8); animation:orb-talk .5s ease-in-out infinite alternate; }
+.orb-core { display:grid; place-items:center; }
+.orb-label { font-size:18px; text-align:center; }
+@keyframes orb-breathe { 50% { transform:scale(1.05); } }
+@keyframes orb-talk { from { transform:scale(1); } to { transform:scale(1.08); } }
+@media(prefers-reduced-motion:reduce){ .voice-orb { animation:none !important; } }

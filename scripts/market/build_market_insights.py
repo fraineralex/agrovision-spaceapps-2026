@@ -38,9 +38,69 @@ CROPS = {
     "arroz": {"label": "Arroz", "sowing": ["Arroz1", "Arroz"], "price": "rice:"},
     "batata": {"label": "Batata", "sowing": ["Batata"], "price": "sweet_potato:"},
     "guandul": {"label": "Guandul", "sowing": ["Guandúl"], "price": "pigeon_pea:"},
-    "yuca": {"label": "Yuca", "sowing": ["Yuca"], "price": "cassava:"},
-    "platano": {"label": "Plátano", "sowing": ["Plátano"], "price": "plantain:"},
+    "yuca": {"label": "Yuca", "sowing": ["Yuca"], "price": "raw:yuca"},
+    "platano": {"label": "Plátano", "sowing": ["Plátano"], "price": "raw:platano"},
+    "tomate": {"label": "Tomate", "sowing": ["Tomate Ens."], "price": "raw:tomate"},
+    "cebolla": {"label": "Cebolla", "sowing": ["Cebolla"], "price": "raw:cebolla"},
+    "aji": {"label": "Ají", "sowing": ["Ajíes"], "price": "raw:aji"},
+    "auyama": {"label": "Auyama", "sowing": ["Auyama"], "price": "raw:auyama"},
+    "papa": {"label": "Papa", "sowing": ["Papa"], "price": "raw:papa"},
+    "mani": {"label": "Maní", "sowing": ["Maní"], "price": "raw:none"},
+    "habichuela_negra": {"label": "Habichuela negra", "sowing": ["Frijol N."], "price": "raw:habichuela_negra"},
+    "guineo": {"label": "Guineo", "sowing": ["Guineo"], "price": "raw:guineo"},
+    "aguacate": {"label": "Aguacate", "sowing": ["Aguacate"], "price": "raw:aguacate"},
+    "pepino": {"label": "Pepino", "sowing": ["Pepino"], "price": "raw:pepino"},
+    "berenjena": {"label": "Berenjena", "sowing": ["Berenjena"], "price": "raw:berenjena"},
+    "repollo": {"label": "Repollo", "sowing": ["Repollo"], "price": "raw:repollo"},
+    "zanahoria": {"label": "Zanahoria", "sowing": ["Zanahoria"], "price": "raw:zanahoria"},
+    "pina": {"label": "Piña", "sowing": ["Piña"], "price": "raw:pina"},
+    "cafe": {"label": "Café", "sowing": [], "price": "raw:none"},
+    "cacao": {"label": "Cacao", "sowing": [], "price": "raw:none"},
 }
+
+# Series read directly from the cached MA wholesale CSV for crops not covered by build_prices.py.
+# key -> (normalized product name prefix, published unit, divisor to normalized unit, normalized unit)
+RAW_SERIES = {
+    "platano": ("platano (macho x hembra), mediano", "ciento", 100, "DOP/unidad"),
+    "yuca": ("yuca (bilin), primera", "quintal", 1, "DOP/quintal"),
+    "tomate": ("tomate (bugalu), primera", "huacal/45 lb", 45, "DOP/lb"),
+    "cebolla": ("cebolla roja (ciban), primera", "saco/50 lb", 50, "DOP/lb"),
+    "aji": ("aji (cubanela), verde, primera", "saco/50 lb", 50, "DOP/lb"),
+    "auyama": ("auyama (cabello de angel), primera", "kilo", 1, "DOP/kg"),
+    "papa": ("papa (granola), primera", "kilo", 1, "DOP/kg"),
+    "habichuela_negra": ("habichuela negra (arroyo loro negro), primera", "saco/100 lb", 100, "DOP/lb"),
+    "guineo": ("guineo verde (jonhson), primera", "ciento", 100, "DOP/unidad"),
+    "aguacate": ("aguacate (carla), primera", "ciento", 100, "DOP/unidad"),
+    "pepino": ("pepino (poisent), primera", "saco/90 lb", 90, "DOP/lb"),
+    "berenjena": ("berenjena (pompadur), primera", "saco/180 unid/125/lib", 125, "DOP/lb"),
+    "repollo": ("repollo (emblem), primera", "unidad", 1, "DOP/unidad"),
+    "zanahoria": ("zanahoria (chantenay), primera", "saco/100 lb", 100, "DOP/lb"),
+    "pina": ("pina (md2), mediana, primera", "ciento", 100, "DOP/unidad"),
+}
+WHOLESALE = ROOT / "data/raw/market_rd/wholesale.csv"
+
+
+def raw_monthly(key):
+    import unicodedata
+    def norm(x):
+        return " ".join(unicodedata.normalize("NFKD", x).encode("ascii", "ignore").decode().lower().split())
+    if key not in RAW_SERIES:
+        return None, []
+    prefix, unit, div, unit_out = RAW_SERIES[key]
+    weeks = {}
+    for r in csv.reader(open(WHOLESALE, encoding="cp1252"), delimiter=";"):
+        if len(r) != 8 or not norm(r[0]).startswith(prefix) or norm(r[3]) != unit:
+            continue
+        month = MONTHS.get(norm(r[6]))
+        try:
+            price = float(r[4].strip()); year = int(r[7].strip())
+        except ValueError:
+            continue
+        if not month or price <= 0:
+            continue
+        weeks.setdefault(f"{year:04d}-{month:02d}", {})[norm(r[5])] = price / div  # one value per ordinal week
+    rows = [{"period": p, "mean": mean(w.values()), "nWeeks": len(w), "unit": unit_out} for p, w in sorted(weeks.items()) if len(w) >= 2]
+    return f"raw:{key}:{prefix}:{unit_out}", rows
 
 # Transcribed from MA "Costos Estimados de Producción de Cultivos Agrícolas 2019" (PDF page numbers).
 # yieldLb converts the published yield to pounds only when the unit states its weight.
@@ -53,6 +113,11 @@ COSTS = {
               "yieldLb": None, "costPerTarea": 5863.42},
     "batata": {"area": "Nacional, riego", "pdfPage": 67, "yield": 14.44, "yieldUnit": "QQ de 110 lb",
                "yieldLb": 14.44 * 110, "costPerTarea": 6873.70},
+    "tomate": {"area": "Nacional, riego", "pdfPage": 71, "yield": 19.64, "yieldUnit": "QQ", "yieldLb": None, "costPerTarea": round(19.64 * 501.85, 2)},
+    "aji": {"area": "Nacional, riego", "pdfPage": 78, "yield": 6.94, "yieldUnit": "QQ de 100 lb", "yieldLb": 694.0, "costPerTarea": round(6.94 * 1089.38, 2)},
+    "cebolla": {"area": "Cebolla roja, riego por gravedad", "pdfPage": 91, "yield": 20.50, "yieldUnit": "QQ de 100 lb", "yieldLb": 2050.0, "costPerTarea": round(20.50 * 962.80, 2)},
+    "papa": {"area": "Nacional, riego", "pdfPage": 56, "yield": 25.39, "yieldUnit": "QQ de 100 lb", "yieldLb": 2539.0, "costPerTarea": round(25.39 * 1027.50, 2)},
+    "mani": {"area": "Nacional", "pdfPage": 53, "yield": 1.76, "yieldUnit": "QQ de 110 lb", "yieldLb": 1.76 * 110, "costPerTarea": round(1.76 * 1392.92, 2)},
     "yuca": {"area": "Nacional", "pdfPage": 60, "yield": 11.27, "yieldUnit": "QQ de 100 lb",
              "yieldLb": 1127.0, "costPerTarea": 5297.15},
 }
@@ -167,7 +232,7 @@ def main():
                       "Costos de 2019 sin ajustar por inflación."],
            "crops": {}}
     for crop, meta in CROPS.items():
-        sid, rows = pick_series(monthly, meta["price"])
+        sid, rows = raw_monthly(crop) if meta["price"].startswith("raw:") or crop in RAW_SERIES else pick_series(monthly, meta["price"])
         entry = {"label": meta["label"], "seriesId": sid, "unit": rows[-1]["unit"] if rows else None}
         if len(rows) >= 24:
             idx = seasonal_index(rows)
@@ -184,7 +249,7 @@ def main():
             for h in (3, 6):
                 f = forecast(rows, len(rows) - 1, h, idx)
                 mape, n = backtest(rows, h)
-                if f and mape is not None:
+                if f and mape is not None and mape <= 50:  # wider errors are not useful to a farmer
                     entry["outlook"].append({"horizonMonths": h, "period": f[0], "price": round(f[1], 2),
                                              "low": round(f[1] * (1 - mape / 100), 2), "high": round(f[1] * (1 + mape / 100), 2),
                                              "backtestMapePct": mape, "backtestN": n})

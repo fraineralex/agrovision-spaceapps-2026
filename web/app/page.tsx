@@ -8,10 +8,11 @@ import { VoiceAssistant } from "@/components/voice-assistant";
 import { OfflineStatus } from "@/components/offline";
 import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
+import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
-import { adviseNextCrop, monthNames, toTareas, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, defaultCrops, monthNames, toTareas, type CropId, type PreviousCrop } from "@/lib/advisor";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
 import { fieldMeta, type FieldInfo } from "@/lib/map/fields";
@@ -33,6 +34,19 @@ export default function Home() {
   const [climateStatus,setClimateStatus] = useState("");
   const [provinceSearch,setProvinceSearch] = useState("");
   const [gpsStatus,setGpsStatus] = useState("");
+  const [crops,setCrops] = useState<CropId[]>(defaultCrops);
+  const [onboarding,setOnboarding] = useState(false);
+  const applyProfile = useCallback((pr:FarmProfile) => {
+    setLocation(pr.location);setSelectedParcel("location");setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.sowMonth);setPriority(pr.priority);
+  },[]);
+  // First visit: ask the farmer about the farm. Later visits reuse the saved answers (this device only).
+  useEffect(() => {
+    let saved: FarmProfile | null = null;
+    try { const raw = localStorage.getItem("agrovision:profile"); saved = raw ? JSON.parse(raw) : null; } catch { saved = null; }
+    const timer = setTimeout(() => { if (saved?.location) applyProfile(saved); else setOnboarding(true); }, 0);
+    return () => clearTimeout(timer);
+  },[applyProfile]);
+  const finishOnboarding = (pr:FarmProfile) => { applyProfile(pr); setOnboarding(false); try { localStorage.setItem("agrovision:profile", JSON.stringify(pr)); } catch { /* optional */ } window.scrollTo({top:0}); };
   const searchRef = useRef<HTMLInputElement>(null);
   // Text typed before hydration on slow phones must not be lost.
   useEffect(() => { const typed = searchRef.current?.value; if (typed) setProvinceSearch(typed); }, []);
@@ -62,21 +76,24 @@ export default function Home() {
   },[locationKey,location.longitude,location.latitude,selectedParcel,chosen]);
 
   const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
-  const selection = useMemo<VoiceSelection>(() => ({parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous}),[selectedParcel,location,priority,month,irrigation,previous]);
+  const selection = useMemo<VoiceSelection>(() => ({parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(",")}),[selectedParcel,location,priority,month,irrigation,previous,crops]);
   const detectedParcel = findParcel(selectedParcel);
   const province = chosen ? provinceAt(location) : undefined;
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const topCrop = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority })[0]?.crop ?? "habichuela_roja", [province, irrigation, previous, month, priority]);
+  const topCrop = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority, crops })[0]?.crop ?? "habichuela_roja", [province, irrigation, previous, month, priority, crops]);
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   return <main className="app-shell">
+    {onboarding && <Onboarding initial={{province, location: chosen ? location : undefined, previous, irrigation, crops, sowMonth: month, priority}} onDone={finishOnboarding} onSkip={() => setOnboarding(false)}/>}
     <header className="topbar"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <div className="workspace">
-      <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura. Elige tu zona y te decimos qué conviene y por qué.</p></div></div>
+      <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
 
-      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>1 · ¿Dónde está tu finca?</h2><span className="place">{province ?? "Sin elegir"}</span></div>
+      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={priority} crops={crops} onEdit={() => setOnboarding(true)}/>
+      <MarketCard key={topCrop} initialCrop={topCrop}/>
+      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>3 · Tu finca en el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
         <div className="location-controls">
           <button type="button" className="gps-button" onClick={useGps}>📍 Usar mi ubicación</button>
           <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
@@ -101,8 +118,6 @@ export default function Home() {
         </article>}
       </section>
 
-      <AdvisorCard province={province} irrigation={irrigation} setIrrigation={setIrrigation} previous={previous} setPrevious={setPrevious} sowMonth={month} setSowMonth={setMonth} priority={priority} setPriority={setPriority}/>
-      <MarketCard key={topCrop} initialCrop={topCrop}/>
       {province && <FaoDroughtCard province={province}/>}
 
       {chosen && <section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
@@ -114,7 +129,7 @@ export default function Home() {
         <details className="evidence-details"><summary>Ver detalles del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section>}
 
-      <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}`} selection={selection}/>
+      <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/>
 
       <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
