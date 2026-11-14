@@ -1,0 +1,234 @@
+{
+  "type": "FeatureCollection",
+  "name": "parcels-san-juan-demo",
+  "extractedFrom": "origin/feature/ml-parcel-classifier:data/derived/parcels_san_juan.geojson",
+  "generatedAt": "2026-11-14",
+  "provenance": [
+    {
+      "source": "Copernicus Sentinel-2 L2A",
+      "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a",
+      "note": "Contains modified Copernicus Sentinel data (2024-2026), served by Element 84. NDVI means are prototype features, not a yield score."
+    },
+    {
+      "source": "ESA WorldCover 2021 v200",
+      "url": "https://doi.org/10.5281/zenodo.7254221",
+      "note": "Crop fraction is the 2021 WorldCover crop class share. CC BY 4.0. Zanaga et al. 2022."
+    }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "id": "sj-unit-0440",
+      "properties": {
+        "parcelId": "sj-unit-0440",
+        "name": "Parcela 1",
+        "demo": true,
+        "regionId": "san-juan",
+        "boundaryType": "approximate_slic_analysis_unit",
+        "status": "demo",
+        "ndviMean": 0.364,
+        "signal": "low",
+        "areaHa": 2.72,
+        "cropFraction2021": 0.989,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2026-11-14",
+        "limitation": "Unidad de análisis aproximada en el valle de San Juan. No es una finca identificada. El color usa el NDVI medio no calibrado."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.267729,
+              18.780012
+            ],
+            [
+              -71.268106,
+              18.779826
+            ],
+            [
+              -71.268287,
+              18.779192
+            ],
+            [
+              -71.268663,
+              18.778916
+            ],
+            [
+              -71.268656,
+              18.778375
+            ],
+            [
+              -71.268086,
+              18.778291
+            ],
+            [
+              -71.267805,
+              18.778566
+            ],
+            [
+              -71.267235,
+              18.778482
+            ],
+            [
+              -71.266763,
+              18.778669
+            ],
+            [
+              -71.266971,
+              18.780021
+            ],
+            [
+              -71.267729,
+              18.780012
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "sj-unit-0184",
+      "properties": {
+        "parcelId": "sj-unit-0184",
+        "name": "Parcela 2",
+        "demo": true,
+        "regionId": "san-juan",
+        "boundaryType": "approximate_slic_analysis_unit",
+        "status": "demo",
+        "ndviMean": 0.513,
+        "signal": "mid",
+        "areaHa": 3.8,
+        "cropFraction2021": 0.974,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2026-11-14",
+        "limitation": "Unidad de análisis aproximada en el valle de San Juan. No es una finca identificada. El color usa el NDVI medio no calibrado."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.257814,
+              18.797383
+            ],
+            [
+              -71.258473,
+              18.797014
+            ],
+            [
+              -71.258664,
+              18.797102
+            ],
+            [
+              -71.25885,
+              18.796829
+            ],
+            [
+              -71.258561,
+              18.796471
+            ],
+            [
+              -71.258454,
+              18.795569
+            ],
+            [
+              -71.256652,
+              18.795591
+            ],
+            [
+              -71.25648,
+              18.796858
+            ],
+            [
+              -71.256672,
+              18.797036
+            ],
+            [
+              -71.257335,
+              18.797028
+            ],
+            [
+              -71.257435,
+              18.797388
+            ],
+            [
+              -71.257814,
+              18.797383
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "sj-unit-0566",
+      "properties": {
+        "parcelId": "sj-unit-0566",
+        "name": "Parcela 3",
+        "demo": true,
+        "regionId": "san-juan",
+        "boundaryType": "approximate_slic_analysis_unit",
+        "status": "demo",
+        "ndviMean": 0.733,
+        "signal": "high",
+        "areaHa": 3.33,
+        "cropFraction2021": 0.925,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2026-11-14",
+        "limitation": "Unidad de análisis aproximada en el valle de San Juan. No es una finca identificada. El color usa el NDVI medio no calibrado."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -71.251407,
+              18.77199
+            ],
+            [
+              -71.251876,
+              18.771623
+            ],
+            [
+              -71.251954,
+              18.770357
+            ],
+            [
+              -71.251663,
+              18.769819
+            ],
+            [
+              -71.251094,
+              18.769826
+            ],
+            [
+              -71.251004,
+              18.770188
+            ],
+            [
+              -71.250154,
+              18.770469
+            ],
+            [
+              -71.250169,
+              18.771553
+            ],
+            [
+              -71.250736,
+              18.771456
+            ],
+            [
+              -71.250933,
+              18.771995
+            ],
+            [
+              -71.251407,
+              18.77199
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
