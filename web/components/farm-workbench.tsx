@@ -1,21 +1,56 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
-import { CalendarDays, CloudRain, Coins, MapPin, Sprout, Sun, ThermometerSun } from "lucide-react";
+import { CalendarDays, CloudRain, Coins, MapPin, MessageCircle, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { HelpTip } from "@/components/help-tip";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
 import type { Farm } from "@/lib/farms";
 import { provinces, type Location } from "@/lib/geography";
 import { localDate, shortDate } from "@/lib/rain";
 import { RainCard, type useRain } from "@/components/rain-card";
 
-export function WorkbenchNav({ onOpenMap }: { onOpenMap?: () => void }) {
-  return <nav className="workbench-nav" aria-label="Herramientas para tu finca">
-    <a href="#lluvia-esta-semana"><CloudRain aria-hidden="true"/> Lluvia</a>
-    <a href="#siembra"><Sprout aria-hidden="true"/> Siembra</a>
-    <a href="#cuanto-me-deja"><Coins aria-hidden="true"/> Venta</a>
-    <a href="#tu-finca-en-el-mapa" onClick={() => onOpenMap?.()}><MapPin aria-hidden="true"/> Mapa</a>
-  </nav>;
+export type SectionTab = "siembra" | "lluvia" | "venta" | "mapa" | "preguntar";
+
+export function WorkbenchNav({
+  activeTab,
+  onSelectTab,
+  weekRainMm,
+}: {
+  activeTab: SectionTab;
+  onSelectTab: (tab: SectionTab) => void;
+  weekRainMm?: number | null;
+}) {
+  const tabs: { id: SectionTab; label: string; Icon: typeof Sprout; badge?: string }[] = [
+    { id: "siembra", label: "Siembra", Icon: Sprout },
+    { id: "lluvia", label: "Lluvia", Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
+    { id: "venta", label: "Venta", Icon: Coins },
+    { id: "mapa", label: "Mapa y clima", Icon: MapPin },
+    { id: "preguntar", label: "Preguntar", Icon: MessageCircle },
+  ];
+  return (
+    <div className="workbench-nav" role="tablist" aria-label="Secciones principales de tu finca">
+      {tabs.map(({ id, label, Icon, badge }) => {
+        const selected = activeTab === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`tab-${id}`}
+            aria-selected={selected}
+            aria-controls={`panel-${id}`}
+            className={selected ? "wnav-tab is-active" : "wnav-tab"}
+            onClick={() => onSelectTab(id)}
+          >
+            <Icon aria-hidden="true" />
+            <span>{label}</span>
+            {badge && <em className="wnav-badge">{badge}</em>}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText, onTurn, onAdd, onLocation }: {
@@ -43,7 +78,10 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
     <div className="field-week-heading">
       <div>
         <p className="workbench-place"><MapPin aria-hidden="true"/> {farm?.province || province || "República Dominicana"}{areaText ? ` · ${areaText}` : ""}</p>
-        <h2 id="week-title">Lluvia de la semana</h2>
+        <div className="subhead-help">
+          <h2 id="week-title">Lluvia de la semana</h2>
+          <HelpTip label="Lluvia de la semana" text="Mira la lluvia esperada de los próximos 7 días. Toca cualquier día para ver el detalle y anota aquí la fecha de tu turno de canal." />
+        </div>
       </div>
       <div className="week-telemetry" aria-label="Indicadores rápidos de la semana">
         {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> {weekRainMm} mm / 7 días</span>}
@@ -63,7 +101,10 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
       </div>
       <div className="field-week-side">
         {farm?.irrigation !== "rainfed" || savedTurn ? <div className="week-turn">
-          <h3><CalendarDays aria-hidden="true"/> Turno de riego</h3>
+          <div className="subhead-help">
+            <h3><CalendarDays aria-hidden="true"/> Turno de riego</h3>
+            <HelpTip label="Turno de riego" text="Anota la fecha en que te toca agua del canal. La comparamos con los días de lluvia para ayudarte a planificar." />
+          </div>
           {farm ? <>
             {savedTurn && <p className="turn-summary"><time dateTime={savedTurn}>{shortDate(savedTurn)}</time><span>{savedTurn < localDate() ? "Turno pasado" : turnDay ? `${turnDay.rainMm} mm${turnDay.probPct !== null ? ` · ${turnDay.probPct}% de lluvia` : " previstos"}` : "Sin pronóstico actualizado"}</span></p>}
             <form onSubmit={saveTurn}>
@@ -73,7 +114,7 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
             </form>
             <p className="week-note">Confirma los cambios de turno con tu junta.</p>
             <p role="status" className="week-note">{status}</p>
-          </> : <button type="button" className="workbench-button" onClick={onAdd}>Agregar mi finca</button>}
+          </> : <div className="week-turn-empty"><p className="week-note">Registra tu finca para guardar tu fecha de turno y ver si llueve ese día.</p><button type="button" className="workbench-button" onClick={onAdd}>Registrar finca para guardar turno</button></div>}
         </div> : <p className="week-note">Cultivo de lluvia</p>}
         <a className="indomet-link" href="https://indomet.gob.do/pronostico/">Avisos de INDOMET →</a>
       </div>

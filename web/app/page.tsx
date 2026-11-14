@@ -16,7 +16,8 @@ import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
-import { FieldWeek, PlantingPlan, WorkbenchNav } from "@/components/farm-workbench";
+import { FieldWeek, PlantingPlan, WorkbenchNav, type SectionTab } from "@/components/farm-workbench";
+import { HelpTip } from "@/components/help-tip";
 import { SaleBudget } from "@/components/sale-budget";
 import { ShareButton, type ShareSummary } from "@/components/share-button";
 import { adviceSentence, oversupplyFor } from "@/lib/advisor";
@@ -58,6 +59,7 @@ export default function Home() {
   const [farms,setFarms] = useState<Farm[]>([]);
   const [activeId,setActiveId] = useState<string|null>(null);
   const [editing,setEditing] = useState<Farm|null>(null);
+  const [activeTab, setActiveTab] = useState<SectionTab>("siembra");
   const activeFarm = farms.find(f => f.id === activeId) ?? farms[0] ?? null;
   // First visit: ask the farmer about the farm. Later visits reuse the saved farms (this device only).
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function Home() {
   };
   const finishOnboarding = (farm:Farm) => {
     const list = farms.some(f => f.id === farm.id) ? farms.map(f => f.id === farm.id ? farm : f) : [...farms, farm];
-    setFarms(list); setActiveId(farm.id); applyProfile(farm); setOnboarding(false); setEditing(null); saveFarms(list, farm.id); window.scrollTo({top:0});
+    setFarms(list); setActiveId(farm.id); applyProfile(farm); setOnboarding(false); setEditing(null); setActiveTab("siembra"); saveFarms(list, farm.id); window.scrollTo({top:0});
   };
   const searchRef = useRef<HTMLInputElement>(null);
   // Text typed before hydration on slow phones must not be lost.
@@ -129,7 +131,7 @@ export default function Home() {
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   const drought = province ? droughtSignal(faoProvince(province)) : null;
-  const [regionalOpen, setRegionalOpen] = useState(false);
+  const weekRainMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((s, d) => s + d.rainMm, 0)) : null;
   return <>
     <a className="skip-link" href="#contenido">Saltar al contenido</a>
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
@@ -147,122 +149,193 @@ export default function Home() {
       <div className="heading-row">
         <div className="heading-copy">
           <span className="eyebrow">Guía agronómica y satelital · RD</span>
-          <h1>Mi finca</h1>
+          <h1>{activeFarm ? activeFarm.name : "¿Qué siembro ahora?"}</h1>
         </div>
-        {farms.length > 0 && <div className="heading-farms"><FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/></div>}
+        {farms.length > 0 ? (
+          <div className="heading-farms"><FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/></div>
+        ) : (
+          <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca</button>
+        )}
       </div>
 
-      <WorkbenchNav onOpenMap={() => setRegionalOpen(true)}/>
-      <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought?.label} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} onTurn={waterTurn => updateFarm({ waterTurn: waterTurn || undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
-      <div className="home-grid">
-      <div className="col-main">
-      <Fold id="siembra" icon="🌱" title="Plan de siembra">
-        {activeFarm && <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>}
-        {chosen ? <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-          : <button className="workbench-button" type="button" onClick={() => setOnboarding(true)}>Empieza con tu provincia</button>}
-      </Fold>
-      {chosen && <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>}
-      {chosen && <ShareButton summary={shareSummary}/>}
-      </div>
-      <div className="col-side">
-      <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?">
-        <SaleBudget key={activeFarm?.id ?? "new"}/>
-        <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
-          <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas}/>
-        </details>
-      </Fold>
-      <details className="card visual-extras" open={regionalOpen} onToggle={e => setRegionalOpen(e.currentTarget.open)}><summary>Mercado y clima regional</summary>
-      <div className="regional-sections">
-      <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
-      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
-        {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
-        <div className="location-controls">
-          <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
-          <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
-          {matches.length > 0 && <div className="search-results" role="group" aria-label="Provincias encontradas">{matches.map(p => <button type="button" aria-pressed={province === p.name} key={p.name} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");}}>{p.name}</button>)}</div>}
-          {provinceSearch.trim() && matches.length === 0 && <p role="status">No encontramos esa provincia. Revisa el nombre.</p>}
-          <label>O escoge de la lista<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.map(p => <option key={p.name}>{p.name}</option>)}</select></label>
-          {gpsStatus && <p role="status">{gpsStatus}</p>}
+      <WorkbenchNav activeTab={activeTab} onSelectTab={setActiveTab} weekRainMm={weekRainMm}/>
+
+      {activeTab === "siembra" && (
+        <div id="panel-siembra" role="tabpanel" aria-labelledby="tab-siembra" className="tab-stage" key={`siembra-${activeFarm?.id ?? "none"}`}>
+          {!chosen ? (
+            <section className="card panel quick-zone-card" aria-labelledby="quick-zone-title">
+              <div className="panel-head-row">
+                <h2 id="quick-zone-title" className="panel-title"><MapPin aria-hidden="true" className="panel-icon"/> Elige tu zona para ver recomendaciones</h2>
+                <HelpTip label="Elegir tu zona" text="Toca tu provincia o agrega tu finca para ver qué cultivos convienen hoy según agua, sequía, plagas y precio." />
+              </div>
+              <p className="panel-intro">Con un toque ves qué cultivo conviene sembrar primero en tu provincia. También puedes registrar tu finca paso a paso.</p>
+              <div className="quick-zone-grid">
+                {provinces.filter(p => ["San Juan", "Santiago", "La Vega", "Azua", "Monte Cristi", "Valverde"].includes(p.name)).map(p => (
+                  <button key={p.name} type="button" className="ob-choice" onClick={() => onLocation({ longitude: p.longitude, latitude: p.latitude })}>
+                    <span className="ob-icon-chip sm" aria-hidden="true"><MapPin size={15}/></span>
+                    <span>{p.name}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="quick-zone-actions">
+                <label className="quick-zone-select">Otras provincias
+                  <select aria-label="Elige tu provincia" value={province ?? ""} onChange={e => { const p = provinces.find(item => item.name === e.target.value); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }}>
+                    <option value="" disabled>Selecciona una provincia</option>
+                    {provinces.map(p => <option key={p.name}>{p.name}</option>)}
+                  </select>
+                </label>
+                <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
+                <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca (3 pasos)</button>
+              </div>
+              {gpsStatus && <p role="status">{gpsStatus}</p>}
+            </section>
+          ) : (
+            <div className="home-grid">
+              <div className="col-main">
+                <Fold id="siembra" icon="🌱" title="Plan y recomendación" help="Aquí ves el cultivo más recomendable según tu tierra, agua y cultivo anterior, y puedes guardar tu plan del mes.">
+                  {activeFarm && <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>}
+                  <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+                </Fold>
+              </div>
+              <div className="col-side">
+                <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
+                <ShareButton summary={shareSummary}/>
+              </div>
+            </div>
+          )}
         </div>
-        {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
-        {(field || detectedParcel) && <article className="card parcel-card" aria-label="Tu parcela" aria-live="polite">
-          <h3>Tu parcela{field ? `: unas ${toTareas(field.areaHa)} tareas` : detectedParcel ? `: unas ${toTareas(detectedParcel.properties.areaHa)} tareas` : ""}</h3>
-          {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {signalLabels[detectedParcel.properties.signal]} ({detectedParcel.properties.latestObservedMonth})</p>}
-          <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
-            {field && <p>Borde aproximado: {field.areaHa.toFixed(2)} ha ({toTareas(field.areaHa)} tareas; 1 tarea = 628,86 m²). {fieldMeta.method} {fieldMeta.limitations} {fieldMeta.attribution}</p>}
-            {detectedParcel && <>
-              <p>Verdor (NDVI) {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}. Unidad de análisis satelital de {detectedParcel.properties.areaHa} ha.</p>
-              <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m. {parcelEvidence.signalRule} {parcelEvidence.limitation}</p>
-              <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.slice(-12).map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`Verdor ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
-              <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
-            </>}
-          </details>
-        </article>}
-      </section>
-      </Fold>
-      <Fold icon="💰" title="Precio y mercado"><MarketCard key={saleCrop} initialCrop={saleCrop}/></Fold>
+      )}
 
-      {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>}
+      {activeTab === "lluvia" && (
+        <div id="panel-lluvia" role="tabpanel" aria-labelledby="tab-lluvia" className="tab-stage" key={`lluvia-${activeFarm?.id ?? "none"}`}>
+          <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought?.label} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} onTurn={waterTurn => updateFarm({ waterTurn: waterTurn || undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
+        </div>
+      )}
 
-      {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
-        {selectedClimate ? <>
-          <div className="climate-meters">
-            <div className="cmeter-card">
-              <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
-              <strong className="cmeter-val">{selectedClimate.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C` : "—"}</strong>
-              <div className="cmeter-track" aria-hidden="true">
-                <span className="cmeter-fill temp" style={{ width: `${selectedClimate.temperatureC != null ? Math.max(12, Math.min(100, Math.round(((selectedClimate.temperatureC - 14) / 24) * 100))) : 0}%` }} />
-              </div>
-              <small className="cmeter-sub">Rango 14–38 °C · NASA POWER</small>
+      {activeTab === "venta" && (
+        <div id="panel-venta" role="tabpanel" aria-labelledby="tab-venta" className="tab-stage">
+          <div className="home-grid">
+            <div className="col-main">
+              <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder.">
+                <SaleBudget key={activeFarm?.id ?? "new"}/>
+                <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
+                  <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas}/>
+                </details>
+              </Fold>
             </div>
-            <div className="cmeter-card">
-              <div className="cmeter-head"><FarmIcon name="water" size={20} /><span>Lluvia mensual</span></div>
-              <strong className="cmeter-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</strong>
-              <div className="cmeter-track" aria-hidden="true">
-                <span className="cmeter-fill rain" style={{ width: `${selectedClimate.precipitationMmDay != null ? Math.max(8, Math.min(100, Math.round((selectedClimate.precipitationMmDay * 30 / 220) * 100))) : 0}%` }} />
-              </div>
-              <small className="cmeter-sub">{selectedClimate.precipitationMmDay != null ? `~${Math.round(selectedClimate.precipitationMmDay * 30)} mm al mes` : "Sin dato"}</small>
-            </div>
-            <div className="cmeter-card">
-              <div className="cmeter-head"><CloudRain size={18} aria-hidden="true" /><span>Humedad relativa</span></div>
-              <strong className="cmeter-val">{selectedClimate.relativeHumidityPct != null ? `${Math.round(selectedClimate.relativeHumidityPct)}%` : "—"}</strong>
-              <div className="cmeter-track" aria-hidden="true">
-                <span className="cmeter-fill hum" style={{ width: `${selectedClimate.relativeHumidityPct != null ? Math.max(8, Math.min(100, Math.round(selectedClimate.relativeHumidityPct))) : 0}%` }} />
-              </div>
-              <small className="cmeter-sub">Promedio histórico del mes</small>
+            <div className="col-side">
+              <Fold id="precio-y-mercado" icon="💰" title="Precio y mercado" help="Muestra los precios mayoristas publicados por el Ministerio de Agricultura y en qué meses suele pagarse mejor cada cultivo.">
+                <MarketCard key={saleCrop} initialCrop={saleCrop}/>
+              </Fold>
             </div>
           </div>
-          <details className="sources-fold">
-            <summary>Fuentes y límites ({source?.period ?? "2016–2025"} · NASA POWER)</summary>
-            <div className="sources-box">
-              <p>Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
-              <p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p>
-            </div>
-          </details>
-        </> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
-      </section></Fold>}
-      </div>
-      </details>
-      <Fold id="voz" icon="🎙️" title="Pregúntale a AgroVision" teaser="Habla como en una llamada o escribe tu pregunta"><VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/></Fold>
-      </div>
-      </div>
+        </div>
+      )}
 
-      <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
-        <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
-        <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
-          <h3>{s.label}</h3>
-          <div className="farmer-pillars" aria-label="Agua y suelo, clima, plagas y mercado">{scoreDefinitions.map(p => {
-            const score=s.scores[p.id];
-            const label=score===null?"Sin datos suficientes":score>=3.34?"Favorable":score>=1.67?"Revisar":"Menos favorable";
-            return <span key={p.id} className={`farmer-pillar ${pillarColor(score)}`} role="img" aria-label={`${p.label}: ${label}`} title={`${p.label}: ${label}`}><FarmIcon name={p.id} size={28}/></span>;
-          })}</div>
-          {s.pestPrecautions.length > 0 && <div><strong>Precauciones de plagas</strong><ul>{s.pestPrecautions.map(note => <li key={note}>{note}</li>)}</ul></div>}
-          <details className="evidence-details"><summary>Ver detalles</summary>
-            <p>Fechas ilustrativas: {s.dates}.</p>
-            {scoreDefinitions.map(p=><p key={p.id}><strong>{p.label}</strong>: {s.details[p.id]} <a href={s.sourceUrls[p.id]}>Fuente</a></p>)}
+      {activeTab === "mapa" && (
+        <div id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa" className="tab-stage">
+          <div className="home-grid">
+            <div className="col-main">
+              <Fold id="tu-finca-en-el-mapa" icon="🗺️" title="Tu finca en el mapa" help="Busca tu zona en el mapa satelital para ver el tamaño aproximado de tu parcela y su verdor reciente." teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
+                <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
+                  {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
+                  <div className="location-controls">
+                    <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
+                    <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
+                    {matches.length > 0 && <div className="search-results" role="group" aria-label="Provincias encontradas">{matches.map(p => <button type="button" aria-pressed={province === p.name} key={p.name} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");}}>{p.name}</button>)}</div>}
+                    {provinceSearch.trim() && matches.length === 0 && <p role="status">No encontramos esa provincia. Revisa el nombre.</p>}
+                    <label>O escoge de la lista<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.map(p => <option key={p.name}>{p.name}</option>)}</select></label>
+                    {gpsStatus && <p role="status">{gpsStatus}</p>}
+                  </div>
+                  {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
+                  {(field || detectedParcel) && <article className="card parcel-card" aria-label="Tu parcela" aria-live="polite">
+                    <h3>Tu parcela{field ? `: unas ${toTareas(field.areaHa)} tareas` : detectedParcel ? `: unas ${toTareas(detectedParcel.properties.areaHa)} tareas` : ""}</h3>
+                    {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {signalLabels[detectedParcel.properties.signal]} ({detectedParcel.properties.latestObservedMonth})</p>}
+                    <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
+                      {field && <p>Borde aproximado: {field.areaHa.toFixed(2)} ha ({toTareas(field.areaHa)} tareas; 1 tarea = 628,86 m²). {fieldMeta.method} {fieldMeta.limitations} {fieldMeta.attribution}</p>}
+                      {detectedParcel && <>
+                        <p>Verdor (NDVI) {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}. Unidad de análisis satelital de {detectedParcel.properties.areaHa} ha.</p>
+                        <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m. {parcelEvidence.signalRule} {parcelEvidence.limitation}</p>
+                        <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.slice(-12).map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`Verdor ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
+                        <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
+                      </>}
+                    </details>
+                  </article>}
+                </section>
+              </Fold>
+            </div>
+            <div className="col-side">
+              {province ? (
+                <Fold id="sequia-y-lluvia" icon="☀️" title="Sequía y lluvia" help="Te muestra si la provincia ha tenido señal reciente o histórica de sequía según datos satelitales de la FAO." teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>
+              ) : (
+                <section className="card panel"><p className="note">Elige tu provincia en el mapa para ver el reporte provincial de sequía y clima normal.</p></section>
+              )}
+
+              {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} help="Muestra el promedio de temperatura, lluvia y humedad de los últimos 10 años en tu zona." teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
+                {selectedClimate ? <>
+                  <div className="climate-meters">
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
+                      <strong className="cmeter-val">{selectedClimate.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C` : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill temp" style={{ width: `${selectedClimate.temperatureC != null ? Math.max(12, Math.min(100, Math.round(((selectedClimate.temperatureC - 14) / 24) * 100))) : 0}%` }} />
+                      </div>
+                      <small className="cmeter-sub">Rango 14–38 °C · NASA POWER</small>
+                    </div>
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><FarmIcon name="water" size={20} /><span>Lluvia mensual</span></div>
+                      <strong className="cmeter-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill rain" style={{ width: `${selectedClimate.precipitationMmDay != null ? Math.max(8, Math.min(100, Math.round((selectedClimate.precipitationMmDay * 30 / 220) * 100))) : 0}%` }} />
+                      </div>
+                      <small className="cmeter-sub">{selectedClimate.precipitationMmDay != null ? `~${Math.round(selectedClimate.precipitationMmDay * 30)} mm al mes` : "Sin dato"}</small>
+                    </div>
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><CloudRain size={18} aria-hidden="true" /><span>Humedad relativa</span></div>
+                      <strong className="cmeter-val">{selectedClimate.relativeHumidityPct != null ? `${Math.round(selectedClimate.relativeHumidityPct)}%` : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill hum" style={{ width: `${selectedClimate.relativeHumidityPct != null ? Math.max(8, Math.min(100, Math.round(selectedClimate.relativeHumidityPct))) : 0}%` }} />
+                      </div>
+                      <small className="cmeter-sub">Promedio histórico del mes</small>
+                    </div>
+                  </div>
+                  <details className="sources-fold">
+                    <summary>Fuentes y límites ({source?.period ?? "2016–2025"} · NASA POWER)</summary>
+                    <div className="sources-box">
+                      <p>Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
+                      <p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p>
+                    </div>
+                  </details>
+                </> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
+              </section></Fold>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "preguntar" && (
+        <div id="panel-preguntar" role="tabpanel" aria-labelledby="tab-preguntar" className="tab-stage">
+          <Fold id="voz" icon="🎙️" title="Pregúntale a AgroVision" help="Habla por micrófono o escribe preguntas sobre tu cultivo, agua, plagas o precios." teaser="Habla como en una llamada o escribe tu pregunta">
+            <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/>
+          </Fold>
+          <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
+            <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
+            <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
+              <h3>{s.label}</h3>
+              <div className="farmer-pillars" aria-label="Agua y suelo, clima, plagas y mercado">{scoreDefinitions.map(p => {
+                const score=s.scores[p.id];
+                const label=score===null?"Sin datos suficientes":score>=3.34?"Favorable":score>=1.67?"Revisar":"Menos favorable";
+                return <span key={p.id} className={`farmer-pillar ${pillarColor(score)}`} role="img" aria-label={`${p.label}: ${label}`} title={`${p.label}: ${label}`}><FarmIcon name={p.id} size={28}/></span>;
+              })}</div>
+              {s.pestPrecautions.length > 0 && <div><strong>Precauciones de plagas</strong><ul>{s.pestPrecautions.map(note => <li key={note}>{note}</li>)}</ul></div>}
+              <details className="evidence-details"><summary>Ver detalles</summary>
+                <p>Fechas ilustrativas: {s.dates}.</p>
+                {scoreDefinitions.map(p=><p key={p.id}><strong>{p.label}</strong>: {s.details[p.id]} <a href={s.sourceUrls[p.id]}>Fuente</a></p>)}
+              </details>
+            </article>)}</div>
           </details>
-        </article>)}</div>
-      </details>
+        </div>
+      )}
 
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>

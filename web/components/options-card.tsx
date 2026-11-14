@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
 import { FarmIcon } from "@/components/farm-icon";
+import { HelpTip } from "@/components/help-tip";
 import { fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
@@ -17,7 +18,10 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
   const all = options.flatMap(option => option.advice ? [option.advice] : []);
   const [sources, setSources] = useState<CropAdvice | null>(null);
   return <section className="card panel options" aria-labelledby="opciones-titulo">
-    <h2 id="opciones-titulo" className="panel-title">Otras opciones</h2>
+    <div className="panel-head-row">
+      <h2 id="opciones-titulo" className="panel-title">Otras opciones</h2>
+      <HelpTip label="Otras opciones" text="Compara el mejor cultivo según lo que más te importe hoy: ahorrar agua, cuidar el precio, evitar plagas, resistir sequía o seguir igual." />
+    </div>
     <ol className="option-list">
       {options.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
         <div className="option-head">

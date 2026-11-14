@@ -880,12 +880,41 @@ h1 { color: var(--monte); }
 /* voice card keeps its dark green panel inside the always-open Fold */
 .panel .voice-card, .card.voice-card { background: var(--monte); color: #fffdf0; padding: 20px; border-radius: 18px; margin-top: 0; }
 
-/* Farm workbench + clean thematic layout + interactive weather/budget animations. AI: Codex & Antigravity, 2026-11-14. Frainer review pending. */
-.workbench-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 12px 0 14px; }
-.workbench-nav a { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 8px 12px; border: 1px solid #c2d1be; border-radius: 14px; background: #fff; color: var(--monte); text-decoration: none; font-size: 16px; font-weight: 800; box-shadow: 0 2px 6px rgba(21, 35, 26, 0.04); transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease; }
-.workbench-nav a:hover { background: var(--monte-claro); border-color: var(--monte); transform: translateY(-1px); }
+/* Farm workbench + independent section tabs + accessible helper tips + interactive weather/market animations. AI: Codex & Antigravity, 2026-11-14. Frainer review pending. */
+.workbench-nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 12px 0 16px; }
+.wnav-tab { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; padding: 8px 10px; border: 1.5px solid #c2d1be; border-radius: 14px; background: #fff; color: var(--monte); font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 6px rgba(21, 35, 26, 0.04); transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease; }
+.wnav-tab:hover { background: var(--monte-claro); border-color: var(--monte); transform: translateY(-1px); }
+.wnav-tab.is-active { background: var(--monte); border-color: var(--monte); color: #fff; box-shadow: 0 6px 14px rgba(24, 91, 60, 0.22); }
+.wnav-badge { font-style: normal; font-size: 12px; font-weight: 800; white-space: nowrap; padding: 2px 7px; border-radius: 999px; background: #e8f1eb; color: #15452e; line-height: 1.2; }
+.wnav-tab.is-active .wnav-badge { background: #fff; color: #15452e; }
 .workbench-nav svg, .field-week svg { flex-shrink: 0; }
-.workbench-nav a svg { width: 20px; height: 20px; }
+.wnav-tab svg { width: 19px; height: 19px; }
+
+.tab-stage { animation: panelEnter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes panelEnter { from { transform: translateY(6px); } to { transform: translateY(0); } }
+
+.panel-head-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 10px; }
+.panel-head-row .panel-title { margin-bottom: 0; flex: 1 1 210px; min-width: 0; font-size: clamp(19px, 4.4vw, 22px); }
+.subhead-help { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+.help-tip-wrap { position: relative; display: inline-flex; align-items: center; flex-shrink: 0; }
+.help-tip-btn { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 5px 11px; border: 1px solid #b9ccb7; border-radius: 999px; background: #f3f7f2; color: var(--monte); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+.help-tip-btn:hover, .help-tip-btn.is-open { background: var(--monte); border-color: var(--monte); color: #fff; }
+.help-tip-box { position: absolute; right: 0; top: calc(100% + 8px); width: min(300px, calc(100vw - 48px)); z-index: 35; display: flex; align-items: flex-start; gap: 8px; padding: 11px 12px; border-radius: 14px; border: 1.5px solid #2d6a49; background: #fffdf7; color: #173222; box-shadow: 0 12px 26px rgba(17, 46, 30, 0.16); font-size: 14px; font-weight: 600; line-height: 1.42; text-align: left; }
+.help-tip-text { flex: 1; }
+.help-tip-close { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #c9d6c4; border-radius: 8px; background: #f3f7f2; color: var(--monte); cursor: pointer; }
+.help-tip-close:hover { background: #e1ecdf; }
+
+.quick-zone-card { margin-bottom: 18px; background: linear-gradient(155deg, #f3f8f0 0%, #ffffff 70%); border: 1px solid #c3d5be; }
+.quick-zone-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.quick-zone-btn { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; padding: 8px 10px; border: 1.5px solid #bdd0b8; border-radius: 12px; background: #fff; color: var(--monte); font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; transition: transform 0.14s ease, background-color 0.14s ease, border-color 0.14s ease; }
+.quick-zone-btn:hover { background: var(--monte); border-color: var(--monte); color: #fff; transform: translateY(-1px); }
+.quick-zone-actions { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-top: 8px; }
+.quick-zone-select { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 210px; font-size: 14px; font-weight: 700; color: #2b4535; }
+.quick-zone-select select { min-height: 44px; border: 1.5px solid #bdd0b8; border-radius: 10px; padding: 6px 10px; font: inherit; background: #fff; color: #162e20; }
+
+.spark-hit { fill: transparent; cursor: pointer; transition: fill 0.12s ease; }
+.spark-hit:hover, .spark-hit:focus { fill: rgba(24, 91, 60, 0.08); outline: none; }
 
 .field-week { padding: clamp(14px, 2.4vw, 24px); border: 1px solid #bed0b6; border-radius: var(--radio-l); background: linear-gradient(155deg, #ebf4e5 0%, #f5f9f2 65%, #e8f1e6 100%); margin: 0 0 18px; box-shadow: 0 6px 20px rgba(21, 35, 26, 0.05); }
 .field-week-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -987,9 +1016,9 @@ h1 { color: var(--monte); }
 .workbench-form label, .week-turn label, .week-province { display: grid; gap: 4px; min-width: 0; font-size: 15px; font-weight: 700; }
 .week-province { max-width: 20rem; margin-bottom: 8px; }
 .workbench-form input, .workbench-form select, .week-turn input, .week-province select { width: 100%; min-width: 0; min-height: 46px; padding: 8px 10px; color: var(--tinta); background: #fff; border: 1px solid #879a86; border-radius: 10px; font-size: 15px; }
-.workbench-form button[type=submit], .week-turn button:not(.link-button), .workbench-button { min-height: 46px; background: var(--monte); color: #fff; border: 1px solid var(--monte); padding: 8px 14px; border-radius: 10px; font-weight: 750; cursor: pointer; }
+.workbench-form button[type=submit], .week-turn button:not(.link-button):not(.help-tip-btn):not(.help-tip-close), .workbench-button { min-height: 46px; background: var(--monte); color: #fff; border: 1px solid var(--monte); padding: 8px 14px; border-radius: 10px; font-weight: 750; cursor: pointer; white-space: nowrap; }
 .workbench-form button:disabled, .week-turn button:disabled { opacity: .65; cursor: default; }
-.sale-budget button[type=submit] { grid-column: 1 / -1; }
+.workbench-form button[type=submit] { grid-column: 1 / -1; }
 .sale-budget > p { margin-top: 0; }
 .saved-plan, .budget-result { padding: 12px 14px; background: var(--monte-claro); color: var(--monte); border-radius: 12px; }
 .budget-result { margin-top: 12px; border: 1px solid #c5d6c3; }
@@ -1061,8 +1090,13 @@ h1 { color: var(--monte); }
 @media (max-width: 650px) {
   .topbar { flex-wrap: nowrap; gap: 8px; }
   .topbar .offline-pill { white-space: normal; max-width: 10.2rem; padding: 6px 9px; font-size: 12px; line-height: 1.2; }
-  .workbench-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-block: 10px 12px; }
-  .workbench-nav a { flex-direction: column; gap: 3px; font-size: 12.5px; padding: 7px 3px; min-height: 52px; }
+  .workbench-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-block: 10px 12px; }
+  .wnav-tab { grid-column: span 2; gap: 4px; font-size: 12.5px; padding: 6px 4px; min-height: 46px; overflow: hidden; }
+  .wnav-tab svg { width: 16px; height: 16px; }
+  .wnav-badge { font-size: 11px; padding: 1px 5px; }
+  .wnav-tab:nth-child(n+4) { grid-column: span 3; font-size: 13px; padding: 6px 8px; }
+  .quick-zone-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .help-tip-box { position: fixed; left: 14px; right: 14px; top: auto; bottom: 14px; width: auto; z-index: 80; box-shadow: 0 18px 40px rgba(17, 46, 30, 0.28); }
   .field-week .rain-days { gap: 3px; }
   .rain-day-btn { min-height: 98px; padding: 5px 2px; border-radius: 10px; }
   .field-week .rain-days li { font-size: 11px; }

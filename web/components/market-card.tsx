@@ -9,20 +9,22 @@ const money = (n: number) => `RD$${n.toLocaleString("es-DO", { maximumFractionDi
 const periodWord = (p: string) => `${monthNames[Number(p.slice(5, 7)) - 1]} ${p.slice(0, 4)}`;
 const shortMonths = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 
-function Sparkline({ values }: { values: number[] }) {
+function Sparkline({ values, periods }: { values: number[]; periods: string[] }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   if (values.length < 2) return null;
   const min = Math.min(...values), max = Math.max(...values), avg = values.reduce((a, b) => a + b, 0) / values.length;
   const w = 320, h = 92, padTop = 14, padBot = 14, span = max - min || 1;
   const toY = (v: number) => h - padBot - ((v - min) / span) * (h - padTop - padBot);
-  const coords = values.map((v, i) => ({ x: (i / (values.length - 1)) * w, y: toY(v), v }));
+  const coords = values.map((v, i) => ({ x: (i / (values.length - 1)) * w, y: toY(v), v, p: periods[i] ?? "" }));
   const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
   const areaPts = `0,${h - padBot} ${linePts} ${w},${h - padBot}`;
-  const last = coords[coords.length - 1];
+  const active = hoverIdx !== null && coords[hoverIdx] ? coords[hoverIdx] : coords[coords.length - 1];
   const avgY = toY(avg);
+  const bandW = w / coords.length;
   return (
-    <div className="market-chart-box">
+    <div className="market-chart-box" onMouseLeave={() => setHoverIdx(null)}>
       <div className="market-chart-meta">
-        <span>24 meses</span>
+        <span>{active.p ? `${periodWord(active.p)}: ${money(active.v)}` : "Últimos 24 meses"}</span>
         <span>Mín {money(min)} · Prom {money(Math.round(avg))} · Máx {money(max)}</span>
       </div>
       <svg className="sparkline-rich" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`Precio de los últimos 24 meses: mínimo ${money(min)}, máximo ${money(max)}`}>
@@ -33,9 +35,23 @@ function Sparkline({ values }: { values: number[] }) {
           </linearGradient>
         </defs>
         <line x1="0" y1={avgY} x2={w} y2={avgY} stroke="#6b4226" strokeOpacity="0.35" strokeDasharray="4 4" />
+        <line x1={active.x} y1={padTop - 4} x2={active.x} y2={h - padBot} stroke="#185b3c" strokeOpacity="0.35" strokeWidth="1.5" />
         <polygon points={areaPts} fill="url(#priceAreaGrad)" />
         <polyline className="price-line-anim" points={linePts} fill="none" stroke="#1f4d2c" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-        <circle className="price-dot-pulse" cx={last.x} cy={last.y} r="5.5" fill="#1f4d2c" stroke="#fff" strokeWidth="2" />
+        <circle className={hoverIdx === null ? "price-dot-pulse" : undefined} cx={active.x} cy={active.y} r="5.5" fill="#1f4d2c" stroke="#fff" strokeWidth="2" />
+        {coords.map((c, idx) => (
+          <rect
+            key={c.p || idx}
+            x={Math.max(0, c.x - bandW / 2)}
+            y="0"
+            width={bandW}
+            height={h}
+            fill="transparent"
+            className="spark-hit"
+            onMouseEnter={() => setHoverIdx(idx)}
+            onClick={() => setHoverIdx(idx)}
+          />
+        ))}
       </svg>
     </div>
   );
@@ -60,7 +76,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
     {latest ? <>
       <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
       {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
-      <Sparkline values={(m.recent ?? []).map(r => r.price)} />
+      <Sparkline values={(m.recent ?? []).map(r => r.price)} periods={(m.recent ?? []).map(r => r.period)} />
       {(bestSet.size > 0 || worstSet.size > 0) && (
         <div className="season-cal" aria-label="Calendario estacional de venta (12 meses)">
           <div className="season-cal-head">
