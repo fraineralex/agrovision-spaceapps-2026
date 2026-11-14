@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
-import { REALTIME_MODEL, voiceInstructions, rotationMetrics, type VoiceSelection } from "@/lib/voice-context";
+import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
 import { FarmIcon } from "@/components/farm-icon";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
@@ -72,7 +72,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     finally { starting.current = false; }
   }
   function stopVoice() { generation.current++; realtime.disconnect(); releaseMedia(); interrupt(); setNotice("Micrófono apagado. Puedes escribir tu pregunta."); }
-  function localSummary() { const data=rotationMetrics(selection); const option=data.scenarios.find(s=>s.id === "habichuela_maiz")!; return `Compara ${option.label}. ${option.details.water} Las reglas de plagas y los precios son referencias parciales: abre Ver detalles. No predigo plagas ni rendimiento.`; }
+  function localSummary() { return localAdviceText(selection); }
   function speak(text: string) {
     if (!readAloud || !window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
