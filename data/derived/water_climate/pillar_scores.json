@@ -1,0 +1,605 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-14T15:13:27Z",
+  "caseId": "valle-san-juan",
+  "description": "Water-soil and climate scores for three illustrative rotations. Pest and market pillars are outside this file.",
+  "scoreMethod": {
+    "id": "water-climate-v1",
+    "water": "score = 5 * (max net irrigation - scenario net irrigation) / (max - min) across the three scenarios. A score of 5 is only the lowest demand in this set.",
+    "climate": "score = 5 * (1 - fraction of cycle days in heat-risk or dry-quartile calendar months).",
+    "rainfallProduct": "POWER PRECTOTCORR because IMERG millimetres were not available without Earthdata Login.",
+    "imergStatus": "pending_earthdata_login",
+    "smapStatus": "pending"
+  },
+  "scenarios": [
+    {
+      "id": "habichuela_maiz",
+      "label": "Red bean then maize",
+      "status": "illustrative",
+      "crops": [
+        {
+          "cropId": "habichuela_roja",
+          "seasonLabel": "2021-11-15"
+        },
+        {
+          "cropId": "maiz",
+          "seasonLabel": "2022-03-05"
+        }
+      ],
+      "sourceIds": [
+        "nasa-power-daily-ag",
+        "fao-56",
+        "idiaf-habichuela-compendio"
+      ],
+      "pillars": [
+        {
+          "pillar": "water_soil",
+          "score": 3.28,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means lower estimated net irrigation demand than the other scenarios in this file."
+          },
+          "summary": "Red bean then maize needs about 433.152 mm of net irrigation in this POWER climatology (806.143 mm ETc and 414.761 mm effective rain). Soil moisture, slope, and texture are missing, so the soil part of the pillar is not scored.",
+          "metrics": [
+            {
+              "id": "net_irrigation_demand",
+              "label": "Net irrigation demand",
+              "value": 433.152,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "ETc minus USDA-SCS effective rain from POWER precipitation. IMERG was not available. Soil storage is ignored. Relative scores use only the three scenarios in this file."
+            },
+            {
+              "id": "crop_etc",
+              "label": "Crop evapotranspiration",
+              "value": 806.143,
+              "unit": "mm/sequence",
+              "confidence": 0.45,
+              "quality": "estimated",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "FAO-56 Kc curve times POWER Penman-Monteith ET0. Stage lengths are published examples, not local observations."
+            },
+            {
+              "id": "effective_rainfall",
+              "label": "Effective rainfall credited to the sequence",
+              "value": 414.761,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "POWER rainfall, not IMERG. The technical plan keeps POWER tropical rainfall out of the principal rainfall product."
+            }
+          ],
+          "rulesApplied": [
+            "fao56_etc_minus_usda_scs_effective_rain",
+            "relative_net_irrigation_among_three_scenarios",
+            "power_precipitation_is_not_the_principal_rainfall_product"
+          ],
+          "missingData": [
+            "GPM IMERG monthly precipitation",
+            "SMAP soil moisture",
+            "SRTM slope",
+            "Local soil water-holding capacity"
+          ],
+          "reviewRisks": [
+            "Scenario, discuss with a local technician.",
+            "POWER cell elevation is higher than the valley floor described by the team, so temperature and ET0 may not match a field.",
+            "Bean sowing is 15 November, inside the 5 November-15 December window cited from the IDIAF compendium. It is not an optimal date. Maize starts the next day."
+          ]
+        },
+        {
+          "pillar": "climate",
+          "score": 2.94,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means a smaller share of cycle days falls in climatological heat-risk or dry-quartile months."
+          },
+          "summary": "About 41.3 percent of the template cycle falls in a heat-risk or dry-quartile month at the POWER point. Heat-risk months are [7, 8, 9]. Dry-quartile months are [1, 2, 3].",
+          "metrics": [
+            {
+              "id": "heat_or_dry_day_fraction",
+              "label": "Fraction of cycle days in heat-risk or dry-quartile months",
+              "value": 0.4128,
+              "unit": "1",
+              "confidence": 0.45,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Heat-risk months are the upper quartile of climatological mean Tmax. Dry-quartile months are the lowest quartile of POWER rainfall. This is not a yield or pest forecast."
+            },
+            {
+              "id": "drought_months_in_record",
+              "label": "Historical POWER drought months in 2016-2025",
+              "value": 42,
+              "unit": "months",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Same count for every scenario. It describes the point climatology, not a difference between rotations."
+            }
+          ],
+          "rulesApplied": [
+            "one_minus_fraction_of_days_in_heat_or_dry_quartile_months",
+            "heat_risk_is_upper_quartile_of_monthly_mean_tmax",
+            "dry_quartile_uses_power_rainfall"
+          ],
+          "missingData": [
+            "GPM IMERG season onset",
+            "A crop-specific heat threshold validated for San Juan"
+          ],
+          "reviewRisks": [
+            "Illustrative climate screen, not a planting recommendation.",
+            "The 32 C hot-day count is a screen and is not used in the score."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leguminosa_maiz",
+      "label": "Pulse then maize, outside the November bean window",
+      "status": "illustrative",
+      "crops": [
+        {
+          "cropId": "leguminosa_pulse",
+          "seasonLabel": "2021-10-01"
+        },
+        {
+          "cropId": "maiz",
+          "seasonLabel": "2022-01-19"
+        }
+      ],
+      "sourceIds": [
+        "nasa-power-daily-ag",
+        "fao-56",
+        "idiaf-habichuela-compendio"
+      ],
+      "pillars": [
+        {
+          "pillar": "water_soil",
+          "score": 5.0,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means lower estimated net irrigation demand than the other scenarios in this file."
+          },
+          "summary": "Pulse then maize, outside the November bean window needs about 336.162 mm of net irrigation in this POWER climatology (755.544 mm ETc and 458.271 mm effective rain). Soil moisture, slope, and texture are missing, so the soil part of the pillar is not scored.",
+          "metrics": [
+            {
+              "id": "net_irrigation_demand",
+              "label": "Net irrigation demand",
+              "value": 336.162,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "ETc minus USDA-SCS effective rain from POWER precipitation. IMERG was not available. Soil storage is ignored. Relative scores use only the three scenarios in this file."
+            },
+            {
+              "id": "crop_etc",
+              "label": "Crop evapotranspiration",
+              "value": 755.544,
+              "unit": "mm/sequence",
+              "confidence": 0.45,
+              "quality": "estimated",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "FAO-56 Kc curve times POWER Penman-Monteith ET0. Stage lengths are published examples, not local observations."
+            },
+            {
+              "id": "effective_rainfall",
+              "label": "Effective rainfall credited to the sequence",
+              "value": 458.271,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "POWER rainfall, not IMERG. The technical plan keeps POWER tropical rainfall out of the principal rainfall product."
+            }
+          ],
+          "rulesApplied": [
+            "fao56_etc_minus_usda_scs_effective_rain",
+            "relative_net_irrigation_among_three_scenarios",
+            "power_precipitation_is_not_the_principal_rainfall_product"
+          ],
+          "missingData": [
+            "GPM IMERG monthly precipitation",
+            "SMAP soil moisture",
+            "SRTM slope",
+            "Local soil water-holding capacity"
+          ],
+          "reviewRisks": [
+            "Scenario, discuss with a local technician.",
+            "POWER cell elevation is higher than the valley floor described by the team, so temperature and ET0 may not match a field.",
+            "The pulse uses FAO-56 dry-bean and pulses coefficients and starts on the first day of month 10. November is reserved for the red-bean window, so this start is the wettest remaining illustrative sowing month. It is not identified as red bean."
+          ]
+        },
+        {
+          "pillar": "climate",
+          "score": 3.09,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means a smaller share of cycle days falls in climatological heat-risk or dry-quartile months."
+          },
+          "summary": "About 38.3 percent of the template cycle falls in a heat-risk or dry-quartile month at the POWER point. Heat-risk months are [7, 8, 9]. Dry-quartile months are [1, 2, 3].",
+          "metrics": [
+            {
+              "id": "heat_or_dry_day_fraction",
+              "label": "Fraction of cycle days in heat-risk or dry-quartile months",
+              "value": 0.383,
+              "unit": "1",
+              "confidence": 0.45,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Heat-risk months are the upper quartile of climatological mean Tmax. Dry-quartile months are the lowest quartile of POWER rainfall. This is not a yield or pest forecast."
+            },
+            {
+              "id": "drought_months_in_record",
+              "label": "Historical POWER drought months in 2016-2025",
+              "value": 42,
+              "unit": "months",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Same count for every scenario. It describes the point climatology, not a difference between rotations."
+            }
+          ],
+          "rulesApplied": [
+            "one_minus_fraction_of_days_in_heat_or_dry_quartile_months",
+            "heat_risk_is_upper_quartile_of_monthly_mean_tmax",
+            "dry_quartile_uses_power_rainfall"
+          ],
+          "missingData": [
+            "GPM IMERG season onset",
+            "A crop-specific heat threshold validated for San Juan"
+          ],
+          "reviewRisks": [
+            "Illustrative climate screen, not a planting recommendation.",
+            "The 32 C hot-day count is a screen and is not used in the score."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "habichuela_guandul_maiz",
+      "label": "Red bean, pigeon-pea proxy, then maize",
+      "status": "illustrative",
+      "crops": [
+        {
+          "cropId": "habichuela_roja",
+          "seasonLabel": "2021-11-15"
+        },
+        {
+          "cropId": "guandul_cover_proxy",
+          "seasonLabel": "2022-03-05"
+        },
+        {
+          "cropId": "maiz",
+          "seasonLabel": "2022-06-23"
+        }
+      ],
+      "sourceIds": [
+        "nasa-power-daily-ag",
+        "fao-56",
+        "idiaf-habichuela-compendio"
+      ],
+      "pillars": [
+        {
+          "pillar": "water_soil",
+          "score": 0.0,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means lower estimated net irrigation demand than the other scenarios in this file."
+          },
+          "summary": "Red bean, pigeon-pea proxy, then maize needs about 618.722 mm of net irrigation in this POWER climatology (1231.268 mm ETc and 655.412 mm effective rain). Soil moisture, slope, and texture are missing, so the soil part of the pillar is not scored.",
+          "metrics": [
+            {
+              "id": "net_irrigation_demand",
+              "label": "Net irrigation demand",
+              "value": 618.722,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "ETc minus USDA-SCS effective rain from POWER precipitation. IMERG was not available. Soil storage is ignored. Relative scores use only the three scenarios in this file."
+            },
+            {
+              "id": "crop_etc",
+              "label": "Crop evapotranspiration",
+              "value": 1231.268,
+              "unit": "mm/sequence",
+              "confidence": 0.45,
+              "quality": "estimated",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "FAO-56 Kc curve times POWER Penman-Monteith ET0. Stage lengths are published examples, not local observations."
+            },
+            {
+              "id": "effective_rainfall",
+              "label": "Effective rainfall credited to the sequence",
+              "value": 655.412,
+              "unit": "mm/sequence",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "POWER rainfall, not IMERG. The technical plan keeps POWER tropical rainfall out of the principal rainfall product."
+            }
+          ],
+          "rulesApplied": [
+            "fao56_etc_minus_usda_scs_effective_rain",
+            "relative_net_irrigation_among_three_scenarios",
+            "power_precipitation_is_not_the_principal_rainfall_product"
+          ],
+          "missingData": [
+            "GPM IMERG monthly precipitation",
+            "SMAP soil moisture",
+            "SRTM slope",
+            "Local soil water-holding capacity"
+          ],
+          "reviewRisks": [
+            "Scenario, discuss with a local technician.",
+            "POWER cell elevation is higher than the valley floor described by the team, so temperature and ET0 may not match a field.",
+            "Pigeon pea has no FAO-56 row. A full dry-bean stage length is used as a proxy, not a verified cover-crop duration."
+          ]
+        },
+        {
+          "pillar": "climate",
+          "score": 2.36,
+          "scoreScale": {
+            "min": 0,
+            "max": 5,
+            "direction": "Higher means a smaller share of cycle days falls in climatological heat-risk or dry-quartile months."
+          },
+          "summary": "About 52.8 percent of the template cycle falls in a heat-risk or dry-quartile month at the POWER point. Heat-risk months are [7, 8, 9]. Dry-quartile months are [1, 2, 3].",
+          "metrics": [
+            {
+              "id": "heat_or_dry_day_fraction",
+              "label": "Fraction of cycle days in heat-risk or dry-quartile months",
+              "value": 0.5275,
+              "unit": "1",
+              "confidence": 0.45,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Heat-risk months are the upper quartile of climatological mean Tmax. Dry-quartile months are the lowest quartile of POWER rainfall. This is not a yield or pest forecast."
+            },
+            {
+              "id": "drought_months_in_record",
+              "label": "Historical POWER drought months in 2016-2025",
+              "value": 42,
+              "unit": "months",
+              "confidence": 0.35,
+              "quality": "preliminary",
+              "provenance": {
+                "sourceId": "nasa-power-daily-ag",
+                "sourceName": "NASA POWER Daily API",
+                "url": "https://power.larc.nasa.gov/",
+                "periodStart": "2016-01-01",
+                "periodEnd": "2025-12-31",
+                "resolution": {
+                  "value": 0.5,
+                  "unit": "degree",
+                  "note": "Not a parcel measurement."
+                },
+                "scale": "regional",
+                "method": "reanalysis",
+                "citation": "2016-2025 daily POWER point used as the climatology for both pillars."
+              },
+              "limitation": "Same count for every scenario. It describes the point climatology, not a difference between rotations."
+            }
+          ],
+          "rulesApplied": [
+            "one_minus_fraction_of_days_in_heat_or_dry_quartile_months",
+            "heat_risk_is_upper_quartile_of_monthly_mean_tmax",
+            "dry_quartile_uses_power_rainfall"
+          ],
+          "missingData": [
+            "GPM IMERG season onset",
+            "A crop-specific heat threshold validated for San Juan"
+          ],
+          "reviewRisks": [
+            "Illustrative climate screen, not a planting recommendation.",
+            "The 32 C hot-day count is a screen and is not used in the score."
+          ]
+        }
+      ]
+    }
+  ]
+}
