@@ -29,11 +29,10 @@ export function ProfitCard({ crops, initialCrop, tareas: farmTareas }: { crops: 
         <li>Venta al por mayor: entre <strong>{rd(p.income.low)}</strong> y <strong>{rd(p.income.high)}</strong>.</li>
       </ul>
       <p className="note">Dato aproximado. {p.notes.join(" ")}</p>
-      <details className="evidence-details"><summary>¿De dónde salen estos números?</summary>
-        <p><strong>Costo:</strong> RD${p.costSource.cost2019PerTarea.toLocaleString("es-DO")} por tarea en 2019 ({p.costSource.area}), del <a href={`${p.costSource.url}#page=${p.costSource.page}`}>informe de costos de producción del Ministerio de Agricultura, pág. {p.costSource.page}</a>, multiplicado por {CPI.factor.toFixed(2).replace(".", ",")} por la inflación: <a href={CPI.url}>{CPI.label}</a>.</p>
+      <div className="sources-box"><h3>¿De dónde salen estos números?</h3>
+        <p><strong>Costo:</strong> RD${p.costSource.cost2019PerTarea.toLocaleString("es-DO")} por tarea en 2019 ({p.costSource.area}), del <a href={`${p.costSource.url}#page=${p.costSource.page}`}>informe de costos de producción del Ministerio de Agricultura, pág. {p.costSource.page}</a>, actualizado por la inflación con el <a href={CPI.url}>índice de precios del Banco Central</a>.</p>
         <p><strong>Precio:</strong> precio mayorista por libra en los últimos 12 meses del <a href={marketSources.prices}>Ministerio de Agricultura</a>: más bajo RD${p.pricePerLb.low.toFixed(1)}, último RD${p.pricePerLb.mid.toFixed(1)}, más alto RD${p.pricePerLb.high.toFixed(1)}.</p>
-        <p><strong>Cuenta:</strong> lo que te queda = libras × precio − costo. No incluye transporte, intermediarios ni pérdidas de cosecha.</p>
-      </details>
+      </div>
     </>}
   </div>;
 }

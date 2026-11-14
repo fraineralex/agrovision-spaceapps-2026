@@ -143,6 +143,20 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Límites:** las reglas de lluvia, sobreoferta y ganancia son propias de AgroVision y aproximadas. Los precios son mayoristas, no de finca.
 - **Revisión por Frainer:** pendiente.
 
+## 2026-11-14 (noche) — Rediseño de UI/UX y accesibilidad
+- **Herramienta:** Claude (Anthropic), con las skills `frontend-design`, `web-design-guidelines` y `shadcn`. **Propósito:**
+  - dirección visual “campo dominicano” con tokens;
+  - todas las tarjetas abiertas;
+  - dos columnas en escritorio, con el mapa arriba;
+  - quitar fórmulas de la interfaz y dejar solo datos y fuentes;
+  - tarjeta de 5 opciones (4 objetivos y seguir con el cultivo actual);
+  - onboarding de 3 pasos;
+  - íconos lucide;
+  - correcciones WCAG 2.2 AA y pruebas axe.
+- **Archivos:** `web/app/{page.tsx,layout.tsx,globals.css}`, `web/components/{options-card,fold,onboarding,advisor-card,sources-sheet,market-card,profit-card,rain-card,fao-giews,farm-switcher,map,share-button,voice-assistant}.tsx`, `web/lib/advisor.ts` (`fiveOptions`), `web/tests/demo.spec.ts`, `docs/17_ui_audit.md`, `docs/ui-audit/`.
+- **Datos:** no se añadieron números nuevos. Las 5 opciones reordenan los mismos datos (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura).
+- **Revisión por Frainer:** pendiente.
+
 ## 2026-11-14 — Plagas compartidas en el asesor
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** incorporar la lista de plagas solicitada al catálogo, a la puntuación del asesor y al contexto de voz. **Archivos:** `web/lib/{pests,advisor,advisor.test,voice-context}.ts`, `web/components/{advisor-card,onboarding,sources-sheet,pest-catalog}.tsx` y `docs/16_asesor_siembra.md`.
@@ -153,3 +167,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** mostrar medidas de vigilancia para el cultivo anterior y el siguiente en las sugerencias, las rotaciones de ejemplo y la voz. El catálogo se conserva como fuente interna. **Archivos:** `web/{app/page.tsx,components/{advisor-card,sources-sheet,pest-catalog}.tsx,lib/{pests,advisor,advisor.test,farmer-comparison,voice-context}.ts}` y `docs/16_asesor_siembra.md`.
 - **Fuentes y límites:** catálogo existente, con referencias en los detalles. Las precauciones no diagnostican presencia ni incidencia. **Revisión por Frainer:** pendiente.
+
+
+## 2026-11-14 — Integración del rediseño
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.

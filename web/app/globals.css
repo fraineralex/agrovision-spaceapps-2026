@@ -302,3 +302,98 @@ body { font-size:17px; }
 .share-button { flex:1; min-height:56px; border:0; border-radius:16px; background:#25d366; color:#06351c; font-size:19px; font-weight:800; }
 .profit-inputs select, .profit-inputs input { width:100%; min-width:0; box-sizing:border-box; }
 .share-button { padding:8px 14px; }
+
+/* ===== Campo dominicano design tokens and layout — Claude (Anthropic), 2026-11-14, using the frontend-design and web-design-guidelines skills. ===== */
+:root {
+  --monte: #1f4d2c;      /* deep field green: primary */
+  --monte-claro: #e4efdf;/* light green surfaces */
+  --tierra: #6b4226;     /* soil brown: secondary text, borders */
+  --sol: #f2b705;        /* sun yellow: accent, focus */
+  --cielo: #1d5f9e;      /* rain blue */
+  --papel: #f5f7f0;      /* page background */
+  --tinta: #15231a;      /* body text */
+  --peligro: #a3261c;    /* loss / bad */
+  --radio-l: 20px; --radio-m: 14px;
+}
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--papel); color: var(--tinta); font-size: 18px; line-height: 1.5; font-family: "Atkinson Hyperlegible", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+a { color: var(--cielo); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--sol); outline-offset: 3px; box-shadow: 0 0 0 6px var(--tinta); border-radius: 6px; }
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--tinta); color: #fff; padding: 12px 18px; border-radius: 10px; font-weight: 800; }
+.skip-link:focus { top: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.workspace { max-width: 1240px; margin: 0 auto; padding: 16px 16px 96px; }
+.workspace:focus { outline: none; }
+h1 { color: var(--monte); }
+.card { background: #fff; border: 1px solid #d5dccd; border-radius: var(--radio-l); }
+.panel { padding: 18px; margin-bottom: 16px; }
+.panel-title { display: flex; align-items: center; gap: 10px; font-size: 22px; line-height: 1.2; margin: 0 0 12px; color: var(--monte); }
+.panel-icon { width: 26px; height: 26px; flex: 0 0 26px; color: var(--tierra); }
+.panel-intro { margin: -4px 0 12px; color: #3b4a3f; }
+.panel-body > .card { border: 0; padding: 0; margin: 0; box-shadow: none; }
+.panel-body .location-card > .section-row h2, .panel-body .market > .section-row h2, .panel-body .climate-card > .section-row h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.home-grid { display: grid; grid-template-columns: 1fr; gap: 0 20px; }
+@media (min-width: 960px) {
+  .home-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; }
+  .col-side { position: sticky; top: 12px; }
+  .workspace { padding: 24px 28px 64px; }
+}
+/* On phones the map comes right after the answer. */
+@media (max-width: 959px) {
+  .home-grid { display: flex; flex-direction: column; }
+  .col-main, .col-side { display: contents; }
+  .col-main > .advisor { order: 1; } .col-side > #tu-finca-en-el-mapa { order: 2; }
+  .col-main > .options { order: 3; } .col-main > #lluvia-esta-semana { order: 4; } .col-main > #cuanto-me-deja { order: 5; } .col-main > .share { order: 6; }
+  .col-side > #precio-y-mercado { order: 7; } .col-side > #sequia-y-lluvia { order: 8; } .col-side > #clima-normal-de-noviembre, .col-side > [id^="clima-normal"] { order: 9; }
+}
+.sources-box { background: var(--monte-claro); border-radius: var(--radio-m); padding: 12px 14px; margin-top: 12px; font-size: 16px; }
+.sources-box h3 { font-size: 17px; margin: 0 0 6px; color: var(--monte); }
+.sources-line { font-size: 16px; color: #3b4a3f; margin: 12px 0 0; }
+.link-button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; background: none; border: 0; padding: 4px 0; color: var(--cielo); font-weight: 700; font-size: 17px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link-button svg { width: 20px; height: 20px; }
+/* Five options */
+.option-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+@media (min-width: 640px) and (max-width: 959px) { .option-list { grid-template-columns: 1fr 1fr; } }
+.option { border: 2px solid #d5dccd; border-radius: var(--radio-m); padding: 12px 14px; background: #fff; }
+.option.keep { border-style: dashed; border-color: var(--tierra); background: #faf6f1; }
+.option-head { display: flex; align-items: center; gap: 8px; }
+.option-icon { width: 24px; height: 24px; color: var(--monte); flex: 0 0 24px; }
+.option-goal { font-weight: 800; font-size: 18px; flex: 1; }
+.option-light { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; padding: 4px 10px; border-radius: 999px; }
+.option-light i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
+.option-light.green { background: #dcfce7; color: #14532d; } .option-light.amber { background: #fef3c7; color: #6b4300; } .option-light.red { background: #fee2e2; color: var(--peligro); } .option-light.gray { background: #eceff1; color: #374151; }
+.option-crop { font-size: 22px; font-weight: 800; margin: 8px 0 6px; } .option-crop small { font-size: 16px; font-weight: 600; color: #3b4a3f; } .option-crop.muted { font-size: 17px; font-weight: 600; color: #3b4a3f; }
+.option-pillars { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pill { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; border-radius: 10px; padding: 6px 8px; line-height: 1.25; }
+.pill svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.pill.green { background: #dcfce7; color: #14532d; } .pill.amber { background: #fef3c7; color: #5c3b00; } .pill.red { background: #fee2e2; color: #7f1d1d; } .pill.gray { background: #eceff1; color: #374151; }
+.option-warn { font-size: 15px; color: #5c3b00; background: #fff6db; border-radius: 8px; padding: 6px 8px; margin: 8px 0 0; }
+/* Voice button always in the thumb zone */
+.voice-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 20px; border-radius: 999px; background: var(--monte); color: #fff; font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 6px 18px rgba(21, 35, 26, .35); }
+.voice-fab svg { width: 24px; height: 24px; }
+/* Onboarding: compact */
+.ob-sub { font-size: 20px; margin: 18px 0 8px; }
+.ob-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ob-more { margin: 14px 0; } .ob-more summary { font-weight: 800; min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--monte); }
+.ob-primary svg { width: 22px; height: 22px; vertical-align: -4px; margin-right: 6px; }
+.ob-card { max-width: 640px; }
+/* Contrast fixes for small text */
+.note, .src-limit { color: #3b3a1f; }
+.ob-link, .chip { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+/* voice card keeps its dark green panel inside the always-open Fold */
+.panel .voice-card, .card.voice-card { background: var(--monte); color: #fffdf0; padding: 20px; border-radius: 18px; margin-top: 0; }
+.voice-card h3 { font-size: 24px; margin: 0 0 6px; color: #fffdf0; }
+.voice-card a { color: #f8e7a0; }
+.profit-range { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.profit-col small { font-size:15px; } .profit-col strong { overflow-wrap:anywhere; }
+@media (max-width:480px){ .profit-range{grid-template-columns:1fr} .profit-col{flex-direction:row;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;gap:8px} }
+.profit-col strong { white-space:nowrap; font-size:clamp(18px,5vw,22px); }
+.workspace { padding-bottom: 110px; }
+.farm-tablist{display:contents} .farm-tab svg{vertical-align:-4px}
+.rain-sentence svg,.src-icon svg,.src-links svg,.share-button svg,.profile-line svg{vertical-align:-4px;flex-shrink:0} .src-links a{display:inline-flex;gap:6px;align-items:center}
+/* lucide icons sit inline next to their words */
+.src-button,.farm-tab,.gps-button,.ob-primary,.share-button,.rain-sentence{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-wrap:nowrap}
+.rain-sentence{display:flex;justify-content:flex-start}
+.src-block h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.profile-line svg,.src-links svg{display:inline-block}

@@ -10,6 +10,8 @@ import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
+import { OptionsCard } from "@/components/options-card";
+import { MapPin, Mic } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { RainCard, useRain } from "@/components/rain-card";
@@ -27,6 +29,8 @@ import type { VoiceSelection } from "@/lib/voice-context";
 import { fieldMeta, type FieldInfo } from "@/lib/map/fields";
 import parcels from "@/public/data/demo-parcels.json";
 import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
+// Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
+const BALANCED = "balanced" as Priority;
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 
@@ -101,7 +105,7 @@ export default function Home() {
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority, crops }), [province, irrigation, previous, month, priority, crops]);
+  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [province, irrigation, previous, month, crops]);
   const topAdvice = ranked[0];
   const topCrop = topAdvice?.crop ?? "habichuela_roja";
   const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
@@ -116,22 +120,27 @@ export default function Home() {
   const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
-  return <main className="app-shell">
+  return <>
+    <a className="skip-link" href="#contenido">Saltar al contenido</a>
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
-    <header className="topbar"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
-    <div className="workspace">
+    <header className="topbar" role="banner"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
+    <main id="contenido" className="workspace" tabIndex={-1}>
       <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
-      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={priority} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-      {chosen && <ShareButton summary={shareSummary}/>}
+      <div className="home-grid">
+      <div className="col-main">
+      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+      <OptionsCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
       {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
       <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
-      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
+      {chosen && <ShareButton summary={shareSummary}/>}
+      </div>
+      <div className="col-side">
       <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>3 · Tu finca en el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
         <div className="location-controls">
-          <button type="button" className="gps-button" onClick={useGps}>📍 Usar mi ubicación</button>
+          <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
           <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
           {matches.length > 0 && <div className="search-results" role="group" aria-label="Provincias encontradas">{matches.map(p => <button type="button" aria-pressed={province === p.name} key={p.name} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");}}>{p.name}</button>)}</div>}
           {provinceSearch.trim() && matches.length === 0 && <p role="status">No encontramos esa provincia. Revisa el nombre.</p>}
@@ -154,6 +163,7 @@ export default function Home() {
         </article>}
       </section>
       </Fold>
+      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
 
       {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
 
@@ -163,10 +173,12 @@ export default function Home() {
           <div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</div><div>{selectedClimate.precipitationMmDay != null ? `unos ${Math.round(selectedClimate.precipitationMmDay * 30)} mm en el mes` : "Lluvia"}</div></div>
         </div>
         <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
-        <details className="evidence-details"><summary>Ver detalles del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
+        <p className="note"><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section></Fold>}
+      </div>
+      </div>
 
-      <Fold icon="🎙️" title="Pregúntale a AgroVision" teaser="Habla como en una llamada o escribe tu pregunta"><VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/></Fold>
+      <Fold id="voz" icon="🎙️" title="Pregúntale a AgroVision" teaser="Habla como en una llamada o escribe tu pregunta"><VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/></Fold>
 
       <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
@@ -190,6 +202,7 @@ export default function Home() {
         <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
         <a href="/data/manifest.json">Fuentes y versión de datos</a>
       </footer>
-    </div>
-  </main>;
+    </main>
+    <a className="voice-fab" href="#voz"><Mic aria-hidden="true"/><span>Preguntar</span><span className="sr-only"> a AgroVision con tu voz</span></a>
+  </>;
 }

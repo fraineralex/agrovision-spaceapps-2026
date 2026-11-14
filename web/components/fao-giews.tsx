@@ -1,21 +1,16 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. See AI_USAGE.md. */
-import { droughtSignal, faoGiews, faoProvince, faoScoreRule } from "@/lib/fao-giews";
+import { droughtSignal, faoGiews, faoProvince } from "@/lib/fao-giews";
 import styles from "./fao-giews.module.css";
 export function FaoScoreDetails({ province }: { province?: string }) {
   const data = faoProvince(province);
   if (!data) return null;
-  return <details className="evidence-details"><summary>Ver detalles · sequía y puntuación de clima</summary>
-    <p><a href={faoGiews.source}>FAO GIEWS / ASIS · {data.name}</a>. {faoGiews.scale} {faoGiews.quality}</p>
-    <p>{faoGiews.method} Descarga: {faoGiews.retrievedAt.slice(0, 10)}. Límites históricos GAUL; no mide una finca.</p>
-    <p>{faoScoreRule} Se usa VHI ponderado estacional cuando existe; VHI no estacional como alternativa. Los datos de más de 45 días no generan alerta ni puntuación.</p>
-    <p>Semáforo de AgroVision, sin validación local: Sequía si ASI &gt;30% o VHI &lt;0.35; Atención si ASI ≥10% o VHI &lt;0.50; Normal en los demás casos con datos recientes. No es una alerta oficial de FAO.</p>
-    {data.asi && <p><a href={data.asi.source ?? faoGiews.source}>ASI temporada 1</a>: {data.asi.value}% del área cultivada con VHI medio bajo 0.35 · década iniciada {data.asi.date}. Indicador satelital derivado; confianza provincial preliminar.</p>}
-    {data.vhi && <p><a href={data.vhi.source ?? faoGiews.source}>VHI no estacional</a>: {data.vhi.value} · índice 0–1 · {data.vhi.date}.</p>}
-    {data.weightedVhi && <p><a href={data.weightedVhi.source ?? faoGiews.source}>VHI ponderado temporada 1</a>: {data.weightedVhi.value} · índice 0–1 · {data.weightedVhi.date}.</p>}
-    {data.history.map(h => <p key={h.season}><a href={h.source ?? faoGiews.source}>ASI anual · temporada {h.season}</a> · {h.start}–{h.end}: {h.above30} de {h.seasons} temporadas válidas con &gt;30% del área afectada ({h.frequency30Pct}%); {h.above50} con &gt;50% ({h.frequency50Pct}%). Conteo calculado, sin rellenar años ausentes; temporadas 1 y 2 se mantienen separadas. No equivale a sequía en tu finca.</p>)}
-    {data.rain && <p><a href={data.rain.source ?? faoGiews.source}>ECMWF vía FAO</a>: {data.rain.value} mm frente a {data.rain.normalMm ?? "sin dato"} mm normales · década iniciada {data.rain.date}. Anomalía = 100 × (lluvia / normal − 1). {faoGiews.rainBaseline} Estimación regional, confianza local baja; no pronóstico.</p>}
-    <p>{data.phenologyStatus} La fenología representa verdor estacional multianual, no fechas óptimas universales. GAUL nivel 2: sin descarga enlazada verificada para DOM.</p>
-  </details>;
+  return <div className="sources-box"><h3>¿De dónde salen estos datos?</h3>
+    <p>Sistema de alerta agrícola de la FAO (<a href={faoGiews.source}>FAO GIEWS / ASIS · {data.name}</a>), con imágenes de satélite. Datos descargados el {faoGiews.retrievedAt.slice(0, 10)}. Es un dato de toda la provincia, no de tu finca.</p>
+    {data.asi && <p><a href={data.asi.source ?? faoGiews.source}>Área cultivada con sequía</a>: {data.asi.value}% · semana del {data.asi.date}.</p>}
+    {data.history.map(h => <p key={h.season}><a href={h.source ?? faoGiews.source}>Historia de sequía, temporada {h.season}</a> ({h.start}–{h.end}): {h.above30} de {h.seasons} temporadas con más del 30% del área afectada; {h.above50} con más del 50%.</p>)}
+    {data.rain && <p><a href={data.rain.source ?? faoGiews.source}>Lluvia estimada (ECMWF, publicada por la FAO)</a>: {data.rain.value} mm frente a {data.rain.normalMm ?? "sin dato"} mm normales · días desde el {data.rain.date}. Estimación regional, no pronóstico.</p>}
+    <p>El color (normal, atención, sequía) lo pone AgroVision con estos datos. No es una alerta oficial de la FAO.</p>
+  </div>;
 }
 export function FaoDroughtCard({ province }: { province?: string }) {
   const data = faoProvince(province);

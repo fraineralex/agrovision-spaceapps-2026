@@ -36,3 +36,8 @@ data/cache/ml/scenes/
 data/model/*.joblib
 .vercel
 .env*
+
+# local agent skills installed for the UI pass (not part of the app)
+web/.agents/
+web/.claude/
+web/skills-lock.json
