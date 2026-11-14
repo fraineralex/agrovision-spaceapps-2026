@@ -51,13 +51,13 @@ export function AdvisorCard(p: Props) {
 
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
-    <h2>Tu recomendación</h2>
+    <h3>Opción para considerar</h3>
 
     <div className={`verdict ${light}`}>
       <span className={`recommendation-light light ${light}`} role="img" aria-label={lightWord[light]} />
       <div>
         <p className="verdict-text">{top && top.overall !== null && <span aria-hidden="true">{cropEmoji[top.crop]} </span>}{sentence}</p>
-        {top && top.overall !== null && top.harvestMonth > 0 && <p className="verdict-sub">Siembra en {monthNames[p.sowMonth - 1]} · cosecha en {monthNames[top.harvestMonth - 1]} (unos {Math.round(top.cycleDays / 30)} meses)</p>}
+        {top && top.overall !== null && top.harvestMonth > 0 && <p className="verdict-sub">Siembra evaluada en {monthNames[p.sowMonth - 1]} · cosecha aproximada en {monthNames[top.harvestMonth - 1]}</p>}
         {peak.length > 0 && top && <p className="verdict-sub">En el país, {top.name.toLowerCase()} se siembra más en {peak.map(m => monthNames[m - 1]).join(", ")}.</p>}
         {[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].map(w => <p key={w} className="warning">⚠ {w}</p>)}
         <div className="verdict-actions"><button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
@@ -65,7 +65,7 @@ export function AdvisorCard(p: Props) {
       </div>
     </div>
 
-    <details className="compare-fold" open><summary>Comparar con tus otros cultivos ({advice.length})</summary>
+    <details className="compare-fold"><summary>Comparar todos los cultivos ({advice.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
     </details>
 

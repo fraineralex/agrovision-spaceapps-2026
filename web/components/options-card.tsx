@@ -12,13 +12,13 @@ const word: Record<string, string> = { green: "Bien", amber: "Regular", red: "Ma
 
 export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
   const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
-  const all = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }).map(o => o.advice).filter((a): a is CropAdvice => !!a), [province, irrigation, previous, sowMonth, crops]);
+  const all = options.flatMap(option => option.advice ? [option.advice] : []);
   const [sources, setSources] = useState<CropAdvice | null>(null);
   return <section className="card panel options" aria-labelledby="opciones-titulo">
-    <h2 id="opciones-titulo" className="panel-title">Compara 5 opciones</h2>
-    <p className="panel-intro">Lo mejor según lo que más te importa, y cómo te iría si sigues igual.</p>
+    <h2 id="opciones-titulo" className="panel-title">Compara alternativas por objetivo</h2>
+    <p className="panel-intro">Un mismo cultivo puede aparecer en varios objetivos. Revisa los otros criterios antes de elegir.</p>
     <ol className="option-list">
-      {options.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor(a?.overall ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
+      {options.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
         <div className="option-head">
           <Icon aria-hidden="true" className="option-icon" />
           <span className="option-goal">{o.goal}</span>

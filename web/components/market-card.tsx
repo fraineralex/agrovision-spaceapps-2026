@@ -31,7 +31,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
       {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
       <Sparkline values={(m.recent ?? []).map(r => r.price)} />
       <ul className="market-facts">
-        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Mejor época para vender:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
+        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Meses con precios históricos más altos:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
         {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Precio más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
         {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]} podría estar entre</strong> {money(outlook.low)} y {money(outlook.high)} {unitWord(m.unit)}</li>}
       </ul>

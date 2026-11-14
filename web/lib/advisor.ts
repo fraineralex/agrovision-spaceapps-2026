@@ -126,8 +126,8 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const overall = clamp(base - (pests === 1 ? 0.5 * weightFor("pests") : 0));
     const pctVsAvg = typeof idx === "number" ? Math.round(idx - 100) : null;
     const words: Record<Pillar, string> = {
-      water: !viable ? "Necesita riego" : water >= 3.34 ? "Gasta poca agua" : water >= 1.67 ? "Agua media" : "Gasta mucha agua",
-      climate: climate === null ? "Sin dato de sequía" : signal.color === "green" ? "Sin sequía ahora" : climate >= 3.34 ? "Aguanta la sequía actual" : "Riesgo con la sequía",
+      water: !viable ? "Necesita riego" : water >= 3.34 ? "Demanda relativa baja" : water >= 1.67 ? "Demanda relativa media" : "Demanda relativa alta",
+      climate: climate === null ? "Sin dato de sequía" : signal.color === "green" ? "Sin señal provincial de sequía" : climate >= 3.34 ? "Menor riesgo según el indicador" : "Revisar el riesgo de sequía",
       pests: reported.length ? "Plagas en común" : pests === 5 ? "Rotación citada por IDIAF" : pests === 1 ? "Repetición de cultivo" : shared.length ? "Plaga en común por confirmar †" : "Sin puntaje de plagas",
       market: perennial ? "Permanente: sin mes de cosecha" : pctVsAvg === null ? "Sin precio de referencia" : `Cosecha en ${monthNames[harvestMonth - 1]}: precio ${pctVsAvg > 0 ? `${pctVsAvg}% sobre` : pctVsAvg < 0 ? `${-pctVsAvg}% bajo` : "igual al"} promedio`,
     };
@@ -142,10 +142,10 @@ export function adviceSentence(top: CropAdvice | undefined, previous: PreviousCr
   if (!top || top.overall === null) return "Falta información para recomendar. Consulta con tu técnico.";
   const reasons: string[] = [];
   if (top.scores.pests === 5) reasons.push("el IDIAF respalda rotar habichuela con maíz");
-  if ((top.scores.water ?? 0) >= 3.34) reasons.push("gasta menos agua");
+  if ((top.scores.water ?? 0) >= 3.34) reasons.push("su demanda relativa de agua es baja en la comparación");
   if ((top.scores.market ?? 0) >= 3.34) reasons.push(`suele venderse mejor en ${monthNames[top.harvestMonth - 1]}`);
   const after = previous !== "unknown" && previous !== "otro" ? ` después de ${previousCropName(previous).toLowerCase()}` : "";
-  return `Conviene sembrar ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
+  return `Considera ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
 }
 
 export const unitWord = (u?: string | null) => u === "DOP/lb" ? "la libra" : u === "DOP/quintal" ? "el quintal" : u === "DOP/kg" ? "el kilo" : u === "DOP/unidad" ? "la unidad" : "la unidad";
@@ -167,11 +167,14 @@ export type OptionKey = "water" | "market" | "pests" | "climate" | "keep";
 export type FarmOption = { key: OptionKey; goal: string; advice: CropAdvice | null; note?: string };
 /** The five choices the farmer compares: the best crop for each goal plus keeping the current crop. */
 export function fiveOptions(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops?: CropId[] }): FarmOption[] {
-  const goals: [Exclude<OptionKey, "keep">, string][] = [["water", "Gastar menos agua"], ["market", "Vender a mejor precio"], ["pests", "Tener menos plagas"], ["climate", "Aguantar la sequía"]];
+  const goals: [Exclude<OptionKey, "keep">, string][] = [["water", "Menor demanda de agua"], ["market", "Mejor precio histórico"], ["pests", "Rotación respaldada para plagas"], ["climate", "Comparar ante la sequía"]];
   const out: FarmOption[] = goals.map(([key, goal]) => {
     const ranked = adviseNextCrop({ ...opts, priority: key });
-    const best = ranked.find(a => a.overall !== null && a.harvestMonth > 0 && a.crop !== opts.previous) ?? ranked.find(a => a.overall !== null) ?? null;
-    return { key, goal, advice: best };
+    const alternatives = ranked.filter(a => a.viable && a.harvestMonth > 0 && a.crop !== opts.previous && a.scores[key] !== null);
+    const best = key === "pests"
+      ? alternatives.find(a => a.scores.pests === 5) ?? null
+      : alternatives.sort((a, b) => b.scores[key]! - a.scores[key]!)[0] ?? null;
+    return { key, goal, advice: best, note: key === "pests" ? "Falta evidencia local a favor de una rotación con los cultivos elegidos." : "Faltan datos para comparar este criterio en las alternativas." };
   });
   const keepCrop = allCrops.find(crop => crop === opts.previous) ?? null;
   const keep = keepCrop ? adviseNextCrop({ ...opts, priority: "water", crops: [keepCrop] })[0] ?? null : null;
