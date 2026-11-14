@@ -1,0 +1,12 @@
+Repo AgroVision NASA Space Apps 2026. Read AGENTS.md and docs/13_plan_fincas_y_tarjetas.md section 3 first. Rules: English small Conventional Commits, author Frainer Encarnación <fraineralex2001@gmail.com>, no co-author trailers, cite AI use in AI_USAGE.md, UI text in Spanish, minimalist farmer-first. Branch feature/fao-giews; when done and build passes, rebase onto origin/main and push to main (git pull --rebase origin main && git push origin HEAD:main). Other agents edit web concurrently: keep UI changes small, additive and isolated (new component files), rebase carefully.
+GOAL: integrate FAO GIEWS Earth Observation data for Dominican Republic (https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM) in the most useful way for farmers:
+1. Data (scripts/fao/): find the real GIEWS endpoints (WMTS capabilities, zonal statistics CSV/JSON downloads for GAUL level 1/2, ASI dekadal & annual, VHI, drought frequency 1984-2025 for >30%/>50% cropland, phenology SOS/MOS/EOS, ECMWF precipitation anomaly). Download for DOM and cache to data/derived/fao_giews/*.json (per province). If an endpoint cannot be reached, document it and do not invent numbers.
+2. Farmer-facing features (Spanish, simple icons/colors):
+   a) "Alerta de sequía" per province: latest ASI/VHI as traffic-light (Normal / Atención / Sequía) with one sentence.
+   b) "Riesgo histórico": how many of the last ~40 seasons had severe drought; feed into crop recommendation (penalize water-hungry crops like arroz where drought frequency is high).
+   c) "Mejor época para sembrar": from phenology SOS/EOS, a simple month bar.
+   d) "Lluvia vs normal": precipitation anomaly as arrow up/down.
+   e) Optional map overlay layer "Estrés por sequía (FAO)" via WMTS with opacity, off by default.
+3. Feed these into the clima pillar score and the parcel recommendation logic (lib), with sources in "Ver detalles".
+4. Doc docs/14_fao_giews.md (Spanish): what is used, why, limits (~1 km, provincial, not per farm), AI citation.
+5. cd web && npm run lint && npm run build must pass. Report briefly what was integrated and which endpoints worked.

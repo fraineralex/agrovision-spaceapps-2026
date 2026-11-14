@@ -1,0 +1,5 @@
+Repo AgroVision (read AGENTS.md; English small Conventional Commits, author Frainer Encarnación <fraineralex2001@gmail.com>, no co-author, cite AI). Work on branch main-merge, push with git pull --rebase && git push origin HEAD:main.
+The rotation cards are too technical for farmers and show "Sin datos" for Clima, Plagas, Mercado even though real derived data exists in data/derived/ (water_climate/*.json climate scores, market data from docs/submission + market scripts, IDIAF pest rules). Do:
+1. Wire the real derived data into the 4 pillar scores (clima, plagas rules-based, mercado) for San Juan; for other provinces use NASA POWER cached data where possible and show "Sin datos" only where truly absent.
+2. Redesign the parcel view to be minimal for farmers in Spanish: ONE clear recommendation per parcel at top (big traffic-light icon + one sentence like "Conviene rotar a habichuela: menos agua y buen precio"), then 4 small pillar icons with color only. Move Kc-día, FAO-56, confidence and sources into a collapsed "Ver detalles". Avoid jargon.
+3. npm run lint && npm run build in web must pass. Report briefly.
