@@ -10,6 +10,13 @@ import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
+import { FarmSwitcher } from "@/components/farm-switcher";
+import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
+import { RainCard, useRain } from "@/components/rain-card";
+import { ProfitCard } from "@/components/profit-card";
+import { ShareButton, type ShareSummary } from "@/components/share-button";
+import { adviceSentence, oversupplyFor } from "@/lib/advisor";
+import { profitFor, rd } from "@/lib/profit";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
@@ -41,14 +48,25 @@ export default function Home() {
   const applyProfile = useCallback((pr:FarmProfile) => {
     setLocation(pr.location);setSelectedParcel("location");setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.sowMonth);setPriority(pr.priority);
   },[]);
-  // First visit: ask the farmer about the farm. Later visits reuse the saved answers (this device only).
+  const [farms,setFarms] = useState<Farm[]>([]);
+  const [activeId,setActiveId] = useState<string|null>(null);
+  const [editing,setEditing] = useState<Farm|null>(null);
+  const activeFarm = farms.find(f => f.id === activeId) ?? farms[0] ?? null;
+  // First visit: ask the farmer about the farm. Later visits reuse the saved farms (this device only).
   useEffect(() => {
-    let saved: FarmProfile | null = null;
-    try { const raw = localStorage.getItem("agrovision:profile"); saved = raw ? JSON.parse(raw) : null; } catch { saved = null; }
-    const timer = setTimeout(() => { if (saved?.location) applyProfile(saved); else setOnboarding(true); }, 0);
+    const { farms: saved, active } = loadFarms();
+    const timer = setTimeout(() => {
+      if (saved.length) { setFarms(saved); const a = saved.find(f => f.id === active) ?? saved[0]; setActiveId(a.id); applyProfile(a); }
+      else setOnboarding(true);
+    }, 0);
     return () => clearTimeout(timer);
   },[applyProfile]);
-  const finishOnboarding = (pr:FarmProfile) => { applyProfile(pr); setOnboarding(false); try { localStorage.setItem("agrovision:profile", JSON.stringify(pr)); } catch { /* optional */ } window.scrollTo({top:0}); };
+  const selectFarm = (id:string) => { const f = farms.find(x => x.id === id); if (!f) return; setActiveId(id); applyProfile(f); saveFarms(farms, id); window.scrollTo({top:0}); };
+  const deleteFarm = (id:string) => { const rest = farms.filter(f => f.id !== id); setFarms(rest); const next = rest[0] ?? null; setActiveId(next?.id ?? null); if (next) applyProfile(next); else setOnboarding(true); saveFarms(rest, next?.id ?? null); };
+  const finishOnboarding = (farm:Farm) => {
+    const list = farms.some(f => f.id === farm.id) ? farms.map(f => f.id === farm.id ? farm : f) : [...farms, farm];
+    setFarms(list); setActiveId(farm.id); applyProfile(farm); setOnboarding(false); setEditing(null); saveFarms(list, farm.id); window.scrollTo({top:0});
+  };
   const searchRef = useRef<HTMLInputElement>(null);
   // Text typed before hydration on slow phones must not be lost.
   useEffect(() => { const typed = searchRef.current?.value; if (typed) setProvinceSearch(typed); }, []);
@@ -78,23 +96,37 @@ export default function Home() {
   },[locationKey,location.longitude,location.latitude,selectedParcel,chosen]);
 
   const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
-  const selection = useMemo<VoiceSelection>(() => ({parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(",")}),[selectedParcel,location,priority,month,irrigation,previous,crops]);
   const detectedParcel = findParcel(selectedParcel);
   const province = chosen ? provinceAt(location) : undefined;
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const topCrop = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority, crops })[0]?.crop ?? "habichuela_roja", [province, irrigation, previous, month, priority, crops]);
+  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority, crops }), [province, irrigation, previous, month, priority, crops]);
+  const topAdvice = ranked[0];
+  const topCrop = topAdvice?.crop ?? "habichuela_roja";
+  const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
+  const farmTareas = farmAreaM2 ? m2ToTareas(farmAreaM2) : null;
+  const rain = useRain(chosen ? (activeFarm?.location ?? location) : null);
+  const profit = profitFor(topCrop, farmTareas ?? 10);
+  const profitText = "unavailable" in profit ? undefined : `${topAdvice?.name ?? ""} en ${Math.round(profit.tareas)} tareas: entre ${rd(profit.profit.low)} y ${rd(profit.profit.high)} (con el precio de hoy ${rd(profit.profit.mid)}), dato aproximado a precio mayorista`;
+  const glut = topAdvice && topAdvice.harvestMonth ? oversupplyFor(topCrop, topAdvice.harvestMonth) : null;
+  const shareSummary: ShareSummary = { farm: activeFarm?.name ?? "Mi finca", place: province ?? "República Dominicana", area: farmAreaM2 ? areaLabel(farmAreaM2) : "", advice: adviceSentence(topAdvice, previous), rain: rain.alert?.sentence, profit: profitText, oversupply: glut?.sentence };
   const topMarket = marketFor(topCrop);
+  const farmName = activeFarm?.name; const rainSentence = rain.alert?.sentence; const glutSentence = glut?.sentence;
+  const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   return <main className="app-shell">
-    {onboarding && <Onboarding initial={{province, location: chosen ? location : undefined, previous, irrigation, crops, sowMonth: month, priority}} onDone={finishOnboarding} onSkip={() => setOnboarding(false)}/>}
+    {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
     <header className="topbar"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <div className="workspace">
       <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
 
-      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={priority} crops={crops} onEdit={() => setOnboarding(true)}/>
+      {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
+      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={priority} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+      {chosen && <ShareButton summary={shareSummary}/>}
+      {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
+      <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
       <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
       <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>3 · Tu finca en el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
