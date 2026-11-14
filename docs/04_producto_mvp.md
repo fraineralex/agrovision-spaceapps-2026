@@ -1,72 +1,42 @@
 # 04. Producto MVP
 
-## Usuario objetivo
+## Usuario y problema
 
-Agente de extensión agropecuaria que acompaña a pequeños y medianos productores del valle de San Juan. El productor participa con ubicación aproximada, cultivo previo, disponibilidad declarada de riego y prioridad. La app móvil web compara opciones sin imponer una decisión.
+Aplicación web para productores y técnicos agrícolas del Valle de San Juan. En la región se toman decisiones de siembra con presión de sequía, disponibilidad de riego, desgaste del suelo, plagas compartidas y cambios de precio. La app organiza evidencia para que el productor y un técnico comparen la rotación actual con dos o tres escenarios. No reemplaza su criterio.
 
-## Propuesta
+## Comparación en cuatro pilares
 
-Mapa centrado en San Juan de la Maguana, selección de punto, una ficha climática regional respaldada por POWER y tres secuencias de cultivo comparables. Cada tarjeta enseña razones, puntaje por criterio, fuente/escala y riesgos. Compartir una tarjeta por mensajería puede quedar como extra. La conversación del equipo registró que el chatbot se había descartado para el MVP; una explicación por API de LLM es una posibilidad posterior y debe aprobarse como alcance por el equipo.
+1. **Agua y suelo:** necesidad relativa de agua por cultivo/ciclo con método FAO-56 y datos climáticos disponibles; cobertura y exposición del suelo observadas con series Landsat; pendiente SRTM si corresponde. Las escalas regionales no se describen como mediciones de finca.
+2. **Clima:** historial de temperatura y variables de NASA POWER, precipitación IMERG y ventanas de vulnerabilidad. Mostrar período y resolución; POWER mezcla valle y montaña, e IMERG tiene celdas cercanas a 10 km.
+3. **Plagas:** informar plagas/enfermedades y familias/cultivos compartidos únicamente cuando estén respaldados por fuentes IDIAF revisadas. Es una regla de rotación cualitativa, no detección ni predicción de brotes.
+4. **Mercado:** estacionalidad de precios mayoristas/minoristas del Ministerio en Santo Domingo. Aclarar que no son precios pagados al productor y que hay inconsistencias por limpiar.
 
-## Tres rotaciones ilustrativas
+## IA de análisis de imágenes
 
-Estas opciones son escenarios para revisión, no calendarios agronómicos prescritos. Las fechas y cultivos definitivos dependen de validación con productor y ficha local.
+La IA del MVP clasifica imágenes Landsat para identificar meses en que un campo queda pelado y distinguir áreas de riego frente a secano. Mostrar el período, resolución, método/clases y confianza; validar visualmente la muestra y no convertir la etiqueta en certeza de cultivo o disponibilidad de agua. La IA analiza datos, no conversa ni recomienda por sí sola. No afirmar predicción de rendimiento ni de plagas. Sensores físicos son una extensión futura, fuera de la demo.
 
-1. **Línea base declarada:** habichuela roja de invierno seguida del cultivo que informe el productor (por ejemplo maíz). Captura la práctica real antes de comparar; todavía falta entrevista para fijar secuencia/fechas.
-2. **Leguminosa → maíz:** alternar habichuela o guandul con maíz en el ciclo siguiente, condicionado por ventana de lluvia/agua y restricciones fitosanitarias. Potencial: diversificación, posible aporte de nitrógeno e interrupción de ciclos de plaga. El efecto real depende del manejo y suelo.
-3. **Habichuela → cobertura leguminosa corta → maíz:** cobertura o abono verde entre ciclos solo si existe humedad/agua y ventana viable. Potencial: cubrir suelo y reducir exposición a erosión. Riesgos: consumo de agua, demora de siembra y competencia por recursos. Guandul no debe prescribirse sin verificar duración y veda.
+## Flujo de demo
 
-## Scoring explicable de 0 a 5
+1. Abrir el caso del Valle de San Juan y elegir ubicación aproximada/comunidad.
+2. Declarar cultivo previo, condición de riego (riego/secano/no confirmado) y prioridad del usuario.
+3. Ver línea base de rotación actual y dos o tres alternativas ilustrativas.
+4. Comparar los cuatro pilares con evidencia, regla usada, fuente/fecha, escala, confianza, datos faltantes y riesgos a validar con técnico.
+5. Mantener la pantalla de ejemplo disponible desde caché local aunque no haya internet.
 
-Para cada alternativa calcular criterios separados y publicar la regla y los datos usados:
+No presentar cultivos/fechas como recomendación agronómica final sin validación del productor, técnico y fuentes locales. Las secuencias concretas de demostración deben etiquetarse como escenarios.
 
-- Ajuste de ventana térmica: 0 desfavorable, 5 favorable según umbrales de ficha de cultivo validada.
-- Riesgo de déficit hídrico: 0 alto, 5 bajo, usando lluvia y ET0/proxy con escala regional.
-- Cobertura del suelo: 0 exposición prolongada, 5 mayor cobertura prevista según secuencia.
-- Aporte potencial de leguminosa: 0 ausente, 5 rasgo presente; es una regla cualitativa, no nitrógeno medido.
-- Factibilidad declarada: 0 incompatible con acceso a agua/maquinaria/preferencia ingresada, 5 compatible.
+## Alcance y límites
 
-Puntaje total como promedio ponderado 0-5 según prioridad que elige la persona. Mostrar cada componente, pesos, fuente, periodo, resolución, confianza y dato faltante. No presentar el total como rendimiento, probabilidad de éxito ni rentabilidad. En el primer prototipo, usar valores normalizados y reglas visibles; no inventar calibración empírica.
-
-## Uso de IA
-
-El trabajo inicial del equipo descarta chatbot para el MVP. Si el equipo decide añadir explicación por LLM vía API, enviar solo métricas y reglas ya calculadas, con prompt fijo y respuesta JSON validada. Sin RAG y sin consulta abierta a internet. La IA solo explica datos recibidos: no decide rotaciones, no estima rendimientos y no completa valores faltantes.
-
-Prompt de referencia:
-
-```text
-Explica en español sencillo las métricas JSON recibidas para un agente de extensión.
-No añadas hechos, cifras, cultivos, fechas ni recomendaciones que no aparezcan en el JSON.
-Aclara escala espacial, periodo, incertidumbre y datos faltantes. Presenta opciones como escenarios para revisar con el productor.
-Devuelve exclusivamente JSON con las claves resumen, evidencia, limites y preguntas_para_validar.
-```
-
-Entrada y esquema de salida de ejemplo:
-
-```json
-{
-  "ubicacion": "San Juan, RD",
-  "periodo": "2016-2025",
-  "metricas": {"lluvia_mm_anual": 0, "t2m_c": 0, "resolucion": "rejilla regional POWER"},
-  "rotacion": "leguminosa-maiz",
-  "reglas": ["posible aporte de N por rasgo de leguminosa"],
-  "incertidumbres": ["no hay análisis de suelo del lote", "riego no verificado"]
-}
-```
-
-Los ceros son marcadores estructurales, no resultados de San Juan.
-
-```json
-{"resumen":"...", "evidencia":["..."], "limites":["..."], "preguntas_para_validar":["..."]}
-```
-
-Validar JSON contra esquema y rechazar campos no permitidos. Registrar proveedor/modelo, fecha y respuesta revisada si se integra.
+- Núcleo demostrable: caso San Juan, datos NASA conectados a la interfaz, cuatro pilares, comparación explicable y clasificación Landsat descrita arriba.
+- El resumen del equipo indica datos de precios disponibles pero por limpiar; si la limpieza no se completa, mostrar un ejemplo marcado como preliminar y no derivar rentabilidad.
+- La serie de presas se arma con Landsat y boletines puntuales; no llamarla registro hidrológico observado continuo.
+- LLM explicativo: opción secundaria futura, no parte del MVP ni del flujo principal. Si el equipo lo aprueba más adelante, solo podría explicar métricas estructuradas ya calculadas, con salida validada y divulgación de IA.
+- Sensores: extensión futura de monitoreo/calibración, no usar en la demo.
 
 ## Qué no afirmar
 
-- No afirmar que satélite mide textura, fertilidad o humedad exacta del lote.
-- No afirmar ganancias, rendimiento, fechas óptimas universales ni seguridad de una rotación.
-- No afirmar que POWER o SMAP resuelven variación entre parcelas próximas.
-- No sugerir una ventana fitosanitaria vigente sin fuente oficial actual.
-- No presentar escenarios ilustrativos como validados en finca.
-- No llamar recomendación autónoma al sistema: apoya exploración y juicio local.
+- No afirmar predicción de rendimiento, rentabilidad o plagas.
+- No presentar clasificación de uso del suelo como verdad observada sin validación y confianza.
+- No atribuir a una parcela la resolución de celdas climáticas o de humedad regional.
+- No afirmar fechas óptimas universales, seguridad de rotación ni cambios garantizados de suelo.
+- No presentar precios mayoristas/minoristas como precio en finca.

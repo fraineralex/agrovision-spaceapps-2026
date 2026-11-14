@@ -1,50 +1,52 @@
 # 02. Recursos y datos
 
-Inventario de los 26 recursos de la pestaña oficial. Prioridad y acceso se interpretan para San Juan, República Dominicana. Cobertura global significa que el producto puede incluir la región, no que tenga precisión de parcela.
+Dirección oficial: AgroVision se enfoca en el Valle de San Juan y organiza la comparación de rotaciones en cuatro pilares: agua y suelo, clima, plagas y mercado. NASA Earth observations son el núcleo del relato; las fuentes del Estado dominicano y las guías agrícolas aportan validación y contexto. El inventario detallado de 33 fuentes procede de `docs/fuentes_equipo/inventario_datos.txt` (resumen oficial del inventario); el estado aquí refleja el estado anotado en ese archivo, no una verificación independiente de descarga.
 
-## NASA y recursos agrícolas
+La IA del MVP analiza datos: clasifica con Landsat los meses con suelo/campo pelado y distingue zonas con riego frente a secano, sujeto a validación y disponibilidad de muestras. No es chatbot. Sensores quedan para una etapa futura y fuera de la demo. Ninguna métrica de satélite se debe presentar como medición exacta de una parcela.
 
-| Recurso | URL | Prioridad y acceso | Resolución/cobertura en RD y decisión |
-|---|---|---|---|
-| SMAP | https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/smap | Alta, complemento; descarga de productos suele requerir Earthdata Login. | Humedad superficial y productos de zona radicular; producto mejorado cercano a 9 km, cobertura global. Indicador regional, no medición del lote. |
-| GPM / IMERG | https://gpm.nasa.gov/data | Alta para lluvia. GES DISC requiere Earthdata Login para granulos; capas de Worldview/GIBS visibles públicamente. | 0.1° (~10 km), media hora y agregados. Útil para lluvia y extremos en RD; procesamiento HDF5/NetCDF queda como fase posterior. |
-| Landsat / EarthExplorer | https://earthexplorer.usgs.gov/ | Media, exploración óptica; cuenta USGS para descargas. | 30 m, cobertura terrestre global incluida RD; nubosidad limita escenas. No prometer observación diaria. |
-| MODIS | https://lpdaac.usgs.gov/products/ | Media, serie regional; Earthdata Login para productos LP DAAC. | Vegetación usualmente 250-1000 m según producto, global. Señal de región, no parcelas pequeñas. |
-| VIIRS | https://search.earthdata.nasa.gov/search?q=VIIRS | Baja/media; Earthdata Search y Earthdata Login para archivos. | Cobertura amplia y frecuente; resolución depende del producto. Se puede mostrar vía GIBS sin ingestión propia. |
-| NASA POWER | https://power.larc.nasa.gov/ | Muy alta para el prototipo; REST diaria/mensual en CSV/JSON, sin login ni clave. | Rejilla aproximada 0.5° meteorológica y 1° solar; incluye San Juan. Serie regional rápida, demasiado gruesa para comparar fincas cercanas. |
-| SRTM | https://www.earthdata.nasa.gov/data/instruments/srtm | Media solo para topografía; portales pueden requerir cuenta. | Cerca de 30 m, cobertura RD. Puede apoyar pendiente/escorrentía, más útil en laderas que en valle llano. |
-| ECOSTRESS | https://ecostress.jpl.nasa.gov/data | Baja/opcional; Earthdata Login para granulos. | Térmico cercano a 70 m, órbita irregular y huellas variables. Revisar escena sobre RD antes de depender de ella. |
-| USDA Ag Data Commons | https://www.nal.usda.gov/services/agdatacommons | Ignorar como fuente principal: catálogo estadounidense, no capa preparada para San Juan. | Cobertura variable por conjunto; puede contener estudios internacionales puntuales, que deben evaluarse individualmente. |
-| Web Soil Survey (WSS) | https://websoilsurvey.nrcs.usda.gov/app/ | Ignorar para RD. | Cartografía de suelos NRCS de EE. UU.; no ofrece cobertura comparable de San Juan. |
-| Cropland Data Layer / CropScape | https://nassgeodata.gmu.edu/CropScape/ | Ignorar para RD. | Clasificación anual de cultivos de EE. UU.; no cubre parcelas dominicanas. |
-| PRISM Climate Data | https://prism.oregonstate.edu | Ignorar para RD. | Clima interpolado para EE. UU.; cobertura no aplicable a San Juan. |
-| USDA NRCS SSURGO/STATSGO2 | https://www.nrcs.usda.gov/resources/data-and-reports/soils | Ignorar para RD. | Bases de suelo de EE. UU.; no sustituyen levantamiento local dominicano. |
-| NAIP | https://naip-usdaonline.hub.arcgis.com/ | Ignorar para RD. | Imagen aérea del programa estadounidense, no cobertura dominicana. |
-| USGS NLCD | https://www.usgs.gov/centers/eros/science/national-land-cover-database | Ignorar para RD. | Uso/cobertura multitemporal de EE. UU.; extensión no aplicable. |
-| NLDAS/GLDAS | https://www.earthdata.nasa.gov/ | Baja/opcional. GLDAS global; búsqueda/descarga y archivos pueden requerir Earthdata Login. NLDAS es norteamericano. | GLDAS cubre RD a escala de rejilla; duplicaría variables de agua de SMAP/POWER en el MVP. NLDAS no es para RD. |
-| FAO GAEZ | https://gaez.fao.org | Media, contexto de idoneidad; portal público, sin Earthdata Login. | Global, incluida RD; resolución depende de la capa (v4 documenta 5 arc-min y capas más finas; verificar v5). No equivale a observación de parcela. |
-| CoCoRaHS | https://www.cocorahs.org/Maps | Ignorar como observación local rutinaria. | Red comunitaria de Norteamérica, sin densidad equivalente asegurada en RD. |
-| USGS NWIS | https://waterdata.usgs.gov/nwis | Ignorar para estaciones de RD. | Registros hidrológicos de EE. UU.; no proporciona contexto operativo local dominicano. |
-| USDA AMS Market News | https://www.ams.usda.gov/market-news | Ignorar para mercado local dominicano. | Precios/mercados de EE. UU.; no usar para inferir precios de finca en RD. |
-| USDA NASS QuickStats | https://quickstats.nass.usda.gov | Ignorar para calibración de San Juan. | Estadísticas agrícolas de EE. UU.; no representa producción dominicana. |
-| OpenET | https://openetdata.org | Ignorar para operación en RD. | Estimaciones satelitales de ET centradas en estados del oeste de EE. UU.; cobertura no aplicable. |
-| USFS LANDFIRE | https://www.landfire.gov | Ignorar para capas locales. | Datos de vegetación y paisaje de EE. UU.; no cobertura dominicana. |
-| GEDI | https://gedi.umd.edu/data | Baja; no integrar en MVP. | Lidar/biomasa de estructura forestal, cobertura amplia con huellas orbitales; no es una capa directa para rotación anual de cultivos. |
+## Inventario oficial de fuentes (33)
 
-## Socios espaciales
+| # | Tipo | Fuente / institución | Cobertura, período y detalle | Estado | Uso previsto | Límites | URL |
+|---:|---|---|---|---|---|---|---|
+| 1 | NASA | GPM IMERG, NASA | San Juan (~30 celdas); 2000–hoy; 30 min; ~10 km; HDF5/GeoTIFF/API | Por descargar | Lluvia en valle/cuenca, extremos e inicio de temporada | Serie ~25 años | [gpm.nasa.gov/data/imerg](https://gpm.nasa.gov/data/imerg) |
+| 2 | NASA | NASA POWER, NASA | San Juan (1–2 celdas); 1981–hoy; diario; ~0.5° (~50 km); CSV/JSON/API | Por descargar | Calor, clima de largo plazo y ET0 para FAO-56 | Reanálisis; lluvia débil en trópico; mezcla valle y montaña | [power.larc.nasa.gov](https://power.larc.nasa.gov/) |
+| 3 | NASA | Landsat / HLS, NASA / USGS | San Juan; Landsat 1984–hoy, HLS 2013–hoy; 30 m; GeoTIFF | Por descargar | Verdor, campo pelado, clasificación IA de riego/secano y agua de presas | Nubes en lluvias; validar clasificación | [hls.gsfc.nasa.gov](https://hls.gsfc.nasa.gov/) |
+| 4 | NASA | SRTM / NASADEM, NASA | San Juan; estático (2000); 30 m; GeoTIFF | Por descargar | Pendiente y riesgo de erosión | Dato estático | [NASADEM](https://lpdaac.usgs.gov/products/nasadem_hgtv001/) |
+| 5 | NASA | SMAP, NASA | San Juan (~44 píxeles a 9 km); 2015–hoy; 9–36 km; HDF5 | Por descargar | Anomalías de humedad regional | Mezcla valle/montaña; arroz regado refleja riego | [smap.jpl.nasa.gov](https://smap.jpl.nasa.gov/) |
+| 6 | NASA | MODIS NDVI MOD13Q1, NASA | San Juan; 2000–2026; cada 16 días; 250 m | Por descargar | Sequía histórica en vegetación | Transición/apagado Terra/Aqua previsto entre fines 2026 y 2027, según inventario | [MOD13Q1 v061](https://lpdaac.usgs.gov/products/mod13q1v061/) |
+| 7 | NASA | VIIRS NDVI, NASA / NOAA | San Juan; 2012–hoy; 500 m | Por descargar | Continuidad reciente de verdor | Menor detalle que MODIS | [Transición MODIS a VIIRS](https://ladsweb.modaps.eosdis.nasa.gov/learn/modis-to-viirs-transition/) |
+| 8 | NASA | ECOSTRESS, NASA | San Juan; 2018–hoy; fechas irregulares; ~70 m | Por descargar | Mapa puntual de estrés térmico/hídrico | No es serie continua | [ecostress.jpl.nasa.gov](https://ecostress.jpl.nasa.gov/) |
+| 9 | NASA | NEX-GDDP-CMIP6, NASA | San Juan; proyecciones hasta 2100; 0.25°; NetCDF | Por descargar | Extra: clima 2041–2060 | Mostrar rango entre modelos | [NASA NCCS](https://www.nccs.nasa.gov/services/data-collections/land-based-products/nex-gddp-cmip6) |
+| 10 | NASA | OPERA DSWx, NASA / JPL | San Juan; 2023–hoy; 30 m | Por descargar | Extra para agua superficial en embalses | Serie corta; Landsat para historia | [JPL OPERA](https://www.jpl.nasa.gov/go/opera/) |
+| 11 | NASA | GRACE / GRACE-FO, NASA / DLR | Isla Hispaniola; 2002–hoy; cientos de km | Descartado | Sin uso en análisis local | No distingue San Juan de Haití/resto de isla | [grace.jpl.nasa.gov](https://grace.jpl.nasa.gov/) |
+| 12 | NASA | GEDI, NASA | Franjas; 2019–hoy; muestras de 25 m | Descartado | Sin uso | Biomasa/altura de bosques, no cultivos bajos | [gedi.umd.edu](https://gedi.umd.edu/) |
+| 13 | Local | Precios mayoristas 2017–2026, Agricultura | Santo Domingo; ago 2017–oct 2026; semanal; CSV/XLSX | Tenemos | Estacionalidad de precio por cultivo | No es precio al productor; nombres/unidades inconsistentes | [datos.gob.do](https://datos.gob.do/) |
+| 14 | Local | Precios minoristas 2017–2026, Agricultura | Mercados de Santo Domingo; ago 2017–oct 2026; semanal; CSV/XLSX/ODS | Tenemos | Contexto del precio al consumidor | No es precio en finca; inconsistencias | [datos.gob.do](https://datos.gob.do/) |
+| 15 | Local | Consolidados de siembra, cosecha y producción, Agricultura | Nacional; ene 2017–sep 2026; mensual; XLSX | Tenemos | Calendario nacional como contexto | No provincial; archivo Millares duplicado; faltan años de arroz | [datos.gob.do](https://datos.gob.do/) |
+| 16 | Local | Demandas de Agua según sus Usos 2025, INDRHI | Valle/Suroeste; 2022–2025; divisiones de riego; PDF | Tenemos | Contexto hídrico y validación | Eficiencia reportada 7.4 % requiere cita y cautela | [INDRHI documentos](https://indrhi.gob.do/documentos/) |
+| 17 | Local | Plan Hidrológico Nacional 2025–2045, INDRHI | Embalses; 2016–2045; PDF | Tenemos | Déficit de Sabaneta y sedimentación de Sabana Yegua | Sedimentación citada corresponde a 2016 | [INDRHI documentos](https://indrhi.gob.do/documentos/) |
+| 18 | Local | Boletines de embalses, INDRHI | San Juan; fechas puntuales 2023–2026; HTML | Por recopilar | Contrastar agua Landsat | No hay serie histórica abierta | [Boletines de presas](https://indrhi.gob.do/indrhi-informa-sobre-volumenes-en-sistema-nacional-de-presas/) |
+| 19 | Local | Plan de Contingencia 2026, Agricultura | Regional/nacional; 2026; PDF | Tenemos | Calendario, sequía y contexto agrícola | — | [PDF 2026](https://agricultura.gob.do/wp-content/uploads/2026/06/PLAN-DE-CONTINGIA-DEGRYCC-1-DE-JUNIO-2026.pdf) |
+| 20 | Local | Plan de Contingencia 2023, Agricultura | Comunidades de San Juan; 2023; PDF | Tenemos | Cultivos y rotaciones actuales; elegir comunidad piloto | Confirmar en campo | [PDF 2023](https://agricultura.gob.do/wp-content/uploads/2023/10/Plan-de-Contingencia-Sector-Agropecuario-2023.pdf) |
+| 21 | Local | Memoria Institucional 2019, Agricultura | Provincia; 2019; PDF | Tenemos | Antecedente de reconversión y posibles aliados | Reconversión equivale más a modernización que cambio de cultivo | [Memoria 2019](https://agricultura.gob.do/transparencia/wp-content/uploads/2023/01/Memoria-Institucional-MA-2019.pdf) |
+| 22 | Local | Compendio de habichuela, IDIAF | Valle de San Juan; 2013; PDF | Público | Siembra, agua, plagas y rotación arroz–habichuela | Solo habichuela; revisar antes de usar | [Compendio](https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf) |
+| 23 | Local | Publicaciones de guandul, batata, arroz y plagas, IDIAF | RD/Suroeste; varios años; PDF | Por revisar | Completar tabla de cultivos y plagas compartidas | Buscar y comprobar cada publicación | [Publicaciones IDIAF](https://idiaf.gob.do/publicaciones/) |
+| 24 | Local | Lluvias anuales en 30 estaciones, Agricultura / ONAMET | Incluye Arroyo Loro; 2009–2023; anual; PDF | Público | Contrastar lluvia satelital con estaciones | Solo anual; mensual requiere gestión con INDOMET | [PDF estaciones](https://agricultura.gob.do/wp-content/uploads/2024/04/Lluvias-ANUALES-en-30-estaciones-de-la-Republica-Dominicana-2009-a-2023.pdf) |
+| 25 | Local | Normales de 74 estaciones, Agricultura / ONAMET | Incluye San Juan; 1971–2000; PDF | Público | Referencia climática histórica | Período antiguo | [PDF normales](https://agricultura.gob.do/wp-content/uploads/2019/09/NORMAL-1971-2000-de-74-estaciones-meteorologicas.pdf) |
+| 26 | Local | Mapa de suelos OEA 1967, Medio Ambiente | Valle; escala regional; mapa web | Solo visualización | Contexto cualitativo de suelo | Sin shapefile descargable; georreferenciación pendiente | [Suelos RD](https://ambiente.gob.do/suelos/) |
+| 27 | Global | Los suelos de República Dominicana, Tirado, FAO / CEDAF | Regional RD; 2003; descriptivo; PDF | Público | Descripción regional de suelos | No es mapa digital | [PDF FAO/CEDAF](https://intranet.cedaf.org.do/digital/suelos.agricolas.dominicanos.pdf) |
+| 28 | Global | SoilGrids, ISRIC | San Juan; 250 m; GeoTIFF/API | Por descargar | Contexto estimado de textura, pH y carbono | Modelo global, no medición local | [soilgrids.org](https://soilgrids.org/) |
+| 29 | Global | FAO-56, FAO | Global; 1998; método y coeficientes Kc | Público | Estimar demanda hídrica por cultivo/rotación | Requiere datos y calibración local | [FAO-56](https://www.fao.org/4/x0490e/x0490e00.htm) |
+| 30 | Global | CHIRPS, UCSB / USGS | San Juan; 1981–hoy; ~5 km | Por descargar | Contrastar lluvia de largo plazo; no es NASA | Solo validación secundaria | [CHIRPS](https://www.chc.ucsb.edu/data/chirps) |
+| 31 | Pendiente | Producción por provincia, Agricultura / Regional Suroeste | San Juan; 2015–2025; provincia | Pendiente | Validar clima frente a producción local | Solicitud SAIP; no asumir disponibilidad | [SAIP](https://saip.gob.do/) |
+| 32 | Pendiente | Serie histórica de embalses, INDRHI / EGEHID | San Juan; 2000–2026; diario/mensual | Pendiente | Validar disponibilidad de agua | Solicitud pendiente; usar Landsat y boletines mientras tanto | [INDRHI](https://indrhi.gob.do/) |
+| 33 | Pendiente | Rotaciones y decisiones en sequía, juntas/técnicos | Comunidad de San Juan; actual; entrevista | Pendiente | Validar escenario base y prácticas | Requiere entrevista; no inventar testimonio | Sin URL |
 
-| Recurso | URL | Prioridad y acceso | Resolución/cobertura en RD y decisión |
-|---|---|---|---|
-| Copernicus Sentinel-2 | https://dataspace.copernicus.eu | Alta para NDVI/NDMI de zona; acceso gratuito con cuenta Copernicus Data Space. | 10-20 m, revisita nominal de 5 días, cobertura global incluida RD; nubes tropicales limitan escenas. Precalcular un ejemplo si no se integra API. |
-| ERA5 | https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview | Baja, opción de contraste. Cuenta gratuita de Copernicus Climate Data Store y aceptación de términos; requiere descarga/procesamiento. | Global, resolución de rejilla del orden de decenas de km según producto. Comparación no prioritaria frente a POWER en 48 h. |
+## Prioridad para la demo
 
-## Orden de uso recomendado
+1. **Clima:** NASA POWER para temperatura/ET0 regional y GPM IMERG para lluvia, mostrando la diferencia de cobertura y escala.
+2. **Agua y suelo:** Landsat/HLS para verdor, campo pelado, riego/secano y agua de embalses; SRTM para pendiente si aporta al caso; contexto de suelo solo con fuente explícita.
+3. **Plagas:** reglas de rotación basadas en publicaciones IDIAF verificadas y relaciones entre cultivos; no predecir presencia ni brotes.
+4. **Mercado:** estacionalidad de precios mayoristas/minoristas dominicanos con advertencia visible: mercados de Santo Domingo no equivalen al precio recibido por productor.
 
-1. POWER para temperatura y clima regional, descargado por `scripts/fetch_power.py`.
-2. GPM/IMERG o una visualización GIBS para explicar lluvia; distinguir visualización de dato numérico descargado.
-3. Sentinel-2 o Landsat para un índice de vegetación en escena despejada, si el tiempo lo permite.
-4. SMAP para humedad regional, reconociendo su escala y login.
-5. GAEZ, ficha local de cultivo y datos de Agricultura/IDIAF como contexto; verificar licencia y fecha de cada capa.
-6. SRTM solo si el caso incluye ladera o análisis de erosión.
-
-Los enlaces y descripciones de catálogo proceden de la lista del reto y `analisis_recursos.md`. Las resoluciones y accesos son notas operativas de esas fuentes; confirmar documentación del producto antes de presentar resultados.
+Las alternativas de rotación son escenarios para conversar con un técnico, no prescripciones. Cada métrica debe indicar fuente, fecha/período, unidad, escala espacial y confianza. Mantener la demo utilizable con archivos públicos precargados en `data/cache/` cuando no haya conexión.

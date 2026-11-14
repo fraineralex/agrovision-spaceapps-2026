@@ -1,32 +1,18 @@
+<!-- Asistencia de IA: Codex (OpenAI), 14-11-2026. Revisado por Frainer; ver AI_USAGE.md. -->
+
 # AgroVision
 
-Repositorio privado de contexto y arranque del equipo AgroVision para NASA Space Apps Challenge 2026, reto [Field Shift: Adapting Farms with NASA Data](https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/). El objetivo es alinear al equipo, conservar fuentes y arrancar una demo reproducible para el evento virtual de Santo Domingo.
+Repositorio del equipo AgroVision para NASA Space Apps Challenge 2026, reto [Field Shift: Adapting Farms with NASA Data](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/), sede Santo Domingo virtual.
 
-## Reto en breve
+## Dirección oficial
 
-Explorar cómo datos de observación de la Tierra de NASA, contexto local de suelo, rasgos de cultivos y prioridades agrícolas pueden ayudar a comparar rotaciones resilientes. La herramienta apoya la decisión y no sustituye criterio de productores, técnicos ni especialistas. AgroVision enfoca el MVP en San Juan de la Maguana, con rotaciones comparables y explicaciones rastreables a datos y reglas.
+El piloto es el **Valle de San Juan**. AgroVision compara la rotación actual con dos o tres escenarios para apoyar, sin reemplazar, la decisión del productor y del técnico agrícola. Organiza la evidencia en cuatro pilares: **agua y suelo, clima, plagas y mercado**.
 
-## Fechas y deadlines
+La IA del MVP analiza imágenes Landsat para clasificar meses de campo pelado y zonas de riego frente a secano, indicando confianza y límites. No es un chatbot; un LLM explicativo es una opción secundaria. Sensores quedan para una fase futura y no entran en la demo. No se afirma predicción de rendimiento ni de plagas.
 
-- Evento: 14 y 15 de noviembre de 2026, Santo Domingo, modalidad virtual.
-- Corte interno de entrega: domingo 15 de noviembre, 6:00 PM AST.
-- Cierre oficial de envío: domingo 15 de noviembre, 11:59 PM AST.
-- La guía citada en el chat sitúa el inicio de juzgamiento el 16 de noviembre. Revisar la página oficial por cambios.
+## Inicio rápido
 
-## Equipo y fortalezas
-
-- Ronald: Python, FastAPI, infraestructura, datos y aprendizaje automático.
-- Victor: algoritmos, programación competitiva, backend y React.
-- Frainer: liderazgo técnico, TypeScript, React, Node, AWS y experiencia con datos satelitales.
-- Hansel: desarrollo full stack, Scrum y Python aplicado a IA.
-- Karla: ciberseguridad, desarrollo web, estadística y automatización conversacional.
-- Luis: desarrollo con C#, React, Python y JavaScript; automatización conversacional.
-
-Las fortalezas provienen del resumen compartido del equipo y no implican asignación definitiva de tareas.
-
-## Cómo arrancar
-
-Requisitos: Python 3.10 o superior y acceso a internet para consultar NASA POWER. La API no requiere clave.
+Requisitos: Python 3.10 o superior. La demo debe funcionar con datos precargados en caché aunque no haya internet.
 
 ```bash
 python -m venv .venv
@@ -36,37 +22,27 @@ python scripts/fetch_power.py --lat 18.80 --lon -71.23 --start 2016-01-01 --end 
 uvicorn backend.main:app --reload
 ```
 
-API local: `http://127.0.0.1:8000/health` y `http://127.0.0.1:8000/climate`. La caché inicial está en `data/cache/`.
+API local: `http://127.0.0.1:8000/health` y `http://127.0.0.1:8000/climate`. La descarga requiere red; la presentación debe poder reproducir el caso desde `data/cache/`.
 
-## Mapa del repo
+## Documentos
 
-- `docs/`: reto, datos, contexto dominicano, MVP, arquitectura, plan e ideas.
-- `scripts/`: descarga reproducible de POWER, comprobación de GIBS y dependencias.
-- `data/cache/`: CSV de demostración. Guardar aquí datos públicos derivados y documentar fuente/fecha.
-- `backend/`: esqueleto FastAPI.
-- `frontend/`: propuesta inicial de interfaz.
-- `.github/`: plantillas de issues y pull requests.
-- `AI_USAGE.md`: registro obligatorio de asistencia de IA.
+Leer en orden según [AGENTS.md](AGENTS.md). La dirección oficial y el inventario base están en `docs/fuentes_equipo/resumen_equipo.txt` y `docs/fuentes_equipo/inventario_datos.txt`.
 
-## Convenciones de trabajo
+- `docs/00_reglas_envio_y_evaluacion.md`: reglas confirmadas, elementos sin verificar y checklist de envío.
+- `docs/02_recursos_datos.md`: tabla de las 33 fuentes y estados.
+- `docs/04_producto_mvp.md`, `docs/05_arquitectura.md`: alcance y arquitectura de la demo.
+- `docs/08_premios.md`: correspondencia con descripciones oficiales publicadas; ponderaciones 2026 sin verificar.
+- `AI_USAGE.md`: registro de asistencia de IA.
 
-- Crear ramas `feature/<nombre-corto>` desde `main`.
-- Abrir PRs pequeños a `main`, describiendo problema, cambio, cómo revisarlo y fuentes relevantes.
-- Usar issues para tareas, decisiones pendientes y defectos; enlazar PR con su issue.
-- No incluir secretos, credenciales, datos personales de productores ni datos privados del equipo.
-- Cada dato externo debe llevar fuente, fecha, unidad, cobertura y limitaciones. Mantener visible la incertidumbre.
-- Toda contribución asistida por IA se registra en `AI_USAGE.md`.
+## Fechas y entrega
 
-## Checklist de entrega
+- Evento: 14 y 15 de noviembre de 2026.
+- Cierre oficial de envío: domingo 15 de noviembre, 11:59 PM AST según sede Santo Domingo. Confirmar hora activa en el portal del equipo.
+- Los requisitos que no se pudieron comprobar en la guía 2026 están identificados como “sin verificar”; revisar el formulario oficial antes de enviar.
 
-Confirmar la guía oficial de submission el día del cierre. Completar y revisar:
+## Desarrollo
 
-- [ ] Título, descripción del proyecto, reto seleccionado y problema que aborda.
-- [ ] Cómo funciona, público objetivo, impacto esperado y qué se construyó frente a qué es visión futura.
-- [ ] Uso concreto de datos NASA: dataset, variable, periodo, resolución y papel en cada comparación.
-- [ ] Al menos tres rotaciones, incluida una línea base, con evidencia, beneficios, incertidumbres y riesgos.
-- [ ] Demo funcional y enlace accesible; probar modo demo con caché.
-- [ ] Video según duración y formato que indique la guía oficial; audio claro y flujo ensayado.
-- [ ] Fuentes y atribuciones de datos, software y materiales de terceros.
-- [ ] Diapositiva sobre uso de IA y referencias en `AI_USAGE.md`.
-- [ ] Enviar antes del corte interno de 6 PM AST y verificar confirmación antes del cierre oficial.
+- Ramas: `feature/<nombre-corto>`, `fix/<nombre-corto>` o `docs/<nombre-corto>` desde `main`; PRs pequeños con fuentes y pasos de revisión.
+- Citar cada fuente/dataset con fecha, escala, unidad y limitaciones. No inventar métricas ni URLs.
+- No guardar secretos, credenciales ni datos personales de productores.
+- Toda asistencia de IA debe registrarse en `AI_USAGE.md` y citarse en el material generado.

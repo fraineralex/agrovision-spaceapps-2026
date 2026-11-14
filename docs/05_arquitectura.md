@@ -2,26 +2,35 @@
 
 ## Componentes
 
-- **Frontend:** mapa y controles en navegador; sugerencia React + Leaflet, sin framework decidido todavía.
-- **Backend:** Python + FastAPI, endpoints de salud y lectura de clima cacheado.
-- **Datos:** `data/cache/` contiene CSV público de NASA POWER para coordenada, parámetros y periodo conocidos. Metadatos en nombre de archivo y documentación. No guardar credenciales.
-- **Flujo:** pedir coordenada/periodo, consultar caché; si falta, la descarga se ejecuta como tarea explícita mediante script. La demo debe poder mostrar el CSV sin depender de API externa.
+- **Interfaz web:** mapa/caso del Valle de San Juan, controles de ubicación aproximada, cultivo previo, riego/secano y prioridad; comparación de escenarios en cuatro pilares.
+- **API:** FastAPI sirve métricas, metadatos y resultados derivados precalculados. No debe consultar servicios externos por cada interacción de la demo.
+- **Datos y caché:** `data/cache/` mantiene archivos de NASA y otras fuentes públicas con metadatos de fuente, período, descarga, unidad, escala y licencia. Nunca guardar credenciales.
+- **Análisis Landsat:** proceso reproducible que produce clases de campo pelado y riego/secano, junto con período, resolución, método, confianza y muestras revisadas. Si no hay entrenamiento/validación suficientes, mostrar como prototipo preliminar.
+- **Motor de escenarios:** reglas visibles para comparar línea base y alternativas en agua/suelo, clima, plagas (reglas IDIAF verificadas) y mercado. No predice rendimiento ni brotes.
+- **Modo offline:** empaquetar un caso San Juan en caché y permitir que la demo lo muestre sin red. Las descargas son tarea explícita separada.
 
 ```mermaid
 flowchart LR
-  U[Agente de extension / productor] --> F[Frontend: mapa y escenarios]
-  F -->|GET /climate| A[FastAPI]
-  A --> C[(data/cache CSV)]
-  S[scripts/fetch_power.py] -->|HTTPS sin clave| P[NASA POWER API]
-  P --> S
-  S --> C
-  A -->|metricas y metadatos| F
-  F --> X[Comparacion de rotaciones y reglas explicables]
+  U[Productor o técnico] --> F[Interfaz: Valle de San Juan]
+  F --> A[API local FastAPI]
+  A --> C[(data/cache: NASA y contexto local)]
+  C --> L[Clasificación Landsat: pelado / riego / secano]
+  C --> R[Reglas comparables: agua y suelo, clima, plagas, mercado]
+  L --> R
+  R --> A
+  D[Scripts de ingesta] -->|descarga controlada| N[NASA POWER, IMERG, Landsat, SRTM]
+  N --> D
+  D --> C
 ```
 
 ## API inicial
 
 - `GET /health`: estado del proceso.
-- `GET /climate`: lee el CSV de demo desde `data/cache/` y devuelve registros y metadatos básicos.
+- `GET /climate`: clima de demo desde caché, incluyendo producto, coordenada aproximada, período, unidades, resolución y limitaciones.
+- `GET /scenarios`: escenarios precalculados y componentes con reglas/fuentes asociadas.
 
-Este esqueleto lee la caché estática; no valida ubicación arbitraria ni consulta NASA en cada petición. Para producción se requerirán validación de parámetros, manejo de errores, límites de respuesta, metadatos de producto y controles de uso.
+La API sirve primero la caché, sin depender de red en la presentación. Coordenadas se validan y se limitan al área piloto; no registrar ubicación precisa identificable de productores.
+
+## Reglas de calidad de datos
+
+Cada valor expuesto incluye fuente, escala, período, unidad y confianza o estado de calidad. La falta de datos aparece como tal, sin imputación silenciosa. Diferenciar observación satelital, reanálisis, regla agronómica y dato declarado por usuario. LLM explicativo solo como opción secundaria aprobada y citada; sensores fuera de la demo.
