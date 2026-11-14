@@ -32,3 +32,12 @@ test("hectares convert to Dominican tareas (628.86 m2)", () => {
   assert.equal(toTareas(1), 16);
   assert.equal(toTareas(2.09), 33);
 });
+
+test("only common Dominican crops; perennials are listed after seasonal crops", async () => {
+  const { allCrops } = await import("./advisor");
+  assert.ok(!allCrops.includes("sorgo" as never));
+  for (const c of ["cafe", "cacao", "aguacate", "habichuela_negra", "guineo"]) assert.ok(allCrops.includes(c as never));
+  const a = adviseNextCrop({ province: "San José de Ocoa", irrigation: "irrigated", previous: "unknown", sowMonth: 11, priority: "water", crops: ["cafe", "cacao", "habichuela_roja"] });
+  assert.equal(a[0].crop, "habichuela_roja");
+  assert.equal(a.find(x => x.crop === "cafe")!.harvestMonth, 0);
+});
