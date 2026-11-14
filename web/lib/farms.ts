@@ -9,6 +9,8 @@ export type Piece = { id: string; kind: "cell" | "field" | "parcel" | "drawn"; r
 export type Farm = {
   id: string; name: string; province: string; location: Location; pieces: Piece[];
   previous: PreviousCrop; irrigation: Irrigation; crops: CropId[]; sowMonth: number; priority: Priority;
+  plan?: { crop: CropId; sowMonth: number };
+  waterTurn?: string;
 };
 
 const R = 6378137;
@@ -84,6 +86,11 @@ export function loadFarms(): { farms: Farm[]; active: string | null } {
   } catch { return { farms: [], active: null }; }
 }
 export function saveFarms(farms: Farm[], active: string | null) {
-  try { localStorage.setItem(KEY, JSON.stringify(farms)); if (active) localStorage.setItem(ACTIVE, active); else localStorage.removeItem(ACTIVE); } catch { /* storage optional */ }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(farms));
+    if (active) localStorage.setItem(ACTIVE, active); else localStorage.removeItem(ACTIVE);
+    localStorage.removeItem(OLD);
+    return true;
+  } catch { return false; }
 }
 export const newFarmId = () => `finca-${Date.now().toString(36)}`;

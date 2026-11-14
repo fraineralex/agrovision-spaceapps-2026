@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "AgroVision | República Dominicana",
   icons: { icon: "/icon.svg" },
-  description: "Qué sembrar en tu finca, la lluvia de la semana y cuánto te puede dejar, con datos de la NASA, la FAO y el Ministerio de Agricultura.",
+  description: "Consulta la lluvia, organiza tu siembra y calcula el precio mínimo para cubrir tus gastos en el campo dominicano.",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1f4d2c" };

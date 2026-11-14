@@ -172,3 +172,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Integración del rediseño
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Auditoría de utilidad y flujo de trabajo del productor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** auditar la utilidad en campo y mejorar la consulta semanal, el turno de riego, el plan de siembra y la evaluación de ofertas. **Archivos:** `docs/18_auditoria_valor_agricultor.md`, `web/app/{page.tsx,layout.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,market-card,onboarding,options-card,profit-card,rain-card,sale-budget}.tsx`, `web/lib/{advisor,farms,rain,rain.test}.ts`, `web/tests/demo.spec.ts` y `web/playwright.config.ts`.
+- **Fuentes y límites:** los turnos, gastos, cantidades y ofertas son datos declarados. La lluvia es un pronóstico regional o una estimación histórica de NASA POWER. Se enlazan los avisos de INDOMET y se documentan las brechas de datos y validación en San Juan. **Revisión por Frainer:** pendiente.

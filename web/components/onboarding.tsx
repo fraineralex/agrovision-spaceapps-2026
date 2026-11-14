@@ -1,14 +1,15 @@
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { allCrops, cropEmoji, cropNames, defaultCrops, monthNames, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography";
-import { FarmPicker } from "@/components/farm-picker";
 import { Check, MapPin } from "lucide-react";
 import { areaLabel, centroid, newFarmId, piecesAreaM2, type Farm, type Piece } from "@/lib/farms";
 import type { Irrigation, Priority } from "@/lib/data";
 
 export type FarmProfile = Farm;
+const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <p role="status">Cargando mapa…</p> });
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const STEPS = 3;
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -28,10 +29,18 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [sowMonth, setSowMonth] = useState(initial.sowMonth ?? now);
   const [priority] = useState<Priority>(initial.priority ?? "water");
   const [pieces, setPieces] = useState<Piece[]>(initial.pieces ?? []);
+  const [showMap, setShowMap] = useState(Boolean(initial.pieces?.length));
   const [name, setName] = useState(initial.name ?? (farmCount ? `Finca ${farmCount + 1}` : "Mi finca"));
   const next = () => setStep(s => Math.min(STEPS - 1, s + 1));
   const back = () => setStep(s => Math.max(0, s - 1));
-  const pick = (name: string, loc?: Location) => { const p = provinces.find(x => x.name === name); setProvince(name); setLocation(loc ?? (p ? { longitude: p.longitude, latitude: p.latitude } : null)); setSearch(""); setTimeout(next, 150); };
+  const pick = (name: string, loc?: Location) => {
+    const p = provinces.find(x => x.name === name);
+    if (name !== province || loc) { setPieces([]); setShowMap(false); }
+    setProvince(name);
+    setLocation(loc ?? (name === province && location ? location : p ? { longitude: p.longitude, latitude: p.latitude } : null));
+    setSearch("");
+    next();
+  };
   const useGps = () => {
     if (!("geolocation" in navigator)) { setGps("Tu teléfono no permite ubicación. Escribe tu provincia."); return; }
     setGps("Buscando tu ubicación…");
@@ -42,7 +51,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     }, () => setGps("No se pudo obtener tu ubicación. Escribe tu provincia."), { timeout: 10000 });
   };
   const matches = search.trim() ? provinces.filter(p => fold(p.name).includes(fold(search.trim()))).slice(0, 8) : provinces.slice(0, 0);
-  const finish = () => location && onDone({ id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces, province, location: centroid(pieces) ?? location, previous, irrigation, crops: crops.length ? crops : defaultCrops, sowMonth, priority });
+  const finish = () => location && onDone({ id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces, province, location: centroid(pieces) ?? location, previous, irrigation, crops: crops.length ? crops : defaultCrops, sowMonth, priority, plan: initial.plan, waterTurn: initial.waterTurn });
 
   return <div className="onboarding" role="dialog" aria-modal="true" aria-label="Cuéntanos de tu finca">
     <div className="ob-card">
@@ -54,7 +63,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
 
       {step === 0 && <div className="ob-step">
         <h2>¿Dónde está tu finca?</h2>
-        <p>Son 3 pasos cortos. Luego te decimos qué te conviene sembrar.</p>
+        <p>Con tu provincia ya puedes consultar la lluvia de la zona. Puedes marcar tu finca más adelante.</p>
         <button type="button" className="ob-primary" onClick={useGps}><MapPin aria-hidden="true" /> Usar mi ubicación</button>
         {gps && <p role="status">{gps}</p>}
         <label className="ob-label">O escribe tu provincia<input type="search" value={search} placeholder="Ej.: San Juan" onChange={e => setSearch(e.target.value)} /></label>
@@ -64,10 +73,10 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       </div>}
 
       {step === 1 && location && <div className="ob-step">
-        <h2>Marca tu finca en el mapa</h2>
+        <h2>Dale un nombre a tu finca</h2>
         <label className="ob-label">Nombre de esta finca<input value={name} maxLength={40} placeholder="Ej.: Finca del río" onChange={e => setName(e.target.value)} /></label>
-        <FarmPicker center={location} pieces={pieces} onChange={setPieces} />
-        <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : "Saltar este paso"}</button>
+        {showMap ? <FarmPicker center={location} pieces={pieces} onChange={setPieces} /> : <button type="button" className="link-button" onClick={() => setShowMap(true)}>Marcar la finca en el mapa (opcional)</button>}
+        <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : "Seguir sin marcar"}</button>
       </div>}
 
       {step === 2 && <div className="ob-step">
