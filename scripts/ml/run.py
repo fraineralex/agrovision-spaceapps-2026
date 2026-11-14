@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
 from pyproj import Transformer
-from shapely.geometry import mapping
+from shapely.geometry import mapping, shape
+from shapely import union_all
 from shapely import transform as transform_geometry
 
 from common import CACHE, DERIVED, DEFAULT_BBOX, STAC, WORLDCOVER, envelope, write_json
@@ -81,7 +82,7 @@ def build(n_segments=600):
     cover_report, cover_predictions = fit_target(records, 'cover_weak_label', ['bare_soil', 'crop'])
     water_report, water_predictions = fit_target(records, 'water_weak_label', ['irrigation_signal', 'rainfed_signal'])
     prov = provenance(acquisition)
-    versions = {p: importlib.metadata.version(p) for p in ['numpy', 'rasterio', 'scikit-image', 'scikit-learn', 'shapely', 'pyproj']}
+    versions = {p: importlib.metadata.version(p) for p in ['numpy', 'rasterio', 'scikit-image', 'scikit-learn', 'shapely', 'pyproj', 'scipy', 'requests', 'matplotlib', 'joblib']}
     report = {**envelope(), 'status': 'prototype_preliminary', 'periodStart': prov['periodStart'],
         'periodEnd': prov['periodEnd'], 'sensor': 'Sentinel-2 MSI L2A (no HLS/Landsat fusion)',
         'provenance': [prov, {'sourceId': 'esa-worldcover-2021', 'sourceName': 'ESA WorldCover 2021 v200',
@@ -160,7 +161,7 @@ def build(n_segments=600):
         features.append({'type': 'Feature', 'geometry': mapping(geometry), 'properties': properties})
     DERIVED.mkdir(parents=True, exist_ok=True)
     write_json(DERIVED / 'parcels_san_juan.geojson', {**envelope(), 'type': 'FeatureCollection',
-                   'bbox': list(__import__('shapely').union_all([__import__('shapely').geometry.shape(f['geometry']) for f in features]).bounds),
+                   'bbox': list(union_all([shape(f['geometry']) for f in features]).bounds),
                    'provenance': report['provenance'], 'features': features}, compact=True)
     write_json(DERIVED / 'model_report.json', report)
     make_figure(labels, records, cover_predictions, water_predictions, report)
