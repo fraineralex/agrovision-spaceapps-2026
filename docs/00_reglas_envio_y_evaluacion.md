@@ -1,5 +1,9 @@
 # Reglas de envío y evaluación NASA Space Apps 2026
 
+<!-- Ampliación de verificación con asistencia de Codex (OpenAI), 2026-11-14; revisión por Frainer pendiente. -->
+
+**Ampliación 14-11-2026:** [respuesta Chris-GO-Team #1858](https://github.com/nasa/spaceapps/discussions/1858) confirma la lista general de campos (título, resumen, enlaces de demo y proyecto final, descripción, datos NASA/otras agencias, IA/SI y aceptación de términos). [Nick-GO-Team #1849](https://github.com/nasa/spaceapps/discussions/1849) confirma divulgación de IA y atribución de código/datos generados; imágenes/video generados llevan marca visible y audio se identifica en descripción/metadatos. [Ashlynn-GO-Team #1916](https://github.com/nasa/spaceapps/discussions/1916) confirma que la zona horaria sigue el Local Event del Team Owner. Son aclaraciones del organizador en discusiones de otros retos, no una copia del formulario de Field Shift. La guía de envío 2026 continúa inaccesible; duración de video, límite de diapositivas y caracteres permanecen **sin verificar**. Ver [registro de comprobación y materiales](submission/README.md). Esta ampliación precisa los estados anteriores sin convertir reglas históricas en reglas vigentes.
+
 Consulta: 14-11-2026. Se revisaron las páginas oficiales indicadas abajo. Las páginas 2026 del sitio están publicadas, pero las guías de envío y evaluación no fueron accesibles en la consulta. Los campos y límites específicos que no se confirman aquí quedan marcados **sin verificar**. Antes de enviar, prevalece el formulario activo del equipo.
 
 ## Fechas y elegibilidad
