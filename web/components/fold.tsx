@@ -1,7 +1,7 @@
 /* AI: Claude (Anthropic), 2026-11-14 — always-open section panel with a heading and a simple icon. Frainer review pending. */
-import { CloudRain, Coins, Map, MessageCircle, Sun, Thermometer, Wallet, type LucideIcon } from "lucide-react";
+import { CloudRain, Coins, Map, MessageCircle, Sprout, Sun, Thermometer, Wallet, type LucideIcon } from "lucide-react";
 
-const icons: Record<string, LucideIcon> = { "🌧️": CloudRain, "💵": Wallet, "💰": Coins, "🗺️": Map, "☀️": Sun, "🌡️": Thermometer, "🎙️": MessageCircle };
+const icons: Record<string, LucideIcon> = { "🌱": Sprout, "🌧️": CloudRain, "💵": Wallet, "💰": Coins, "🗺️": Map, "☀️": Sun, "🌡️": Thermometer, "🎙️": MessageCircle };
 const slug = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /** Kept the old name so callers stay simple; every section is expanded (farmer feedback, 14-11-2026). */

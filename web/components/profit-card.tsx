@@ -7,7 +7,7 @@ import { CPI, profitFor, rd } from "@/lib/profit";
 
 export function ProfitCard({ crops, initialCrop, tareas: farmTareas }: { crops: CropId[]; initialCrop: CropId; tareas: number | null }) {
   const [crop, setCrop] = useState<CropId>(initialCrop);
-  const [tareas, setTareas] = useState(String(farmTareas ? Math.max(1, Math.round(farmTareas)) : 10));
+  const [tareas, setTareas] = useState(farmTareas ? String(Number(farmTareas.toFixed(2))) : "");
   const t = Math.max(0, Math.min(100000, Number(tareas.replace(",", ".")) || 0));
   const p = profitFor(crop, t);
   const maxMoney = "unavailable" in p ? 1 : Math.max(1, p.costRD, p.income.high);
@@ -16,11 +16,10 @@ export function ProfitCard({ crops, initialCrop, tareas: farmTareas }: { crops: 
       <label>Cultivo<div className="select-with-icon"><FarmIcon name={crop} size={20} /><select value={crop} onChange={e => setCrop(e.target.value as CropId)}>{crops.map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></label>
       <label>Tareas<input inputMode="decimal" value={tareas} onChange={e => setTareas(e.target.value)} aria-label="Tareas" /></label>
     </div>
-    {!farmTareas && <p className="note">No marcaste tu finca en el mapa: usamos {tareas} tareas. Cámbialo arriba.</p>}
-    {"unavailable" in p ? <p className="warning">No podemos calcularlo para {cropNames[crop].toLowerCase()}: {p.unavailable}</p> : <>
+    {t <= 0 ? <p className="note">Escribe cuántas tareas vas a sembrar para ver el ejemplo.</p> : "unavailable" in p ? <p className="warning">No podemos calcularlo para {cropNames[crop].toLowerCase()}: {p.unavailable}</p> : <>
       <div className="profit-range" role="group" aria-label="Lo que te podría quedar">
         {(["low", "mid", "high"] as const).map(k => <div key={k} className={`profit-col ${p.profit[k] < 0 ? "loss" : "gain"}`}>
-          <small>{k === "low" ? "Si el precio baja" : k === "mid" ? "Con el precio de hoy" : "Si el precio sube"}</small>
+          <small>{k === "low" ? "Precio histórico bajo" : k === "mid" ? "Último precio publicado" : "Precio histórico alto"}</small>
           <strong>{rd(p.profit[k])}</strong>
           <span>{p.profit[k] < 0 ? "pérdida" : "te queda"}</span>
         </div>)}
@@ -43,7 +42,7 @@ export function ProfitCard({ crops, initialCrop, tareas: farmTareas }: { crops: 
       </div>
       <ul className="profit-lines">
         <li>Gastarías unos <strong>{rd(p.costRD)}</strong> en {t} tareas.</li>
-        <li>Cosecha esperada: unas <strong>{Math.round(p.yieldLb).toLocaleString("es-DO")} libras</strong>.</li>
+        <li>Cantidad del ejemplo con rendimientos de 2019: <strong>{Math.round(p.yieldLb).toLocaleString("es-DO")} libras</strong>.</li>
         <li>Venta al por mayor: entre <strong>{rd(p.income.low)}</strong> y <strong>{rd(p.income.high)}</strong>.</li>
       </ul>
       <details className="sources-fold">

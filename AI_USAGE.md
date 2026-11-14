@@ -173,14 +173,20 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.
 
-## 2026-11-14 — Dashboard widescreen, onboarding centrado natural e íconos unificados (sobre `origin/main` PR #9)
+## 2026-11-14 — Auditoría de utilidad y flujo de trabajo del productor
 
-- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** pulir la interfaz publicada en PR #9 sin alterar flujos ni fuentes ni datos:
-  - centrar horizontal y verticalmente el contenedor de onboarding con fotografía rural real de San Juan (`web/public/images/san-juan-valley.jpg`, CC0 Wikimedia Commons) y animación suave (`valleyBreeze`, desactivable con `prefers-reduced-motion`);
-  - reorganizar el dashboard de escritorio en franja de 4 tarjetas de telemetría (`.kpi-strip`), grilla balanceada de 2 columnas con paneles duales (`.dual-panels`), grilla de 2 columnas en `.crop-list` y `.option-list`, y `.heading-row` con selector de fincas integrado;
-  - unificar los íconos geométricos SVG de cultivos en `web/components/farm-icon.tsx` en lugar de emojis dispersos, añadir cabecera/ciclo en `advisor-card.tsx` y tipografía `Plus Jakarta Sans`;
-  - incluir `@types/geojson` en `web/package.json` (`devDependencies`) para verificación de tipos en `pnpm build` y precachear `san-juan-valley.jpg` en `web/scripts/offline-assets.mjs`.
-- **Archivos:** `web/app/{layout.tsx,page.tsx,globals.css}`, `web/components/{farm-icon,farm-picker,onboarding,advisor-card,options-card,market-card,profit-card,rain-card,fao-giews}.tsx`, `web/public/{icon.svg,images/san-juan-valley.jpg}`, `web/scripts/offline-assets.mjs`, `web/package.json`, `web/pnpm-lock.yaml`, `docs/DATA_SOURCES.md`, `AI_USAGE.md`.
-- **Actualización visual posterior:** gráficos de área y calendario estacional de precios (24 meses y Ene–Dic), gráfica de columnas de lluvia (7 días), barras comparativas de costo vs venta en calculadora, dial circular y barras de pilares en el asesor, anillos de riesgo/anomalía FAO GIEWS, medidores visuales NASA POWER (temperatura, lluvia mensual, humedad relativa), plegado accesible de notas metodológicas, cabecera fija en onboarding y diseño adaptable en dos columnas para el paso del mapa con íconos Lucide unificados (sin emojis) para que cada paso quepa completo en pantalla sin recortes. Todas las animaciones respetan `prefers-reduced-motion: reduce`.
-- **Límites:** solo mejoras visuales y de maquetación sobre el código y caché existentes; no se agregaron ni modificaron cifras agronómicas, precios ni reglas de negocio.
-- **Revisión por Frainer:** pendiente.
+- **Herramienta:** Codex (OpenAI). **Propósito:** auditar la utilidad en campo y mejorar la consulta semanal, el turno de riego, el plan de siembra y la evaluación de ofertas. **Archivos:** `docs/18_auditoria_valor_agricultor.md`, `web/app/{page.tsx,layout.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,market-card,onboarding,options-card,profit-card,rain-card,sale-budget}.tsx`, `web/lib/{advisor,farms,rain,rain.test}.ts`, `web/tests/demo.spec.ts` y `web/playwright.config.ts`.
+- **Fuentes y límites:** los turnos, gastos, cantidades y ofertas son datos declarados. La lluvia es un pronóstico regional o una estimación histórica de NASA POWER. Se enlazan los avisos de INDOMET y se documentan las brechas de datos y validación en San Juan. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Resúmenes visuales para el productor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** sustituir texto repetido por un gráfico diario de lluvia, una línea de tiempo de siembra y cosecha, y señales claras para el cálculo de venta. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,options-card,rain-card,sale-budget}.tsx`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Integración del flujo de finca, seccionamiento sin saturación y gráficos interactivos
+
+- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** integrar los cambios de `origin/main` (PR #9 y PR #10 `feature/farm-workbench`), conservar las correcciones de rigor agronómico/científico (`currentRain`, exclusión de mandatos de riego, separación de evidencia y costos declarados) y elevar el diseño visual por secciones claras:
+  - mantener el onboarding centrado con fotografía rural CC0 de San Juan (`web/public/images/san-juan-valley.jpg`), pasos adaptados a pantalla de laptop (`1366×620`) e íconos Lucide/SVG unificados;
+  - reorganizar la portada en secciones limpias (pulso semanal de lluvia interactiva + turno de riego, mesa de decisión de siembra en 2 columnas con tarjetas de comparación más compactas, calculadora de precio mínimo con barra visual comparativa de oferta, bloque regional colapsable por temática y asistente de voz);
+  - hacer interactiva la tira de lluvia de 7 días (selección por día con detalle y animación suave de gotas/rayos solares respetando `prefers-reduced-motion`) y la estacionalidad de mercado (inspección de mes).
+- **Archivos:** `web/app/{layout.tsx,page.tsx,globals.css}`, `web/components/{farm-icon,farm-picker,farm-workbench,onboarding,advisor-card,options-card,market-card,profit-card,rain-card,fao-giews,sale-budget}.tsx`, `web/public/{icon.svg,images/san-juan-valley.jpg}`, `web/scripts/offline-assets.mjs`, `web/package.json`, `web/pnpm-lock.yaml`, `docs/DATA_SOURCES.md`, `AI_USAGE.md`.
+- **Límites:** solo mejoras visuales, interactivas y de arquitectura de pantalla sobre datos y reglas vigentes; no se inventaron datos ni métricas. **Revisión por Frainer:** pendiente.

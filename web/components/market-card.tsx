@@ -43,6 +43,7 @@ function Sparkline({ values }: { values: number[] }) {
 
 export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   const [chosen, setChosen] = useState<CropId | null>(null);
+  const [pickedMonth, setPickedMonth] = useState<number | null>(null);
   const crop = chosen ?? initialCrop;
   const m = marketFor(crop);
   const latest = m?.latest;
@@ -51,6 +52,8 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   const cost = m?.cost2019;
   const bestSet = new Set(m?.bestSellMonths ?? []);
   const worstSet = new Set(m?.worstSellMonths ?? []);
+  const activeMonth = pickedMonth ?? m?.bestSellMonths?.[0] ?? null;
+  const activeIdx = activeMonth ? m?.seasonalIndex?.[String(activeMonth)] ?? null : null;
   return <section className="card market" aria-label="Precio y mercado">
     <div className="section-row"><h3>Precio del cultivo</h3>
       <div className="select-with-icon"><FarmIcon name={crop} size={20} /><select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></div>
@@ -68,15 +71,23 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
             {shortMonths.map((lbl, idx) => {
               const mm = idx + 1;
               const cls = bestSet.has(mm) ? "best" : worstSet.has(mm) ? "worst" : "mid";
-              return <li key={mm} className={cls} title={`${monthNames[idx]}: ${cls === "best" ? "mejor época para vender" : cls === "worst" ? "precio más bajo" : "precio intermedio"}`}>{lbl}</li>;
+              const isPicked = activeMonth === mm;
+              return <li key={mm} className={cls}>
+                <button type="button" className={isPicked ? "sm-btn on" : "sm-btn"} aria-pressed={isPicked} title={`${monthNames[idx]}: ${cls === "best" ? "mejor época histórica" : cls === "worst" ? "precio histórico más bajo" : "precio intermedio"}`} onClick={() => setPickedMonth(mm)}>{lbl}</button>
+              </li>;
             })}
           </ol>
+          {activeMonth && <p className="season-picked">
+            <strong style={{ textTransform: "capitalize" }}>{monthNames[activeMonth - 1]}:</strong>{" "}
+            {bestSet.has(activeMonth) ? "época histórica de precios más altos" : worstSet.has(activeMonth) ? "época histórica de precios más bajos" : "comportamiento intermedio"}
+            {typeof activeIdx === "number" ? ` (índice ${Math.round(activeIdx)} vs 100 promedio)` : ""}
+          </p>}
         </div>
       )}
       <ul className="market-facts">
-        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Mejor venta:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
-        {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
-        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]}:</strong> rango histórico {money(outlook.low)}–{money(outlook.high)} {unitWord(m.unit)}</li>}
+        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Meses con precios históricos más altos:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
+        {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Precio más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
+        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]} el histórico estuvo entre</strong> {money(outlook.low)} y {money(outlook.high)} {unitWord(m.unit)}</li>}
       </ul>
     </> : <p>No hay precios mayoristas recientes de {cropNames[crop].toLowerCase()} en la fuente oficial.</p>}
     {m?.sowing?.status === "alta" && <p className="warning"><AlertTriangle aria-hidden="true" size={18} /><span>Muchos están sembrando {cropNames[crop].toLowerCase()}: +{Math.round(((m.sowing.ratio ?? 1) - 1) * 100)}% sobre lo normal (últimos 12 meses). Posible sobreoferta al cosechar.</span></p>}
