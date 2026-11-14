@@ -28,6 +28,8 @@ alwaysApply: true
 
 ## Desarrollo y colaboración
 
+- Todos los mensajes de commit deben estar en inglés y seguir Conventional Commits (por ejemplo, `docs: add technical implementation plan`).
+- Todo el texto visible en la interfaz de usuario (UI) debe estar en inglés. La documentación del repositorio puede seguir en español.
 - Crear ramas `feature/<nombre-corto>`, `fix/<nombre-corto>` o `docs/<nombre-corto>` desde `main`; no trabajar directamente en `main` salvo operación final de integración autorizada.
 - Abrir PRs pequeños hacia `main`, con propósito, archivos, fuentes y pasos concretos de revisión. No incluir secretos ni datos privados.
 - Mantener cambios coherentes con la dirección oficial; actualizar documentación y registro de IA en el mismo cambio.
