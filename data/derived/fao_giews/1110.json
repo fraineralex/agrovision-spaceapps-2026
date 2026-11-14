@@ -1,0 +1,393 @@
+{
+  "name": "Barahona",
+  "sourceName": "Barahona",
+  "gaul1": "1110",
+  "asi": {
+    "value": 0.0,
+    "date": "2026-11-01",
+    "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_Dekad_Season1_data.csv"
+  },
+  "vhi": {
+    "value": 0.723,
+    "date": "2026-11-01",
+    "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_NDVI_ANOMALY/DATA/vhi_adm1_dekad_data.csv"
+  },
+  "weightedVhi": {
+    "value": 0.578,
+    "date": "2026-11-01",
+    "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/MVHI_Dekad_Season1_data.csv"
+  },
+  "rain": {
+    "value": 34.634,
+    "date": "2026-11-01",
+    "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/GRAPH_RAIN_AGRI/rain_adm1_data.csv",
+    "normalMm": 32.02,
+    "anomalyPct": 8.2
+  },
+  "history": [
+    {
+      "season": 1,
+      "start": 1984,
+      "end": 2025,
+      "seasons": 42,
+      "above30": 0,
+      "above50": 0,
+      "frequency30Pct": 0.0,
+      "frequency50Pct": 0.0,
+      "annual": [
+        {
+          "year": 1984,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1985,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1986,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1987,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1988,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1989,
+          "asiPct": 1.2
+        },
+        {
+          "year": 1990,
+          "asiPct": 0.6
+        },
+        {
+          "year": 1991,
+          "asiPct": 27.62
+        },
+        {
+          "year": 1992,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1993,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1994,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1995,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1996,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1997,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1998,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1999,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2000,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2001,
+          "asiPct": 8.1
+        },
+        {
+          "year": 2002,
+          "asiPct": 3.9
+        },
+        {
+          "year": 2003,
+          "asiPct": 29.12
+        },
+        {
+          "year": 2004,
+          "asiPct": 4.5
+        },
+        {
+          "year": 2005,
+          "asiPct": 4.5
+        },
+        {
+          "year": 2006,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2007,
+          "asiPct": 1.5
+        },
+        {
+          "year": 2008,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2009,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2010,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2011,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2012,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2013,
+          "asiPct": 0.9
+        },
+        {
+          "year": 2014,
+          "asiPct": 5.1
+        },
+        {
+          "year": 2015,
+          "asiPct": 13.21
+        },
+        {
+          "year": 2016,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2017,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2018,
+          "asiPct": 0.6
+        },
+        {
+          "year": 2019,
+          "asiPct": 2.7
+        },
+        {
+          "year": 2020,
+          "asiPct": 0.9
+        },
+        {
+          "year": 2021,
+          "asiPct": 2.1
+        },
+        {
+          "year": 2022,
+          "asiPct": 3.3
+        },
+        {
+          "year": 2023,
+          "asiPct": 0.3
+        },
+        {
+          "year": 2024,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2025,
+          "asiPct": 3.6
+        }
+      ],
+      "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_AnnualSummary_Season1_data.csv"
+    },
+    {
+      "season": 2,
+      "start": 1984,
+      "end": 2025,
+      "seasons": 42,
+      "above30": 2,
+      "above50": 2,
+      "frequency30Pct": 4.76,
+      "frequency50Pct": 4.76,
+      "annual": [
+        {
+          "year": 1984,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1985,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1986,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1987,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1988,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1989,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1990,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1991,
+          "asiPct": 6.25
+        },
+        {
+          "year": 1992,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1993,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1994,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1995,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1996,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1997,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1998,
+          "asiPct": 0.0
+        },
+        {
+          "year": 1999,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2000,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2001,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2002,
+          "asiPct": 62.5
+        },
+        {
+          "year": 2003,
+          "asiPct": 81.25
+        },
+        {
+          "year": 2004,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2005,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2006,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2007,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2008,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2009,
+          "asiPct": 6.25
+        },
+        {
+          "year": 2010,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2011,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2012,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2013,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2014,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2015,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2016,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2017,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2018,
+          "asiPct": 6.25
+        },
+        {
+          "year": 2019,
+          "asiPct": 6.25
+        },
+        {
+          "year": 2020,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2021,
+          "asiPct": 6.25
+        },
+        {
+          "year": 2022,
+          "asiPct": 6.25
+        },
+        {
+          "year": 2023,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2024,
+          "asiPct": 0.0
+        },
+        {
+          "year": 2025,
+          "asiPct": 6.25
+        }
+      ],
+      "source": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_AnnualSummary_Season2_data.csv"
+    }
+  ],
+  "phenology": null,
+  "phenologyStatus": "PHE ofrece SOS/MOS/EOS para GS1/GS2 y LC-C/LC-G vía WMTS; sin CSV provincial enlazado. No se interpreta un color como fecha de siembra."
+}

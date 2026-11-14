@@ -1,5 +1,6 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. See AI_USAGE.md. */
 import { z } from "zod";
+import { droughtScore, faoProvince } from "./fao-giews";
 import rawClimate from "../public/data/climate-series.json";
 import rawRotations from "../public/data/rotation-scenarios.json";
 import rawCatalog from "../public/data/crop-catalog.json";
@@ -35,7 +36,7 @@ export function relativeScore(value: number, minimum: number, maximum: number): 
   if (![value, minimum, maximum].every(Number.isFinite) || maximum <= minimum) return null;
   return Math.round(Math.max(0, Math.min(5, 5 * (maximum - value) / (maximum - minimum))) * 10) / 10;
 }
-export function getComparison(month = 11) {
+export function getComparison(month = 11, province?: string) {
   const context = climate.monthlyClimatology.find((item) => item.month === month);
   if (!context) throw new Error("Invalid month");
   const raw = rotations.scenarios.map((scenario) => {
@@ -48,12 +49,12 @@ export function getComparison(month = 11) {
   });
   const values = raw.map((scenario) => scenario.coefficientDays);
   return { climate: context, provenance: climate.source, scenarios: raw.map((scenario) => ({ ...scenario,
-    scores: { water: relativeScore(scenario.coefficientDays, Math.min(...values), Math.max(...values)), climate: null, pests: null, market: null },
+    scores: { water: relativeScore(scenario.coefficientDays, Math.min(...values), Math.max(...values)), climate: droughtScore(faoProvince(province), scenario.coefficientDays, Math.max(...values)), pests: null, market: null },
     confidence: "Low — generic published coefficients; no local calibration",
   })) };
 }
 export type Scenario = ReturnType<typeof getComparison>["scenarios"][number];
 export function orderScenarios(scenarios: Scenario[], priority: Priority): Scenario[] {
-  if (priority !== "water") return [...scenarios]; // No evidence: no invented ranking.
-  return [...scenarios].sort((a, b) => (b.scores.water ?? -1) - (a.scores.water ?? -1));
+  if (priority !== "water" && priority !== "climate") return [...scenarios]; // Unknown pillars never invent a ranking.
+  return [...scenarios].sort((a, b) => (b.scores[priority] ?? -1) - (a.scores[priority] ?? -1));
 }

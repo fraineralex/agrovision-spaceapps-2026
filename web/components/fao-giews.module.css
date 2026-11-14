@@ -1,0 +1,7 @@
+/* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
+.grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1rem; margin-top: 1rem; }
+.item { padding: .75rem; background: #f4f7f0; border-radius: 12px; }
+.item h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.item p { margin: .5rem 0; }
+.status { display: flex; align-items: center; gap: .5rem; font-size: 1.25rem; }
+.note { font-size: .85rem; color: #46584b; }
