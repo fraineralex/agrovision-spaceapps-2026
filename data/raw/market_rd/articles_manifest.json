@@ -1,0 +1,83 @@
+[
+  {
+    "id": "platano_2024_dl",
+    "url": "https://www.diariolibre.com/economia/agro/2024/11/04/precios-del-platano-comienzan-a-bajar-ante-la-sobreproduccion/2901341",
+    "status": 200,
+    "path": "data/raw/market_rd/platano_2024_dl.txt",
+    "retrievedAt": "2026-11-14T16:30:29.582292+00:00",
+    "title": "Precios del plátano comienzan a bajar ante la sobreproducción - Diario Libre ",
+    "characters": 2971
+  },
+  {
+    "id": "platano_2024_dia",
+    "url": "https://eldia.com.do/el-precio-del-platano-baja-productores-enfrentan-desafio-de-la-rentabilidad/",
+    "status": 200,
+    "path": "data/raw/market_rd/platano_2024_dia.txt",
+    "retrievedAt": "2026-11-14T16:30:28.951992+00:00",
+    "title": "El precio del plátano baja; productores enfrentan desafío de la rentabilidad",
+    "characters": 45
+  },
+  {
+    "id": "platano_2026",
+    "url": "https://eldinero.com.do/378766/un-platano-por-rd50-esto-es-lo-que-preven-los-productores/",
+    "status": 200,
+    "path": "data/raw/market_rd/platano_2026.txt",
+    "retrievedAt": "2026-11-14T16:30:32.291667+00:00",
+    "title": "¿Un plátano por RD$50? Esto es lo que prevén los productores",
+    "characters": 93
+  },
+  {
+    "id": "platano_sequia_2026",
+    "url": "https://www.infobae.com/republica-dominicana/2026/09/11/agricultura-descarta-alzas-del-platano-pese-a-la-sequia-que-afecta-a-zonas-productoras-de-republica-dominicana/",
+    "status": 200,
+    "path": "data/raw/market_rd/platano_sequia_2026.txt",
+    "retrievedAt": "2026-11-14T16:30:29.002730+00:00",
+    "title": "Agricultura descarta alzas del plátano pese a la sequía que afecta a zonas productoras de República Dominicana - Infobae",
+    "characters": 6845
+  },
+  {
+    "id": "habichuela_2014",
+    "url": "https://www.diariolibre.com/economia/los-habichueleros-de-san-juan-estiman-que-perdern-rd600-millones-INDL501801",
+    "status": 200,
+    "path": "data/raw/market_rd/habichuela_2014.txt",
+    "retrievedAt": "2026-11-14T16:30:29.387699+00:00",
+    "title": "Los habichueleros de San Juan estiman que perderán RD$600 millones - Diario Libre ",
+    "characters": 3030
+  },
+  {
+    "id": "habichuela_2009",
+    "url": "https://eldia.com.do/inespre-salda-deuda-con-productores-de-habichuelas-del-valle-de-san-juan/",
+    "status": 200,
+    "path": "data/raw/market_rd/habichuela_2009.txt",
+    "retrievedAt": "2026-11-14T16:30:28.936389+00:00",
+    "title": "INESPRE salda deuda con productores de habichuelas del Valle de San Juan",
+    "characters": 73
+  },
+  {
+    "id": "san_juan_2025",
+    "url": "https://eldinero.com.do/324932/san-juan-sufre-por-sequia-y-deuda-estatal/",
+    "status": 429,
+    "path": "data/raw/market_rd/san_juan_2025.txt",
+    "retrievedAt": "2026-11-14T16:30:28.965877+00:00",
+    "title": "429 Too Many Requests",
+    "characters": 214
+  },
+  {
+    "id": "decada",
+    "url": "https://www.elcaribe.com.do/panorama/dinero/precios-agropecuarios-una-decada-de-presion-acumulada/",
+    "status": 200,
+    "path": "data/raw/market_rd/decada.txt",
+    "retrievedAt": "2026-11-14T16:30:28.793109+00:00",
+    "title": "Precios agropecuarios: una década de presión acumulada - Periódico elCaribe",
+    "characters": 0
+  },
+  {
+    "id": "consumo_2025",
+    "url": "https://zolfm.com/noticia/consumo-de-alimentos-supera-la-produccion-agropecuaria-en-2025-y-eleva-las-importaciones-en-rd",
+    "status": 200,
+    "path": "data/raw/market_rd/consumo_2025.txt",
+    "retrievedAt": "2026-11-14T16:30:28.758769+00:00",
+    "title": "Consumo de alimentos supera la producción agropecuaria en 2025 y eleva las importaciones en RD",
+    "characters": 2706
+  }
+]

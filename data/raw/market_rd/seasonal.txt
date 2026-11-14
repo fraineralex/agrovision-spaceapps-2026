@@ -1,0 +1,783 @@
+     Ministerio de Agricultura RD
+   Viceministerio de Planificación Sectorial Agropecuaria
+     Departamento de Economía Agropecuaria y Estadísticas
+
+
+
+
+Indices Estacionales de Precios de Productos
+  Agropecuarios, al Productor, Mayorista y
+     Minorista de República Dominicana,
+                  1997-2019
+
+
+
+
+                        Santo Domingo, D. N.
+                            Junio, 2020
+                                                            0
+MINISTERIO DE AGRICULTURA
+
+
+Esta publicación está disponible en formato electrónico en el Portal web institucional del Ministerio de
+Agricultura http://www.agricultura.gob.do/
+
+MINISTRO DE AGRICULTURA:
+Ing. Osmar C. Benítez
+Ministro de Agricultura
+
+VICEMINISTERIO DE PLANIFICACIÓN SECTORIAL AGROPECUARIA:
+Ing. Juan José Espinal
+Viceministro de Planificación Sectorial Agropecuaria
+
+DEPARTAMENTO DE ECONOMIA AGROPECUARIA y ESTADISTICAS:
+Lcda. Yolanda María Suárez Amézquita
+Directora
+
+Lcdo. Faustino Ernesto Rijo Guerrero
+Coordinador Técnico
+
+
+       DIVISION DE CAPTURA Y ANALISIS DE PRECIOS
+                                                             Lcda. Jeannette Leo Thomas
+       AGROPECUARIOS
+                                                             Encargada
+                                                             Lcda. Yolanda Rivera
+                                                             Lcda. Luisa M. Beltré G.
+                                                             Lcdo. Alexis Radhames Fragoso B.
+                                                             Técnicos.
+
+       DIVISION DE ESTUDIOS ECONOMICOS                       Licda. Adelle Borbón Solano
+                                                             Encargada
+                                                             Sra. Denny Johanny Jiménez
+                                                             Técnico.
+
+
+       DIVISION DE ADMINISTRACION RURAL                      Lcda. Yanina Esther Vásquez Restituyo
+                                                             Encargada
+                                                             Ing. Rafael Miguel Gerónimo Francisco
+                                                             Joel García G.
+                                                             Técnico
+
+       CENTRO DE DOCUMENTACION AGROPECUARIA                  Lcdo. Bienvenido Rosa
+       (CENADOA)                                             Encargado
+                                                             Lcda. Juana Castillo
+                                                             Lcda. Juana Arelis Arias
+                                                             Técnicos.
+
+       APOYO AMINISTRATIVO Y SECRETARIAL                     Ysabel Calderón Alcántara
+                                                             Santa Moraima Guerrero
+                                                             Rafael Miguel Zayas
+
+                                                                                                           1
+                                Índice de Contenido
+
+
+                                                           Página
+
+
+ Introducción                                                 4
+ Metodología Utilizada para el Cálculo de los Índices
+ Estacionales de Precios a Nivel Detallista de Productos
+ Agropecuarios, 1997-2019                                    5-6
+ Interpretación                                              7-8
+
+ I.- Cereales                                                 9
+   •   Arroz                                                 10
+   •   Maíz                                                  11
+
+II.- Leguminosas                                             12
+   • Habichuela (Roja)                                       13
+   • Habichuela (Negra)                                      14
+   • Guandul (Verde en vaina)                                15
+
+III.- Hortalizas y Vegetales                                 16
+   •   Ají (Cubanela)                                        17
+   •   Cebolla roja                                          18
+   •   Remolacha                                             19
+   •   Tomate (Ensalada)                                     20
+   •   Zanahoria                                             21
+   •   Berenjena                                             22
+
+IV.- Raíces y Tubérculos                                    23
+   •   Batata                                               24
+   •   Ñame                                                 25
+   •   Papa                                                 26
+   •   Yautía (Blanca)                                      27
+   •   Yuca                                                 28
+
+
+
+
+                                                                    2
+V.- Musáceas                                               29
+ • Plátano                                                 30
+ • Guineo (Verde)                                          31
+
+VI.- Frutas                                                32
+ •   Aguacate                                              33
+ •   Lechosa                                               34
+ •   Limón                                                 35
+ •   Piña                                                  36
+ •   Melón                                                 37
+
+VII.- Avícolas y Pecuarios                                 38
+ •   Pollo (Vivo)                                          39
+ •   Cerdo                                                 40
+ •   Res                                                   41
+ •   Huevos                                                42
+
+
+
+Calendario de Siembra, Cosecha y Ciclo Vegetativo de los
+Principales Cultivos                                       43-45
+
+
+
+
+                                                                   3
+INTRODUCCION
+
+La estacionalidad de los precios de los rubros agrícolas está supeditada a la estacionalidad de la
+producción, la cual se presenta como resultado de las características biológicas de los cultivos y de
+las condiciones agroclimáticas apropiadas, tales como: cantidad y régimen de lluvias, humedad del
+aire y del suelo, temperatura, luminosidad, altitud, entre otras, que se requieren para el crecimiento
+y desarrollo de éstos. Este factor estacional se puede apreciar con más claridad en el índice
+estacional de precios en finca o al productor.
+
+Otros factores que no están relacionados con el proceso productivo, pero que inciden sobre el
+comportamiento y formación de los precios de los productos agroalimenticios en los mercados,
+tienen que ver con las costumbres y hábitos alimenticios de la población y épocas específicas en el
+año, en las cuales el consumo de determinados alimentos es muy característico.
+
+En ese contexto, son bastantes los factores que inciden en el comportamiento de los precios de los
+productos agropecuarios, cuando se comercializan en el mercado. Estos factores pueden estar
+relacionados con la actividad productiva, es decir, las características biológicas y ciclo vegetativo
+del cultivo; así como, de carácter exógeno, o sea, por situaciones externas a las actividades
+relacionadas con el proceso de producción de los rubros agroalimenticios. La estacionalidad de la
+producción es uno de los factores endógenos que tiene alta ponderación en la formación de los
+precios de los productos agropecuarios en un período de tiempo determinado.
+
+Si bien estos factores estacionales inciden sobre el comportamiento de los precios en finca, su
+impacto es mucho más evidente en el índice estacional de precios al nivel mayorista y minorista; en
+virtud de que, en estos además pueden contribuir los volúmenes importados y exportados de esos
+productos.
+
+Siendo la estacionalidad un factor de importancia en la formación del precio final de los productos
+agropecuarios, es importante conocer el o los períodos del año en que suelen presentarse las
+tendencias al incremento o disminución de los precios de los productos agroalimenticios en los
+mercados, como consecuencia de la incidencia de factores estacionales. Esto se obtiene a través del
+cálculo de los índices estacionales de precios.
+
+Los índices estacionales de precios reflejarán con mayor precisión el nivel de incidencia de
+determinados factores estacionales en la formación de los precios, en la medida que se utilice una
+serie amplia de datos de precios corrientes de los productos seleccionados, en la que se identifique
+claramente el ciclo o periodicidad de la recolección y registro de la información.
+
+El cálculo de los índices estacionales de precios representa una importante herramienta estadística,
+cuyos resultados son de gran utilidad para la planificación de la producción agropecuaria; así
+también, para la adopción e implementación de medidas de políticas públicas, dirigidas a reducir la
+ocurrencia de fluctuaciones significativas en el comportamiento de los precios que afecten a
+productores y consumidores.
+
+
+
+
+                                                                                                    4
+  Metodología de Cálculo de los Índices Estacionales de Precios al Productor,
+                     Mayorista y Minorista, 1997-2019
+
+Las series de tiempo son conjuntos de valores observados de forma secuencial que contienen
+información sobre el comportamiento de una variable durante un período. Ejemplo de serie de
+tiempo es el precio promedio mensual de un producto agropecuario en un determinado nivel de
+la cadena de comercialización.
+
+El análisis de las series de tiempo, se efectúa a través de procedimientos por el cual se identifican
+y aíslan los factores relacionados con el tiempo que influyen en los valores observados. Una vez
+identificados, estos factores pueden contribuir a la interpretación de valores históricos de las
+series de tiempo.
+
+En ese sentido, se identifican cuatro influencias o componentes de la serie:
+
+   a) Tendencia: movimiento general a largo plazo de los valores de la serie de tiempo sobre un
+      extenso período de años.
+
+   b) Fluctuaciones Cíclicas: movimientos ascendentes y descendentes recurrentes respecto de
+      la tendencia con una duración de varios años.
+
+   c) Variaciones estacionales: movimientos ascendentes y descendentes respecto de la
+      tendencia que se registran y se repiten anualmente.
+
+   d) Variaciones irregulares: variaciones erráticas respecto de la tendencia que no pueden
+      atribuirse a influencias cíclicas o estacionales.
+
+El presente trabajo se enfoca en el estudio de la influencia de las variaciones estacionales en la
+serie mensual de precios a nivel del productor, cuyos datos fueron recolectados a nivel nacional
+por técnicos extensionistas en las fincas agrícolas de los productores, en las ocho Direcciones
+Regionales de Agropecuaria del Ministerio de Agricultura.
+
+De igual manera, en los niveles de comercialización mayorista y minorista en los principales
+mercados públicos de Santo Domingo, cuya muestra en todos los niveles de comercialización está
+comprendida, entre enero de 1997 hasta diciembre de 2019.
+
+Para identificar la influencia del componente estacional sobre los valores de serie de precios al
+productor, mayorista y minorista, se estima el número índice estacional asociado con cada mes,
+donde la media aritmética de los 12 números índice mensuales es 100.
+
+
+
+
+                                                                                                   5
+La metodología utilizada para determinar los índices estacionales, es el método del cociente del
+promedio móvil. De acuerdo con este método, lo primero en determinarse es el cociente de cada
+valor mensual, en relación con el promedio móvil centrado en ese mes. Simbólicamente puede
+expresarse de la siguiente forma:
+
+
+                                             Y
+                                                      = EI
+                                       Promedio Móvil
+
+Donde:
+
+       Y: son las observaciones, en este caso el precio mensual de cada rubro.
+       Promedio Móvil: en nuestro caso es una media móvil de 12 meses.
+       E: representa el componente estacional.
+       I: representa el componente de variación irregular.
+
+El segundo paso del método empleado es promediar el componente irregular (I). Esto se realiza
+enlistando los diversos cocientes aplicables al mismo mes de varios años, y eliminando los valores
+más altos y más bajos, y calculando la media de los cocientes restantes. La media resultante se
+llama media modificada, a causa de la eliminación de los valores extremos.
+
+El tercer paso del método del cociente del promedio móvil, es ajustar los cocientes medios
+modificados con un factor de corrección, tal que la suma de los 12 cocientes mensuales sea de
+1200.
+
+Por último, tabulada la información, se procede a la elaboración de los gráficos, en los cuales se
+representan los movimientos estacionales de 12 meses de los precios de cada uno de los productos
+incluidos en la investigación, a los fines de realizar el análisis e interpretación de las fluctuaciones
+que estos gráficos muestran.
+
+
+
+
+                                                                                                      6
+ Interpretación de los Índices Estacionales de Precios en los Niveles Productor
+      (o Finca), Mayorista y Minorista de Comercialización (1997-2019)
+
+Para conocer y comprender el significado de los resultados que se presentan en este trabajo sobre
+los Índices Estacionales de Precios de Productos Agropecuarios, iniciamos retomando la
+definición de estacionalidad o variaciones estacionales en una serie de tiempo, presentada en la
+sección dedicada a la metodología utilizada para el cálculo de los índices estacionales de precios.
+
+Variaciones Estacionales: Son movimientos ascendentes y descendentes de una variable,
+respecto de la tendencia que se registra en una serie de datos en el tiempo, y que se repiten
+anualmente.
+
+Tal como se indica en la definición anterior, los movimientos hacia arriba o hacia abajo en las
+variaciones estacionales se presentan con regularidad en el discurrir del año, por lo que los ciclos o
+períodos tomados en consideración pueden ser mensuales o semanales, es decir, un período siempre
+menor a un año.
+
+Para el cálculo de los índices estacionales de precios de productos agropecuarios en el presente
+trabajo, se ha utilizado la serie mensual de los precios recolectados y registrados durante los años
+del 1997 al 2019.
+
+Estos datos primarios corresponden a los precios promedios mensuales en los niveles de
+comercialización al productor (en finca), mayorista y minorista en los mercados de Santo Domingo.
+
+En ese sentido, el precio promedio mensual durante el período de años tomado como referencia para
+cada producto en particular, es el indicador que marca la tendencia del precio de ese producto
+durante el año.
+
+En los gráficos que muestran el comportamiento de los índices estacionales de precios, este precio
+promedio que marca la tendencia se representa por la línea que corresponde al 100%.
+
+De esta manera, cuando el precio corriente de un producto registrado en un mes cualquiera del año,
+se aleja o acerca al valor del precio promedio mensual de dicho producto obtenido durante los años
+1997-2019, se interpreta que en dicho mes el precio de ese producto es mayor o menor al precio
+promedio mensual del año. Si este comportamiento de alza o baja se verifica de manera constante
+durante varios meses seguidos en el año, se puede inferir que en tal comportamiento podrían estar
+incidiendo factores estacionales.
+
+Los factores estacionales son situaciones o eventos que se presentan con regularidad en un período
+del año y que afectan el comportamiento de una variable, es decir, la ocurrencia de estos eventos
+incide directamente sobre el valor que adquirirá una variable (producción, precio, etc.) en un período
+determinado durante el año.
+
+El comportamiento estacional que afecta la producción o el precio de bienes y servicios puede estar
+asociado con la ocurrencia de cualquiera de estos factores estacionales, tales como: a) las
+características particulares en el proceso de producción, fabricación u obtención de un producto; b)
+las estaciones del año; c) la celebración de festividades o fechas especiales en un determinado país.
+
+
+                                                                                                    7
+En el sector agropecuario, la producción, y por consecuencia la oferta, de los productos alimenticios
+que se obtienen están marcadamente afectados por los requerimientos agroclimáticos que demandan
+los cultivos agrícolas, ya que se trata de seres vivos que requieren de condiciones apropiadas para
+su plantación, crecimiento, desarrollo y producción de los frutos.
+
+La incidencia de este factor estacional es más evidente en los precios pagados al productor (en
+finca), pero en muchas ocasiones se transfiere a los niveles de comercialización mayorista y
+minorista.
+
+En síntesis, cuando en el gráfico donde se representa la estacionalidad del precio de un producto, la
+curva se aleja por arriba de la línea que marca el 100%, que equivale al precio promedio anual
+desestacionalizado, significa que el precio en este período del año tiende a aumentar y, por lo
+general, ha de esperarse que, en este período del año el precio del rubro sea mayor al precio
+promedio anual.
+
+Por ejemplo, si el índice estacional del precio de un producto en el mes de marzo es de 120%,
+significa que el precio de ese producto en ese mes es 20% mayor al precio promedio de dicho
+producto a final del año, y que tal comportamiento suele observarse cada año en ese mes.
+
+De igual manera, cuando en el gráfico donde se representa la estacionalidad del precio de un
+producto, la curva se aleja por debajo de la línea que marca el 100%, significa que el precio en este
+período del año tiende a disminuir o, por lo general ha de esperarse que en este período del año sea
+menor al precio promedio del año.
+
+Por ejemplo, si el índice estacional del precio de un producto en el mes de septiembre es de 80%,
+significa que el precio de ese producto en ese mes es 20% menor al precio promedio de dicho
+producto a final del año, y que tal comportamiento suele observarse cada año en ese mes.
+
+Es importante resaltar, que mientras mayor es la cantidad de años tomados como referencia para el
+cálculo del precio que marca la tendencia, la variación estacional reflejará en mayor medida la
+realidad del comportamiento del precio del producto durante el año, ya que se reduce la incidencia
+de valores extremos que hayan podido presentarse en la serie por situaciones anormales o fortuitas,
+y que pudieran generar una distorsión en el resultado.
+
+
+
+
+                                                                                                   8
+     Índices Estacionales al Productor, Nivel
+        Mayorista y Minorista 1997-2019
+
+
+
+
+I.- CEREALES.-
+ •   Arroz (En Cáscara)
+ •   Arroz (Selecto)
+ •   Maiz (en grano)
+
+
+
+
+                                                9
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2020.-
+
+
+
+
+                                                                                             10
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+    Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2020.-
+
+
+
+
+                                                                                           11
+II- LEGUMINOSAS.-
+  •   Habichuela (Roja)
+  •   Habichuela (Negra)
+  •   Guandul (Verde en vaina)
+
+
+
+
+                                 12
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             13
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             14
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             15
+III.- VEGETALES y HORTALIZAS.-
+
+ -   Ají (Cubanela)
+ -   Ají (Morrón)
+ -   Cebolla roja
+ -   Remolacha
+ -   Tomate (Ensalada)
+ -   Zanahoria
+ -   Berenjena
+
+
+
+
+                                 16
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             17
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             18
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+       Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                           19
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+           Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                              20
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+           Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                              21
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             22
+IV- RAICES Y TUBERCULOS.-
+ •   Batata
+ •   Papa
+ •   Ñame
+ •   Yautía (Blanca)
+ •   Yuca
+
+
+
+
+                            23
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             24
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             25
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             26
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             27
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             28
+V- MUSÁCEAS.-
+
+ •   Plátano
+ •   Guieo (Verde)
+
+
+
+
+                     29
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             30
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             31
+VI- FRUTAS.-
+ •   Aguacate
+ •   Lechosa
+ •   Limón
+ •   Piña
+ •   Melón
+
+
+
+
+                32
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             33
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+       Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                           34
+    Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+             Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+.
+
+
+
+                                                                                                35
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             36
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             37
+VII- AVÍCOLAS Y PECUARIOS. -
+ •   Pollo (Vivo)
+ •   Carne de Cerdo
+ •   Carne de Res
+ •   Huevo (en granja)
+
+
+
+
+                               38
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             39
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             40
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+           Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                              41
+Fuente: Ministerio de Agricultura, Departamento de Economía Agropecuaria y Estadísticas.
+          Elaborado por la División de Captura y Análisis de Precios Agropecuarios, 2019.-
+
+
+
+
+                                                                                             42
+Calendario de Siembra, Cosecha y Ciclo
+ Vegetativo de los Principales Cultivos
+
+
+
+
+                                          43
+                           CALENDARIO DE SIEMBRA, COSECHA Y CICLO VEGETATIVO DE LOS PRINCIPALES CULTIVOS
+                                           Primavera          Verano               Otoño            Invierno          CICLO
+                                                                                                                                 MESES DE       MESES DE
+            CULTIVOS                                                                                               VEGETATIVO
+                                     ENE      FEB      MAR ABR MAY     JUN   JUL   AGO     SEP   OCT NOV       DIC               SIEMBRA        COSECHA
+                                                                                                                    EN MESES
+Cereales
+                           Siembra                                                                                               Nov- Abr     Abr-Sept Nov-
+Arroz                                                                                                                   5
+                           Cosecha                                                                                               Jun -Ago          Ene
+                           Siembra                                                                                               Feb - Abr    Jun-Ago Oct-
+Maíz                                                                                                                    4
+                           Cosecha                                                                                                Jun-Jul          Nov
+                           Siembra
+Sorgo                                                                                                                   4        Feb - Abr          Jun-Sep
+                           Cosecha
+Cultivos Tradicionales Exportacion
+                           Siembra
+Tabaco                                                                                                                  4        Sep - Nov          Ene-Mar
+                           Cosecha
+                           Siembra
+Café                                                                                                                 Perenne    Todo el año    Todo el año
+                           Cosecha
+                           Siembra
+Cacao                                                                                                                Perenne    Todo el año    Todo el año
+                           Cosecha
+Oleaginosas
+                           Siembra                                                                                               Ene - Feb          May-Jun
+Maní                                                                                                                    4
+                           Cosecha                                                                                                Ago-Sep           Dic-Ene
+                           Siembra
+Coco                                                                                                                 Perenne    Todo el año    Todo el año
+                           Cosecha
+Leguminosas
+                           Siembra
+Hab. Roja                                                                                                               3        Oct-Nov            Ene-Feb
+                           Cosecha
+                           Siembra
+Hab. Negra                                                                                                              3        Oct - Nov          Ene-Feb
+                           Cosecha
+                           Siembra
+Hab. Blanca                                                                                                             3        Oct - Nov          Ene-Feb
+                           Cosecha
+                           Siembra
+Guandul                                                                                                               4 a 12     Abr - Jun          Oct-Dic
+                           Cosecha
+Raíces y Tuberc:ulos
+                           Siembra
+Papa                                                                                                                    3        Sep - Mar          Dic-Jun
+                           Cosecha
+                           Siembra                                                                                                 Feb        Jul     Nov-
+Batata                                                                                                                  5
+                           Cosecha                                                                                               Jun - Jul        Dic
+                           Siembra                                                                                               Ene - Abr    May-Oct Dic-
+Yuca                                                                                                                  6 a8
+                           Cosecha                                                                                               Jun - Dic        Jun
+                           Siembra
+Ñame                                                                                                                   12        Feb - Abr          Feb-Mar
+                           Cosecha
+                           Siembra                                                                                               Feb - Abr      Feb - Abr
+Yautia                                                                                                                 12
+                           Cosecha                                                                                                Jun- Ago       Jun- Ago
+Musáceas
+                           Siembra
+Guineo                                                                                                                 12       Todo el año    Todo el año
+                           Cosecha
+                           Siembra
+Plátano                                                                                                                12       Todo el año    Todo el año
+                           Cosecha
+
+
+
+
+                                                                                                                                                          44
+                        CALENDARIO DE SIEMBRA, COSECHA Y CICLO VEGETATIVO DE LOS PRINCIPALES CULTIVOS
+                                         Primavera        Verano            Otoño             Invierno          CICLO
+                                                                                                                           MESES DE      MESES DE
+            CULTIVOS                                                                                         VEGETATIVO
+                                   ENE      FEB MAR ABR MAY JUN       JUL      AGO   SEP   OCT NOV       DIC               SIEMBRA       COSECHA
+                                                                                                              EN MESES
+Frutales
+                        Siembra
+Piña                                                                                                             18        Mar-Abr       Todo el año
+                        Cosecha
+                        Siembra
+Naranja Dulce                                                                                                  Perenne     Ene-Abr       Todo el año
+                        Cosecha
+                        Siembra
+Naranja Agria                                                                                                  Perenne     Ene - Abr     Todo el año
+                        Cosecha
+                        Siembra
+Limon                                                                                                          Perenne     Mar-Jun       Todo el año
+                        Cosecha
+                        Siembra
+Aguacate                                                                                                         48        Mar-Jun       Todo el año
+                        Cosecha
+                        Siembra
+Lechosa                                                                                                          18       Todo el año    Todo el año
+                        Cosecha
+                        Siembra                                                                                            Ene - Feb    Abr-May Ene
+Melón                                                                                                             3
+                        Cosecha                                                                                            Sep - Nov        y Dic
+                        Siembra                                                                                            Abr - May
+Chinola                                                                                                          24                      Todo el año
+                        Cosecha                                                                                            Ago - Sep
+                        Siembra
+Mango                                                                                                          Perenne     Mar - Jul     Todo el año
+                        Cosecha
+                        Siembra
+Toronja                                                                                                        Perenne     Ene - Abr     Todo el año
+                        Cosecha
+Vegetales
+                        Siembra
+Cebolla                                                                                                           4        Sep - Oct      Ene-Feb
+                        Cosecha
+                        Siembra                                                                                             Sep-Ene     Feb-Jun Oct-
+Ajíes                                                                                                             5
+                        Cosecha                                                                                            Mayo-Jul          Dic
+                        Siembra                                                                                            Abr - May    Sept-Oct Mar-
+Ajo                                                                                                               5
+                        Cosecha                                                                                            Oct - Nov         Abr
+                        Siembra
+Tomate Ens.                                                                                                       3        Sep - Nov      Dic-Feb
+                        Cosecha
+                        Siembra
+Zanahoria                                                                                                         3       Todo el Año    Todo el año
+                        Cosecha
+                        Siembra
+Repollo                                                                                                           3       Todo el Año    Todo el año
+                        Cosecha
+                        Siembra
+Pepino                                                                                                            2       Todo el Año    Todo el año
+                        Cosecha
+                        Siembra
+Auyama                                                                                                            4        Ago - Oct      Dic-Feb
+                        Cosecha
+                        Siembra
+Berenjena                                                                                                         5        Oct - Ene      Mar-Jun
+                        Cosecha
+                        Siembra
+Tayota                                                                                                         Perenne    Todo el Año   Todo el Año
+                        Cosecha
+
+                                          Meses de mayor siembra del cultivo
+          LEYENDA:
+                                          Meses de mayor cosecha del cultivo
+
+FUENTE: Ministerio de Agricultura. Departamento de Seguimiento, Control y Evaluación.
+
+
+
+
+                                                                                                                                                 45
+

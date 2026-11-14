@@ -1,0 +1,92 @@
+[
+  {
+    "id": "ckan_precios",
+    "url": "https://datos.gob.do/api/3/action/package_search?q=precios",
+    "status": 200,
+    "path": "data/raw/market_rd/ckan_precios.json",
+    "bytes": 109284,
+    "sha256": "9403fbb97e947f5c2cb0143d79bc2822d6101f88bff4b4ef56890e57cd03d195",
+    "retrievedAt": "2026-11-14T16:30:15.670719+00:00"
+  },
+  {
+    "id": "ckan_siembra",
+    "url": "https://datos.gob.do/api/3/action/package_search?q=siembra",
+    "status": 200,
+    "path": "data/raw/market_rd/ckan_siembra.json",
+    "bytes": 31852,
+    "sha256": "05e8982fa82145515286007de9b466b4b12876d8448a3d3b08b394a9f4ed162b",
+    "retrievedAt": "2026-11-14T16:30:15.565887+00:00"
+  },
+  {
+    "id": "ckan_banco",
+    "url": "https://datos.gob.do/api/3/action/package_search?q=banco%20agricola",
+    "status": 200,
+    "path": "data/raw/market_rd/ckan_banco.json",
+    "bytes": 40796,
+    "sha256": "dc1304bddc1de581d8aef84a458ac488db21bf42952f9bbc834b0215f5c5caed",
+    "retrievedAt": "2026-11-14T16:30:15.399120+00:00"
+  },
+  {
+    "id": "economia",
+    "url": "https://backoffice.datos.gob.do/km/group/economia",
+    "status": 404,
+    "path": "data/raw/market_rd/economia.html",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retrievedAt": "2026-11-14T16:30:15.688642+00:00"
+  },
+  {
+    "id": "seasonal",
+    "url": "https://agricultura.gob.do/wp-content/uploads/2022/09/Indice-Estacional-de-Precios-2019.pdf",
+    "status": 200,
+    "path": "data/raw/market_rd/seasonal.pdf",
+    "bytes": 1778624,
+    "sha256": "d73daf446f4e36351b8ef7d213145af20ab4f6a4102fd9ca366ae985c2d4956b",
+    "retrievedAt": "2026-11-14T16:30:15.836694+00:00"
+  },
+  {
+    "id": "statistics",
+    "url": "https://agricultura.gob.do/wp-content/uploads/2022/09/Boletin-Estadistico-del-Sector-Agropecuario-2002-2018.pdf",
+    "status": 200,
+    "path": "data/raw/market_rd/statistics.pdf",
+    "bytes": 3476989,
+    "sha256": "5997340db6ff5782ef129d3fdef685d36556d2f4e6c3d08cc691d33686d197b0",
+    "retrievedAt": "2026-11-14T16:30:15.792294+00:00"
+  },
+  {
+    "id": "costs",
+    "url": "https://agricultura.gob.do/wp-content/uploads/2022/09/Costos-Estimados-de-Produccin-de-Cultivos-Agrcolas-2019.pdf",
+    "status": 200,
+    "path": "data/raw/market_rd/costs.pdf",
+    "bytes": 1445195,
+    "sha256": "92b0b51a90074f6f2f7f7ae88cb8b743f1f7cf1ae16f755a60a76a4c79007c7a",
+    "retrievedAt": "2026-11-14T16:30:15.377644+00:00"
+  },
+  {
+    "id": "daily",
+    "url": "https://agricultura.gob.do/wp-content/uploads/2025/10/Informe-de-precios-01-de-octubre-2025.pdf",
+    "status": 200,
+    "path": "data/raw/market_rd/daily.pdf",
+    "bytes": 885391,
+    "sha256": "c709a5aca1afb262e41ca90d8f068942febac26582a96e83243bd2c76c4d2126",
+    "retrievedAt": "2026-11-14T16:30:15.166180+00:00"
+  },
+  {
+    "id": "contingency",
+    "url": "https://agricultura.gob.do/wp-content/uploads/2026/06/PLAN-DE-CONTINGIA-DEGRYCC-1-DE-JUNIO-2026.pdf",
+    "status": 200,
+    "path": "data/raw/market_rd/contingency.pdf",
+    "bytes": 3885735,
+    "sha256": "738d54a5b1622d6cc986e82d58341e80c892d12b670d77953f44480bfdf9d97b",
+    "retrievedAt": "2026-11-14T16:30:15.249213+00:00"
+  },
+  {
+    "id": "indrhi",
+    "url": "https://indrhi.gob.do/documentos/",
+    "status": 500,
+    "path": "data/raw/market_rd/indrhi.html",
+    "bytes": 2456,
+    "sha256": "7780e2c72796e72a49146b5adaca3734506e3a0252905154e245adfbc0f80465",
+    "retrievedAt": "2026-11-14T16:30:15.404691+00:00"
+  }
+]

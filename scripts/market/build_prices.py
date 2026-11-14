@@ -45,6 +45,14 @@ def identify(name):
     elif name.startswith("arroz"):
         crop = "rice"
         variety = "super_selecto" if "super selecto" in name else "superior" if "superior" in name else "selecto" if "selecto" in name else "unspecified"
+    elif name.startswith("yuca"):
+        crop = "cassava"
+        variety = next((x for x in ("machetazo", "bilin", "encerada") if x in name), "unspecified")
+    elif name.startswith("platano"):
+        crop = "plantain"
+        variety = "macho_hembra" if "macho" in name and "hembra" in name else "fhia_21" if "21" in name else "fhia_20" if "20" in name else "enano" if "enano" in name else "unspecified"
+        # Size is a market class and must not be pooled across quotations.
+        variety += ":" + ("mediano" if "mediano" in name else "grande" if "grande" in name else "unspecified")
     else:
         return None
     grade = next((g for g in ("primera", "segunda", "tercera") if g in name), "unspecified")
@@ -61,6 +69,10 @@ def normalized_unit(raw):
     # Quintal is retained as published: its weight is not silently assumed.
     if unit == "quintal":
         return 1.0, "DOP/quintal"
+    if unit == "ciento":
+        return 100.0, "DOP/unit"
+    if unit == "millar":
+        return 1000.0, "DOP/unit"
     return None, None
 
 
