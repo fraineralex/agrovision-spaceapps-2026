@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "source": {
+    "name": "NASA POWER Daily Point API",
+    "url": "https://power.larc.nasa.gov/",
+    "periodStart": "2016-01-01",
+    "periodEnd": "2025-12-31",
+    "units": {
+      "temperature": "\u00b0C",
+      "precipitation": "mm/day",
+      "relativeHumidity": "%"
+    },
+    "scale": "regional grid (~0.5\u00b0 / ~50 km; not parcel measurement)",
+    "method": "NASA POWER gridded meteorological data; monthly means calculated from cached daily values",
+    "quality": "reanalysis; local cache sampled at 18.80, -71.23"
+  },
+  "monthlyClimatology": [
+    {
+      "month": 1,
+      "temperatureC": 20.03,
+      "precipitationMmDay": 0.92,
+      "relativeHumidityPct": 76.5,
+      "sampleDays": 310
+    },
+    {
+      "month": 2,
+      "temperatureC": 20.57,
+      "precipitationMmDay": 1.86,
+      "relativeHumidityPct": 72.55,
+      "sampleDays": 283
+    },
+    {
+      "month": 3,
+      "temperatureC": 21.89,
+      "precipitationMmDay": 1.31,
+      "relativeHumidityPct": 67.31,
+      "sampleDays": 310
+    },
+    {
+      "month": 4,
+      "temperatureC": 22.95,
+      "precipitationMmDay": 2.01,
+      "relativeHumidityPct": 67.58,
+      "sampleDays": 300
+    },
+    {
+      "month": 5,
+      "temperatureC": 23.73,
+      "precipitationMmDay": 2.07,
+      "relativeHumidityPct": 69.42,
+      "sampleDays": 310
+    },
+    {
+      "month": 6,
+      "temperatureC": 24.21,
+      "precipitationMmDay": 1.84,
+      "relativeHumidityPct": 68.8,
+      "sampleDays": 300
+    },
+    {
+      "month": 7,
+      "temperatureC": 24.58,
+      "precipitationMmDay": 2.25,
+      "relativeHumidityPct": 67.97,
+      "sampleDays": 310
+    },
+    {
+      "month": 8,
+      "temperatureC": 24.69,
+      "precipitationMmDay": 2.03,
+      "relativeHumidityPct": 69.22,
+      "sampleDays": 310
+    },
+    {
+      "month": 9,
+      "temperatureC": 24.36,
+      "precipitationMmDay": 3.15,
+      "relativeHumidityPct": 72.28,
+      "sampleDays": 300
+    },
+    {
+      "month": 10,
+      "temperatureC": 23.21,
+      "precipitationMmDay": 2.57,
+      "relativeHumidityPct": 76.47,
+      "sampleDays": 310
+    },
+    {
+      "month": 11,
+      "temperatureC": 21.74,
+      "precipitationMmDay": 5.0,
+      "relativeHumidityPct": 79.95,
+      "sampleDays": 300
+    },
+    {
+      "month": 12,
+      "temperatureC": 20.36,
+      "precipitationMmDay": 2.34,
+      "relativeHumidityPct": 80.34,
+      "sampleDays": 310
+    }
+  ],
+  "notes": [
+    "NASA POWER is gridded reanalysis and does not represent an individual parcel.",
+    "Precipitation shown here is NASA POWER PRECTOTCORR; the team inventory identifies POWER rainfall as weak in the tropics. Use IMERG for rainfall analysis when available."
+  ]
+}

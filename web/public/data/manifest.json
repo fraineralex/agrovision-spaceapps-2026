@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "mode": "offline-demo",
+  "files": [
+    "BlueMarble_Caribbean.jpeg",
+    "BlueMarble_ShadedRelief_Bathymetry.jpeg",
+    "IMERG_Precipitation_Rate.png",
+    "MODIS_Terra_NDVI_8Day.png",
+    "climate-series.json",
+    "crop-catalog.json",
+    "demo-parcels.geojson",
+    "demo-parcels.json",
+    "gibs-sample.json",
+    "ndvi-series.json",
+    "rotation-scenarios.json"
+  ],
+  "sha256": {
+    "BlueMarble_Caribbean.jpeg": "71cb24c4b5f6f7dc6846630a4caacace605845d57763d7be031b401b3ddab572",
+    "BlueMarble_ShadedRelief_Bathymetry.jpeg": "dc231b244727bd3432a788fda2c0ad8cf208f1168398489934d1ecacbe0adf45",
+    "IMERG_Precipitation_Rate.png": "316049a22c0dd41801da8eae905bb61503a8cf441d98eb9148efc0506768dd2d",
+    "MODIS_Terra_NDVI_8Day.png": "13975e436f0478a96a2d53c04f16a589c45391eef6a361131b74273c0cec544e",
+    "climate-series.json": "a550edd0da4fbc49b2c763f9dcb590f3bcbc8d0f9ba427a4266a4607a626c3d9",
+    "crop-catalog.json": "0c1002cf773545f398748c5defea88d5a79258b859ea79e526405bd479e8bf14",
+    "demo-parcels.geojson": "b372a8aedfa7b9d4a1caac726f414ac60e8a1833bb06e2c505974f8035f39cf4",
+    "demo-parcels.json": "b372a8aedfa7b9d4a1caac726f414ac60e8a1833bb06e2c505974f8035f39cf4",
+    "gibs-sample.json": "0466392e9752e16b4c916ca801b06c150c0e13955e3ac7703e2d13c3e8f23689",
+    "ndvi-series.json": "8ca98bccd14322d2a523f9536dae006758cf4b770a7ebb6f3bcb97c5c6b95fe9",
+    "rotation-scenarios.json": "a64734d1adfa3c83d95e3527744bc521ecf1028a77932f0db6a3aa56b228c8ef"
+  },
+  "limitations": [
+    "Synthetic demo boundaries; no identified farms.",
+    "Landsat NDVI is a small real point sample; no trained classifier, irrigation inference, IMERG time series, soil, pest or market scores.",
+    "FAO coefficient-day proxy is not irrigation demand or soil health."
+  ]
+}
