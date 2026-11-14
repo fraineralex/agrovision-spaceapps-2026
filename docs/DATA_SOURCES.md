@@ -23,3 +23,8 @@ Las áreas son polígonos sintéticos explícitos, no observaciones de límites 
 ## Mercado incorporado en rama de envío
 
 Actualización asistida por Codex/OpenAI, 14-11-2026; revisión de Frainer pendiente. Se añade la [fuente oficial MA y método](../scripts/market/README.md), caché original 2017–2026 y `data/derived/market_prices.json` con 4,037 observaciones, 926 medias mensuales y siete series estacionales preliminares. El derivado aún no está conectado a `web/`: el score de mercado de la aplicación continúa null. La ausencia de precios indicada arriba describe la demo web anterior, no la disponibilidad del nuevo artefacto. Precios de Santo Domingo, no en finca; licencia de redistribución por confirmar.
+
+## Fotografía natural en onboarding
+
+- **Archivo:** `web/public/images/san-juan-valley.jpg` (caché local offline, incluida en `web/scripts/offline-assets.mjs`).
+- **Fuente y licencia:** Wikimedia Commons — [File:El Cercado Dominican Republic rural countryside 2.jpg](https://commons.wikimedia.org/wiki/File:El_Cercado_Dominican_Republic_rural_countryside_2.jpg), autoría `Cercadero98`, dominio público / **CC0 1.0**. Fotografía documental real de campo rural en la provincia San Juan; no generada por IA.

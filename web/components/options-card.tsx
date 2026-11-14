@@ -2,7 +2,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
-import { cropEmoji, fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { FarmIcon } from "@/components/farm-icon";
+import { fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
 
@@ -25,7 +26,7 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
           <span className={`option-light ${light}`}><i aria-hidden="true" />{word[light]}</span>
         </div>
         {a ? <>
-          <p className="option-crop"><span aria-hidden="true">{cropEmoji[a.crop]}</span> {a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</p>
+          <p className="option-crop"><span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span><span>{a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</span></p>
           <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>{pillars.map(({ id, label, Icon: P }) => { const c = lightFor(a.scores[id]); return <li key={id} className={`pill ${c}`}><P aria-hidden="true" /><span className="sr-only">{label}: </span>{a.words[id]}</li>; })}</ul>
           {a.warnings[0] && <p className="option-warn">{a.warnings[0]}</p>}
           <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> ¿De dónde sale esto?</button>

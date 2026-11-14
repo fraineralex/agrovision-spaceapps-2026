@@ -1,4 +1,4 @@
-/* AI: Codex/OpenAI, 2026-11-14; restructured for the farmer audit by Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
+/* AI: Codex/OpenAI, 2026-11-14; restructured for the farmer audit by Claude (Anthropic), 2026-11-14; Bento dashboard & KPI telemetry strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaoDroughtCard } from "@/components/fao-giews";
@@ -11,7 +11,7 @@ import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
 import { OptionsCard } from "@/components/options-card";
-import { MapPin, Mic } from "lucide-react";
+import { CloudRain, Coins, MapPin, Mic, Sun, Wallet } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { RainCard, useRain } from "@/components/rain-card";
@@ -22,7 +22,7 @@ import { profitFor, rd } from "@/lib/profit";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
-import { adviseNextCrop, cropEmoji, cropNames, defaultCrops, marketFor, monthNames, toTareas, unitWord, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, cropNames, defaultCrops, marketFor, monthNames, toTareas, unitWord, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { droughtSignal, faoProvince } from "@/lib/fao-giews";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
@@ -120,20 +120,74 @@ export default function Home() {
   const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
+  const rainTotalMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((s, d) => s + d.rainMm, 0)) : null;
+  const drought = province ? droughtSignal(faoProvince(province)) : null;
   return <>
     <a className="skip-link" href="#contenido">Saltar al contenido</a>
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
-    <header className="topbar" role="banner"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
+    <header className="topbar" role="banner">
+      <div className="brand">
+        <span className="brand-mark"><FarmIcon name="soil" size={22}/></span>
+        <span className="brand-text">
+          <span>AgroVision</span>
+          <small className="brand-sub">NASA · FAO · Agricultura RD</small>
+        </span>
+      </div>
+      <OfflineStatus/>
+    </header>
     <main id="contenido" className="workspace" tabIndex={-1}>
-      <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
+      <div className="heading-row">
+        <div className="heading-copy">
+          <span className="eyebrow">Guía agronómica y satelital · RD</span>
+          <h1>¿Qué siembro ahora?</h1>
+          <p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p>
+        </div>
+        {farms.length > 0 && <div className="heading-farms"><FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/></div>}
+      </div>
 
-      {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
+      <nav className="kpi-strip" aria-label="Resumen rápido de indicadores">
+        <a className="kpi-card" href={chosen ? "#lluvia-esta-semana" : "#tu-finca-en-el-mapa"}>
+          <span className="kpi-icon" aria-hidden="true"><CloudRain size={20}/></span>
+          <span className="kpi-body">
+            <span className="kpi-label">Lluvia próximos 7 días</span>
+            <strong className="kpi-value">{!chosen ? "Sin ubicación" : rainTotalMm !== null ? `${rainTotalMm} mm en total` : "Sin pronóstico"}</strong>
+            <span className="kpi-meta">{!chosen ? "Elige tu zona en el mapa" : rain.alert?.level === "rain" ? "Lluvia esperada · Open-Meteo" : "Open-Meteo / NASA POWER · 7 días"}</span>
+          </span>
+        </a>
+        <a className="kpi-card" href="#cuanto-me-deja">
+          <span className="kpi-icon" aria-hidden="true"><Wallet size={20}/></span>
+          <span className="kpi-body">
+            <span className="kpi-label">Margen estimado</span>
+            <strong className="kpi-value">{"unavailable" in profit ? "No calculable" : `${rd(profit.profit.low)} a ${rd(profit.profit.high)}`}</strong>
+            <span className="kpi-meta">{topAdvice?.name ?? "Cultivo"} · {Math.round(farmTareas ?? 10)} tareas · MA + IPC</span>
+          </span>
+        </a>
+        <a className="kpi-card" href="#precio-y-mercado">
+          <span className="kpi-icon" aria-hidden="true"><Coins size={20}/></span>
+          <span className="kpi-body">
+            <span className="kpi-label">Precio mayorista</span>
+            <strong className="kpi-value">{topMarket?.latest ? `RD$${Math.round(topMarket.latest.price)} / ${unitWord(topMarket.unit).replace(/^la |^el |^las |^los /, "")}` : "Sin serie reciente"}</strong>
+            <span className="kpi-meta">{topMarket?.latest ? `${cropNames[topCrop]} · ${topMarket.latest.period} · MA SD` : "Ministerio de Agricultura"}</span>
+          </span>
+        </a>
+        <a className="kpi-card" href={province ? "#sequia-y-lluvia" : "#tu-finca-en-el-mapa"}>
+          <span className="kpi-icon" aria-hidden="true"><Sun size={20}/></span>
+          <span className="kpi-body">
+            <span className="kpi-label">Sequía y clima normal</span>
+            <strong className="kpi-value">{province && drought ? `${drought.label}${selectedClimate?.temperatureC != null ? ` · ${Math.round(selectedClimate.temperatureC)} °C` : ""}` : "Elige tu provincia"}</strong>
+            <span className="kpi-meta">{province ? `${province} · FAO GIEWS + POWER` : "Escala provincial · 2016–2025"}</span>
+          </span>
+        </a>
+      </nav>
+
       <div className="home-grid">
       <div className="col-main">
       <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
       <OptionsCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
-      {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
-      <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
+      <div className="dual-panels">
+        {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
+        <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
+      </div>
       {chosen && <ShareButton summary={shareSummary}/>}
       </div>
       <div className="col-side">
@@ -163,22 +217,50 @@ export default function Home() {
         </article>}
       </section>
       </Fold>
-      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
+      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
 
-      {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
+      {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>}
 
       {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
-        {selectedClimate ? <><div className="climate-strip">
-          <div className="climate-cell"><FarmIcon name="climate"/><div className="climate-val">{selectedClimate.temperatureC != null ? Math.round(selectedClimate.temperatureC) : "—"} °C</div><div>Temperatura media</div></div>
-          <div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</div><div>{selectedClimate.precipitationMmDay != null ? `unos ${Math.round(selectedClimate.precipitationMmDay * 30)} mm en el mes` : "Lluvia"}</div></div>
-        </div>
-        <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
-        <p className="note"><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
+        {selectedClimate ? <>
+          <div className="climate-meters">
+            <div className="cmeter-card">
+              <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
+              <strong className="cmeter-val">{selectedClimate.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C` : "—"}</strong>
+              <div className="cmeter-track" aria-hidden="true">
+                <span className="cmeter-fill temp" style={{ width: `${selectedClimate.temperatureC != null ? Math.max(12, Math.min(100, Math.round(((selectedClimate.temperatureC - 14) / 24) * 100))) : 0}%` }} />
+              </div>
+              <small className="cmeter-sub">Rango 14–38 °C · NASA POWER</small>
+            </div>
+            <div className="cmeter-card">
+              <div className="cmeter-head"><FarmIcon name="water" size={20} /><span>Lluvia mensual</span></div>
+              <strong className="cmeter-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</strong>
+              <div className="cmeter-track" aria-hidden="true">
+                <span className="cmeter-fill rain" style={{ width: `${selectedClimate.precipitationMmDay != null ? Math.max(8, Math.min(100, Math.round((selectedClimate.precipitationMmDay * 30 / 220) * 100))) : 0}%` }} />
+              </div>
+              <small className="cmeter-sub">{selectedClimate.precipitationMmDay != null ? `~${Math.round(selectedClimate.precipitationMmDay * 30)} mm al mes` : "Sin dato"}</small>
+            </div>
+            <div className="cmeter-card">
+              <div className="cmeter-head"><CloudRain size={18} aria-hidden="true" /><span>Humedad relativa</span></div>
+              <strong className="cmeter-val">{selectedClimate.relativeHumidityPct != null ? `${Math.round(selectedClimate.relativeHumidityPct)}%` : "—"}</strong>
+              <div className="cmeter-track" aria-hidden="true">
+                <span className="cmeter-fill hum" style={{ width: `${selectedClimate.relativeHumidityPct != null ? Math.max(8, Math.min(100, Math.round(selectedClimate.relativeHumidityPct))) : 0}%` }} />
+              </div>
+              <small className="cmeter-sub">Promedio histórico del mes</small>
+            </div>
+          </div>
+          <details className="sources-fold">
+            <summary>Fuentes y límites ({source?.period ?? "2016–2025"} · NASA POWER)</summary>
+            <div className="sources-box">
+              <p>Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
+              <p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p>
+            </div>
+          </details>
+        </> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section></Fold>}
-      </div>
-      </div>
-
       <Fold id="voz" icon="🎙️" title="Pregúntale a AgroVision" teaser="Habla como en una llamada o escribe tu pregunta"><VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}/${previous}/${crops.join(",")}`} selection={selection}/></Fold>
+      </div>
+      </div>
 
       <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>

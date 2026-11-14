@@ -8,7 +8,7 @@ async function list(folder) {
 }
 const files = (await list(".next/static")).filter((file) => /\.(js|css|woff2?)$/.test(file)).sort();
 const assets = files.map((file) => "/" + file.replaceAll(path.sep, "/").replace(/^\.next\//, "_next/"));
-assets.push("/icon.svg", "/vendor/maplibre-gl-worker.mjs", "/vendor/maplibre-LICENSE.txt");
+assets.push("/icon.svg", "/images/san-juan-valley.jpg", "/vendor/maplibre-gl-worker.mjs", "/vendor/maplibre-LICENSE.txt");
 const version = createHash("sha256").update(JSON.stringify(assets)).update(await readFile("public/data/manifest.json")).digest("hex").slice(0, 16);
 await writeFile("public/offline-assets.json", JSON.stringify(assets));
 const template = await readFile("scripts/service-worker.js", "utf8");

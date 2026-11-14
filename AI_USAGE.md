@@ -172,3 +172,15 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Integración del rediseño
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Dashboard widescreen, onboarding centrado natural e íconos unificados (sobre `origin/main` PR #9)
+
+- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** pulir la interfaz publicada en PR #9 sin alterar flujos ni fuentes ni datos:
+  - centrar horizontal y verticalmente el contenedor de onboarding con fotografía rural real de San Juan (`web/public/images/san-juan-valley.jpg`, CC0 Wikimedia Commons) y animación suave (`valleyBreeze`, desactivable con `prefers-reduced-motion`);
+  - reorganizar el dashboard de escritorio en franja de 4 tarjetas de telemetría (`.kpi-strip`), grilla balanceada de 2 columnas con paneles duales (`.dual-panels`), grilla de 2 columnas en `.crop-list` y `.option-list`, y `.heading-row` con selector de fincas integrado;
+  - unificar los íconos geométricos SVG de cultivos en `web/components/farm-icon.tsx` en lugar de emojis dispersos, añadir cabecera/ciclo en `advisor-card.tsx` y tipografía `Plus Jakarta Sans`;
+  - incluir `@types/geojson` en `web/package.json` (`devDependencies`) para verificación de tipos en `pnpm build` y precachear `san-juan-valley.jpg` en `web/scripts/offline-assets.mjs`.
+- **Archivos:** `web/app/{layout.tsx,page.tsx,globals.css}`, `web/components/{farm-icon,farm-picker,onboarding,advisor-card,options-card,market-card,profit-card,rain-card,fao-giews}.tsx`, `web/public/{icon.svg,images/san-juan-valley.jpg}`, `web/scripts/offline-assets.mjs`, `web/package.json`, `web/pnpm-lock.yaml`, `docs/DATA_SOURCES.md`, `AI_USAGE.md`.
+- **Actualización visual posterior:** gráficos de área y calendario estacional de precios (24 meses y Ene–Dic), gráfica de columnas de lluvia (7 días), barras comparativas de costo vs venta en calculadora, dial circular y barras de pilares en el asesor, anillos de riesgo/anomalía FAO GIEWS, medidores visuales NASA POWER (temperatura, lluvia mensual, humedad relativa), plegado accesible de notas metodológicas, cabecera fija en onboarding y diseño adaptable en dos columnas para el paso del mapa con íconos Lucide unificados (sin emojis) para que cada paso quepa completo en pantalla sin recortes. Todas las animaciones respetan `prefers-reduced-motion: reduce`.
+- **Límites:** solo mejoras visuales y de maquetación sobre el código y caché existentes; no se agregaron ni modificaron cifras agronómicas, precios ni reglas de negocio.
+- **Revisión por Frainer:** pendiente.

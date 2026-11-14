@@ -1,5 +1,6 @@
-/* AI: Claude (Anthropic), 2026-11-14 — map to pick one or more cells/parcels, draw a polygon or drag a box. Frainer review pending. See AI_USAGE.md. */
+/* AI: Claude (Anthropic), 2026-11-14 — map to pick one or more cells/parcels, draw a polygon or drag a box; responsive layout & unified Lucide SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { Check, MousePointerClick, Pencil, RotateCcw, SquareDashed, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-gl";
 import { parcelCollection } from "@/lib/map/parcels";
@@ -86,22 +87,28 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
   const closeShape = () => { const p = drawnPiece(draft); if (p) { onChange([...pieces, p]); setDraft([]); } };
   const total = piecesAreaM2(pieces);
   return <div className="picker">
-    <div className="picker-modes" role="group" aria-label="Cómo marcar la finca">
-      <button type="button" aria-pressed={mode === "tap"} className={mode === "tap" ? "chip on" : "chip"} onClick={() => setMode("tap")}>👆 Tocar cuadros</button>
-      <button type="button" aria-pressed={mode === "box"} className={mode === "box" ? "chip on" : "chip"} onClick={() => setMode("box")}>⬚ Arrastrar</button>
-      <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}>✏️ Dibujar</button>
+    <div className="picker-toolbar">
+      <div className="picker-modes" role="group" aria-label="Cómo marcar la finca">
+        <button type="button" aria-pressed={mode === "tap"} className={mode === "tap" ? "chip on" : "chip"} onClick={() => setMode("tap")}><MousePointerClick size={16} aria-hidden="true" /> Tocar cuadros</button>
+        <button type="button" aria-pressed={mode === "box"} className={mode === "box" ? "chip on" : "chip"} onClick={() => setMode("box")}><SquareDashed size={16} aria-hidden="true" /> Arrastrar</button>
+        <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}><Pencil size={16} aria-hidden="true" /> Dibujar</button>
+      </div>
+      <p className="picker-help">{mode === "tap" ? "Toca los cuadros o las parcelas amarillas que son tuyas. Toca otra vez para quitar." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
     </div>
-    <p className="picker-help">{mode === "tap" ? "Toca los cuadros o las parcelas amarillas que son tuyas. Toca otra vez para quitar." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
-    <div ref={box} className="picker-map" data-testid="farm-picker-map" />
-    {mode === "draw" && <div className="picker-draw">
-      <span>{draft.length} puntos</span>
-      <button type="button" className="chip" disabled={!draft.length} onClick={() => setDraft(d => d.slice(0, -1))}>↶ Deshacer punto</button>
-      <button type="button" className="chip on" disabled={draft.length < 3} onClick={closeShape}>✔ Cerrar figura</button>
-    </div>}
-    {status && <p role="status" className="note">{status}</p>}
-    <div className="picker-total" aria-live="polite"><strong>{pieces.length ? `Marcado: ${areaLabel(total)}` : "Aún no has marcado nada"}</strong>
-      {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>Borrar todo</button>}</div>
-    {pieces.length > 0 && <ul className="picker-pieces">{pieces.slice(-6).map(p => <li key={p.id}>{p.kind === "cell" ? "Cuadro" : p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}<button type="button" aria-label="Quitar" className="ob-link" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}>✕</button></li>)}{pieces.length > 6 && <li>…y {pieces.length - 6} más</li>}</ul>}
-    <p className="note">Parcelas aproximadas detectadas por satélite, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m².</p>
+    <div className="picker-stage">
+      <div ref={box} className="picker-map" data-testid="farm-picker-map" />
+      <p className="note picker-scale-note">Parcelas aproximadas detectadas por satélite, no catastrales. Cuadros de 50 × 50 m (~4 tareas).</p>
+    </div>
+    <div className="picker-status">
+      {mode === "draw" && <div className="picker-draw">
+        <span>{draft.length} puntos</span>
+        <button type="button" className="chip" disabled={!draft.length} onClick={() => setDraft(d => d.slice(0, -1))}><RotateCcw size={15} aria-hidden="true" /> Deshacer punto</button>
+        <button type="button" className="chip on" disabled={draft.length < 3} onClick={closeShape}><Check size={15} aria-hidden="true" /> Cerrar figura</button>
+      </div>}
+      {status && <p role="status" className="note">{status}</p>}
+      <div className="picker-total" aria-live="polite"><strong>{pieces.length ? `Marcado: ${areaLabel(total)}` : "Aún no has marcado nada"}</strong>
+        {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>Borrar todo</button>}</div>
+      {pieces.length > 0 && <ul className="picker-pieces">{pieces.slice(-4).map(p => <li key={p.id}>{p.kind === "cell" ? "Cuadro" : p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}<button type="button" aria-label="Quitar" className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}><X size={16} aria-hidden="true" /></button></li>)}{pieces.length > 4 && <li>…y {pieces.length - 4} más</li>}</ul>}
+    </div>
   </div>;
 }

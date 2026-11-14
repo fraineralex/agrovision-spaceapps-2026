@@ -1,18 +1,44 @@
-/* AI: Claude (Anthropic), 2026-11-14 — farmer market card. Frainer review pending. See AI_USAGE.md. */
+/* AI: Claude (Anthropic), 2026-11-14 — farmer market card; animated price area chart & 12-month seasonal strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import { cropEmoji, cropNames, marketFor, marketLimits, marketSources, monthNames, unitWord, type CropId } from "@/lib/advisor";
+import { FarmIcon } from "@/components/farm-icon";
+import { cropNames, marketFor, marketLimits, marketSources, monthNames, unitWord, type CropId } from "@/lib/advisor";
 
 const money = (n: number) => `RD$${n.toLocaleString("es-DO", { maximumFractionDigits: n < 100 ? 0 : 0 })}`;
 const periodWord = (p: string) => `${monthNames[Number(p.slice(5, 7)) - 1]} ${p.slice(0, 4)}`;
+const shortMonths = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 
 function Sparkline({ values }: { values: number[] }) {
   if (values.length < 2) return null;
-  const min = Math.min(...values), max = Math.max(...values), w = 260, h = 56;
-  const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 4 - ((v - min) / (max - min || 1)) * (h - 8)}`).join(" ");
-  return <svg className="sparkline" viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Precio de los últimos 24 meses">
-    <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-  </svg>;
+  const min = Math.min(...values), max = Math.max(...values), avg = values.reduce((a, b) => a + b, 0) / values.length;
+  const w = 320, h = 92, padTop = 14, padBot = 14, span = max - min || 1;
+  const toY = (v: number) => h - padBot - ((v - min) / span) * (h - padTop - padBot);
+  const coords = values.map((v, i) => ({ x: (i / (values.length - 1)) * w, y: toY(v), v }));
+  const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+  const areaPts = `0,${h - padBot} ${linePts} ${w},${h - padBot}`;
+  const last = coords[coords.length - 1];
+  const avgY = toY(avg);
+  return (
+    <div className="market-chart-box">
+      <div className="market-chart-meta">
+        <span>24 meses</span>
+        <span>Mín {money(min)} · Prom {money(Math.round(avg))} · Máx {money(max)}</span>
+      </div>
+      <svg className="sparkline-rich" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`Precio de los últimos 24 meses: mínimo ${money(min)}, máximo ${money(max)}`}>
+        <defs>
+          <linearGradient id="priceAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1f4d2c" stopOpacity="0.26" />
+            <stop offset="100%" stopColor="#1f4d2c" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1="0" y1={avgY} x2={w} y2={avgY} stroke="#6b4226" strokeOpacity="0.35" strokeDasharray="4 4" />
+        <polygon points={areaPts} fill="url(#priceAreaGrad)" />
+        <polyline className="price-line-anim" points={linePts} fill="none" stroke="#1f4d2c" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+        <circle className="price-dot-pulse" cx={last.x} cy={last.y} r="5.5" fill="#1f4d2c" stroke="#fff" strokeWidth="2" />
+      </svg>
+    </div>
+  );
 }
 
 export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
@@ -23,27 +49,47 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   const change = latest && m?.yearAgo ? Math.round((latest.price / m.yearAgo.price - 1) * 100) : null;
   const outlook = m?.outlook?.find(o => o.horizonMonths === 3);
   const cost = m?.cost2019;
+  const bestSet = new Set(m?.bestSellMonths ?? []);
+  const worstSet = new Set(m?.worstSellMonths ?? []);
   return <section className="card market" aria-label="Precio y mercado">
     <div className="section-row"><h3>Precio del cultivo</h3>
-      <select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropEmoji[c]} {cropNames[c]}</option>)}</select></div>
+      <div className="select-with-icon"><FarmIcon name={crop} size={20} /><select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></div>
     {latest ? <>
       <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
       {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
       <Sparkline values={(m.recent ?? []).map(r => r.price)} />
+      {(bestSet.size > 0 || worstSet.size > 0) && (
+        <div className="season-cal" aria-label="Calendario estacional de venta (12 meses)">
+          <div className="season-cal-head">
+            <span>Estacionalidad (Ene–Dic)</span>
+            <span className="season-legend"><i className="leg-best" /> Mejor venta <i className="leg-worst" /> Precio bajo</span>
+          </div>
+          <ol className="season-months">
+            {shortMonths.map((lbl, idx) => {
+              const mm = idx + 1;
+              const cls = bestSet.has(mm) ? "best" : worstSet.has(mm) ? "worst" : "mid";
+              return <li key={mm} className={cls} title={`${monthNames[idx]}: ${cls === "best" ? "mejor época para vender" : cls === "worst" ? "precio más bajo" : "precio intermedio"}`}>{lbl}</li>;
+            })}
+          </ol>
+        </div>
+      )}
       <ul className="market-facts">
-        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Mejor época para vender:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
-        {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Precio más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
-        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]} podría estar entre</strong> {money(outlook.low)} y {money(outlook.high)} {unitWord(m.unit)}</li>}
+        {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Mejor venta:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
+        {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
+        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]}:</strong> rango histórico {money(outlook.low)}–{money(outlook.high)} {unitWord(m.unit)}</li>}
       </ul>
     </> : <p>No hay precios mayoristas recientes de {cropNames[crop].toLowerCase()} en la fuente oficial.</p>}
-    {m?.sowing?.status === "alta" && <p className="warning">⚠ Muchos están sembrando {cropNames[crop].toLowerCase()}: en el país se sembró {Math.round(((m.sowing.ratio ?? 1) - 1) * 100)}% más que lo normal en los últimos 12 meses. Si todos cosechan a la vez, el precio puede bajar.</p>}
-    {m?.sowing?.status === "baja" && <p className="note-good">Se está sembrando menos {cropNames[crop].toLowerCase()} que lo normal en el país.</p>}
-    <div className="sources-box"><h3>¿De dónde salen estos datos?</h3>
-      {latest && <p>Precio mayorista promedio del mes en Santo Domingo. <a href={marketSources.prices}>Ministerio de Agricultura, {marketSources.pricesPeriod}</a>.</p>}
-      {outlook && <p>El rango muestra cuánto ha variado el precio en esta época en años anteriores. No es una garantía.</p>}
-      {m?.sowing && m.sowing.tareasLast12 && <p>Siembra nacional: {m.sowing.tareasLast12.toLocaleString("es-DO")} tareas en los 12 meses hasta {periodWord(m.sowing.windowEnd!)}, frente a {m.sowing.medianPrev12?.toLocaleString("es-DO")} (mediana de años anteriores). <a href={marketSources.sowing}>Consolidado de siembra, Ministerio de Agricultura</a>.</p>}
-      {cost && <p>Costo de producir una tarea en 2019 ({cost.area}): {money(cost.costPerTarea)}; cosecha típica {cost.yield} {cost.yieldUnit} por tarea. <a href={`${cost.source}#page=${cost.pdfPage}`}>Costos de Producción 2019, pág. {cost.pdfPage}</a>. No se calcula ganancia: los costos son de 2019 y el precio es mayorista, no lo que te pagan en finca.</p>}
-      <ul>{marketLimits.map(l => <li key={l}>{l}</li>)}</ul>
-    </div>
+    {m?.sowing?.status === "alta" && <p className="warning"><AlertTriangle aria-hidden="true" size={18} /><span>Muchos están sembrando {cropNames[crop].toLowerCase()}: +{Math.round(((m.sowing.ratio ?? 1) - 1) * 100)}% sobre lo normal (últimos 12 meses). Posible sobreoferta al cosechar.</span></p>}
+    {m?.sowing?.status === "baja" && <p className="note-good">Siembra nacional menor que lo normal para {cropNames[crop].toLowerCase()}.</p>}
+    <details className="sources-fold">
+      <summary>¿De dónde salen estos datos? ({marketSources.pricesPeriod} · MA)</summary>
+      <div className="sources-box">
+        {latest && <p>Precio mayorista promedio del mes en Santo Domingo. <a href={marketSources.prices}>Ministerio de Agricultura, {marketSources.pricesPeriod}</a>.</p>}
+        {outlook && <p>El rango muestra cuánto ha variado el precio en esta época en años anteriores. No es una garantía.</p>}
+        {m?.sowing && m.sowing.tareasLast12 && <p>Siembra nacional: {m.sowing.tareasLast12.toLocaleString("es-DO")} tareas en los 12 meses hasta {periodWord(m.sowing.windowEnd!)}, frente a {m.sowing.medianPrev12?.toLocaleString("es-DO")} (mediana de años anteriores). <a href={marketSources.sowing}>Consolidado de siembra, Ministerio de Agricultura</a>.</p>}
+        {cost && <p>Costo de producir una tarea en 2019 ({cost.area}): {money(cost.costPerTarea)}; cosecha típica {cost.yield} {cost.yieldUnit} por tarea. <a href={`${cost.source}#page=${cost.pdfPage}`}>Costos de Producción 2019, pág. {cost.pdfPage}</a>. No se calcula ganancia: los costos son de 2019 y el precio es mayorista, no lo que te pagan en finca.</p>}
+        <ul>{marketLimits.map(l => <li key={l}>{l}</li>)}</ul>
+      </div>
+    </details>
   </section>;
 }
