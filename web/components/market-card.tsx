@@ -1,10 +1,9 @@
 /* AI: Claude (Anthropic), 2026-11-14 — farmer market card. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useState } from "react";
-import { cropNames, marketFor, marketLimits, marketSources, monthNames, type CropId } from "@/lib/advisor";
+import { cropEmoji, cropNames, marketFor, marketLimits, marketSources, monthNames, unitWord, type CropId } from "@/lib/advisor";
 
 const money = (n: number) => `RD$${n.toLocaleString("es-DO", { maximumFractionDigits: n < 100 ? 0 : 0 })}`;
-const unitWord = (u?: string | null) => u === "DOP/lb" ? "la libra" : u === "DOP/quintal" ? "el quintal" : "la unidad";
 const periodWord = (p: string) => `${monthNames[Number(p.slice(5, 7)) - 1]} ${p.slice(0, 4)}`;
 
 function Sparkline({ values }: { values: number[] }) {
@@ -25,8 +24,8 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   const outlook = m?.outlook?.find(o => o.horizonMonths === 3);
   const cost = m?.cost2019;
   return <section className="card market" aria-label="Precio y mercado">
-    <div className="section-row"><h2>3 · Precio y mercado</h2>
-      <select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div>
+    <div className="section-row"><h2>2 · Precio y mercado</h2>
+      <select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropEmoji[c]} {cropNames[c]}</option>)}</select></div>
     {latest ? <>
       <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
       {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
