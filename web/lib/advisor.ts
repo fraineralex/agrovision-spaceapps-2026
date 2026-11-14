@@ -150,3 +150,19 @@ export function oversupplyFor(crop: string, harvestMonth: number): { level: "alt
   if (low) return { level: "temporada", sentence: `En ${monthNames[harvestMonth - 1]} suele haber mucha ${name} en el mercado: el precio suele estar ${Math.round(100 - idx!)}% más bajo que el promedio.` };
   return null;
 }
+
+export type OptionKey = "water" | "market" | "pests" | "climate" | "keep";
+export type FarmOption = { key: OptionKey; goal: string; advice: CropAdvice | null; note?: string };
+/** The five choices the farmer compares: the best crop for each goal plus keeping the current crop. */
+export function fiveOptions(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops?: CropId[] }): FarmOption[] {
+  const goals: [Exclude<OptionKey, "keep">, string][] = [["water", "Gastar menos agua"], ["market", "Vender a mejor precio"], ["pests", "Tener menos plagas"], ["climate", "Aguantar la sequía"]];
+  const out: FarmOption[] = goals.map(([key, goal]) => {
+    const ranked = adviseNextCrop({ ...opts, priority: key });
+    const best = ranked.find(a => a.overall !== null && a.harvestMonth > 0 && a.crop !== opts.previous) ?? ranked.find(a => a.overall !== null) ?? null;
+    return { key, goal, advice: best };
+  });
+  const keepCrop = opts.previous !== "unknown" && opts.previous !== "otro" ? opts.previous : null;
+  const keep = keepCrop ? adviseNextCrop({ ...opts, priority: "water", crops: [keepCrop] })[0] ?? null : null;
+  out.push({ key: "keep", goal: keepCrop ? `Seguir con ${cropNames[keepCrop].toLowerCase()}` : "Seguir con lo que siembras", advice: keep, note: keepCrop ? undefined : "No nos dijiste qué siembras ahora. Puedes decirlo en “Editar”." });
+  return out;
+}
