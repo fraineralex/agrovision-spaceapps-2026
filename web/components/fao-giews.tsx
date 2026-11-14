@@ -29,7 +29,6 @@ export function FaoDroughtCard({ province }: { province?: string }) {
       <div className={styles.item}><h3>☀ Alerta de sequía</h3><strong className={styles.status}><i className={`light ${signal.color}`}/>{signal.label}</strong><p>{signal.sentence}</p><p className={styles.note}>{data?.asi ? `Observación: ${data.asi.date}` : "Sin observación provincial"} · semáforo orientativo</p></div>
       <div className={styles.item}><h3>↺ Riesgo histórico</h3>{historical ? <><strong>{historical.above30} de {historical.seasons} temporadas</strong><p>Con más del 30% del área cultivada afectada por sequía.</p><p className={styles.note}>{historical.start}–{historical.end} · temporada {historical.season} · cálculo desde FAO</p></> : <p>Sin serie histórica verificada.</p>}</div>
       <div className={styles.item}><h3>☂ Lluvia vs normal</h3>{rain?.anomalyPct != null ? <><strong>{rain.anomalyPct > 0 ? "↑" : rain.anomalyPct < 0 ? "↓" : "→"} {Math.abs(rain.anomalyPct)}% {rain.anomalyPct > 0 ? "más" : rain.anomalyPct < 0 ? "menos" : "de diferencia"}</strong><p className={styles.note}>Década iniciada {rain.date} · ECMWF vía FAO · estimación regional</p></> : <p>Sin comparación verificada.</p>}</div>
-      <div className={styles.item}><h3>🌱 Mejor época para sembrar</h3><p>Calendario provincial pendiente.</p><p className={styles.note}>La fenología FAO está disponible como mapa. Falta una extracción provincial validada para mostrar meses de siembra.</p></div>
     </div>
     <FaoScoreDetails province={province}/>
   </section>;
