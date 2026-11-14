@@ -34,3 +34,5 @@ web/public/vendor/
 # ML downloads: preserve the small monthly evidence cache, ignore scene windows/models.
 data/cache/ml/scenes/
 data/model/*.joblib
+.vercel
+.env*
