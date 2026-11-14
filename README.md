@@ -1,49 +1,63 @@
-<!-- Asistencia de IA: Codex (OpenAI), 14-11-2026. Revisado por Frainer; ver AI_USAGE.md. -->
-
+<!-- AI assistance: Codex/OpenAI, 2026-11-14. Frainer review pending for MVP continuation; see AI_USAGE.md. -->
 # AgroVision
 
-Repositorio del equipo AgroVision para NASA Space Apps Challenge 2026, reto [Field Shift: Adapting Farms with NASA Data](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/), sede Santo Domingo virtual.
+An offline-capable rotation explorer for the **San Juan Valley, Dominican Republic**, built for NASA Space Apps 2026, [Field Shift](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/). Compare a rice–bean baseline with two illustrative alternatives across water/soil, climate, pests and market. This is evidence for discussion with a local agricultural technician, not a prescription.
 
-## Dirección oficial
+## Run
 
-El piloto es el **Valle de San Juan**. AgroVision compara la rotación actual con dos o tres escenarios para apoyar, sin reemplazar, la decisión del productor y del técnico agrícola. Organiza la evidencia en cuatro pilares: **agua y suelo, clima, plagas y mercado**.
-
-La IA del MVP analiza imágenes Landsat para clasificar meses de campo pelado y zonas de riego frente a secano, indicando confianza y límites. No es un chatbot; un LLM explicativo es una opción secundaria. Sensores quedan para una fase futura y no entran en la demo. No se afirma predicción de rendimiento ni de plagas.
-
-## Inicio rápido
-
-Requisitos: Python 3.10 o superior. La demo debe funcionar con datos precargados en caché aunque no haya internet.
+Node.js 20.9+ and npm; Python 3 for rebuilding data. The web application needs no Python server or database.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r scripts/requirements.txt
-python scripts/fetch_power.py --lat 18.80 --lon -71.23 --start 2016-01-01 --end 2025-12-31
-uvicorn backend.main:app --reload
+python3 scripts/build_web_data.py
+cd web
+npm ci
+npm run build
+npm start
 ```
 
-API local: `http://127.0.0.1:8000/health` y `http://127.0.0.1:8000/climate`. La descarga requiere red; la presentación debe poder reproducir el caso desde `data/cache/`.
+Open `http://localhost:3000`. Development: `npm run dev`. Checks: `npm run lint`, `npm test`, `npm run test:e2e` (requires Google Chrome, or adapt the Playwright channel). Pipeline checks, from the repository root: `python3 scripts/test_pipeline.py`.
 
-## Documentos
+The app retains the previous agent's `web/` implementation and uses Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui button composition, MapLibre GL JS, Zod and Vercel AI SDK. `backend/` and `frontend/` are legacy scaffolding and are not required by this demo. No Turso or other database is necessary.
 
-Leer en orden según [AGENTS.md](AGENTS.md). La dirección oficial y el inventario base están en `docs/fuentes_equipo/resumen_equipo.txt` y `docs/fuentes_equipo/inventario_datos.txt`.
+## What works
 
-- `docs/00_reglas_envio_y_evaluacion.md`: reglas confirmadas, elementos sin verificar y checklist de envío.
-- `docs/02_recursos_datos.md`: tabla de las 33 fuentes y estados.
-- `docs/04_producto_mvp.md`, `docs/05_arquitectura.md`: alcance y arquitectura de la demo.
-- `docs/10_plan_tecnico.md`: plan técnico de implementación y revisión.
-- `docs/08_premios.md`: correspondencia con descripciones oficiales publicadas; ponderaciones 2026 sin verificar.
-- `AI_USAGE.md`: registro de asistencia de IA.
+- Select three **synthetic approximate demo areas**, through the map or dropdown. No producer identities or real farm boundaries are included.
+- Inspect real NASA POWER regional climate means for any calendar month, using the checked-in 2016–2025 daily cache. Regional grid ~0.5°/~50 km, not parcel measurements; tropical rainfall has limitations and is excluded from scores.
+- Inspect **real Landsat NDVI** from six selected 2024 dates at each demo center (one 30 m pixel). QA-masked dates stay missing. Exploratory vegetation signals are explicitly uncalibrated; no trained classifier, crop identity or irrigation status is claimed.
+- Compare rice → beans, maize → beans and sweet potato → beans. The partial water/soil score uses a transparent FAO-56 coefficient-day proxy, relative 0–5 within this demo, with low local confidence. It is **not irrigation demand, soil health or measured savings**. Open each card for formula, source, publication period, scale and limitations.
+- Water priority changes scenario ordering; other priorities explain the lack of evidence and retain the baseline first. Declared water access changes review guidance; it never fabricates satellite confirmation.
+- View cached NASA GIBS Blue Marble, MODIS NDVI and IMERG imagery offline. Optional online date controls request verified WMTS products/formats/zoom levels; cached imagery remains underneath when remote requests fail. Images are browse context, not numeric measurements extracted from colors.
+- Request an optional explanation through AI SDK / Vercel AI Gateway. A deterministic local explanation works without a key, gateway or network.
 
-## Fechas y entrega
+## Offline behavior
 
-- Evento: 14 y 15 de noviembre de 2026.
-- Cierre oficial de envío: domingo 15 de noviembre, 11:59 PM AST según sede Santo Domingo. Confirmar hora activa en el portal del equipo.
-- Los requisitos que no se pudieron comprobar en la guía 2026 están identificados como “sin verificar”; revisar el formulario oficial antes de enviar.
+All inputs and derived artifacts are versioned in `data/cache/` and `web/public/data/`. Rebuild without internet using `python3 scripts/build_web_data.py`; exact hashes are recorded in the data manifest. Download scripts are separate, explicit operations: see [scripts/README.md](scripts/README.md).
 
-## Desarrollo
+A local production server serves the core case without internet. On a hosted URL, visit once online and wait for **“Offline case saved”** before disconnecting. The service worker caches the HTML, all production JS/CSS chunks and case files, including the dynamic map module. Offline reload and comparison are covered by browser tests. A never-visited URL still requires a first network connection. The online GIBS timeline and optional Gateway generation require internet; local imagery, comparisons and explanation remain usable.
 
-- Ramas: `feature/<nombre-corto>`, `fix/<nombre-corto>` o `docs/<nombre-corto>` desde `main`; PRs pequeños con fuentes y pasos de revisión.
-- Citar cada fuente/dataset con fecha, escala, unidad y limitaciones. No inventar métricas ni URLs.
-- No guardar secretos, credenciales ni datos personales de productores.
-- Toda asistencia de IA debe registrarse en `AI_USAGE.md` y citarse en el material generado.
+## Optional AI explanation
+
+Set `AI_GATEWAY_API_KEY` in the **server environment**, or in ignored `web/.env.local` using `web/.env.example`. Never use a `NEXT_PUBLIC_` variable for it. The endpoint receives only priority, month and declared irrigation category; it rebuilds trusted metrics on the server. It sends no geometry, private user data or credentials to the model.
+
+Model: `openai/gpt-4.1-mini` through Vercel AI Gateway. Structured Zod output selects IDs of prewritten evidence statements, preventing new numbers or claims. Limits and local review statements are always included. AI-assisted output is labeled; timeout, missing key and service failures use the deterministic template. The live configured-key path and missing-key path were both exercised locally on 2026-11-14. [AI_USAGE.md](AI_USAGE.md) records assistance and pending human review.
+
+## Vercel configuration — no deployment performed
+
+Import the repository as a Vercel project with **Root Directory `web`** and framework **Next.js**. `web/vercel.json` pins framework detection, `npm ci` and `npm run build`; keep the default Next.js output directory. All runtime data are under `web/public/data/`; the build never accesses paths outside `web/` or any machine-specific location. The offline asset generator uses only relative paths inside `web/`. Python export is performed before committing data, not during the Vercel build. Configure the optional server key in Project Environment Variables. No deploy command was run for this task.
+
+## Evidence and remaining work
+
+- POWER daily cache is real; a three-day independent API comparison matches the original CSV, with the response preserved in cache.
+- Landsat source pixel values, QA bands and request URLs are preserved. The six-date sample does not establish monthly bare-field duration. **Validated bare-soil / irrigation ML classification remains pending labeled samples and field/visual review.** The current signal thresholds are exploratory rules, not a trained AI model.
+- Climate suitability, pest and market scores remain **null / “Insufficient data”**. Crop tolerances/windows, verified IDIAF pest relations and a cleaned Ministry price sample are missing. No scores are invented. Future Santo Domingo wholesale/retail prices must not be described as farmgate prices.
+- Local soil, ETo, numeric IMERG time series and agronomic calibration are pending. The FAO proxy alone does not establish rainfed suitability or actual irrigation requirements.
+- Rice–bean rotation context comes from the team's IDIAF inventory citation; local fit is unverified. The other sequences are illustrative. No yield, pest outbreak, guaranteed profit, universal optimal dates or validated farm outcomes are claimed.
+- Frainer's human review, agronomic validation, deployment, submission and video are pending. Deployment was explicitly excluded from this task.
+
+Sources, attribution and quality: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md). Formulas, masks, assumptions and confidence: [docs/METHODOLOGY.md](docs/METHODOLOGY.md). Data version/checksums: [web/public/data/manifest.json](web/public/data/manifest.json). USGS/NASA Landsat, NASA POWER and NASA EOSDIS GIBS provide the actual Earth observation context; FAO-56 provides generic rule inputs. Dependencies retain their respective licenses; shadcn/ui patterns are MIT.
+
+## Team direction and submission
+
+Read [AGENTS.md](AGENTS.md) and the ordered context documents. Official direction: [team summary](docs/fuentes_equipo/resumen_equipo.txt) and [data inventory](docs/fuentes_equipo/inventario_datos.txt). Implementation plan: [docs/10_plan_tecnico.md](docs/10_plan_tecnico.md). Central planned AI analyzes satellite data; the optional explanation is secondary. Sensors are future work.
+
+Submission target: Sunday, November 15, 2026, 11:59 PM AST for Santo Domingo; confirm the active portal time and requirements before submission. Unverified 2026 limits are listed in [docs/00_reglas_envio_y_evaluacion.md](docs/00_reglas_envio_y_evaluacion.md). No submission was performed by this task.

@@ -1,4 +1,8 @@
+<!-- Actualización asistida por Codex/OpenAI, 2026-11-14; revisión de Frainer pendiente. -->
+
 # 05. Arquitectura mínima
+
+La implementación vigente sigue `docs/10_plan_tecnico.md`: Next.js en `web/`, datos precalculados en `web/public/data/` y ruta Next.js `/api/explain`. No requiere FastAPI ni base de datos; los componentes FastAPI de abajo describen el arranque anterior. Estado real, pruebas y límites en `README.md` y `docs/METHODOLOGY.md`.
 
 ## Componentes
 
