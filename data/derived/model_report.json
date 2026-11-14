@@ -1,0 +1,2322 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-14T15:10:51.831925Z",
+  "caseId": "san-juan-ml-pilot",
+  "aiAssistance": {
+    "tool": "Codex (OpenAI)",
+    "date": "2026-11-14",
+    "humanReview": "Pending Frainer review"
+  },
+  "status": "prototype_preliminary",
+  "periodStart": "2024-01-01T00:00:00Z",
+  "periodEnd": "2026-11-14T23:59:59Z",
+  "sensor": "Sentinel-2 MSI L2A (no HLS/Landsat fusion)",
+  "provenance": [
+    {
+      "sourceId": "sentinel-2-l2a",
+      "sourceName": "Copernicus Sentinel-2 L2A / Element 84 Earth Search",
+      "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a",
+      "periodStart": "2024-01-01T00:00:00Z",
+      "periodEnd": "2026-11-14T23:59:59Z",
+      "resolution": {
+        "value": 10,
+        "unit": "m",
+        "note": "Red/NIR 10 m; SCL 20 m resampled nearest"
+      },
+      "scale": "parcel",
+      "method": "satellite_observation",
+      "citation": "Contains modified Copernicus Sentinel data (2024\u20132026), served by Element 84.",
+      "license": "Copernicus Sentinel Data Legal Notice"
+    },
+    {
+      "sourceId": "esa-worldcover-2021",
+      "sourceName": "ESA WorldCover 2021 v200",
+      "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N18W072_Map.tif",
+      "periodStart": "2021-01-01T00:00:00Z",
+      "periodEnd": "2021-12-31T23:59:59Z",
+      "resolution": {
+        "value": 10,
+        "unit": "m"
+      },
+      "scale": "pixel",
+      "method": "derived_model",
+      "citation": "Zanaga et al. (2022), ESA WorldCover 10 m 2021 v200, doi:10.5281/zenodo.7254221",
+      "license": "CC BY 4.0"
+    }
+  ],
+  "bbox": [
+    -71.28,
+    18.77,
+    -71.24,
+    18.81
+  ],
+  "resolutionM": 10,
+  "scope": "Small approximate pilot window within San Juan Valley, not the whole valley",
+  "unitCount": 585,
+  "unitDefinition": "SLIC superpixels; not independently validated parcels",
+  "method": {
+    "name": "RandomForestClassifier",
+    "seed": 42,
+    "nEstimators": 300,
+    "minSamplesLeaf": 3,
+    "classWeight": "balanced",
+    "features": [
+      "ndvi_mean",
+      "ndvi_p10",
+      "ndvi_p90",
+      "ndvi_amplitude",
+      "bare_month_fraction",
+      "seasonality",
+      "dry_ndvi",
+      "wet_ndvi",
+      "wet_minus_dry",
+      "observed_month_fraction",
+      "latest_ndvi"
+    ],
+    "segmentation": "SLIC",
+    "requestedSegments": 600,
+    "compactness": 0.15,
+    "monthlyComposite": "Pixel median of up to two lowest tile-cloud scenes per calendar month",
+    "parcelAggregation": "Mean clear pixel NDVI; month missing if <50% of unit has clear pixels",
+    "seasonality": "Standard deviation of the 12 calendar-month NDVI means",
+    "bareMonths": "Count of observed monthly means <0.2; unobserved months excluded",
+    "dryMonths": [
+      1,
+      2,
+      3
+    ],
+    "wetMonths": [
+      5,
+      6,
+      9,
+      10
+    ],
+    "seasonWindowStatus": "Project heuristic; local rainfall and agronomist validation pending",
+    "mask": "SCL 4/5 only with 20 m exclusion buffer; SCL has native 20 m resolution",
+    "confidence": "Maximum uncalibrated predict_proba after fitting all weak labels; mean tree leaf class probability",
+    "noTemporalImputation": true
+  },
+  "weakLabelRules": {
+    "version": "weak-rules-v1",
+    "bare_soil": "WorldCover crop+bare fraction >=0.6 and latest observed monthly NDVI <0.2",
+    "crop": "WorldCover crop fraction >=0.6 and latest observed monthly NDVI >=0.35",
+    "irrigation_signal": "WorldCover crop fraction >=0.6, dry NDVI >=0.48 and dry >=wet-0.10",
+    "rainfed_signal": "WorldCover crop fraction >=0.6, dry NDVI <=0.35, wet >=0.50 and wet-dry >=0.15",
+    "minimumSeasonObservations": 3,
+    "unlabeled": "Ambiguous units excluded from training"
+  },
+  "acquisition": {
+    "sceneCount": 70,
+    "failedScenes": [],
+    "monthCount": 35,
+    "monthlyClearLandPixelFraction": {
+      "2024-01": 0.9980330120933331,
+      "2024-02": 0.9983868617696646,
+      "2024-03": 0.998985284016402,
+      "2024-04": 0.992007160252274,
+      "2024-05": 0.998964469329559,
+      "2024-06": 0.9642195533168203,
+      "2024-07": 0.9996253356368253,
+      "2024-08": 0.9049133068292987,
+      "2024-09": 0.9691162083966447,
+      "2024-10": 0.9921320483733322,
+      "2024-11": 0.9878702412422206,
+      "2024-12": 0.9929906542056075,
+      "2025-01": 0.9929906542056075,
+      "2025-02": 0.9965291509689237,
+      "2025-03": 0.9994015777532627,
+      "2025-04": 0.9917573840101576,
+      "2025-05": 0.9995837062631393,
+      "2025-06": 0.9929906542056075,
+      "2025-07": 0.998402472784797,
+      "2025-08": 0.9993963740815519,
+      "2025-09": 0.9906698166226089,
+      "2025-10": 0.9993755593947089,
+      "2025-11": 0.9983088066940032,
+      "2025-12": 0.9929906542056075,
+      "2026-01": 0.9929906542056075,
+      "2026-02": 0.9916272922173885,
+      "2026-03": 0.9989540619861375,
+      "2026-04": 0.999568095248007,
+      "2026-05": 0.9220802198030931,
+      "2026-06": 0.9998751118789417,
+      "2026-07": 0.9928657660845492,
+      "2026-08": 0.999438003455238,
+      "2026-09": 0.9854713485835606,
+      "2026-10": 0.9972680723518514,
+      "2026-11": 0.9041639781029495
+    },
+    "sourceManifest": "../cache/ml/selection.json"
+  },
+  "targets": {
+    "cover": {
+      "status": "prototype_weakly_supervised",
+      "classes": [
+        "bare_soil",
+        "crop"
+      ],
+      "weakLabelCounts": {
+        "crop": 231,
+        "bare_soil": 12
+      },
+      "eligibleCount": 243,
+      "independentGroundTruthCount": 0,
+      "fieldAccuracy": null,
+      "evaluationType": "spatial_holdout_agreement_with_weak_rules",
+      "limitation": "Labels use the same NDVI features as the model. Agreement is circular and does not establish field accuracy or irrigation detection.",
+      "validation": {
+        "accuracy": 1.0,
+        "macroF1": 1.0,
+        "confusionMatrix": [
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            76
+          ]
+        ],
+        "perClass": {
+          "bare_soil": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 2.0
+          },
+          "crop": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 76.0
+          },
+          "accuracy": 1.0,
+          "macro avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 78.0
+          },
+          "weighted avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 78.0
+          }
+        },
+        "unit": "fraction",
+        "scale": "parcel",
+        "quality": "preliminary",
+        "confidence": null,
+        "sourceId": "weak-rules-v1",
+        "minimumClassSupport": 2,
+        "interpretation": "Descriptive agreement only; rare-class support is too small for generalization",
+        "note": "One spatial holdout; no field labels; no confidence interval; no tuning against holdout"
+      },
+      "split": {
+        "method": "GroupShuffleSplit",
+        "seed": 42,
+        "blockSizeM": 1000,
+        "bufferM": 100,
+        "trainCount": 111,
+        "testCount": 78,
+        "trainGroups": [
+          "259_2079",
+          "259_2080",
+          "259_2081",
+          "260_2077",
+          "260_2078",
+          "260_2079",
+          "260_2080",
+          "261_2077",
+          "261_2079",
+          "261_2081",
+          "262_2078",
+          "262_2079",
+          "262_2080",
+          "262_2081",
+          "263_2077",
+          "263_2078",
+          "263_2079"
+        ],
+        "testGroups": [
+          "259_2078",
+          "260_2081",
+          "261_2076",
+          "261_2078",
+          "261_2080",
+          "262_2077",
+          "263_2080"
+        ],
+        "trainClassCounts": {
+          "crop": 103,
+          "bare_soil": 8
+        },
+        "testClassCounts": {
+          "crop": 76,
+          "bare_soil": 2
+        }
+      },
+      "featureImportance": {
+        "ndvi_mean": 0.04788607333604862,
+        "ndvi_p10": 0.15691699480648447,
+        "ndvi_p90": 0.01922069837498491,
+        "ndvi_amplitude": 0.13924309174263255,
+        "bare_month_fraction": 0.16646373395126668,
+        "seasonality": 0.06710625526448039,
+        "dry_ndvi": 0.014498386213450471,
+        "wet_ndvi": 0.012848613753125314,
+        "wet_minus_dry": 0.0032634399848463264,
+        "observed_month_fraction": 0.0003405703344278806,
+        "latest_ndvi": 0.37221214223825233
+      },
+      "validationAssignments": [
+        {
+          "parcelId": "sj-unit-0002",
+          "split": "train",
+          "group": "259_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0009",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0014",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0015",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0018",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0019",
+          "split": "train",
+          "group": "259_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0034",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0036",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0042",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0058",
+          "split": "train",
+          "group": "262_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0060",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0062",
+          "split": "train",
+          "group": "262_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0065",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0066",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0069",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0078",
+          "split": "train",
+          "group": "262_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0080",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0088",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0091",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0096",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0100",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0110",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0115",
+          "split": "train",
+          "group": "262_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0118",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0140",
+          "split": "train",
+          "group": "262_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0158",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0163",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0168",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0174",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0176",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0179",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0184",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0189",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0191",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0197",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0203",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0205",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0206",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0208",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0212",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0215",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0217",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0220",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0221",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0224",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0226",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0228",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0233",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0235",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0239",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0241",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0243",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0246",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0247",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0248",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0250",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0253",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0255",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0256",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0259",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0261",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0262",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0265",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0267",
+          "split": "train",
+          "group": "261_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0273",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0275",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0277",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0281",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0283",
+          "split": "train",
+          "group": "262_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0286",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0294",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0303",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0310",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0311",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0317",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0330",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0333",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0334",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0338",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0339",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0345",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0348",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0356",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0359",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0364",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0366",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0368",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0385",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0387",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0392",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0398",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0399",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0400",
+          "split": "train",
+          "group": "262_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0401",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0403",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0411",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0416",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0433",
+          "split": "train",
+          "group": "260_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0439",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0449",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0454",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0457",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0459",
+          "split": "train",
+          "group": "260_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0461",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0462",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0478",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0479",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0482",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0504",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0512",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0520",
+          "split": "train",
+          "group": "261_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0020",
+          "split": "test",
+          "group": "260_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0033",
+          "split": "test",
+          "group": "260_2081",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0040",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0043",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0046",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0050",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0054",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0055",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0056",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0057",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0068",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0070",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0071",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0072",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0074",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0075",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0079",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0081",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0085",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0089",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0090",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0093",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0095",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0101",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0102",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0104",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0108",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0109",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0112",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0125",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0126",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0132",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0133",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0136",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0139",
+          "split": "test",
+          "group": "261_2080",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0157",
+          "split": "test",
+          "group": "263_2080",
+          "weakLabel": "bare_soil"
+        },
+        {
+          "parcelId": "sj-unit-0296",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0302",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0304",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0314",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0318",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0324",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0326",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0327",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0336",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0337",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0346",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0349",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0352",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0353",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0358",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0361",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0363",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0376",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0379",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0382",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0383",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0391",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0402",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0406",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0407",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0409",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0414",
+          "split": "test",
+          "group": "261_2078",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0444",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0445",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0469",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0470",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0493",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0499",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0502",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0505",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0513",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0524",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0532",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0533",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0536",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0539",
+          "split": "test",
+          "group": "262_2077",
+          "weakLabel": "crop"
+        },
+        {
+          "parcelId": "sj-unit-0584",
+          "split": "test",
+          "group": "261_2076",
+          "weakLabel": "crop"
+        }
+      ],
+      "finalFitCount": 243,
+      "featureImportanceFinalFit": {
+        "ndvi_mean": 0.033311520587963474,
+        "ndvi_p10": 0.11560273230056319,
+        "ndvi_p90": 0.009838101127998284,
+        "ndvi_amplitude": 0.0896166085208326,
+        "bare_month_fraction": 0.20471982941402164,
+        "seasonality": 0.06804787588535434,
+        "dry_ndvi": 0.027446042295682618,
+        "wet_ndvi": 0.020329402306672465,
+        "wet_minus_dry": 0.010084916457116398,
+        "observed_month_fraction": 0.004009439338132182,
+        "latest_ndvi": 0.41699353176566284
+      }
+    },
+    "waterRegime": {
+      "status": "prototype_unvalidated",
+      "classes": [
+        "irrigation_signal",
+        "rainfed_signal"
+      ],
+      "weakLabelCounts": {
+        "irrigation_signal": 156,
+        "rainfed_signal": 5
+      },
+      "eligibleCount": 161,
+      "independentGroundTruthCount": 0,
+      "fieldAccuracy": null,
+      "evaluationType": "spatial_holdout_agreement_with_weak_rules",
+      "limitation": "Labels use the same NDVI features as the model. Agreement is circular and does not establish field accuracy or irrigation detection.",
+      "validation": null,
+      "split": {
+        "method": "GroupShuffleSplit",
+        "seed": 42,
+        "blockSizeM": 1000,
+        "bufferM": 100,
+        "trainCount": 87,
+        "testCount": 46,
+        "trainGroups": [
+          "259_2079",
+          "259_2080",
+          "259_2081",
+          "260_2078",
+          "260_2079",
+          "260_2080",
+          "260_2081",
+          "261_2078",
+          "261_2080",
+          "261_2081",
+          "262_2076",
+          "262_2077",
+          "262_2081",
+          "263_2077",
+          "263_2078",
+          "263_2079",
+          "263_2080"
+        ],
+        "testGroups": [
+          "259_2078",
+          "261_2076",
+          "261_2077",
+          "261_2079",
+          "262_2078",
+          "262_2080"
+        ],
+        "trainClassCounts": {
+          "irrigation_signal": 84,
+          "rainfed_signal": 3
+        },
+        "testClassCounts": {
+          "irrigation_signal": 44,
+          "rainfed_signal": 2
+        }
+      },
+      "reason": "Fixed spatial holdout lacks at least five train and one test unit per class; split was not searched for favorable metrics",
+      "validationAssignments": [
+        {
+          "parcelId": "sj-unit-0007",
+          "split": "train",
+          "group": "260_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0008",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0009",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0013",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0015",
+          "split": "train",
+          "group": "262_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0018",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0019",
+          "split": "train",
+          "group": "259_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0025",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0028",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0033",
+          "split": "train",
+          "group": "260_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0038",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0039",
+          "split": "train",
+          "group": "261_2081",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0042",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0044",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0050",
+          "split": "train",
+          "group": "263_2080",
+          "weakLabel": "rainfed_signal"
+        },
+        {
+          "parcelId": "sj-unit-0051",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0052",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0056",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0057",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0060",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0061",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0065",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0069",
+          "split": "train",
+          "group": "260_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0070",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0071",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0072",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0075",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0080",
+          "split": "train",
+          "group": "259_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0089",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0090",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0095",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0101",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0104",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0108",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0109",
+          "split": "train",
+          "group": "261_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0111",
+          "split": "train",
+          "group": "263_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0120",
+          "split": "train",
+          "group": "263_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0126",
+          "split": "train",
+          "group": "263_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0156",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0174",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0176",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0186",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0193",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "rainfed_signal"
+        },
+        {
+          "parcelId": "sj-unit-0195",
+          "split": "train",
+          "group": "263_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0203",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0221",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0224",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0226",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0241",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0247",
+          "split": "train",
+          "group": "259_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0255",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0273",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0277",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0286",
+          "split": "train",
+          "group": "260_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0302",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0303",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0308",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0317",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0320",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0326",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0331",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0334",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0345",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0353",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0354",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0355",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0358",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0360",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0363",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "rainfed_signal"
+        },
+        {
+          "parcelId": "sj-unit-0368",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0379",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0382",
+          "split": "train",
+          "group": "261_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0387",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0399",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0401",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0411",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0416",
+          "split": "train",
+          "group": "260_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0422",
+          "split": "train",
+          "group": "263_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0449",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0457",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0524",
+          "split": "train",
+          "group": "262_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0532",
+          "split": "train",
+          "group": "262_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0533",
+          "split": "train",
+          "group": "262_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0537",
+          "split": "train",
+          "group": "263_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0566",
+          "split": "train",
+          "group": "262_2076",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0567",
+          "split": "train",
+          "group": "262_2076",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0569",
+          "split": "train",
+          "group": "262_2076",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0047",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0058",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0062",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0076",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0078",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0084",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0094",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0098",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0113",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0114",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0115",
+          "split": "test",
+          "group": "262_2080",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0159",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0160",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0183",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0189",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0217",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0228",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0235",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0246",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0248",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0274",
+          "split": "test",
+          "group": "261_2079",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0309",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0310",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0311",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0313",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0330",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0352",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0359",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0365",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "rainfed_signal"
+        },
+        {
+          "parcelId": "sj-unit-0366",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0381",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0385",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0395",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0398",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0400",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0402",
+          "split": "test",
+          "group": "259_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0408",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0424",
+          "split": "test",
+          "group": "262_2078",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0435",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "rainfed_signal"
+        },
+        {
+          "parcelId": "sj-unit-0441",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0461",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0478",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0479",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0504",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0558",
+          "split": "test",
+          "group": "261_2077",
+          "weakLabel": "irrigation_signal"
+        },
+        {
+          "parcelId": "sj-unit-0584",
+          "split": "test",
+          "group": "261_2076",
+          "weakLabel": "irrigation_signal"
+        }
+      ],
+      "finalFitCount": 161,
+      "featureImportanceFinalFit": {
+        "ndvi_mean": 0.1909130705109695,
+        "ndvi_p10": 0.10615379029027003,
+        "ndvi_p90": 0.006698866244706245,
+        "ndvi_amplitude": 0.0382075184852072,
+        "bare_month_fraction": 0.005857813227197995,
+        "seasonality": 0.07296992856772733,
+        "dry_ndvi": 0.26269917169413914,
+        "wet_ndvi": 0.012352214346873882,
+        "wet_minus_dry": 0.30210003445671574,
+        "observed_month_fraction": 0.00024194352824150506,
+        "latest_ndvi": 0.0018056486479514674
+      }
+    }
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "rasterio": "1.5.2",
+    "scikit-image": "0.26.0",
+    "scikit-learn": "1.9.1",
+    "shapely": "2.2.0",
+    "pyproj": "3.8.0",
+    "scipy": "1.18.1",
+    "requests": "2.34.2",
+    "matplotlib": "3.11.2",
+    "joblib": "1.6.0"
+  },
+  "limitations": [
+    "Preliminary SLIC analysis unit, not a farm or cadastral boundary. Weak labels and uncalibrated model scores; no field validation. NDVI alone does not establish irrigation, crop identity or bare soil.",
+    "Validation measures agreement with feature-derived weak rules, not independent accuracy.",
+    "WorldCover is from 2021 and may be stale for 2024\u20132026.",
+    "Dry-season greenness may indicate perennial vegetation, rain or other conditions; no irrigation ground truth.",
+    "Two scenes per month can miss management events; cloud masks can contain errors.",
+    "2026 ends on the requested cutoff; November 2026 is partial.",
+    "Sentinel-2 is ESA/Copernicus, not NASA HLS or Landsat; NASA imagery integration remains pending."
+  ],
+  "cacheSha256": "c2dafeb750815503270e6b289697d1ddf07f7b3044dae14c93e741112e09e6c5"
+}
