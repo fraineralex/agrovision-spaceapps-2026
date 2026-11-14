@@ -96,3 +96,13 @@ python3 scripts/geography/cache_power.py /tmp/province-points.json
 ```
 
 Fuentes consultadas 2026-11-14: [Gateway: realtime, speech y transcription](https://vercel.com/changelog/realtime-voice-speech-and-transcription-now-supported-on-ai-gateway), [guía realtime](https://vercel.com/blog/realtime-voice-agents-on-ai-gateway), [AI SDK Gateway](https://ai-sdk.dev/providers/ai-sdk-providers/ai-gateway), [NASA POWER API](https://power.larc.nasa.gov/docs/services/api/temporal/climatology/), [geoBoundaries DOM ADM1](https://www.geoboundaries.org/api/current/gbOpen/DOM/ADM1/) (Natural Earth, 2022, dominio público; procedencia en `data/cache/geography/provinces.metadata.json`). Asistencia Codex/OpenAI, revisión por Frainer pendiente; ver `AI_USAGE.md`.
+
+### Mapa de detalle y parcelas aproximadas (integración 14-11-2026)
+
+<!-- Asistencia: Codex/OpenAI, 2026-11-14; revisión por Frainer pendiente. -->
+
+Esri World Imagery es la base en línea (zoom nativo máximo 19), con etiquetas Esri e inclinación. La búsqueda nacional y la voz siguen disponibles. NASA GIBS aporta superposiciones opcionales con opacidad; Blue Marble local es contexto de respaldo solo por debajo de zoom 10. Esri requiere conexión; no se promete fotografía detallada offline ni una fecha única de captura.
+
+`web/public/data/parcels-san-juan.json` conserva las 585 unidades SLIC de `data/derived/parcels_san_juan.geojson`, con geometrías simplificadas y coordenadas a 5 decimales (<1.5 MB). Son unidades aproximadas de análisis Sentinel-2, no parcelas catastrales ni fincas verificadas. Se muestran desde zoom 11; el botón «Parcelas San Juan» acerca a la muestra y un clic abre la ficha y su serie NDVI. Semáforo de verdor reciente: <0.3 rojo, <0.5 ámbar, ≥0.5 verde; sin observación gris. Son cortes visuales sin validación agronómica. El clima mostrado para estas unidades es el contexto POWER regional de San Juan, no una observación de finca. La voz trata la ubicación como punto; no recibe las geometrías ni el clasificador.
+
+Reconstrucción: con Shapely de `scripts/ml/requirements.txt`, ejecutar `python scripts/geography/export_parcels.py`; actualiza también el manifiesto offline y su SHA-256. Las fuentes, período, resolución y límites se conservan en el GeoJSON y la ficha. Se usa Sentinel-2 porque es la fuente efectiva del artefacto disponible; no se atribuye a Landsat. No se añadió Overpass.
