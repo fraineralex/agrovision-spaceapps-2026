@@ -134,3 +134,9 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Herramienta:** Claude (Anthropic). **Archivos:** `web/components/{onboarding,advisor-card,market-card,voice-assistant}.tsx`, `web/lib/{advisor,voice-context}.ts`, `web/app/{page.tsx,globals.css}`, `scripts/market/build_market_insights.py`, `web/public/data/market-insights.json`, `web/tests/demo.spec.ts`, `docs/16_asesor_siembra.md`.
 - **Fuentes:** FAO-56, tablas 11 y 12 (https://www.fao.org/4/x0490e/x0490e0b.htm, consultada el 14-11-2026); CSV mayorista y consolidado de siembra del Ministerio de Agricultura; costos de producción 2019 (páginas citadas).
 - **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Configuración local en Windows
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** sincronizar la copia local, instalar dependencias y verificar la aplicación en Windows. **Archivos:** este registro, entorno local ignorado y licencia oficial MapLibre GL JS 6.18.0 restaurada en la dependencia local.
+- **Verificación:** lint correcto. Turbopack falló al iniciar el proceso de PostCSS. La compilación con Webpack y la generación de activos offline finalizaron correctamente. Chrome cargó MapLibre en el servidor local y permitió seleccionar «Ver fincas de San Juan». Las tres pruebas de Playwright pasaron, incluida la recuperación sin credenciales de voz con micrófono simulado. Conversación con proveedor real pendiente.
+- **Revisión por Frainer:** pendiente.
