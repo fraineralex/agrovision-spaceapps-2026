@@ -75,14 +75,18 @@ def fit_target(records, target, expected_classes):
                  'status': result['status']}, MODEL / f'{target}.joblib')
     result['finalFitCount'] = len(y)
     result['featureImportanceFinalFit'] = dict(zip(FEATURE_NAMES, final.feature_importances_.tolist()))
+    # Predict all eligible units together, avoiding one thread pool per polygon.
+    domain_records = [r for r in records
+        if (r['crop_fraction'] >= 0.6 if target == 'water_weak_label'
+            else r['agricultural_fraction'] >= 0.6)
+        and all(r['features'][f] is not None for f in FEATURE_NAMES)]
     predictions = {}
-    for r in records:
-        # Refuse extrapolation into WorldCover trees, grass, water or urban units.
-        in_domain = r['crop_fraction'] >= 0.6 if target == 'water_weak_label' else r['agricultural_fraction'] >= 0.6
-        if in_domain and all(r['features'][f] is not None for f in FEATURE_NAMES):
-            probabilities = final.predict_proba([[r['features'][f] for f in FEATURE_NAMES]])[0]
-            k = int(np.argmax(probabilities))
+    if domain_records:
+        probabilities = final.predict_proba([[r['features'][f] for f in FEATURE_NAMES]
+                                             for r in domain_records])
+        for r, scores in zip(domain_records, probabilities):
+            k = int(np.argmax(scores))
             predictions[r['label']] = {'class': str(final.classes_[k]),
-                   'confidence': float(probabilities[k]), 'validationStatus': result['status'],
-                   'probabilities': dict(zip(final.classes_, probabilities.tolist()))}
+                   'confidence': float(scores[k]), 'validationStatus': result['status'],
+                   'probabilities': dict(zip(final.classes_, scores.tolist()))}
     return result, predictions
