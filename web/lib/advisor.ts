@@ -50,7 +50,7 @@ export const toTareas = (ha: number) => Math.round(ha * TAREAS_PER_HA);
 type MarketCrop = {
   label: string; seriesId: string | null; unit: string | null;
   latest?: { period: string; price: number }; yearAgo?: { period: string; price: number } | null;
-  seasonalIndex?: Record<string, number | null>; bestSellMonths?: number[]; worstSellMonths?: number[];
+  seasonalIndex?: Record<string, number | null>; seasonalYearsUsed?: string[]; firstPeriod?: string; bestSellMonths?: number[]; worstSellMonths?: number[];
   outlook?: { horizonMonths: number; period: string; price: number; low: number; high: number; backtestMapePct: number; backtestN: number }[];
   recent?: { period: string; price: number }[];
   sowing: { status: string | null; ratio?: number | null; peakSowingMonths: number[]; windowEnd?: string; tareasLast12?: number; medianPrev12?: number } | null;
