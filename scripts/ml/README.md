@@ -152,7 +152,7 @@ no confianza perfecta. Los faltantes y resultados fuera del dominio quedan null.
 | `data/model/*.joblib` | Dos modelos reproducibles locales, ignorados; cargar solo archivos propios |
 | `data/derived/parcels_san_juan.geojson` | Unidades WGS84, clases, votos, features, métricas y serie mensual |
 | `data/derived/model_report.json` | Método, período, sensor, fuentes, reglas, versiones y evaluación |
-| `data/derived/parcels_san_juan.png` | Mapa de clases, votos y meses de NDVI bajo |
+| `data/derived/parcels_san_juan.png` | Mapas separados de cobertura/agua, votos, NDVI bajo y cobertura temporal |
 
 JSON/GeoJSON llevan `schemaVersion`, `generatedAt`, `caseId`, procedencia y
 asistencia IA; geometrías WGS84. Las métricas siguen `Metric`/`Provenance` de
@@ -165,8 +165,8 @@ Integrador UI: consumir `coverClass`, `waterRegimeClass`, sus confianzas y
 `coverValidationStatus`/`waterValidationStatus` por separado. `class`/`confidence`
 son alias de agua cuando existe y de cobertura en otro caso. No confundirlos
 con estado de riego confirmado (`irrigationStatus` siempre `unconfirmed`).
-La PNG usa la misma prioridad para clases/votos; los meses bajos usan datos,
-no clasificación. `model_report.json.targets.*.validation` puede ser null.
+La PNG separa cobertura y agua en paneles con sus votos; los meses bajos y
+la cobertura temporal usan datos, no clasificación. `model_report.json.targets.*.validation` puede ser null.
 No renombrar `prototype_unvalidated` como "validated".
 
 Para servir offline, el agente de UI puede copiar estos artefactos a

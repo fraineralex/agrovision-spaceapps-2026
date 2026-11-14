@@ -37,38 +37,47 @@ def provenance(acquisition):
 
 
 def make_figure(labels, records, cover_predictions, water_predictions, report):
-    shape = labels.shape
-    categorical = np.full(shape, np.nan)
-    confidence = np.full(shape, np.nan)
-    bare = np.full(shape, np.nan)
-    classes = ['bare_soil', 'crop', 'irrigation_signal', 'rainfed_signal']
+    grid_shape = labels.shape
+    panels = [np.full(grid_shape, np.nan) for _ in range(6)]
     for r in records:
-        p = water_predictions.get(r['label']) or cover_predictions.get(r['label'])
-        if p:
-            categorical[labels == r['label']] = classes.index(p['class'])
-            confidence[labels == r['label']] = p['confidence']
-        bare[labels == r['label']] = r['bare_months']
-    fig, axes = plt.subplots(1, 3, figsize=(16, 6))
-    extent = [0, shape[1]*0.01, 0, shape[0]*0.01]
-    colors = ['#b78c52', '#4c9d46', '#217db0', '#e4bd52']
-    im = axes[0].imshow(categorical, extent=extent, cmap=ListedColormap(colors), norm=BoundaryNorm(np.arange(5)-0.5, 4))
-    cb = fig.colorbar(im, ax=axes[0], fraction=0.046, ticks=range(4))
-    cb.ax.set_yticklabels(['Bare soil', 'Crop', 'Irrigation signal', 'Rainfed signal'], fontsize=7)
-    axes[0].set_title('Preliminary model classes')
-    im = axes[1].imshow(confidence, extent=extent, cmap='viridis', vmin=0.5, vmax=1)
-    fig.colorbar(im, ax=axes[1], fraction=0.046, label='Uncalibrated RF vote fraction')
-    axes[1].set_title('Model confidence (not field accuracy)')
-    im = axes[2].imshow(bare, extent=extent, cmap='YlOrBr', vmin=0, vmax=35)
-    fig.colorbar(im, ax=axes[2], fraction=0.046, label='Observed months with NDVI < 0.2')
-    axes[2].set_title('Low NDVI months; gaps excluded')
-    for ax in axes:
+        mask = labels == r['label']
+        cover = cover_predictions.get(r['label'])
+        water = water_predictions.get(r['label'])
+        if cover:
+            panels[0][mask] = ['bare_soil', 'crop'].index(cover['class'])
+            panels[1][mask] = cover['confidence']
+        if water:
+            panels[3][mask] = ['irrigation_signal', 'rainfed_signal'].index(water['class'])
+            panels[4][mask] = water['confidence']
+        panels[2][mask] = r['bare_months']
+        panels[5][mask] = r['observed_months']
+    fig, axes = plt.subplots(2, 3, figsize=(16, 11))
+    axes = axes.ravel()
+    extent = [0, grid_shape[1]*0.01, 0, grid_shape[0]*0.01]
+    titles = ['Latest observed cover: weak-label prototype', 'Cover votes (not field accuracy)',
+              'Low NDVI months; gaps excluded', 'Water regime: unvalidated prototype',
+              'Water votes (not field accuracy)', 'Temporal observation coverage']
+    for i, ax in enumerate(axes):
+        if i in (0, 3):
+            colors = ['#b78c52', '#4c9d46'] if i == 0 else ['#217db0', '#e4bd52']
+            im = ax.imshow(panels[i], extent=extent, cmap=ListedColormap(colors),
+                           norm=BoundaryNorm([-0.5, 0.5, 1.5], 2))
+            cb = fig.colorbar(im, ax=ax, fraction=0.046, ticks=[0, 1])
+            cb.ax.set_yticklabels(['Bare soil', 'Crop'] if i == 0 else
+                                 ['Irrigation signal', 'Rainfed signal'], fontsize=8)
+        else:
+            vote = i in (1, 4)
+            im = ax.imshow(panels[i], extent=extent, cmap='viridis' if vote else 'YlOrBr',
+                           vmin=0.5 if vote else 0, vmax=1 if vote else report['acquisition']['monthCount'])
+            fig.colorbar(im, ax=ax, fraction=0.046,
+                         label='Uncalibrated RF vote fraction' if vote else 'Observed months')
+        ax.set_title(titles[i], fontsize=11)
         ax.set_xlabel('Eastward distance (km)')
         ax.set_ylabel('Northward distance (km)')
-    fig.suptitle('San Juan Valley: approximate analysis units, 2024–2026', fontsize=14)
-    fig.text(0.5, 0.035, 'Source: Copernicus Sentinel-2 L2A (10 m), Earth Search; ESA WorldCover 2021 (10 m).\n'
-             'Prototype with weak labels; no field validation. Gray/blank = unavailable class. '
-             'AI assistance: Codex, 2026-11-14; Frainer review pending.', ha='center', fontsize=8)
-    fig.tight_layout(rect=[0, 0.10, 1, 0.94])
+    fig.suptitle('San Juan Valley: approximate analysis units, 2024–2026', fontsize=16)
+    fig.text(0.5, 0.025, 'Source: Copernicus Sentinel-2 L2A (10 m), Earth Search; ESA WorldCover 2021 (10 m).\n'
+             'Weak labels; no field validation. White = unavailable. Low NDVI threshold: 0.2. '             'AI assistance: Codex, 2026-11-14; Frainer review pending.', ha='center', fontsize=9)
+    fig.tight_layout(rect=[0, 0.07, 1, 0.95])
     fig.savefig(DERIVED / 'parcels_san_juan.png', dpi=150)
     plt.close(fig)
 
