@@ -17,9 +17,9 @@ test("national selection, sourced climate, Spanish comparison and offline reload
  await expect(page.locator("#map")).toHaveAttribute("data-loaded","true");
  await expect(page.locator("[data-scenario]").first()).not.toHaveAttribute("data-scenario","baseline");
  await page.getByLabel("Prioridad",{exact:true}).selectOption("market");
- await expect(page.locator("[data-scenario]").first()).toHaveAttribute("data-scenario","baseline");
+ await expect(page.locator(".farmer-pillar")).toHaveCount(12);
  await page.getByRole("button",{name:"Escuchar resumen"}).click();
- await expect(page.getByRole("log")).toContainText("FAO-56 de 1998");
+ await expect(page.getByRole("log")).toContainText("FAO-56 (1998)");
  await expect(page.getByText("Caso guardado sin conexión")).toBeVisible();
  await expect.poll(()=>page.evaluate(async()=>Boolean(await caches.match("/data/power/-70.200,18.800.json")))) .toBe(true);
  await context.setOffline(true);await page.reload();

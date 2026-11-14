@@ -5,8 +5,9 @@ import { MapPanel } from "@/components/map";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceAssistant } from "@/components/voice-assistant";
 import { OfflineStatus } from "@/components/offline";
-import { catalog, climate, ndvi, getComparison, orderScenarios, priorityLabels, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
+import { climate, ndvi, priorityLabels, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, type Location } from "@/lib/geography";
+import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
 import parcels from "@/public/data/demo-parcels.json";
@@ -39,23 +40,33 @@ export default function Home() {
     };
     void load();return () => controller.abort();
   },[locationKey,location.longitude,location.latitude,selectedParcel]);
-  const comparison = useMemo(() => getComparison(month),[month]);
-  const ordered = useMemo(() => orderScenarios(comparison.scenarios,priority),[comparison.scenarios,priority]);
+
   const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
   const selection = useMemo<VoiceSelection>(() => ({parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation}),[selectedParcel,location,priority,month,irrigation]);
   const detectedParcel = findParcel(selectedParcel);
   const province = provinceAt(location);
-  const waterMax = Math.max(...comparison.scenarios.map(s => s.coefficientDays));
+  const sanJuan = selectedParcel !== "location" || province === "San Juan";
+  const selectedContext = context?.key === locationKey ? context.data : null;
+  const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
+  const recommended = ordered.find(s => s.id === "habichuela_maiz")!;
+  const activePillar = priority === "soil" ? "water" : priority;
+  const recommendationScore = priority === "soil" ? null : recommended.scores[activePillar];
+  const reason = priority === "water" ? (sanJuan ? "menor necesidad estimada de agua que el ejemplo con guandul" : "menor indicador de uso de agua que el ejemplo con guandul") : priority === "pests" ? "incluye una rotación para interrumpir algunas plagas" : priority === "climate" ? "una alternativa con clima histórico para revisar" : priority === "market" ? "una alternativa con referencia histórica de precios" : "falta conocer el suelo antes de decidir";
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   return <main className="app-shell">
     <header className="topbar"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <div className="workspace">
       <div className="heading-row"><div><div className="eyebrow">REPÚBLICA DOMINICANA</div><h1>Tu tierra. Tu próxima cosecha.</h1><p className="subtitle">Elige tu zona y compara opciones.</p></div></div>
+      <section className="card farmer-recommendation" aria-label="Recomendación para la parcela" aria-live="polite">
+        <span className={`recommendation-light light ${pillarColor(recommendationScore)}`} role="img" aria-label={recommendationScore === null ? "Falta información" : recommendationScore >= 3.34 ? "Opción para considerar" : "Revisar con cuidado"}/>
+        <div><small>{findParcel(selectedParcel)?.properties.name ?? province ?? "Tu zona"}</small><h2>{recommendationScore === null ? "Consulta con un técnico antes de elegir qué sembrar." : `Considera ${recommended.label.toLowerCase()}: ${reason}.`}</h2><p>Opción para revisar con tu técnico según el agua disponible.</p></div>
+      </section>
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>1 · ¿Dónde cultivas?</h2><span>{province ?? "Selecciona un punto terrestre"}</span></div>
         <div className="location-controls"><label>Buscar provincia<input type="search" placeholder="Escribe el nombre…" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label><label>Provincia<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.filter(p => p.name === province || p.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(provinceSearch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase())).map(p => <option key={p.name}>{p.name}</option>)}</select></label></div>
         <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation}/>
         {detectedParcel && <article className="card parcel-card" aria-label="Ficha de parcela" aria-live="polite">
           <h3>{detectedParcel.properties.name}</h3>
+          <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
           <p>{signalLabels[detectedParcel.properties.signal]} · NDVI {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}</p>
           <p>Superficie aproximada: {detectedParcel.properties.areaHa} ha · unidad de análisis satelital.</p>
           <details className="evidence-details"><summary>Vegetación observada y límites</summary>
@@ -63,7 +74,7 @@ export default function Home() {
             <p>{parcelEvidence.signalRule}</p><p>{parcelEvidence.limitation}</p>
             <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`NDVI ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
             <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026). Delimitación SLIC aproximada, no identifica propietarios ni fincas verificadas. El color indica verdor, no salud, riesgo ni régimen de riego.</p>
-          </details>
+          </details></details>
         </article>}
         <details className="evidence-details"><summary>Explorar áreas de ejemplo · San Juan</summary><div className="field-buttons">{parcels.features.map((p,i) => <button key={p.id} onClick={() => onSelect(p.id)} aria-pressed={selectedParcel === p.id}><FarmIcon name="field"/>Área {String.fromCharCode(65+i)}</button>)}</div><p>Límites sintéticos y aproximados. No identifican fincas reales.</p></details>
       </section>
@@ -71,12 +82,19 @@ export default function Home() {
         {selectedClimate ? <><div className="climate-strip"><div className="climate-cell"><FarmIcon name="climate"/><div className="climate-val">{selectedClimate.temperatureC ?? "—"} °C</div><div>Temperatura</div></div><div className="climate-cell"><FarmIcon name="water"/><div className="climate-val">{selectedClimate.precipitationMmDay ?? "—"}</div><div>Lluvia · mm/día</div></div><div className="climate-cell"><FarmIcon name="soil"/><div className="climate-val">{selectedClimate.relativeHumidityPct ?? "—"}%</div><div>Humedad del aire</div></div></div><details className="evidence-details"><summary>Fuente y límites del clima</summary><p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia tropical tiene limitaciones; no se usa para puntuar rotaciones.</p></details></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section>
       <div className="section-row"><h2>2 · Compara rotaciones</h2><label className="priority-wrap">Prioridad<select aria-label="Prioridad" className="priority-select" value={priority} onChange={e => setPriority(e.target.value as Priority)}>{Object.entries(priorityLabels).map(([id,label]) => <option key={id} value={id}>{label}</option>)}</select></label></div>
-      <div className="pillar-legend"><span><i className="light green"/>Menor indicador</span><span><i className="light amber"/>Intermedio</span><span><i className="light red"/>Mayor indicador</span><span><i className="light gray"/>Sin datos</span></div>
-      <p className="comparison-note">{priority === "water" ? "Ordenadas por un indicador relativo de agua. No mide litros ni ahorro." : "Sin evidencia suficiente para ordenar por esta prioridad."}</p>
-      <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}><div className="scenario-top"><strong className="scenario-name">{s.label}</strong><span className="scenario-type">{s.status === "baseline" ? "Referencia" : "Ejemplo"}</span></div><div className="crop-journey">{s.cropIds.map((id,i) => <div className="crop-step" key={id}>{i>0 && <span className="crop-arrow">→</span>}<span className={`crop-illustration crop-${id}`}><FarmIcon name={id} size={62}/><strong>{s.crops[i]}</strong></span></div>)}</div>
-        <div className="water-gauge"><div className="gauge-label"><FarmIcon name="water"/><strong>Indicador de agua</strong></div><div className="gauge-track" role="meter" aria-label={`Indicador de agua: ${s.label}`} aria-valuemin={0} aria-valuemax={waterMax} aria-valuenow={s.coefficientDays} aria-valuetext={`${s.coefficientDays} Kc por día; confianza baja; no es volumen de riego`}><span style={{width:`${s.coefficientDays/waterMax*100}%`}}/></div><div className="gauge-caption"><strong>{s.coefficientDays} Kc·día</strong><span>Regla genérica · confianza baja</span></div></div>
-        <div className="score-grid">{scoreDefinitions.map(p => {const score=s.scores[p.id];const color=score===null?"gray":score>=3.34?"green":score>=1.67?"amber":"red";return <div key={p.id} className={`score-item pillar-${p.id}`}><div className="score-head"><FarmIcon name={p.id} size={30}/>{p.label}</div><div className="score"><i className={`light ${color}`}/>{score===null?"Sin datos":`${score.toFixed(1)} / 5`}</div><div className="score-quality">{p.id==="water"?"Solo agua · suelo pendiente":"Sin evidencia local verificada"}</div></div>;})}</div>
-        <details className="evidence-details"><summary>Ver fuentes y límites</summary><p><a href={catalog.source.url}>FAO-56 · 1998 · tablas 11–12</a>. Regla publicada, ejemplos genéricos regionales. Confianza local baja. Integral Kc × duración de etapas, sumada por secuencia. Puntuación relativa 0–5: 5 × (máximo − indicador) / (máximo − mínimo).</p><p>No incluye lluvia, ETo, pérdidas de riego, percolación ni fechas reales. No es demanda de riego ni ahorro. Aptitud climática, suelo, relaciones de plagas y precios locales verificados: sin datos para estos escenarios.</p>{s.sourceUrl && <p><a href={s.sourceUrl}>IDIAF · compendio de habichuela · 2013</a>: contexto de arroz–habichuela, pertinencia local sin verificar.</p>}</details><p className="scenario-foot">Ejemplo para revisar con un técnico. Sin predicción de plagas, rendimiento ni ganancias.</p>
+      <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
+        <h3>{s.label}</h3>
+        <div className="farmer-pillars" aria-label="Agua y suelo, clima, plagas y mercado">{scoreDefinitions.map(p => {
+          const score=s.scores[p.id];
+          const label=score===null?"Sin datos suficientes":score>=3.34?"Favorable en este indicador":score>=1.67?"Revisar":"Menos favorable en este indicador";
+          return <span key={p.id} className={`farmer-pillar ${pillarColor(score)}`} role="img" aria-label={`${p.label}: ${label}`} title={`${p.label}: ${label}`}><FarmIcon name={p.id} size={28}/></span>;
+        })}</div>
+        <details className="evidence-details"><summary>Ver detalles</summary>
+          <p>Iconos de izquierda a derecha: agua y suelo, clima, plagas y mercado. Verde: favorable en el indicador; ámbar: revisar; rojo: menos favorable; gris: falta evidencia suficiente. Son referencias preliminares, sin validación en finca.</p>
+          <p>Fechas ilustrativas fijas, no fechas óptimas: {s.dates}. El selector del mes cambia el clima mostrado, no las fechas de estas rotaciones.</p>
+          {scoreDefinitions.map(p=><p key={p.id}><strong>{p.label}</strong>: {s.details[p.id]} <a href={s.sourceUrls[p.id]}>Fuente</a></p>)}
+          <p>El suelo sigue pendiente. No se predicen plagas, rendimiento ni ganancias. Los precios no son de finca.</p>
+        </details>
       </article>)}</div>
       <div className="field-controls"><label className="control-label">Acceso al agua<select aria-label="Acceso al agua" value={irrigation} onChange={e => setIrrigation(e.target.value as Irrigation)}><option value="unconfirmed">Sin confirmar</option><option value="irrigated">Riego · declarado</option><option value="rainfed">Secano · declarado</option></select></label></div>
       <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}`} selection={selection}/>
