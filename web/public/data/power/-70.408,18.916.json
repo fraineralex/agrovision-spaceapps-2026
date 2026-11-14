@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 19.31,
+      "precipitationMmDay": 1.16,
+      "relativeHumidityPct": 83.3
+    },
+    {
+      "month": 2,
+      "temperatureC": 19.6,
+      "precipitationMmDay": 1.99,
+      "relativeHumidityPct": 80.82
+    },
+    {
+      "month": 3,
+      "temperatureC": 20.66,
+      "precipitationMmDay": 1.49,
+      "relativeHumidityPct": 75.79
+    },
+    {
+      "month": 4,
+      "temperatureC": 21.66,
+      "precipitationMmDay": 2.27,
+      "relativeHumidityPct": 75.86
+    },
+    {
+      "month": 5,
+      "temperatureC": 22.65,
+      "precipitationMmDay": 2.3,
+      "relativeHumidityPct": 76.76
+    },
+    {
+      "month": 6,
+      "temperatureC": 23.17,
+      "precipitationMmDay": 1.77,
+      "relativeHumidityPct": 76.48
+    },
+    {
+      "month": 7,
+      "temperatureC": 23.16,
+      "precipitationMmDay": 2.52,
+      "relativeHumidityPct": 79.09
+    },
+    {
+      "month": 8,
+      "temperatureC": 23.34,
+      "precipitationMmDay": 2.31,
+      "relativeHumidityPct": 79.46
+    },
+    {
+      "month": 9,
+      "temperatureC": 23.32,
+      "precipitationMmDay": 3.78,
+      "relativeHumidityPct": 79.84
+    },
+    {
+      "month": 10,
+      "temperatureC": 22.56,
+      "precipitationMmDay": 2.67,
+      "relativeHumidityPct": 81.69
+    },
+    {
+      "month": 11,
+      "temperatureC": 21.05,
+      "precipitationMmDay": 4.62,
+      "relativeHumidityPct": 85.83
+    },
+    {
+      "month": 12,
+      "temperatureC": 19.77,
+      "precipitationMmDay": 3.25,
+      "relativeHumidityPct": 86.26
+    }
+  ],
+  "location": {
+    "longitude": -70.40811286057004,
+    "latitude": 18.915628668628244
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-70.408&latitude=18.916&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Monseñor Nouel"
+}

@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 24.55,
+      "precipitationMmDay": 1.07,
+      "relativeHumidityPct": 78.98
+    },
+    {
+      "month": 2,
+      "temperatureC": 24.85,
+      "precipitationMmDay": 1.61,
+      "relativeHumidityPct": 75.91
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.46,
+      "precipitationMmDay": 1.41,
+      "relativeHumidityPct": 72.99
+    },
+    {
+      "month": 4,
+      "temperatureC": 26.17,
+      "precipitationMmDay": 2.33,
+      "relativeHumidityPct": 73.89
+    },
+    {
+      "month": 5,
+      "temperatureC": 26.94,
+      "precipitationMmDay": 2.49,
+      "relativeHumidityPct": 77.11
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.57,
+      "precipitationMmDay": 2.14,
+      "relativeHumidityPct": 77.35
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.78,
+      "precipitationMmDay": 3.07,
+      "relativeHumidityPct": 78.28
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.89,
+      "precipitationMmDay": 3.09,
+      "relativeHumidityPct": 79.1
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.82,
+      "precipitationMmDay": 4.15,
+      "relativeHumidityPct": 79.61
+    },
+    {
+      "month": 10,
+      "temperatureC": 27.18,
+      "precipitationMmDay": 3.29,
+      "relativeHumidityPct": 80.75
+    },
+    {
+      "month": 11,
+      "temperatureC": 25.97,
+      "precipitationMmDay": 5.25,
+      "relativeHumidityPct": 82.94
+    },
+    {
+      "month": 12,
+      "temperatureC": 25.02,
+      "precipitationMmDay": 3.23,
+      "relativeHumidityPct": 81.88
+    }
+  ],
+  "location": {
+    "longitude": -69.84272101476299,
+    "latitude": 18.570992829485718
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-69.843&latitude=18.571&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Santo Domingo"
+}

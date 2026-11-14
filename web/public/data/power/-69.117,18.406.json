@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 25.24,
+      "precipitationMmDay": 1.29,
+      "relativeHumidityPct": 77.34
+    },
+    {
+      "month": 2,
+      "temperatureC": 25.55,
+      "precipitationMmDay": 1.71,
+      "relativeHumidityPct": 74.0
+    },
+    {
+      "month": 3,
+      "temperatureC": 26.08,
+      "precipitationMmDay": 2.32,
+      "relativeHumidityPct": 71.66
+    },
+    {
+      "month": 4,
+      "temperatureC": 26.96,
+      "precipitationMmDay": 2.24,
+      "relativeHumidityPct": 71.56
+    },
+    {
+      "month": 5,
+      "temperatureC": 27.61,
+      "precipitationMmDay": 2.91,
+      "relativeHumidityPct": 75.7
+    },
+    {
+      "month": 6,
+      "temperatureC": 28.21,
+      "precipitationMmDay": 1.97,
+      "relativeHumidityPct": 76.23
+    },
+    {
+      "month": 7,
+      "temperatureC": 28.38,
+      "precipitationMmDay": 2.9,
+      "relativeHumidityPct": 77.3
+    },
+    {
+      "month": 8,
+      "temperatureC": 28.49,
+      "precipitationMmDay": 3.08,
+      "relativeHumidityPct": 78.11
+    },
+    {
+      "month": 9,
+      "temperatureC": 28.33,
+      "precipitationMmDay": 4.96,
+      "relativeHumidityPct": 79.3
+    },
+    {
+      "month": 10,
+      "temperatureC": 27.68,
+      "precipitationMmDay": 3.19,
+      "relativeHumidityPct": 80.6
+    },
+    {
+      "month": 11,
+      "temperatureC": 26.54,
+      "precipitationMmDay": 5.09,
+      "relativeHumidityPct": 82.21
+    },
+    {
+      "month": 12,
+      "temperatureC": 25.72,
+      "precipitationMmDay": 2.83,
+      "relativeHumidityPct": 79.92
+    }
+  ],
+  "location": {
+    "longitude": -69.11657202787651,
+    "latitude": 18.405900783294623
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-69.117&latitude=18.406&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "San Pedro de Macorís"
+}

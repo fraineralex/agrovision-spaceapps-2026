@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 23.51,
+      "precipitationMmDay": 1.09,
+      "relativeHumidityPct": 77.22
+    },
+    {
+      "month": 2,
+      "temperatureC": 23.97,
+      "precipitationMmDay": 1.9,
+      "relativeHumidityPct": 73.65
+    },
+    {
+      "month": 3,
+      "temperatureC": 24.84,
+      "precipitationMmDay": 1.44,
+      "relativeHumidityPct": 69.6
+    },
+    {
+      "month": 4,
+      "temperatureC": 25.93,
+      "precipitationMmDay": 1.62,
+      "relativeHumidityPct": 68.9
+    },
+    {
+      "month": 5,
+      "temperatureC": 27.23,
+      "precipitationMmDay": 1.87,
+      "relativeHumidityPct": 69.58
+    },
+    {
+      "month": 6,
+      "temperatureC": 28.18,
+      "precipitationMmDay": 1.6,
+      "relativeHumidityPct": 67.53
+    },
+    {
+      "month": 7,
+      "temperatureC": 28.47,
+      "precipitationMmDay": 1.73,
+      "relativeHumidityPct": 67.45
+    },
+    {
+      "month": 8,
+      "temperatureC": 28.33,
+      "precipitationMmDay": 1.63,
+      "relativeHumidityPct": 69.95
+    },
+    {
+      "month": 9,
+      "temperatureC": 28.02,
+      "precipitationMmDay": 2.43,
+      "relativeHumidityPct": 72.04
+    },
+    {
+      "month": 10,
+      "temperatureC": 27.07,
+      "precipitationMmDay": 2.12,
+      "relativeHumidityPct": 74.83
+    },
+    {
+      "month": 11,
+      "temperatureC": 25.39,
+      "precipitationMmDay": 4.69,
+      "relativeHumidityPct": 79.09
+    },
+    {
+      "month": 12,
+      "temperatureC": 24.03,
+      "precipitationMmDay": 2.25,
+      "relativeHumidityPct": 80.22
+    }
+  ],
+  "location": {
+    "longitude": -71.59478501741458,
+    "latitude": 19.433470443156466
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-71.595&latitude=19.433&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Dajabón"
+}

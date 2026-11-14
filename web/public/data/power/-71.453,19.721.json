@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 22.86,
+      "precipitationMmDay": 1.3,
+      "relativeHumidityPct": 78.13
+    },
+    {
+      "month": 2,
+      "temperatureC": 23.31,
+      "precipitationMmDay": 2.21,
+      "relativeHumidityPct": 74.59
+    },
+    {
+      "month": 3,
+      "temperatureC": 24.26,
+      "precipitationMmDay": 1.67,
+      "relativeHumidityPct": 70.08
+    },
+    {
+      "month": 4,
+      "temperatureC": 25.39,
+      "precipitationMmDay": 2.0,
+      "relativeHumidityPct": 69.11
+    },
+    {
+      "month": 5,
+      "temperatureC": 26.79,
+      "precipitationMmDay": 2.09,
+      "relativeHumidityPct": 68.91
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.69,
+      "precipitationMmDay": 1.71,
+      "relativeHumidityPct": 66.63
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.73,
+      "precipitationMmDay": 2.09,
+      "relativeHumidityPct": 68.33
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.77,
+      "precipitationMmDay": 1.78,
+      "relativeHumidityPct": 69.74
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.53,
+      "precipitationMmDay": 2.67,
+      "relativeHumidityPct": 71.59
+    },
+    {
+      "month": 10,
+      "temperatureC": 26.59,
+      "precipitationMmDay": 2.22,
+      "relativeHumidityPct": 74.44
+    },
+    {
+      "month": 11,
+      "temperatureC": 24.82,
+      "precipitationMmDay": 5.22,
+      "relativeHumidityPct": 79.51
+    },
+    {
+      "month": 12,
+      "temperatureC": 23.43,
+      "precipitationMmDay": 2.83,
+      "relativeHumidityPct": 80.82
+    }
+  ],
+  "location": {
+    "longitude": -71.45251990451993,
+    "latitude": 19.721282355346503
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-71.453&latitude=19.721&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Monte Cristi"
+}

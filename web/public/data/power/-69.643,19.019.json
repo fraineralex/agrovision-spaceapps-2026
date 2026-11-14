@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 24.59,
+      "precipitationMmDay": 1.81,
+      "relativeHumidityPct": 79.35
+    },
+    {
+      "month": 2,
+      "temperatureC": 24.79,
+      "precipitationMmDay": 2.5,
+      "relativeHumidityPct": 76.72
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.28,
+      "precipitationMmDay": 2.41,
+      "relativeHumidityPct": 74.28
+    },
+    {
+      "month": 4,
+      "temperatureC": 26.14,
+      "precipitationMmDay": 2.8,
+      "relativeHumidityPct": 74.39
+    },
+    {
+      "month": 5,
+      "temperatureC": 27.04,
+      "precipitationMmDay": 3.47,
+      "relativeHumidityPct": 77.43
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.69,
+      "precipitationMmDay": 2.16,
+      "relativeHumidityPct": 77.91
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.84,
+      "precipitationMmDay": 3.18,
+      "relativeHumidityPct": 79.14
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.98,
+      "precipitationMmDay": 3.14,
+      "relativeHumidityPct": 79.8
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.93,
+      "precipitationMmDay": 6.34,
+      "relativeHumidityPct": 80.38
+    },
+    {
+      "month": 10,
+      "temperatureC": 27.28,
+      "precipitationMmDay": 3.28,
+      "relativeHumidityPct": 81.6
+    },
+    {
+      "month": 11,
+      "temperatureC": 26.12,
+      "precipitationMmDay": 5.06,
+      "relativeHumidityPct": 83.06
+    },
+    {
+      "month": 12,
+      "temperatureC": 25.19,
+      "precipitationMmDay": 3.22,
+      "relativeHumidityPct": 81.31
+    }
+  ],
+  "location": {
+    "longitude": -69.64281450118814,
+    "latitude": 19.018891710284247
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-69.643&latitude=19.019&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Samaná"
+}

@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 25.44,
+      "precipitationMmDay": 2.17,
+      "relativeHumidityPct": 78.37
+    },
+    {
+      "month": 2,
+      "temperatureC": 25.39,
+      "precipitationMmDay": 2.33,
+      "relativeHumidityPct": 77.0
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.5,
+      "precipitationMmDay": 3.02,
+      "relativeHumidityPct": 76.54
+    },
+    {
+      "month": 4,
+      "temperatureC": 26.12,
+      "precipitationMmDay": 3.12,
+      "relativeHumidityPct": 77.48
+    },
+    {
+      "month": 5,
+      "temperatureC": 27.04,
+      "precipitationMmDay": 4.74,
+      "relativeHumidityPct": 80.45
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.74,
+      "precipitationMmDay": 3.02,
+      "relativeHumidityPct": 80.96
+    },
+    {
+      "month": 7,
+      "temperatureC": 28.05,
+      "precipitationMmDay": 3.86,
+      "relativeHumidityPct": 81.46
+    },
+    {
+      "month": 8,
+      "temperatureC": 28.31,
+      "precipitationMmDay": 3.91,
+      "relativeHumidityPct": 81.37
+    },
+    {
+      "month": 9,
+      "temperatureC": 28.44,
+      "precipitationMmDay": 8.8,
+      "relativeHumidityPct": 80.74
+    },
+    {
+      "month": 10,
+      "temperatureC": 28.0,
+      "precipitationMmDay": 4.2,
+      "relativeHumidityPct": 80.63
+    },
+    {
+      "month": 11,
+      "temperatureC": 27.1,
+      "precipitationMmDay": 6.51,
+      "relativeHumidityPct": 80.74
+    },
+    {
+      "month": 12,
+      "temperatureC": 26.21,
+      "precipitationMmDay": 3.38,
+      "relativeHumidityPct": 79.07
+    }
+  ],
+  "location": {
+    "longitude": -69.05684953477818,
+    "latitude": 18.789279893552333
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-69.057&latitude=18.789&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "El Seybo"
+}

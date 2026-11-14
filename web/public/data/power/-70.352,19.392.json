@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 23.11,
+      "precipitationMmDay": 1.6,
+      "relativeHumidityPct": 81.04
+    },
+    {
+      "month": 2,
+      "temperatureC": 23.3,
+      "precipitationMmDay": 2.32,
+      "relativeHumidityPct": 78.84
+    },
+    {
+      "month": 3,
+      "temperatureC": 24.04,
+      "precipitationMmDay": 1.86,
+      "relativeHumidityPct": 74.94
+    },
+    {
+      "month": 4,
+      "temperatureC": 25.0,
+      "precipitationMmDay": 2.42,
+      "relativeHumidityPct": 74.93
+    },
+    {
+      "month": 5,
+      "temperatureC": 26.29,
+      "precipitationMmDay": 2.58,
+      "relativeHumidityPct": 75.45
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.07,
+      "precipitationMmDay": 1.78,
+      "relativeHumidityPct": 74.54
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.04,
+      "precipitationMmDay": 2.42,
+      "relativeHumidityPct": 77.1
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.26,
+      "precipitationMmDay": 2.27,
+      "relativeHumidityPct": 77.26
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.3,
+      "precipitationMmDay": 3.62,
+      "relativeHumidityPct": 77.3
+    },
+    {
+      "month": 10,
+      "temperatureC": 26.6,
+      "precipitationMmDay": 2.61,
+      "relativeHumidityPct": 78.56
+    },
+    {
+      "month": 11,
+      "temperatureC": 24.96,
+      "precipitationMmDay": 5.21,
+      "relativeHumidityPct": 82.96
+    },
+    {
+      "month": 12,
+      "temperatureC": 23.69,
+      "precipitationMmDay": 3.26,
+      "relativeHumidityPct": 83.52
+    }
+  ],
+  "location": {
+    "longitude": -70.3519534979555,
+    "latitude": 19.391749477906117
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-70.352&latitude=19.392&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Hermanas"
+}

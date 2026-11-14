@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 23.75,
+      "precipitationMmDay": 0.77,
+      "relativeHumidityPct": 71.46
+    },
+    {
+      "month": 2,
+      "temperatureC": 24.1,
+      "precipitationMmDay": 1.25,
+      "relativeHumidityPct": 68.18
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.13,
+      "precipitationMmDay": 1.09,
+      "relativeHumidityPct": 64.75
+    },
+    {
+      "month": 4,
+      "temperatureC": 25.78,
+      "precipitationMmDay": 2.37,
+      "relativeHumidityPct": 66.91
+    },
+    {
+      "month": 5,
+      "temperatureC": 25.99,
+      "precipitationMmDay": 2.39,
+      "relativeHumidityPct": 72.16
+    },
+    {
+      "month": 6,
+      "temperatureC": 26.49,
+      "precipitationMmDay": 2.07,
+      "relativeHumidityPct": 72.47
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.13,
+      "precipitationMmDay": 2.84,
+      "relativeHumidityPct": 70.19
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.33,
+      "precipitationMmDay": 2.57,
+      "relativeHumidityPct": 70.53
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.19,
+      "precipitationMmDay": 4.14,
+      "relativeHumidityPct": 71.85
+    },
+    {
+      "month": 10,
+      "temperatureC": 26.2,
+      "precipitationMmDay": 3.51,
+      "relativeHumidityPct": 75.26
+    },
+    {
+      "month": 11,
+      "temperatureC": 25.2,
+      "precipitationMmDay": 5.46,
+      "relativeHumidityPct": 75.91
+    },
+    {
+      "month": 12,
+      "temperatureC": 24.15,
+      "precipitationMmDay": 2.26,
+      "relativeHumidityPct": 74.49
+    }
+  ],
+  "location": {
+    "longitude": -71.30697272391201,
+    "latitude": 18.493380540979217
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-71.307&latitude=18.493&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Bahoruco"
+}

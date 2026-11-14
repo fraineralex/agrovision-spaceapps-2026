@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 23.83,
+      "precipitationMmDay": 1.21,
+      "relativeHumidityPct": 79.17
+    },
+    {
+      "month": 2,
+      "temperatureC": 24.19,
+      "precipitationMmDay": 2.04,
+      "relativeHumidityPct": 76.02
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.1,
+      "precipitationMmDay": 1.57,
+      "relativeHumidityPct": 71.78
+    },
+    {
+      "month": 4,
+      "temperatureC": 26.06,
+      "precipitationMmDay": 2.24,
+      "relativeHumidityPct": 71.87
+    },
+    {
+      "month": 5,
+      "temperatureC": 27.03,
+      "precipitationMmDay": 2.3,
+      "relativeHumidityPct": 74.11
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.71,
+      "precipitationMmDay": 1.75,
+      "relativeHumidityPct": 73.92
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.76,
+      "precipitationMmDay": 2.51,
+      "relativeHumidityPct": 75.71
+    },
+    {
+      "month": 8,
+      "temperatureC": 27.85,
+      "precipitationMmDay": 2.31,
+      "relativeHumidityPct": 76.72
+    },
+    {
+      "month": 9,
+      "temperatureC": 27.69,
+      "precipitationMmDay": 3.75,
+      "relativeHumidityPct": 77.95
+    },
+    {
+      "month": 10,
+      "temperatureC": 26.89,
+      "precipitationMmDay": 2.61,
+      "relativeHumidityPct": 79.79
+    },
+    {
+      "month": 11,
+      "temperatureC": 25.43,
+      "precipitationMmDay": 4.58,
+      "relativeHumidityPct": 82.85
+    },
+    {
+      "month": 12,
+      "temperatureC": 24.27,
+      "precipitationMmDay": 3.37,
+      "relativeHumidityPct": 82.46
+    }
+  ],
+  "location": {
+    "longitude": -70.15004075772474,
+    "latitude": 19.00519684520829
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-70.150&latitude=19.005&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "Sánchez Ramírez"
+}

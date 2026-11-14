@@ -1,0 +1,90 @@
+{
+  "monthly": [
+    {
+      "month": 1,
+      "temperatureC": 24.73,
+      "precipitationMmDay": 1.77,
+      "relativeHumidityPct": 79.29
+    },
+    {
+      "month": 2,
+      "temperatureC": 24.77,
+      "precipitationMmDay": 2.44,
+      "relativeHumidityPct": 77.68
+    },
+    {
+      "month": 3,
+      "temperatureC": 25.12,
+      "precipitationMmDay": 1.97,
+      "relativeHumidityPct": 75.67
+    },
+    {
+      "month": 4,
+      "temperatureC": 25.84,
+      "precipitationMmDay": 2.65,
+      "relativeHumidityPct": 76.61
+    },
+    {
+      "month": 5,
+      "temperatureC": 26.92,
+      "precipitationMmDay": 2.86,
+      "relativeHumidityPct": 78.83
+    },
+    {
+      "month": 6,
+      "temperatureC": 27.74,
+      "precipitationMmDay": 1.85,
+      "relativeHumidityPct": 78.53
+    },
+    {
+      "month": 7,
+      "temperatureC": 27.97,
+      "precipitationMmDay": 2.67,
+      "relativeHumidityPct": 79.24
+    },
+    {
+      "month": 8,
+      "temperatureC": 28.15,
+      "precipitationMmDay": 2.49,
+      "relativeHumidityPct": 79.63
+    },
+    {
+      "month": 9,
+      "temperatureC": 28.21,
+      "precipitationMmDay": 4.32,
+      "relativeHumidityPct": 79.57
+    },
+    {
+      "month": 10,
+      "temperatureC": 27.64,
+      "precipitationMmDay": 2.87,
+      "relativeHumidityPct": 80.21
+    },
+    {
+      "month": 11,
+      "temperatureC": 26.46,
+      "precipitationMmDay": 5.36,
+      "relativeHumidityPct": 81.57
+    },
+    {
+      "month": 12,
+      "temperatureC": 25.42,
+      "precipitationMmDay": 3.49,
+      "relativeHumidityPct": 80.97
+    }
+  ],
+  "location": {
+    "longitude": -69.99330904742452,
+    "latitude": 19.43908722554508
+  },
+  "source": {
+    "name": "NASA POWER / MERRA-2",
+    "url": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR%2CRH2M&community=AG&longitude=-69.993&latitude=19.439&start=2016&end=2025&format=JSON",
+    "period": "2016–2025",
+    "scale": "Regional · grilla aproximada de 0.5° × 0.625°",
+    "quality": "Sin validación local; lluvia tropical limitada y excluida del score",
+    "method": "Reanálisis · media mensual histórica, no pronóstico"
+  },
+  "retrievedAt": "2026-11-14",
+  "province": "María Trinidad Sánchez"
+}
