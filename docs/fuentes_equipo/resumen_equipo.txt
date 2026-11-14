@@ -1,0 +1,159 @@
+ AgroVision
+ Resumen del proyecto para el equipo · NASA Space Apps 2026, sede Santo Domingo · Reto Field Shift:
+ Adapting Farms with NASA Data · 3 de noviembre de 2026
+
+ 1. El problema
+ El productor dominicano decide qué sembrar casi siempre por costumbre o porque el año pasado se
+ pagó bien. Hoy eso le sale caro por cuatro razones: el clima cambió (sequías más seguidas, lluvia que
+ llega tarde, más calor); el agua de riego no alcanza y en las sequías el Estado tiene que restringir
+ siembras; sembrar siempre lo mismo desgasta el suelo y acumula plagas; y cuando todos
+ siembran lo mismo, el precio se cae (en 2024 al productor le pagaban hasta RD$1 por plátano
+ cuando le costaba unos RD$5). No tiene una herramienta que junte todo eso para decidir.
+
+ 2. La idea
+ Una app web para el productor y el técnico agrícola del Valle de San Juan que compara la rotación
+ que siembra hoy contra 2 o 3 alternativas. Para cada opción dice, en palabras sencillas: por qué se
+ sugiere, qué datos la respaldan, qué beneficios tiene, qué información falta y qué riesgos debe revisar
+ con un técnico. Es lo que pide el reto: una herramienta que apoya la decisión, no que la reemplaza.
+ El corazón son los satélites de la NASA. Miden desde el espacio, para cualquier finca y gratis, la
+ lluvia (GPM IMERG), el calor y la evaporación (NASA POWER), el verdor de cada campo y el agua de las
+ presas (Landsat), y la pendiente del terreno (SRTM). Con eso la app sabe cómo se ha comportado el
+ clima de la zona en los últimos años, cuánta agua necesitará cada rotación y qué terrenos se erosionan.
+ Cada opción se evalúa en cuatro pilares:
+ • Agua y suelo: cuánta agua de riego necesita cada rotación, riesgo de erosión, aporte de nitrógeno y
+    cobertura del suelo.
+ • Clima: cómo le habría ido en los últimos años con datos reales de la NASA (40 años de temperatura,
+    ~25 de lluvia por satélite) y en qué meses es más vulnerable.
+ • Plagas: qué plagas y enfermedades comparte cada cultivo con el anterior (según el IDIAF) y en qué
+    condiciones de clima aparecen. La regla es no encadenar cultivos que se pasen plagas. No predecimos
+    plagas: no hay datos públicos para eso.
+ • Mercado: en qué meses cada producto suele venderse caro o barato, con precios semanales del
+    Ministerio de Agricultura (2017–2026), para no cosechar justo cuando el precio se cae.
+ IA: clasificar con imágenes de Landsat los meses en que el campo queda pelado y las zonas de riego
+ frente a secano. Es IA que analiza datos, no un chatbot. Sensores: extensión futura (ver modelo de
+ negocio); no van en la demo.
+
+ 3. Dónde: el Valle de San Juan, y por qué
+ • Es el granero del sur. La Regional Suroeste concentra el 70 % de la habichuela roja, el 76 % del
+    guandul y el 52 % del maíz del país (INDRHI, datos 2022).
+ • El problema del agua está documentado. El valle riega 34,410 ha (INDRHI, 2025). La presa de
+    Sabaneta no alcanza en ningún escenario del Plan Hidrológico Nacional 2025–2045, y Sabana Yegua
+    había perdido el 16.7 % de su capacidad por sedimentos de la erosión de la cuenca (datos de 2016).
+ • Las sequías obligan a cambiar de cultivo. En 2018 el INDRHI restringió el arroz y recomendó
+    maíz; en 2021 se pidió no hacer nuevas siembras; en marzo de 2026 Arroyo Loro (San Juan) estaba en
+    sequía extrema. El arroz necesita el doble de agua que los demás cultivos.
+ • Hay datos para trabajar: rotación documentada arroz–habichuela (IDIAF), calendario oficial de
+    siembra, cultivos actuales por comunidad (Plan de Contingencia 2023), estación meteorológica en
+    Arroyo Loro y plagas identificadas por el IDIAF en la zona.
+
+
+AgroVision · NASA Space Apps 2026                                                                          1
+ • El límite: la habichuela y el arroz casi no cambian de precio según el mes; el mercado aporta más en
+    guandul, batata, maíz y hortalizas. Por eso las rotaciones deben incluirlos.
+
+ 4. Datos de la NASA
+   Dataset              Qué nos da                       Uso en la app                                         Decisión
+   GPM IMERG            Lluvia por satélite cada 30      Lluvia en el valle y en la cuenca que llena las       Usar (núcleo)
+                        min, ~10 km, desde 2000          presas; lluvias intensas; inicio de temporada
+
+   NASA POWER           Temperatura, humedad,            Calor en floración, tendencia de 40 años, agua        Usar (núcleo)
+                        radiación y viento diarios       que necesita cada cultivo (FAO-56). Su lluvia es
+                        desde 1981, ~50 km               débil: usar IMERG
+
+   Landsat / HLS        Imágenes a 30 m; Landsat         Verdor por finca, campos pelados, zonas de            Usar (núcleo)
+                        desde 1984                       riego, superficie de agua de las presas desde
+                                                         1984 (con IA)
+
+   SRTM / NASADEM       Relieve a 30 m                   Pendiente y riesgo de erosión en finca y en la        Usar (núcleo)
+                                                         cuenca
+
+   SMAP                 Humedad del suelo, 9–36 km,      Suelo más seco o húmedo de lo normal. En arroz        Apoyo
+                        desde 2015                       regado mide el riego, no la lluvia
+
+   MODIS → VIIRS        Verdor a 250 m desde 2000        Ver las sequías en la vegetación. MODIS se apaga      Apoyo
+                                                         entre fines de 2026 y 2027: lo reciente con VIIRS
+
+   ECOSTRESS            Estrés por calor de las          Mapa de un día puntual (por ejemplo, la sequía        Apoyo
+                        plantas, 70 m, fechas            de 2026); no sirve para series
+                        irregulares
+
+   GRACE /              Agua subterránea, cientos de     Ve la isla entera junto con Haití; no distingue San   Descartar
+   GRACE-FO             km                               Juan
+
+   GEDI                 Biomasa de bosques en            No sirve para habichuela ni maíz                      Descartar
+                        franjas
+
+   Riesgo de heladas    —                                El valle está a ~400 m: no hay heladas                No aplica
+ Extra, fuera de la lista oficial: NEX-GDDP-CMIP6 (clima proyectado a 2050) y OPERA DSWx (agua superficial de las presas).
+ Cuenta gratuita para descargar: NASA Earthdata.
+
+
+ 5. Datos externos
+   Fuente                                         Qué nos da                                 Uso en la app
+   Precios mayoristas y minoristas,               Precio semanal por producto en             Meses de precio alto y bajo. Ya
+   2017–2026 (Ministerio de Agricultura,          mercados de Santo Domingo                  lo tenemos; falta limpiarlo
+   datos.gob.do)
+
+   Demandas de Agua según sus Usos, 2025          Área regada del valle, agua por            Contexto del agua y validación
+   (INDRHI)                                       hectárea, área sembrada por región
+
+   Plan Hidrológico Nacional 2025–2045            Déficit de Sabaneta, pérdida de            Contexto: erosión → menos
+   (INDRHI)                                       capacidad de Sabana Yegua                  agua
+
+   Boletines de embalses (INDRHI)                 Volumen y cota de las presas en fechas     Validar la superficie de agua
+                                                  sueltas                                    medida con Landsat
+
+   Plan de Contingencia 2026 y 2023               Calendario oficial de siembra; cultivos    Tabla de cultivos y rotación
+   (Ministerio)                                   por comunidad de San Juan; sequía          actual
+                                                  2026
+
+   Compendio de habichuela y publicaciones        Fechas de siembra, agua por ciclo,         Tabla de cultivos y plagas
+   (IDIAF)                                        plagas y enfermedades
+
+   FAO-56                                         Método estándar de agua por cultivo        Cálculo de agua de cada
+                                                  (coeficientes Kc)                          rotación
+
+   SoilGrids + mapa de suelos OEA 1967            Textura y carbono del suelo; capacidad     Suelo base. El mapa OEA solo
+                                                  productiva                                 se ve en la web
+
+   Lluvias en 30 estaciones, 2009–2023            Lluvia anual medida en tierra (incluye     Comparar satélite con tierra
+                                                  Arroyo Loro)
+
+
+
+AgroVision · NASA Space Apps 2026                                                                                              2
+ 6. Modelo de negocio
+ El que usa la app no siempre es el que puede pagar: un pequeño productor que vende barato no paga
+ una suscripción. Por eso, tres niveles:
+
+   Nivel               Qué recibe                                                 Quién paga
+   Básico              Recomendaciones con datos satelitales y del Ministerio,    Gratis para el productor, o lo financia una
+                       en la app y en una ficha para WhatsApp                     institución
+
+   Monitoreo           Instalación de sensores de humedad y temperatura del       Pago inicial por instalación +
+                       suelo, capacitación para usar la app, alertas y            mensualidad por mantenimiento. Para
+                       mantenimiento. Los sensores calibran el satélite finca     fincas medianas y grandes, cooperativas
+                       por finca                                                  y exportadores (cacao, banano orgánico,
+                                                                                  aguacate)
+
+   Institucional       Paneles por zona: riesgo de sequía, agua disponible,       Banco Agrícola, aseguradoras,
+                       qué piensa sembrar cada zona                               cooperativas, Ministerio de Agricultura
+ Referencia en el país: Agro360 ya vende sensores con IA para alertar enfermedades. Nuestra diferencia es usar los sensores
+ para calibrar el satélite y planificar rotaciones. El costo real de los kits hay que investigarlo antes de ponerle precio. La
+ rúbrica del concurso no evalúa el modelo de negocio: en el pitch, una diapositiva.
+
+
+ 7. Lo que falta y los cuidados
+ • Falta: producción por provincia (solo hay nacional y regional), una serie histórica de las presas (la
+    armamos con Landsat y boletines) y confirmar con una junta de regantes o un técnico de la zona qué
+    se siembra y cómo se decide cuando falta agua.
+ • Cuidado con las cifras: la eficiencia de riego de 7.4 % del valle (INDRHI) parece extrema; citarla
+    siempre con su fuente. Los precios son de Santo Domingo, no precios al productor.
+ • Regla del pitch: la herramienta funciona con datos de la NASA; los datos del Estado validan y dan
+    contexto. Si el pitch se llena de cifras del INDRHI, perdemos puntos en Relevancia.
+
+
+
+
+AgroVision · NASA Space Apps 2026                                                                                                3
+
