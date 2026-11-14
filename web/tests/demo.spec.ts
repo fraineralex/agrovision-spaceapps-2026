@@ -20,6 +20,14 @@ test("first visit onboarding leads to personalized advice that changes with answ
  const verdict=page.locator(".verdict-text");
  await expect(verdict).toContainText("después de arroz");
  await expect(page.locator(".market .price-big")).toContainText("RD$");
+ await page.locator(".verdict").getByRole("button",{name:/De dónde sale esto/}).click();
+ const src=page.getByRole("dialog",{name:/De dónde sale la recomendación/});
+ await expect(src).toContainText("FAO-56");
+ await expect(src).toContainText("IDIAF");
+ await expect(src).toContainText("Ministerio de Agricultura");
+ await src.screenshot({path:"test-results/sources.png"});
+ await src.getByRole("button",{name:/Cerrar/}).click();
+ await expect(src).toBeHidden();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  // Saved answers: a reload skips onboarding; "Cambiar" reopens it.
  await page.reload();
