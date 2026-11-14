@@ -1,5 +1,12 @@
 # Uso de inteligencia artificial
 
+## 2026-11-14 — Delimitación experimental de campos
+
+- **Herramienta:** Codex (OpenAI); MobileSAM (`vit_t`) en evaluación CPU.
+- **Propósito:** adquisición acotada Esri, segmentación de bordes visibles y exportación offline de candidatos de campo, sin identidad de productores ni validez catastral.
+- **Archivos:** `scripts/fields/`, `data/cache/fields/`, `data/derived/fields*`, `web/public/data/fields*`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`. JSON y PNG se citan aquí y en metadatos porque no admiten comentarios de código.
+- **Revisión por Frainer:** pendiente. Primer intento y resultados finales se registran en la metodología; no atribuir validación humana ni agronómica a esta ejecución.
+
 La organización permite el uso de IA solo si se cita. Este registro es obligatorio para investigación, redacción, código, imágenes, análisis y contenido de presentación. Conservar la revisión humana y corregir cualquier salida inexacta.
 
 ## Registro
