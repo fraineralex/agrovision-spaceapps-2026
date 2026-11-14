@@ -11,10 +11,10 @@ import { RainCard, type useRain } from "@/components/rain-card";
 
 export function WorkbenchNav() {
   return <nav className="workbench-nav" aria-label="Herramientas para tu finca">
-    <a href="#lluvia-esta-semana"><CloudRain aria-hidden="true"/> Esta semana</a>
-    <a href="#siembra"><Sprout aria-hidden="true"/> Plan de siembra</a>
-    <a href="#cuanto-me-deja"><Coins aria-hidden="true"/> Costos y venta</a>
-    <a href="#tu-finca-en-el-mapa"><MapPin aria-hidden="true"/> Mapa de la finca</a>
+    <a href="#lluvia-esta-semana"><CloudRain aria-hidden="true"/> Lluvia</a>
+    <a href="#siembra"><Sprout aria-hidden="true"/> Siembra</a>
+    <a href="#cuanto-me-deja"><Coins aria-hidden="true"/> Venta</a>
+    <a href="#tu-finca-en-el-mapa"><MapPin aria-hidden="true"/> Mapa</a>
   </nav>;
 }
 
@@ -37,7 +37,7 @@ export function FieldWeek({ farm, province, rain, onTurn, onAdd, onLocation }: {
   const turnDay = forecast?.days.find(day => day.date === savedTurn);
   return <section id="lluvia-esta-semana" className="field-week" aria-labelledby="week-title">
     <div className="field-week-heading"><div><p className="workbench-place"><MapPin aria-hidden="true"/> {farm?.province || province || "República Dominicana"}</p>
-      <h2 id="week-title">Esta semana en tu finca</h2></div><CloudRain className="week-icon" aria-hidden="true"/></div>
+      <h2 id="week-title">Lluvia de la semana</h2></div><CloudRain className="week-icon" aria-hidden="true"/></div>
     {!farm && <label className="week-province">Provincia para consultar la lluvia
       <select value={province ?? ""} onChange={event => {
         const point = provinces.find(item => item.name === event.target.value);
@@ -48,17 +48,17 @@ export function FieldWeek({ farm, province, rain, onTurn, onAdd, onLocation }: {
     {farm?.irrigation !== "rainfed" || savedTurn ? <div className="week-turn">
       <h3><CalendarDays aria-hidden="true"/> Turno de riego</h3>
       {farm ? <>
-        {savedTurn && <p><strong>{shortDate(savedTurn)}</strong> · {savedTurn < localDate() ? "El turno anotado ya pasó." : turnDay ? `Para ese día se estiman ${turnDay.rainMm} mm${turnDay.probPct !== null ? ` y ${turnDay.probPct}% de probabilidad de lluvia` : ""}.` : "Aún no hay pronóstico actualizado para ese día."}</p>}
+        {savedTurn && <p className="turn-summary"><time dateTime={savedTurn}>{shortDate(savedTurn)}</time><span>{savedTurn < localDate() ? "Turno pasado" : turnDay ? `${turnDay.rainMm} mm${turnDay.probPct !== null ? ` · ${turnDay.probPct}% de lluvia` : " previstos"}` : "Sin pronóstico actualizado"}</span></p>}
         <form onSubmit={saveTurn}>
           <label>Fecha que te dio la junta<input type="date" value={turn} min={localDate()} required onChange={event => { setTurn(event.target.value); setStatus(""); }}/></label>
           <button type="submit" disabled={!turn || turn === savedTurn}>Guardar turno</button>
           {savedTurn && <button type="button" className="link-button" onClick={() => { setTurn(""); setStatus(onTurn("") ? "Turno borrado." : "Este navegador no pudo borrar el turno."); }}>Borrar turno</button>}
         </form>
-        <p className="week-note">Revisa la humedad de la tierra y confirma con tu junta antes de cambiar un turno.</p>
+        <p className="week-note">Confirma los cambios de turno con tu junta.</p>
         <p role="status" className="week-note">{status}</p>
       </> : <button type="button" onClick={onAdd}>Agregar mi finca</button>}
-    </div> : <p className="week-note">Cultivo de lluvia. Revisa la humedad de la tierra antes de decidir cuándo sembrar.</p>}
-    <a href="https://indomet.gob.do/pronostico/">Ver avisos y pronóstico oficial de INDOMET</a>
+    </div> : <p className="week-note">Cultivo de lluvia</p>}
+    <a href="https://indomet.gob.do/pronostico/">Avisos de INDOMET</a>
   </section>;
 }
 

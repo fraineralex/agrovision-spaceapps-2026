@@ -133,7 +133,7 @@ export default function Home() {
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
     <header className="topbar" role="banner"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <main id="contenido" className="workspace" tabIndex={-1}>
-      <div className="heading-row"><div><h1>Mi finca</h1><p className="subtitle">Consulta la lluvia, compara qué sembrar y saca la cuenta antes de vender.</p></div></div>
+      <div className="heading-row"><h1>Mi finca</h1></div>
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
       <WorkbenchNav/>
@@ -182,6 +182,7 @@ export default function Home() {
         </article>}
       </section>
       </Fold>
+      <details className="card visual-extras"><summary>Mercado y clima regional</summary>
       <Fold icon="💰" title="Precio y mercado"><MarketCard key={saleCrop} initialCrop={saleCrop}/></Fold>
 
       {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
@@ -194,6 +195,7 @@ export default function Home() {
         <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
         <p className="note"><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section></Fold>}
+      </details>
       </div>
       </div>
 

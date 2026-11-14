@@ -435,6 +435,53 @@ h1 { color: var(--monte); }
 @media(max-width:959px) {
   .home-grid > .col-main, .home-grid > .col-side { display:block; }
 }
+
+/* Visual summaries for farmers. AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
+.workbench-nav a { justify-content:center; }
+.workbench-nav a svg { width:23px; height:23px; }
+.field-week .rain-days { grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+.rain-legend { display:flex; align-items:center; flex-wrap:wrap; gap:8px; color:#3d5543; font-size:14px; margin-bottom:8px; }
+.rain-cached { color:#693c00; background:#fff3d2; padding:2px 7px; border-radius:6px; font-weight:700; }
+.rain-legend-prob { margin-inline-start:auto; }
+.field-week .rain-days li { gap:3px; background:#f9fcf8; border:1px solid #cddccc; padding:6px 2px; color:#24455f; }
+.field-week .rain-days .rain-wet { border-color:#6c9cc4; background:#e2f0ff; color:#174976; }
+.rain-day small { display:block; font-size:11px; font-weight:600; }
+.rain-symbol { width:23px; height:23px; color:#986108; }
+.rain-wet .rain-symbol { color:#1d5f9e; }
+.rain-bar-track { width:min(14px,60%); height:32px; display:flex; align-items:end; border-radius:4px; background:#d7e7ee; overflow:hidden; }
+.rain-bar-track span { width:100%; background:#286a9e; border-radius:4px; }
+.rain-amount { white-space:nowrap; font-size:16px; }
+.rain-amount small { font-size:10px; }
+.visual-details summary, .visual-extras > summary { cursor:pointer; min-height:44px; padding:9px 0; font-weight:700; font-size:15px; color:var(--monte); }
+.visual-details summary svg, .compare-fold summary svg { display:inline-block; width:18px; height:18px; vertical-align:-3px; margin-right:3px; }
+.visual-details p, .visual-details ul { margin:0 0 8px; font-size:15px; }
+.crop-alerts summary { color:#684500; }
+.turn-summary { display:flex; align-items:center; gap:8px; flex-wrap:wrap; color:#214c63; }
+.turn-summary time { padding:3px 7px; border-radius:7px; background:#fff; font-weight:800; }
+.visual-verdict { display:block; border-width:1px; margin:8px 0 12px; }
+.crop-feature { display:flex; align-items:center; gap:12px; }
+.crop-feature > span { font-size:38px; line-height:1; }
+.crop-feature .verdict-text { margin:0; }
+.crop-timeline { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-top:12px; }
+.crop-timeline > div { display:flex; align-items:center; gap:6px; padding:6px; border-radius:8px; background:#fff; }
+.crop-timeline svg { flex:0 0 20px; }
+.crop-timeline small, .crop-timeline strong { display:block; }
+.crop-timeline small { font-size:12px; line-height:1.2; }
+.crop-timeline strong { font-size:15px; text-transform:capitalize; }
+.pill small { display:block; font-weight:600; }
+.sale-budget label svg, .sale-budget button svg, .budget-balance svg { display:inline-block; vertical-align:-3px; width:18px; height:18px; }
+.budget-balance { width:fit-content; padding:5px 8px; border-radius:7px; background:#f3faee; font-weight:750; }
+.budget-balance.budget-short { color:#862920; background:#ffefe9; }
+.visual-extras { padding:4px 12px; margin-bottom:16px; }
+@media(max-width:650px) {
+  .workbench-nav { grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-block:12px; }
+  .workbench-nav a { flex-direction:column; gap:4px; font-size:13px; padding:7px 3px; }
+  .field-week .rain-days { gap:3px; }
+  .field-week .rain-days li { font-size:11px; }
+  .rain-symbol { width:18px; height:18px; }
+  .rain-amount { font-size:13px; }
+  .rain-amount small { font-size:9px; }
+}
 .voice-card h3 { font-size: 24px; margin: 0 0 6px; color: #fffdf0; }
 .voice-card a { color: #f8e7a0; }
 .profit-range { grid-template-columns:repeat(3,minmax(0,1fr)); }

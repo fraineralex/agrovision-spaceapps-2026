@@ -1,8 +1,8 @@
-/* AI: Claude (Anthropic), 2026-11-14 — 7-day rain card per farm with offline cache. Frainer review pending. See AI_USAGE.md. */
+/* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { CloudRain, CloudSun, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { currentRain, dayIcon, dayName, rainAlert, shortDate, type RainForecast } from "@/lib/rain";
+import { currentRain, dayName, rainAlert, shortDate, type RainForecast } from "@/lib/rain";
 import type { Location } from "@/lib/geography";
 
 export function useRain(location: Location | null) {
@@ -37,15 +37,28 @@ export function useRain(location: Location | null) {
 export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
   const { forecast, cached, error, alert } = rain;
   if (!forecast) return <p role="status">{error || "Buscando el pronóstico…"}</p>;
+  const maxRain = Math.max(1, ...forecast.days.map(day => day.rainMm));
   return <div className="rain">
-    <p className={`rain-sentence ${alert?.level}`}>{alert?.level === "rain" ? <CloudRain aria-hidden="true" /> : alert?.level === "dry" ? <Sun aria-hidden="true" /> : <CloudSun aria-hidden="true" />} {alert?.sentence}</p>
+    <div className="rain-legend">
+      <span>{forecast.kind === "forecast" ? "Pronóstico regional" : "Estimación de días pasados"}</span>
+      {cached && <span className="rain-cached">Copia guardada</span>}
+      {forecast.days.some(day => day.probPct !== null) && <span className="rain-legend-prob">% de lluvia</span>}
+    </div>
+    <p className="sr-only">{alert?.sentence}</p>
     <ol className="rain-days" aria-label={forecast.kind === "forecast" ? "Próximos 7 días" : "Últimos días"}>
-      {forecast.days.map(d => <li key={d.date}>
-        <time dateTime={d.date} className="rain-day"><abbr title={dayName(d.date)}>{dayName(d.date).slice(0, 3)}</abbr> {shortDate(d.date)}</time>
-        <span className="rain-icon" aria-hidden="true">{dayIcon(d)}</span><span>{Math.round(d.rainMm)} mm</span>
-        {d.probPct !== null && <span aria-label={`${d.probPct}% de probabilidad de lluvia`}>{d.probPct}%</span>}
-      </li>)}
+      {forecast.days.map(day => {
+        const Icon = day.rainMm >= 5 ? CloudRain : day.rainMm > 0 || (day.probPct ?? 0) >= 50 ? CloudSun : Sun;
+        return <li key={day.date} className={day.rainMm >= 5 ? "rain-wet" : undefined}>
+          <time dateTime={day.date} className="rain-day"><abbr title={dayName(day.date)}>{dayName(day.date).slice(0, 3)}</abbr><small>{shortDate(day.date)}</small></time>
+          <Icon className="rain-symbol" aria-hidden="true"/>
+          <span className="rain-bar-track" aria-hidden="true"><span style={{ height: `${day.rainMm / maxRain * 100}%` }}/></span>
+          <strong className="rain-amount">{day.rainMm > 0 && day.rainMm < 1 ? "<1" : Math.round(day.rainMm)} <small>mm</small></strong>
+          {day.probPct !== null && <span aria-label={`${day.probPct}% de probabilidad de lluvia`}>{day.probPct}%</span>}
+        </li>;
+      })}
     </ol>
-    <p className="note">{forecast.source === "open-meteo" ? <>Pronóstico regional de <a href="https://open-meteo.com/en/docs">Open-Meteo</a> (resolución según el modelo). Puede variar en tu finca.</> : <>Estimación histórica de <a href="https://power.larc.nasa.gov/">NASA POWER</a> (~50 km).</>} {forecast.fetchedAt && `Consultado el ${shortDate(forecast.fetchedAt)}.`} {cached ? "Copia guardada. Puede estar desactualizada." : ""}</p>
+    <details className="visual-details"><summary>Fuente y fecha</summary>
+      <p className="note">{forecast.source === "open-meteo" ? <>Pronóstico regional de <a href="https://open-meteo.com/en/docs">Open-Meteo</a> (resolución según el modelo). Puede variar en tu finca.</> : <>Estimación histórica de <a href="https://power.larc.nasa.gov/">NASA POWER</a> (~50 km).</>} {forecast.fetchedAt && `Consultado el ${shortDate(forecast.fetchedAt)}.`} {cached ? "La copia puede estar desactualizada." : ""}</p>
+    </details>
   </div>;
 }

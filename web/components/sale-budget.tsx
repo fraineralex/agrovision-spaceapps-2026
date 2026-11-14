@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { ArrowDown, ArrowUp, Calculator, CircleCheck, Coins, Package, Wallet } from "lucide-react";
 import { rd } from "@/lib/profit";
 
 const units = ["libra", "quintal", "kilo", "unidad", "saco", "caja"] as const;
@@ -36,19 +37,20 @@ export function SaleBudget() {
 
   const balance = result && result.offer !== null ? result.offer * result.quantity - result.cost : null;
   return <div className="sale-budget">
-    <p>Suma semilla, abono, mano de obra, riego y transporte. Usa la cantidad que crees que podrás vender.</p>
     <form className="workbench-form" onSubmit={calculate} onChange={() => { setResult(null); setError(""); }}>
-      <label>Gasto total (RD$)<input name="cost" inputMode="decimal" maxLength={12} placeholder="Ej.: 25000" required/></label>
+      <label><span><Wallet aria-hidden="true"/> Gasto total (RD$)</span><input name="cost" inputMode="decimal" maxLength={12} placeholder="25000" required/></label>
       <label>Unidad de venta<select name="unit" value={unit} onChange={event => setUnit(event.target.value as typeof unit)}>{units.map(item => <option key={item}>{item}</option>)}</select></label>
-      <label>Cantidad para vender<input name="quantity" inputMode="decimal" maxLength={12} placeholder="Ej.: 40" required/></label>
-      <label>Oferta por {unit} (RD$)<input name="offer" inputMode="decimal" maxLength={12} placeholder="Si ya tienes una oferta"/></label>
-      <button type="submit">Calcular precio mínimo</button>
+      <label><span><Package aria-hidden="true"/> Cantidad para vender</span><input name="quantity" inputMode="decimal" maxLength={12} placeholder="40" required/></label>
+      <label><span><Coins aria-hidden="true"/> Oferta por {unit} (RD$)</span><input name="offer" inputMode="decimal" maxLength={12} placeholder="Opcional"/></label>
+      <button type="submit"><Calculator aria-hidden="true"/> Calcular precio mínimo</button>
     </form>
+    <details className="visual-details"><summary>¿Qué gastos pongo?</summary><p>Semilla, abono, mano de obra, riego y transporte. Usa la cantidad que esperas vender.</p></details>
     {error && <p role="alert" className="warning">{error}</p>}
     <div aria-live="polite">{result && <div className="budget-result">
-      <p>Para cubrir tus gastos cobra al menos</p>
+      <p>Precio mínimo</p>
       <strong>RD${price.format(Math.ceil(result.cost * 100 / result.quantity) / 100)} por {result.unit}</strong>
-      {balance !== null && <p>{balance < 0 ? `Con esa oferta te faltarían ${rd(-balance)} para cubrir los gastos.` : balance > 0 ? `Con esa oferta te quedarían ${rd(balance)} después de los gastos anotados.` : "Con esa oferta cubres justo los gastos anotados."}</p>}
+      {balance !== null && <p className={`budget-balance ${balance < 0 ? "budget-short" : ""}`}>{balance < 0 ? <ArrowDown aria-hidden="true"/> : balance > 0 ? <ArrowUp aria-hidden="true"/> : <CircleCheck aria-hidden="true"/>}
+        {balance < 0 ? `Te faltan ${rd(-balance)}` : balance > 0 ? `Te quedan ${rd(balance)}` : "Cubres tus gastos"}</p>}
       <small>Escenario con tus datos · {rd(result.cost)} de gasto ÷ {number.format(result.quantity)} de la unidad elegida.</small>
     </div>}</div>
   </div>;

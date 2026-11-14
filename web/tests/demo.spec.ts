@@ -13,7 +13,7 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  await page.clock.setFixedTime(new Date("2026-11-16T14:00:00Z"));
  await page.goto("/");
  await page.getByLabel("Provincia para consultar la lluvia").selectOption("San Juan");
- await expect(page.getByText(/Posible lluvia el jueves/).first()).toBeVisible();
+ await expect(page.getByRole("list", {name:"Próximos 7 días"})).toContainText("14 mm");
  await page.getByRole("button", {name:"Agregar mi finca", exact:true}).click();
  const ob=page.getByRole("dialog",{name:"Cuéntanos de tu finca"});
  expect(await axeSerious(page)).toEqual([]);
@@ -48,16 +48,18 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  await expect(ob).toBeHidden();
  await expect(page.getByRole("tab",{name:/Finca del río/})).toHaveAttribute("aria-selected","true");
  await expect(page.locator(".farm-meta")).toContainText("tareas");
- await expect(page.locator(".verdict-text")).toContainText("después de arroz");
+ await expect(page.locator(".crop-feature")).toContainText("Después de arroz");
+ await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
  // Rain alert (mocked Open-Meteo): Thursday 19 Nov has 14 mm.
- await expect(page.getByText(/Posible lluvia el jueves/).first()).toBeVisible();
+ await expect(page.locator(".rain-wet")).toContainText("80%");
  // Five options: four goals plus keeping the current crop.
  const opts=page.locator(".option-list > li");
  await expect(opts).toHaveCount(5);
- for (const g of ["Menor demanda de agua","Mejor precio histórico","Rotación respaldada para plagas","Comparar ante la sequía"]) await expect(page.locator(".option-list")).toContainText(g);
- await expect(opts.nth(2)).toContainText("Falta evidencia local");
+ for (const g of ["Menos agua","Precio histórico","Plagas","Sequía"]) await expect(page.locator(".option-list")).toContainText(g);
+ await opts.nth(2).getByText("Sin datos suficientes").click();
+ await expect(opts.nth(2).getByText(/Falta evidencia local/)).toBeVisible();
  await expect(opts.last()).toContainText("Arroz");
- // All panels are open: map, market, drought and voice visible without clicks.
+ await page.getByText("Mercado y clima regional", {exact:true}).click();
  for (const id of ["tu-finca-en-el-mapa","cuanto-me-deja","precio-y-mercado","sequia-y-lluvia","voz"]) await expect(page.locator(`#${id}`)).toBeVisible();
  // Profit calculator.
  await page.getByText("Consultar costos y precios de referencia", {exact:true}).click();
@@ -69,7 +71,7 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  expect(decodeURIComponent(href!)).toContain("Finca del río");
  expect(decodeURIComponent(href!)).toContain("Posible lluvia");
  // Sources panel still works.
- await page.locator(".verdict").getByRole("button",{name:/De dónde sale esto/}).click();
+ await page.locator(".verdict").getByRole("button",{name:"Datos y fuentes"}).click();
  await expect(page.getByRole("dialog",{name:/De dónde sale la recomendación/})).toContainText("FAO-56");
  expect(await axeSerious(page)).toEqual([]);
  await page.getByRole("button",{name:/Cerrar/}).click();
@@ -110,7 +112,7 @@ test("farm switcher: add a second farm, switch between them, delete one; saved a
  await ob.getByRole("button",{name:/Listo, ver mi recomendación/}).click();
  await expect(page.getByRole("tab",{name:/Conuco 2/})).toHaveAttribute("aria-selected","true");
  await expect(page.locator(".profile-line")).toContainText("Santiago");
- await expect(page.getByText("Cultivo de lluvia.", {exact:false})).toBeVisible();
+ await expect(page.getByText("Cultivo de lluvia", {exact:true})).toBeVisible();
  await page.getByRole("tab",{name:/Conuco 1/}).click();
  await expect(page.locator(".profile-line")).toContainText("San Juan");
  await page.reload();
@@ -130,7 +132,7 @@ test("grower saves a planting plan and irrigation turn, then checks a buyer offe
  await page.goto("/");
  await page.getByLabel("Fecha que te dio la junta").fill("2026-11-19");
  await page.getByRole("button", {name:"Guardar turno"}).click();
- await expect(page.locator(".week-turn")).toContainText("14 mm y 80%");
+ await expect(page.locator(".week-turn")).toContainText("14 mm · 80%");
  await page.getByLabel("Mes para comparar").selectOption("12");
  await page.getByLabel("Cultivo para tu plan").selectOption("maiz");
  await page.getByRole("button", {name:"Guardar plan"}).click();
@@ -141,14 +143,14 @@ test("grower saves a planting plan and irrigation turn, then checks a buyer offe
  await expect(page.locator(".saved-plan")).toContainText("Maíz en diciembre");
  await expect(page.getByLabel("Mes para comparar")).toHaveValue("12");
  await expect(page.getByLabel("Fecha que te dio la junta")).toHaveValue("2026-11-19");
- await expect(page.getByText("Copia guardada. Puede estar desactualizada.", {exact:false})).toBeVisible();
- await expect(page.locator(".week-turn")).toContainText("Aún no hay pronóstico actualizado");
+ await expect(page.getByText("Copia guardada", {exact:true})).toBeVisible();
+ await expect(page.locator(".week-turn")).toContainText("Sin pronóstico actualizado");
  await page.getByLabel("Gasto total (RD$)").fill("25000");
  await page.getByLabel("Cantidad para vender").fill("40");
  await page.getByLabel("Oferta por quintal (RD$)").fill("600");
  await page.getByRole("button", {name:"Calcular precio mínimo"}).click();
  await expect(page.locator(".budget-result")).toContainText("RD$625.00 por quintal");
- await expect(page.locator(".budget-result")).toContainText("te faltarían RD$1,000");
+ await expect(page.locator(".budget-result")).toContainText("Te faltan RD$1,000");
 });
 test("voice tools, location validation and honest missing-key fallback",async({request})=>{
  const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"water",month:11,irrigation:"unconfirmed"};
