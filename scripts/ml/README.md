@@ -176,3 +176,17 @@ caché mensual reducida para poder revisar y reproducir los resultados.
 
 Revisión humana por Frainer y validación agronómica: **pendientes**. La asistencia
 Codex está registrada en `AI_USAGE.md`; no se declara revisión que no ocurrió.
+
+## Resultado de esta ejecución (2026-11-14)
+
+70 escenas, 35 meses y 585 unidades aproximadas. 243 etiquetas débiles de
+cobertura (231 cultivo, 12 suelo pelado). Holdout espacial: 111 train después
+del buffer, 78 test (76 cultivo y **solo 2 suelo pelado**). Accuracy y macro-F1
+= 1.00, matriz `[[2,0],[0,76]]` en orden `bare_soil,crop`. Es acuerdo con reglas
+que usan las mismas features: **no representa 100% de exactitud de campo** y el
+soporte raro no permite generalizar.
+
+Agua: 156 etiquetas de señal compatible con riego y 5 con secano; el split dejó
+solo 3 secano en train, bajo el mínimo de 5. Se entrenó un prototipo con las 161
+etiquetas, sin publicar métricas de validación (`validation: null`). Cero etiquetas
+independientes y cero fincas validadas para ambos modelos.
