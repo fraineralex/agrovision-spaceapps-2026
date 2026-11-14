@@ -119,3 +119,8 @@ Reconstrucción sin red: `python3 scripts/export_pillar_data.py`. [Método, fuen
 ## Asesor de siembra y mercado (14-11-2026)
 
 La vista principal recomienda qué sembrar ahora según provincia, cultivo anterior, riego y mes, con precios oficiales, tendencia, mejores meses de venta y aviso de sobreoferta. Método y límites: [docs/16_asesor_siembra.md](docs/16_asesor_siembra.md). Casos de prensa para el pitch: [docs/submission/casos_mercado.md](docs/submission/casos_mercado.md).
+
+
+## Fincas, lluvia, ganancia y compartir (14-11-2026)
+
+El productor marca una o varias fincas en el mapa (cuadros, parcelas satelitales, rectángulo o dibujo), con el área en tareas. Recibe para cada una la recomendación, la alerta de lluvia de 7 días, un rango de “¿Cuánto me deja?” y un aviso de sobreoferta, y puede compartir la tarjeta por WhatsApp. Detalles en [docs/16_asesor_siembra.md](docs/16_asesor_siembra.md).

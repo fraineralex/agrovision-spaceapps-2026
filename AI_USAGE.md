@@ -136,3 +136,9 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Revisión por Frainer:** pendiente.
 
 - 2026-11-14 (tarde): Claude añadió el panel “¿De dónde sale esto?” (`web/components/sources-sheet.tsx`). Explica en lenguaje sencillo cada punto de la recomendación (agua, sequía, plagas y precio), con los valores usados, sus fechas y enlaces a FAO-56, FAO GIEWS, IDIAF y el Ministerio de Agricultura. Revisión de Frainer pendiente.
+
+## 2026-11-14 (noche) — Fincas en el mapa, lluvia, “¿Cuánto me deja?”, compartir y sobreoferta
+- **Herramienta:** Claude (Anthropic). **Archivos:** `web/lib/{farms,rain,profit}.ts` y sus tests, `web/app/api/rain/route.ts`, `web/components/{farm-picker,farm-switcher,rain-card,profit-card,share-button,onboarding}.tsx`, `web/lib/{advisor,voice-context}.ts`, `web/components/voice-assistant.tsx`, `web/app/{page.tsx,globals.css}`, `web/tests/demo.spec.ts` y los documentos.
+- **Fuentes nuevas:** Open-Meteo (pronóstico), NASA POWER (respaldo de lluvia), IPC del Banco Central de RD (informe de enero de 2026: índice 137,74; base oct. 2019–sep. 2020 = 100, según la presentación del BCRD a la CEPAL).
+- **Límites:** las reglas de lluvia, sobreoferta y ganancia son propias de AgroVision y aproximadas. Los precios son mayoristas, no de finca.
+- **Revisión por Frainer:** pendiente.

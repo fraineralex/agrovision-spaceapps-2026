@@ -60,3 +60,19 @@ Los precios son mayoristas de Santo Domingo, no precio en finca, y son nominales
 - Café, cacao y aguacate son permanentes: el agua se cuenta por un año, no tienen mes de cosecha y se listan después de los cultivos de temporada.
 - Café y cacao no tienen precio mayorista ni siembra en las fuentes del Ministerio, así que aparecen sin precio.
 - La habichuela roja y la negra son la misma especie (*Phaseolus vulgaris*), por eso comparten la regla de plagas del IDIAF.
+
+## Fincas, lluvia, ganancia, compartir y sobreoferta (14-11-2026, noche)
+- **Fincas** (`web/lib/farms.ts`, `web/components/{farm-picker,farm-switcher}.tsx`):
+  - Hay tres formas de marcar la finca: tocar cuadros de 50 × 50 m (unas 4 tareas), tocar parcelas aproximadas (SAM o unidades Sentinel-2), arrastrar un rectángulo o dibujar un polígono.
+  - El área se calcula con la fórmula geodésica esférica y se muestra en tareas y hectáreas.
+  - Se pueden guardar varias fincas en el teléfono (`agrovision:farms`), cada una con su propio perfil.
+- **Lluvia** (`web/lib/rain.ts`, `/api/rain`):
+  - Usa el pronóstico de 7 días de Open-Meteo. Si no está disponible, muestra los últimos días de NASA POWER y lo dice.
+  - Regla propia: 5 mm o más con 50% de probabilidad cuentan como lluvia útil; menos de 5 mm en la semana es una semana seca.
+  - El último resultado se guarda para usarlo sin conexión.
+- **¿Cuánto me deja?** (`web/lib/profit.ts`):
+  - Costo: costo por tarea de 2019 × 1,3774 (IPC del Banco Central de enero 2026, base oct. 2019–sep. 2020 = 100).
+  - Venta: rendimiento del informe de costos × precio mayorista (el más bajo, el último y el más alto de 12 meses).
+  - El arroz no se calcula porque la cosecha está en fanegas en cáscara y el precio es de arroz pilado. Café, cacao, plátano y otros cultivos sin costos de 2019 tampoco se calculan.
+- **Sobreoferta** (`oversupplyFor`): siembra nacional alta (≥ 115%) o precio estacional bajo (≤ 95) en el mes de cosecha. Resta un punto de precio cuando la siembra está alta. No existen datos de siembra por provincia.
+- **Compartir:** la tarjeta se dibuja como imagen en un `canvas` y se comparte con la Web Share API; si no se puede, se abre `wa.me` con el texto.

@@ -49,6 +49,24 @@ An ordinal week is retained as published; no exact observation day is invented. 
 
 A local POWER cache is also present in the repository, with daily temperature, corrected precipitation and relative humidity for a regional query point over 2016–2025. Main now documents integration of this regional context, 18 Landsat point responses from six 2024 scenes, cached GIBS imagery, a FAO-56 Kc·day proxy, and optional evidence selection through Gateway with OpenAI `openai/gpt-4.1-mini`. Landsat signals use exploratory thresholds; there is no trained model, irrigation inference or measured classifier accuracy. See the updated data-source record and main methodology; no farm-level accuracy is established.
 
+### Farmer app features in `main` (14 Nov 2026)
+
+- **Onboarding and farms:**
+  - The farmer marks the farm on a satellite map. They can tap 50 m grid cells, approximate satellite parcels (SAM or Sentinel-2 units), drag a box over several cells, or draw a polygon.
+  - The area is shown in tareas and hectares (1 tarea = 628.86 m²).
+  - Farms are named and saved on the phone only, and each has its own recommendation. A switcher at the top lets the farmer add, edit or delete farms.
+  - Outlines are labelled "Parcelas aproximadas detectadas por satélite, no catastrales".
+- **Advisor:** compares 22 common Dominican crops on water (FAO-56), drought (FAO GIEWS), a cited IDIAF pest rule and wholesale price at harvest (Ministry of Agriculture). It explains each point in a "¿De dónde sale esto?" panel.
+- **Oversupply warning:** shown when national sowing over the last 12 months is at least 15% above the previous years (Ministry sowing data), or when the harvest month historically has low prices. Provincial sowing data is not published, so the warning says "en el país".
+- **7-day rain alert per farm:** Open-Meteo forecast, with recent NASA POWER days as a fallback. It gives a plain sentence such as "No riegues el jueves: viene lluvia".
+- **"¿Cuánto me deja?":**
+  - Gives a low/medium/high range per crop and number of tareas.
+  - Costs come from the Ministry's 2019 production costs, scaled by the Banco Central CPI (January 2026 = 137.74, base Oct 2019–Sep 2020 = 100).
+  - Uses the Ministry's yields and the lowest, latest and highest wholesale price of the last 12 months.
+  - Wholesale is not the farm-gate price, and this is stated in the app.
+- **Sharing by WhatsApp:** the farm card is shared as an image through the Web Share API, with a text fallback via `wa.me`.
+- **Voice assistant:** realtime and conversational. It knows the farm, rain alert, profit range and oversupply warning, and never invents numbers.
+
 ### Benefits, limitations and next steps
 
 The intended benefit is a more informed conversation about rotation trade-offs. No water saving, income gain, pest reduction or yield improvement has been measured in farms. Next steps are to confirm baseline rotations locally, review crop and pest references, validate image labels by spatially independent samples, verify market licensing and data anomalies, and test the frozen comparison interface with a technician. Expansion to other areas requires local evidence and calibration. Sensors are a future extension outside this demo.
