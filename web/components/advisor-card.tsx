@@ -1,9 +1,9 @@
 /* AI: Claude (Anthropic), 2026-11-14 — farmer recommendation card. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { Info, MapPin } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
 import { adviseNextCrop, adviceSentence, cropEmoji, cropNames, FAO56_URL, lightFor, marketFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
-import { faoScoreRule } from "@/lib/fao-giews";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation, Priority } from "@/lib/data";
 
@@ -25,7 +25,7 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
       <strong>{a.name}</strong>{top && a.overall !== null && <span className="badge">Recomendado</span>}{!a.viable && <span className="badge gray">No sin riego</span>}</div>
     <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
       <FarmIcon name={pi.icon} size={20} /><span>{a.words[pi.id]}</span></span>; })}</div>
-    <button type="button" className="src-button small" onClick={onSources}>🔎 ¿De dónde sale esto?</button>
+    <button type="button" className="src-button small" onClick={onSources}><Info aria-hidden="true" size={20} /> ¿De dónde sale esto?</button>
   </li>;
 }
 
@@ -44,10 +44,10 @@ export function AdvisorCard(p: Props) {
   const light = lightFor(top?.overall ?? null);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
-      <span>📍 {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${cropNames[p.previous].toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
+      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${cropNames[p.previous].toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
-    <h2>1 · Tu recomendación</h2>
+    <h2>Tu recomendación</h2>
 
     <div className={`verdict ${light}`}>
       <span className={`recommendation-light light ${light}`} role="img" aria-label={lightWord[light]} />
@@ -57,21 +57,15 @@ export function AdvisorCard(p: Props) {
         {peak.length > 0 && top && <p className="verdict-sub">En el país, {top.name.toLowerCase()} se siembra más en {peak.map(m => monthNames[m - 1]).join(", ")}.</p>}
         {top?.warnings.map(w => <p key={w} className="warning">⚠ {w}</p>)}
         <div className="verdict-actions"><button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
-          {top && <button type="button" className="src-button" onClick={() => setSources(top)}>🔎 ¿De dónde sale esto?</button>}</div>
+          {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={20} /> ¿De dónde sale esto?</button>}</div>
       </div>
     </div>
 
-    <details className="compare-fold"><summary>📊 Comparar con tus otros cultivos ({advice.length})</summary>
+    <details className="compare-fold" open><summary>Comparar con tus otros cultivos ({advice.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
     </details>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
-    <details className="evidence-details"><summary>Ver detalles: cómo se calcula</summary>
-      <p><strong>Agua:</strong> agua que pide el cultivo en un ciclo completo según la curva FAO-56 (1998), tablas 11 y 12 (para café, cacao y aguacate, que son permanentes, un año con el promedio de los valores de la tabla 12), comparada en una escala fija entre todos los cultivos de la lista. Los cultivos largos ocupan la tierra más tiempo. No mide litros. El arroz inundado gasta más de lo que muestra el cálculo (no incluye lámina de agua ni pérdidas del canal). Filas FAO usadas: {advice.map(a => `${a.name}: ${a.faoRow}, ${a.kcDays} Kc·día`).join("; ")}. <a href={FAO56_URL}>Fuente</a></p>
-      <p><strong>Sequía:</strong> {faoScoreRule} <a href="https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM">FAO GIEWS</a></p>
-      <p><strong>Plagas:</strong> solo se usa la regla citada: habichuela seguida de maíz (cultivo no hospedero) ayuda contra antracnosis, bacteriosis común e insectos de la habichuela; repetir el mismo cultivo no rompe el ciclo. Oviedo, IDIAF, Compendio de habichuela, 2013, pp. 88, 94, 102. <a href="https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf">Fuente</a>. Sin regla verificada para otras combinaciones.</p>
-      <p><strong>Precio:</strong> índice estacional del mes de cosecha (precios mayoristas del Ministerio de Agricultura, Santo Domingo, ago 2017–oct 2026; mediana de años completos). Puntos = 2,5 + (índice − 100)/5, menos 1 si la siembra nacional de los últimos 12 meses supera en 15% la de años anteriores. Reglas propias de AgroVision, no validadas.</p>
-      <p><strong>Resultado:</strong> promedio de los pilares con dato (lo que más te importa cuenta doble). Verde ≥ 3,34; ámbar ≥ 1,67; rojo menor; gris sin dato. Solo se comparan los cultivos que marcaste. No es predicción de cosecha ni de ganancia. Revisa con tu técnico o extensionista.</p>
-    </details>
+    <p className="sources-line">Fuentes: <a href={FAO56_URL}>FAO (agua de los cultivos)</a>, <a href="https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM">FAO GIEWS (sequía)</a>, <a href="https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf">IDIAF (plagas)</a> y Ministerio de Agricultura (precios y siembras). Es una guía: confírmalo con tu técnico.</p>
   </section>;
 }
