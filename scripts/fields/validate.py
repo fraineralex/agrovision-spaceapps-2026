@@ -67,6 +67,7 @@ def run():
                                 'p95_relative_area_change': round(float(np.percentile(area_error, 95)), 5),
                                 'max_hausdorff_m': round(max(boundary_distance), 3)}
     assert max(boundary_distance) < 2.6, 'Web simplification exceeds intended tolerance'
+    assert max(area_error) < .051, 'Web simplification changes field area excessively'
     assert (ROOT / 'data/derived/fields_preview.png').exists()
     print(json.dumps(results, indent=2))
     return results

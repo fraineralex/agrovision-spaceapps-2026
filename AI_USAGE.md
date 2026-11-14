@@ -7,6 +7,7 @@
 - **Archivos:** `scripts/fields/`, `data/cache/fields/`, `data/derived/fields*`, `web/public/data/fields*`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`. JSON y PNG se citan aquí y en metadatos porque no admiten comentarios de código.
 - **Revisión por Frainer:** pendiente. Primer intento y resultados finales se registran en la metodología; no atribuir validación humana ni agronómica a esta ejecución.
 - **Implementación:** MobileSAM `vit_t` CPU, commit `f706ad9c4eb7f219c00d9050e46328518ffb65d2`; ESA WorldCover 2021 v200 como filtro de cobertura. Código propio de adquisición, vectorización, filtrado, eliminación de duplicados, vista PNG y validador. No hay entrenamiento ni etiquetas locales; puntuación de máscara no calibrada.
+- **Control de exportación:** se detectaron puntuaciones predicted-IoU >1 y desviaciones de simplificación mayores a la tolerancia nominal en el primer parcial. Se recorta predicted-IoU para el producto de confianza y se mide/reduce la simplificación por polígono; se conserva la puntuación original para auditoría.
 
 La organización permite el uso de IA solo si se cita. Este registro es obligatorio para investigación, redacción, código, imágenes, análisis y contenido de presentación. Conservar la revisión humana y corregir cualquier salida inexacta.
 

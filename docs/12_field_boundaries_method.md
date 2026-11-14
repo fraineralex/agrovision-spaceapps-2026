@@ -56,6 +56,9 @@ que contienen otra aceptada, con intersección >25 m² o >2 % del polígono meno
 Esto reduce duplicados, pero puede preferir un fragmento visual de un campo.
 La capa web usa simplificación topológica de 2.5 m y coordenadas a 7 decimales;
 área y centroide siguen referidos al polígono completo.
+Se reduce automáticamente la tolerancia en cada campo si la distancia de
+Hausdorff medida supera 2.5 m o si cambia el área más del 5 %. Estos controles
+evalúan la simplificación, no la exactitud del límite frente a la finca real.
 
 Cada entidad tiene `id` (hash de geometría), `area_ha`, `centroid` [lon, lat],
 `source`, `confidence`, `quality`, `observed_at` y puntuaciones SAM. La confianza

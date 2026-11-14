@@ -28,6 +28,10 @@ def tile(lon, lat, zoom):
 
 def run(args):
     CACHE.mkdir(parents=True, exist_ok=True)
+    existing = CACHE / f'{args.name}.json'
+    previous = json.loads(existing.read_text()) if existing.exists() else None
+    if previous and (previous['requested_bbox'] != args.bbox or previous['zoom'] != args.zoom):
+        raise ValueError('Existing acquisition differs; use another --name to protect cached inference')
     west, south, east, north = args.bbox
     x0, y0 = tile(west, north, args.zoom)
     x1, y1 = tile(east, south, args.zoom)
@@ -85,7 +89,7 @@ def run(args):
                     print(f'{len(records)}/{len(keys)} tiles', flush=True)
     manifest = {'source': 'Esri World Imagery', 'url': URL,
                 'attribution': json.loads(service.read_text())['copyrightText'],
-                'retrieved_at': datetime.now(timezone.utc).isoformat(),
+                'retrieved_at': previous['retrieved_at'] if previous else datetime.now(timezone.utc).isoformat(),
                 'imagery_observed_at': None,
                 'imagery_date_note': 'Acquisition date not supplied by XYZ tiles; unverified.',
                 'requested_bbox': args.bbox, 'zoom': args.zoom,

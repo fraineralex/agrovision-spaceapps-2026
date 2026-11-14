@@ -134,6 +134,8 @@ def export(records, report, src, args):
     report['rejected_final'] = dict(rejection)
     common = {'type': 'FeatureCollection', 'schemaVersion': '1.0.0',
               'generatedAt': datetime.now(timezone.utc).isoformat(), 'caseId': 'san-juan-field-boundaries',
+              'coverage_complete': report['complete'],
+              'processed_windows': len(report['crops']), 'expected_windows': report['expected_crops'],
               'bbox': metadata['requested_bbox'], 'source': 'Esri World Imagery + ESA WorldCover 2021 v200',
               'attribution': metadata['attribution'], 'method': 'MobileSAM vit_t; approximate field candidates',
               'observed_at': None, 'retrieved_at': metadata['retrieved_at'],
@@ -163,8 +165,19 @@ def export(records, report, src, args):
         feature = {'type': 'Feature', 'id': identifier, 'properties': props,
                    'geometry': rounded_geometry(ll)}
         full.append(feature)
-        web.append({**feature, 'geometry': rounded_geometry(project(TO_LONLAT,
-                    utm.simplify(args.simplify_m, preserve_topology=True)))})
+        # GEOS topology-preserving simplification can exceed its nominal distance
+        # near narrow features. Enforce a measured bound and area-change limit.
+        tolerance = args.simplify_m
+        simplified = utm.simplify(tolerance, preserve_topology=True)
+        for _ in range(6):
+            if (utm.hausdorff_distance(simplified) <= args.simplify_m and
+                    abs(simplified.area-utm.area)/utm.area <= .05):
+                break
+            tolerance *= .65
+            simplified = utm.simplify(tolerance, preserve_topology=True)
+        else:
+            simplified = utm
+        web.append({**feature, 'geometry': rounded_geometry(project(TO_LONLAT, simplified))})
     target = ROOT / 'data/derived/fields_san_juan.geojson'
     public = ROOT / 'web/public/data/fields_san_juan.geojson'
     write_json(target, {**common, 'simplification_m': .8, 'features': full})
