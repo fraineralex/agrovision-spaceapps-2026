@@ -106,3 +106,11 @@ Esri World Imagery es la base en línea (zoom nativo máximo 19), con etiquetas 
 `web/public/data/parcels-san-juan.json` conserva las 585 unidades SLIC de `data/derived/parcels_san_juan.geojson`, con geometrías simplificadas y coordenadas a 5 decimales (<1.5 MB). Son unidades aproximadas de análisis Sentinel-2, no parcelas catastrales ni fincas verificadas. Se muestran desde zoom 11; el botón «Parcelas San Juan» acerca a la muestra y un clic abre la ficha y su serie NDVI. Semáforo de verdor reciente: <0.3 rojo, <0.5 ámbar, ≥0.5 verde; sin observación gris. Son cortes visuales sin validación agronómica. El clima mostrado para estas unidades es el contexto POWER regional de San Juan, no una observación de finca. La voz trata la ubicación como punto; no recibe las geometrías ni el clasificador.
 
 Reconstrucción: con Shapely de `scripts/ml/requirements.txt`, ejecutar `python scripts/geography/export_parcels.py`; actualiza también el manifiesto offline y su SHA-256. Las fuentes, período, resolución y límites se conservan en el GeoJSON y la ficha. Se usa Sentinel-2 porque es la fuente efectiva del artefacto disponible; no se atribuye a Landsat. No se añadió Overpass.
+
+### Pilares conectados y ficha sencilla (14-11-2026)
+
+<!-- AI: Codex/OpenAI, 2026-11-14; Frainer review pending. -->
+
+La vista principal ahora consume las tres secuencias exactas de `data/derived/water_climate/`, con sus scores originales de agua y clima en San Juan. Sustituye las tarjetas antiguas; las afirmaciones anteriores de scores null describen la demo previa y el endpoint legado `/api/explain`. Fuera de San Juan usa el caché POWER del punto para un filtro térmico histórico distinto, sin trasladar sus mm de agua. Integra una regla parcial IDIAF habichuela→maíz y referencias estacionales preliminares de precios mayoristas de Santo Domingo; los faltantes siguen explícitos. Ninguno es precio de finca ni pronóstico. Una orientación superior y cuatro iconos resumen el caso; cifras y fuentes están plegadas en «Ver detalles».
+
+Reconstrucción sin red: `python3 scripts/export_pillar_data.py`. [Método, fuentes y límites vigentes](docs/12_farmer_pillars.md). Revisión humana de Frainer pendiente.
