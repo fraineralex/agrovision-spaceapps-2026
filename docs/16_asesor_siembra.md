@@ -11,9 +11,9 @@ Candidatos: habichuela, maíz, arroz y batata (los cuatro con curva FAO-56 y pre
 
 - **Agua:** integral Kc·día FAO-56 (tablas 11–12), relativa entre los cuatro (0–5). El arroz sin riego queda descartado. El arroz inundado gasta más de lo que muestra el cálculo; así se dice en la app.
 - **Sequía:** `droughtScore` de FAO GIEWS por provincia (ASI, VHI e historial 1984–2025), ya existente (`docs/14_fao_giews.md`).
-- **Plagas:** solo la regla citada de IDIAF (Oviedo 2013, pp. 88, 94, 102): habichuela→maíz = 5; repetir el mismo cultivo = 1; lo demás sin dato.
+- **Plagas:** regla IDIAF para habichuela→maíz y descuento por repetición o por plagas compartidas. Ver «Plagas compartidas en el asesor».
 - **Precio:** índice estacional del mes de cosecha (mes de siembra + ciclo FAO-56) de la serie mayorista primera del Ministerio, `2,5 + (índice − 100)/5`, menos 1 si la siembra nacional está “alta”.
-- **Resultado:** promedio de los pilares con dato; la prioridad elegida pesa el doble. Verde ≥ 3,34, ámbar ≥ 1,67.
+- **Resultado:** promedio ponderado de los criterios con dato, menos el descuento de plagas cuando aplica. La prioridad elegida pesa el doble. Verde ≥ 3,34, ámbar ≥ 1,67.
 
 Las reglas de puntos y umbrales son propias de AgroVision, no validadas en campo.
 
@@ -76,3 +76,14 @@ Los precios son mayoristas de Santo Domingo, no precio en finca, y son nominales
   - El arroz no se calcula porque la cosecha está en fanegas en cáscara y el precio es de arroz pilado. Café, cacao, plátano y otros cultivos sin costos de 2019 tampoco se calculan.
 - **Sobreoferta** (`oversupplyFor`): siembra nacional alta (≥ 115%) o precio estacional bajo (≤ 95) en el mes de cosecha. Resta un punto de precio cuando la siembra está alta. No existen datos de siembra por provincia.
 - **Compartir:** la tarjeta se dibuja como imagen en un `canvas` y se comparte con la Web Share API; si no se puede, se abre `wa.me` con el texto.
+
+
+## Plagas compartidas en el asesor
+
+El catálogo incluye insectos, ácaros y nematodos de los 27 cultivos de la lista de referencia, con nombre científico cuando está disponible y enlaces a las fuentes por cultivo. El cultivo anterior puede seleccionarse de ese catálogo. La lista de candidatos sigue dependiendo de la cobertura del asesor (datos de agua, clima y mercado).
+
+Una coincidencia de taxón con evidencia local, o la repetición del cultivo, descuenta 0,5 puntos del resultado final (1 punto si se priorizan plagas). Una coincidencia basada en una referencia externa (†) se muestra para confirmar localmente y no modifica el puntaje. Los nombres generales sin taxón, como «trips», no se cruzan. Una coincidencia por género indica posible hospedero compartido y requiere identificar la especie en campo. El respaldo específico del IDIAF para la secuencia habichuela a maíz sigue aportando al promedio ponderado.
+
+Estas reglas comparan asociaciones documentadas; la ficha no mide incidencia ni actividad por provincia o mes. El puntaje es una regla del prototipo, pendiente de revisión agronómica.
+
+El asesor, la lectura en voz y las rotaciones de ejemplo muestran precauciones para cada transición concreta. Si hay un hospedero compartido, indican revisar el historial del cultivo anterior; también destacan una plaga del cultivo siguiente. Las referencias externas se presentan como pendientes de confirmación.

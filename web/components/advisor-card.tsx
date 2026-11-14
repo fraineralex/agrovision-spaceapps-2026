@@ -3,7 +3,8 @@
 import { Info, MapPin } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, cropEmoji, cropNames, FAO56_URL, lightFor, marketFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropEmoji, previousCropName, FAO56_URL, lightFor, marketFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation, Priority } from "@/lib/data";
 
@@ -25,7 +26,9 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
       <strong>{a.name}</strong>{top && a.overall !== null && <span className="badge">Recomendado</span>}{!a.viable && <span className="badge gray">No sin riego</span>}</div>
     <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
       <FarmIcon name={pi.icon} size={20} /><span>{a.words[pi.id]}</span></span>; })}</div>
+    {a.pestPrecautions.map(note => <p key={note} className="warning">{note}</p>)}
     <button type="button" className="src-button small" onClick={onSources}><Info aria-hidden="true" size={20} /> ¿De dónde sale esto?</button>
+
   </li>;
 }
 
@@ -37,14 +40,15 @@ export function AdvisorCard(p: Props) {
   const peak = top ? marketFor(top.crop)?.sowing?.peakSowingMonths ?? [] : [];
   const speak = () => {
     try {
-      const u = new SpeechSynthesisUtterance(`${sentence} ${top?.warnings.join(" ") ?? ""} Revisa siempre con tu técnico.`);
+      const u = new SpeechSynthesisUtterance(`${sentence} ${[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].join(" ")} Revisa siempre con tu técnico.`);
       u.lang = "es-DO"; speechSynthesis.cancel(); speechSynthesis.speak(u);
     } catch { /* Speech is optional. */ }
   };
   const light = lightFor(top?.overall ?? null);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
-      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${cropNames[p.previous].toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
+      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${previousCropName(p.previous).toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
+
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
     <h2>Tu recomendación</h2>
@@ -55,7 +59,7 @@ export function AdvisorCard(p: Props) {
         <p className="verdict-text">{top && top.overall !== null && <span aria-hidden="true">{cropEmoji[top.crop]} </span>}{sentence}</p>
         {top && top.overall !== null && top.harvestMonth > 0 && <p className="verdict-sub">Siembra en {monthNames[p.sowMonth - 1]} · cosecha en {monthNames[top.harvestMonth - 1]} (unos {Math.round(top.cycleDays / 30)} meses)</p>}
         {peak.length > 0 && top && <p className="verdict-sub">En el país, {top.name.toLowerCase()} se siembra más en {peak.map(m => monthNames[m - 1]).join(", ")}.</p>}
-        {top?.warnings.map(w => <p key={w} className="warning">⚠ {w}</p>)}
+        {[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].map(w => <p key={w} className="warning">⚠ {w}</p>)}
         <div className="verdict-actions"><button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
           {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={20} /> ¿De dónde sale esto?</button>}</div>
       </div>
@@ -67,5 +71,6 @@ export function AdvisorCard(p: Props) {
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
     <p className="sources-line">Fuentes: <a href={FAO56_URL}>FAO (agua de los cultivos)</a>, <a href="https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM">FAO GIEWS (sequía)</a>, <a href="https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf">IDIAF (plagas)</a> y Ministerio de Agricultura (precios y siembras). Es una guía: confírmalo con tu técnico.</p>
+
   </section>;
 }

@@ -156,3 +156,19 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Archivos:** `web/app/{page.tsx,layout.tsx,globals.css}`, `web/components/{options-card,fold,onboarding,advisor-card,sources-sheet,market-card,profit-card,rain-card,fao-giews,farm-switcher,map,share-button,voice-assistant}.tsx`, `web/lib/advisor.ts` (`fiveOptions`), `web/tests/demo.spec.ts`, `docs/17_ui_audit.md`, `docs/ui-audit/`.
 - **Datos:** no se añadieron números nuevos. Las 5 opciones reordenan los mismos datos (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura).
 - **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Plagas compartidas en el asesor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** incorporar la lista de plagas solicitada al catálogo, a la puntuación del asesor y al contexto de voz. **Archivos:** `web/lib/{pests,advisor,advisor.test,voice-context}.ts`, `web/components/{advisor-card,onboarding,sources-sheet,pest-catalog}.tsx` y `docs/16_asesor_siembra.md`.
+- **Fuentes y límites:** referencias del catálogo enlazadas por cultivo. Las referencias externas requieren confirmación local. El descuento es una regla del prototipo sin validación agronómica. No se estima incidencia provincial o mensual.
+- **Verificación:** lint, TypeScript, 15 pruebas y build local con Webpack. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Precauciones de plagas por rotación
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** mostrar medidas de vigilancia para el cultivo anterior y el siguiente en las sugerencias, las rotaciones de ejemplo y la voz. El catálogo se conserva como fuente interna. **Archivos:** `web/{app/page.tsx,components/{advisor-card,sources-sheet,pest-catalog}.tsx,lib/{pests,advisor,advisor.test,farmer-comparison,voice-context}.ts}` y `docs/16_asesor_siembra.md`.
+- **Fuentes y límites:** catálogo existente, con referencias en los detalles. Las precauciones no diagnostican presencia ni incidencia. **Revisión por Frainer:** pendiente.
+
+
+## 2026-11-14 — Integración del rediseño
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.
