@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
-import { REALTIME_MODEL, voiceInstructions, type VoiceSelection } from "@/lib/voice-context";
-import { fallbackExplanation } from "@/lib/explanation";
+import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
 import { FarmIcon } from "@/components/farm-icon";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
@@ -73,7 +72,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     finally { starting.current = false; }
   }
   function stopVoice() { generation.current++; realtime.disconnect(); releaseMedia(); interrupt(); setNotice("Micrófono apagado. Puedes escribir tu pregunta."); }
-  function localSummary() { return selection.parcelId === "location" ? "Las rotaciones son ejemplos de comparación. El indicador de agua usa reglas FAO-56 de 1998, con baja confianza local; no representa riego necesario. Sin conexión no tengo clima verificado para este punto. No predigo plagas ni rendimiento." : fallbackExplanation(selection); }
+  function localSummary() { return localAdviceText(selection); }
   function speak(text: string) {
     if (!readAloud || !window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -119,7 +118,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   }
   const active = realtime.status === "connecting" || realtime.status === "connected";
   return <section className="card voice-card" aria-label="Asistente de voz">
-    <div className="voice-intro"><span className="step-label">3 · CONVERSEMOS</span><h2>Hablemos de tu parcela</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
+    <div className="voice-intro"><span className="step-label">4 · PREGÚNTALE A AGROVISION</span><h2>Pregunta con tu voz</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
     <div className="voice-actions"><button className={`mic-button ${active ? "listening" : ""}`} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}><FarmIcon name={active ? "stop" : "mic"} size={40}/><span>{active ? "Terminar" : "Hablar"}</span></button><button className="secondary-action" onClick={interrupt}><FarmIcon name="stop"/>Silenciar</button></div>
     <p role="status">{realtime.status === "connected" ? "Micrófono encendido. Habla de nuevo para interrumpir." : realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
     <div className="voice-transcript" role="log" aria-label="Transcripción de la conversación" aria-live="polite">

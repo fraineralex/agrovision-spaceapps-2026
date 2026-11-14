@@ -1,6 +1,8 @@
 <!-- AI: Codex/OpenAI, 2026-11-14; revisión de Frainer pendiente. -->
 # Método de la demo, versión 1
 
+**Actualización 14-11-2026:** la vista principal y la herramienta de comparación de voz usan ahora [pilares derivados y referencias preliminares](12_farmer_pillars.md). Las secciones siguientes conservan el método histórico de `getComparison` y `/api/explain`; no describen los nuevos scores.
+
 El flujo usa observaciones/reanálisis reales y reglas publicadas, con confianza local limitada. No hay un modelo entrenado ni exactitud medida. No se predicen rendimiento, brotes, ingresos ni fechas óptimas.
 
 ## Señal Landsat

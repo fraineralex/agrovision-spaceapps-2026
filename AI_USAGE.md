@@ -1,5 +1,14 @@
 # Uso de inteligencia artificial
 
+## 2026-11-14 — Delimitación experimental de campos
+
+- **Herramienta:** Codex (OpenAI); MobileSAM (`vit_t`) en evaluación CPU.
+- **Propósito:** adquisición acotada Esri, segmentación de bordes visibles y exportación offline de candidatos de campo, sin identidad de productores ni validez catastral.
+- **Archivos:** `scripts/fields/`, `data/cache/fields/`, `data/derived/fields*`, `web/public/data/fields*`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`. JSON y PNG se citan aquí y en metadatos porque no admiten comentarios de código.
+- **Revisión por Frainer:** pendiente. Primer intento y resultados finales se registran en la metodología; no atribuir validación humana ni agronómica a esta ejecución.
+- **Implementación:** MobileSAM `vit_t` CPU, commit `f706ad9c4eb7f219c00d9050e46328518ffb65d2`; ESA WorldCover 2021 v200 como filtro de cobertura. Código propio de adquisición, vectorización, filtrado, eliminación de duplicados, vista PNG y validador. No hay entrenamiento ni etiquetas locales; puntuación de máscara no calibrada.
+- **Control de exportación:** se detectaron puntuaciones predicted-IoU >1 y desviaciones de simplificación mayores a la tolerancia nominal en el primer parcial. Se recorta predicted-IoU para el producto de confianza y se mide/reduce la simplificación por polígono; se conserva la puntuación original para auditoría.
+
 La organización permite el uso de IA solo si se cita. Este registro es obligatorio para investigación, redacción, código, imágenes, análisis y contenido de presentación. Conservar la revisión humana y corregir cualquier salida inexacta.
 
 ## Registro
@@ -98,3 +107,25 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - Codex (OpenAI), 2026-11-14: conexión final de ficha a los IDs satelitales y conservación de las muestras sintéticas opcionales; leyenda de verdor con texto y color y control de opacidad. Archivos: `web/app/{page.tsx,globals.css}`, `web/components/map.tsx`, `web/lib/map/parcels.ts`. Revisión por Frainer pendiente.
 
 - **Verificación técnica de integración (2026-11-14):** `npm run lint` y `npm run build` aprobados en `web/`; `npm test` (6 pruebas) y `npm run test:e2e` (5 pruebas) aprobados. Nueva regresión `web/tests/ux.spec.ts`: clic en la unidad `sj-unit-0290`, ficha propia, 35 meses NDVI y solicitudes Esri a zoom ≥15. Se conservaron las pruebas de selección provincial, recarga offline, móvil y fallback de voz. Revisión visual técnica de `web/test-results/satellite-parcel.png` y tesela real Esri zoom 17 (HTTP 200); campos visibles. Capturas locales ignoradas. Asistencia Codex/OpenAI; revisión humana de Frainer y validación agronómica pendientes. Código enviado a `origin/main` para el despliegue automático configurado; no se verifica aquí el estado final de Vercel.
+
+## 2026-11-14 — Pilares derivados y orientación sencilla por parcela
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** exportar sin red los escenarios exactos de agua/clima, integrar regla IDIAF verificada y referencia estacional preliminar MA; usar caché POWER propio fuera de San Juan; una orientación superior y cuatro iconos, con evidencia plegada. Cambios autorizados por Frainer, revisión humana aún pendiente.
+- **Archivos:** `scripts/export_pillar_data.py`, `web/public/data/{farmer-pillars,manifest}.json`, `web/lib/farmer-comparison{,.test}.ts`, `web/lib/voice-context.ts`, `web/components/voice-assistant.tsx`, `web/app/{page.tsx,globals.css}`, `web/package.json`, `web/tests/{demo,ux}.spec.ts`, `docs/12_farmer_pillars.md`, `docs/METHODOLOGY.md`, `README.md`, `AI_USAGE.md`. JSON atribuido aquí y en metadatos porque no admite comentarios.
+- **Fuentes y revisión:** IDIAF/Oviedo 2013, pp. 88, 94 y 102 comprobadas en el PDF CEDAF; derivados POWER/FAO y MA conservados sin alterar. Método y límites en `docs/12_farmer_pillars.md`. Mercado es una referencia descriptiva nueva no calibrada; no se presenta como score validado del exportador. Plagas cubre solo relación explícita habichuela→maíz. No se inventan relaciones para guandul ni leguminosa genérica. No hay validación agronómica ni revisión completada por Frainer.
+
+## 2026-11-14 — FAO GIEWS provincial
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** descubrir enlaces públicos FAO, conservar CSV/capabilities originales comprimidos, construir contexto para 32 provincias, integrar sequía/lluvia e historial con regla exploratoria de clima y comparación por ubicación. Sin números inventados ni calendario de siembra inferido de colores.
+- **Archivos:** `scripts/fao/`, `data/cache/fao_giews/`, `data/derived/fao_giews/`, `web/public/data/fao-giews.json`, `web/lib/{fao-giews,data,voice-context}.ts`, `web/components/fao-giews*`, `web/app/page.tsx`, pruebas FAO y `docs/14_fao_giews.md`. JSON/gzip no admiten cabeceras; atribución en este registro, script y documento.
+- **Fuentes:** FAO GIEWS/ASIS DOM y ECMWF redistribuido por FAO; URLs y SHA-256 originales en `data/cache/fao_giews/access.json`. Regla de scoring y semáforo creados con asistencia IA por AgroVision: no son indicadores/alertas oficiales FAO ni validación agronómica.
+- **Límites:** GAUL 1 histórico, vegetación ~1 km, lluvia más gruesa; sin correspondencia geométrica validada con límites modernos. Fenología SOS/MOS/EOS accesible vía WMTS pero sin CSV provincial enlazado; calendario numérico pendiente. GAUL 2 sin descarga publicada verificada. Revisión de React con skill `vercel:react-best-practices`; sin nuevas librerías UI.
+- **Revisión por Frainer:** pendiente. Autor de commits solicitado por el usuario no equivale a revisión humana ni de campo completada.
+
+## 2026-11-14 — Integración de ramas y correcciones de la auditoría de productor
+
+- **Herramienta:** Claude (Anthropic), sesión remota pedida por Juan Carlos Báez (equipo AgroVision). **Propósito:** fusionar `wip/farmer-cards`, `feature/market-dominican-sources`, `feature/fao-giews` y `feature/field-boundaries`; construir el asesor de siembra y la tarjeta de mercado; corregir los hallazgos de la auditoría de usabilidad (simulación de productor de Juan de Herrera).
+- **Archivos:** `scripts/market/build_market_insights.py`, `web/public/data/market-insights.json`, `web/lib/{advisor,advisor.test}.ts`, `web/lib/map/fields.ts`, `web/components/{advisor-card,market-card,map,offline,voice-assistant,fao-giews}.tsx`, `web/lib/voice-context.ts`, `web/app/{page.tsx,globals.css,api/voice/chat/route.ts}`, `web/package.json`, `docs/16_asesor_siembra.md`, `docs/submission/casos_mercado.md`.
+- **Fuentes:** precios mayoristas, siembra nacional y costos de producción 2019 del Ministerio de Agricultura (URLs en `data/raw/market_rd/resources_manifest.json`; páginas del PDF citadas). Los artículos de prensa se leyeron el 14-11-2026; solo se citan hechos que dicen los artículos.
+- **Límites:** las reglas de puntuación y los umbrales son propios, no validados. No se calcula ganancia. Los precios son mayoristas de Santo Domingo.
+- **Revisión por Frainer:** pendiente.

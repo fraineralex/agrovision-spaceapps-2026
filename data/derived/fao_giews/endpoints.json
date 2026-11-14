@@ -1,0 +1,96 @@
+{
+  "retrievedAt": "2026-11-14T16:21:13.480689+00:00",
+  "page": "https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM",
+  "endpoints": [
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/GRAPH_RAIN_AGRI/rain_adm1_data.csv",
+      "status": "ok",
+      "file": "rain_adm1_data.csv.gz",
+      "sha256": "c417a740460277454cc501acc2c2af7289da8f73a4d3d33da01b5dca72d6a23a"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_AnnualSummary_Season1_data.csv",
+      "status": "ok",
+      "file": "ASI_AnnualSummary_Season1_data.csv.gz",
+      "sha256": "084990681cf8435881725da28b417ed4683228fc4acae9aad3b908ea9d93fdc4"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_AnnualSummary_Season2_data.csv",
+      "status": "ok",
+      "file": "ASI_AnnualSummary_Season2_data.csv.gz",
+      "sha256": "3bc5dfadbdb866a7dff3148f4e0f7a829be6673f0cd024d8f906ed8945ac989c"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/ASI_Dekad_Season1_data.csv",
+      "status": "ok",
+      "file": "ASI_Dekad_Season1_data.csv.gz",
+      "sha256": "6509e472091d6996936b3a4b6e261d4f0c4c9301566e5ccab1225fc8bd3a5815"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/MVHI_Dekad_Season1_data.csv",
+      "status": "ok",
+      "file": "MVHI_Dekad_Season1_data.csv.gz",
+      "sha256": "ae1cea670e4978f66902782d129ea99a2d4582d6a1c6dc52fcc7bba55cdd31a1"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/Mean-VHI_AnnualSummary_Season1_data.csv",
+      "status": "ok",
+      "file": "Mean-VHI_AnnualSummary_Season1_data.csv.gz",
+      "sha256": "9a0ce90e08105f931be114743257225de9c8235c44c7c9f7d9e90ad8e4601046"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_ASI/DATA/Mean-VHI_AnnualSummary_Season2_data.csv",
+      "status": "ok",
+      "file": "Mean-VHI_AnnualSummary_Season2_data.csv.gz",
+      "sha256": "52f3e49293ff0f5156ef7b2a85890b6d81bdcd2da003a805d913e6a168ae7130"
+    },
+    {
+      "url": "https://www.fao.org/giews/earthobservation/asis/data/country/DOM/MAP_NDVI_ANOMALY/DATA/vhi_adm1_dekad_data.csv",
+      "status": "ok",
+      "file": "vhi_adm1_dekad_data.csv.gz",
+      "sha256": "16e5b72d2686d5bbbcfa93dd89968973630452e4abd4670e95bc41374fff128f"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/ASI-D",
+      "status": "ok",
+      "file": "ASI-D-capabilities.xml.gz",
+      "sha256": "a669024a9392e678590d755c75f2572113affc62de25acb5eb019bc285f9f2b6"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/ASI-A",
+      "status": "ok",
+      "file": "ASI-A-capabilities.xml.gz",
+      "sha256": "4346f8b83d43b46b6e6b519fa8a7fb283462398d4d5bab08dfb600327c06ce14"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/MVHI-D",
+      "status": "ok",
+      "file": "MVHI-D-capabilities.xml.gz",
+      "sha256": "f2d973ca6dd26a21d8ab959ecf12ee4915059782357cfcfa0b4b11ef8c118b3b"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/VHI-D",
+      "status": "ok",
+      "file": "VHI-D-capabilities.xml.gz",
+      "sha256": "9ab40d9621ed81e1e455e4501a3296506a9209ab6a8ac58d5577acd24cae6308"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/HDF",
+      "status": "ok",
+      "file": "HDF-capabilities.xml.gz",
+      "sha256": "614895c4354d4da30bb0a26b632743ffaff2ce8f9f8b4f88918f2d93a10a7773"
+    },
+    {
+      "url": "https://data.apps.fao.org/map/wmts/wmts?service=WMTS&request=GetCapabilities&version=1.0.0&layer=fao-gismgr/ASIS/mapsets/PHE",
+      "status": "ok",
+      "file": "PHE-capabilities.xml.gz",
+      "sha256": "91cc37a25a76f8ae74634af235202100c7dda0612a8b7decb6666b55dac1d67a"
+    }
+  ],
+  "limits": {
+    "gaul2": "No se publica enlace CSV GAUL 2 para DOM en la página consultada; no se inventa endpoint.",
+    "phenology": "PHE ofrece SOS/MOS/EOS para GS1/GS2 y LC-C/LC-G vía WMTS; sin CSV provincial enlazado. No se interpreta un color como fecha de siembra.",
+    "hdf": "HDF ofrece AL30/AL50 vía WMTS; el recuento provincial se deriva del CSV ASI anual, no de los colores del mapa.",
+    "rainBaseline": "Período base LTA no especificado en el CSV; no se atribuye un período supuesto."
+  }
+}

@@ -1,0 +1,7 @@
+# Local third-party imagery/model cache; do not redistribute raw Esri imagery.
+*.jpg
+*.tif
+*.pt
+*.npz
+*.pkl
+attempts/
