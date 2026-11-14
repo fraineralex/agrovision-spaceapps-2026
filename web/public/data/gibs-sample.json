@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "source": "NASA EOSDIS GIBS; imagery previews, not numeric measurements",
+  "quality": "Satellite visualization; parcel inference unsupported",
+  "tiles": [
+    {
+      "id": "BlueMarble_ShadedRelief_Bathymetry",
+      "zoom": 8,
+      "x": 77,
+      "y": 114,
+      "date": null,
+      "file": "BlueMarble_ShadedRelief_Bathymetry.jpeg",
+      "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/8/114/77.jpeg",
+      "contentType": "image/jpeg"
+    },
+    {
+      "id": "MODIS_Terra_NDVI_8Day",
+      "zoom": 9,
+      "x": 154,
+      "y": 228,
+      "date": "2026-11-01",
+      "file": "MODIS_Terra_NDVI_8Day.png",
+      "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_NDVI_8Day/default/2026-11-01/GoogleMapsCompatible_Level9/9/228/154.png",
+      "contentType": "image/png"
+    },
+    {
+      "id": "IMERG_Precipitation_Rate",
+      "zoom": 6,
+      "x": 19,
+      "y": 28,
+      "date": "2026-11-01",
+      "file": "IMERG_Precipitation_Rate.png",
+      "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/IMERG_Precipitation_Rate/default/2026-11-01/GoogleMapsCompatible_Level6/6/28/19.png",
+      "contentType": "image/png"
+    },
+    {
+      "id": "BlueMarble_Caribbean",
+      "zoom": 5,
+      "x": 9,
+      "y": 14,
+      "date": null,
+      "file": "BlueMarble_Caribbean.jpeg",
+      "url": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default/GoogleMapsCompatible_Level8/5/14/9.jpeg",
+      "contentType": "image/jpeg"
+    }
+  ]
+}

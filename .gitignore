@@ -22,3 +22,11 @@ build/
 .DS_Store
 .idea/
 .vscode/
+
+# Generated web caches and test artifacts
+web/public/sw.js
+web/public/offline-assets.json
+web/test-results/
+web/playwright-report/
+*.tsbuildinfo
+web/public/vendor/

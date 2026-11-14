@@ -1,0 +1,64 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -71.23,
+      18.8,
+      935.34
+    ]
+  },
+  "properties": {
+    "parameter": {
+      "T2M": {
+        "20160101": 20.37,
+        "20160102": 19.51,
+        "20160103": 19.86
+      },
+      "PRECTOTCORR": {
+        "20160101": 0.08,
+        "20160102": 0.05,
+        "20160103": 0.0
+      },
+      "RH2M": {
+        "20160101": 74.68,
+        "20160102": 71.08,
+        "20160103": 71.47
+      }
+    }
+  },
+  "header": {
+    "title": "NASA/POWER Source Native Resolution Daily Data",
+    "api": {
+      "version": "v2.10.3",
+      "name": "POWER Daily API"
+    },
+    "sources": [
+      "MERRA2",
+      "POWER"
+    ],
+    "fill_value": -999.0,
+    "time_standard": "LST",
+    "start": "20160101",
+    "end": "20160103"
+  },
+  "messages": [],
+  "parameters": {
+    "T2M": {
+      "units": "C",
+      "longname": "Temperature at 2 Meters"
+    },
+    "PRECTOTCORR": {
+      "units": "mm/day",
+      "longname": "Precipitation Corrected"
+    },
+    "RH2M": {
+      "units": "%",
+      "longname": "Relative Humidity at 2 Meters"
+    }
+  },
+  "times": {
+    "data": 0.219,
+    "process": 0.01
+  }
+}

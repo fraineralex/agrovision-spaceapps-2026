@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "caseId": "san-juan-valley-demo",
+  "status": "illustrative; requires local review",
+  "scenarios": [
+    {
+      "id": "baseline",
+      "label": "Documented context: rice \u2192 beans",
+      "status": "baseline",
+      "crops": [
+        "Rice",
+        "Beans"
+      ],
+      "citation": "IDIAF bean compendium (2013) notes rice\u2013bean rotation; verify fit for each demo area.",
+      "sourceUrl": "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf",
+      "cropIds": [
+        "rice",
+        "beans"
+      ]
+    },
+    {
+      "id": "maize-beans",
+      "label": "Explore: maize \u2192 beans",
+      "status": "illustrative",
+      "crops": [
+        "Maize",
+        "Beans"
+      ],
+      "citation": "Illustrative comparison only. Crop sequence and local suitability not validated.",
+      "sourceUrl": null,
+      "cropIds": [
+        "maize",
+        "beans"
+      ]
+    },
+    {
+      "id": "sweet-potato-beans",
+      "label": "Explore: sweet potato \u2192 beans",
+      "status": "illustrative",
+      "crops": [
+        "Sweet potato",
+        "Beans"
+      ],
+      "citation": "Illustrative comparison only. Crop sequence and local suitability not validated.",
+      "sourceUrl": null,
+      "cropIds": [
+        "sweet-potato",
+        "beans"
+      ]
+    }
+  ]
+}
