@@ -134,3 +134,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Herramienta:** Claude (Anthropic). **Archivos:** `web/components/{onboarding,advisor-card,market-card,voice-assistant}.tsx`, `web/lib/{advisor,voice-context}.ts`, `web/app/{page.tsx,globals.css}`, `scripts/market/build_market_insights.py`, `web/public/data/market-insights.json`, `web/tests/demo.spec.ts`, `docs/16_asesor_siembra.md`.
 - **Fuentes:** FAO-56, tablas 11 y 12 (https://www.fao.org/4/x0490e/x0490e0b.htm, consultada el 14-11-2026); CSV mayorista y consolidado de siembra del Ministerio de Agricultura; costos de producción 2019 (páginas citadas).
 - **Revisión por Frainer:** pendiente.
+
+- 2026-11-14 (tarde): Claude añadió el panel “¿De dónde sale esto?” (`web/components/sources-sheet.tsx`). Explica en lenguaje sencillo cada punto de la recomendación (agua, sequía, plagas y precio), con los valores usados, sus fechas y enlaces a FAO-56, FAO GIEWS, IDIAF y el Ministerio de Agricultura. Revisión de Frainer pendiente.
