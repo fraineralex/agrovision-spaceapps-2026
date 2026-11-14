@@ -18,11 +18,11 @@ def utcnow():
     return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
 
-def write_json(path, value):
+def write_json(path, value, compact=False):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + '.tmp')
-    temporary.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
+    temporary.write_text(json.dumps(value, indent=None if compact else 2, separators=(',', ':') if compact else None, allow_nan=False) + '\n')
     temporary.replace(path)
 
 

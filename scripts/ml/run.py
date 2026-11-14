@@ -13,7 +13,7 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
 from pyproj import Transformer
 from shapely.geometry import mapping
-from shapely.ops import transform as transform_geometry
+from shapely import transform as transform_geometry
 
 from common import CACHE, DERIVED, DEFAULT_BBOX, STAC, WORLDCOVER, envelope, write_json
 from features import FEATURE_NAMES, segment_and_features
@@ -156,11 +156,12 @@ def build(n_segments=600):
                             'sourceId': 'sentinel-2-l2a', 'resolutionM': 10}
                            for m, v, c in zip(months, r['series'], r['coverage'])],
             'limitation': LIMITATION}
-        geometry = transform_geometry(converter.transform, r['geometry'].simplify(5, preserve_topology=True))
+        geometry = transform_geometry(r['geometry'].simplify(5, preserve_topology=True), converter.transform, interleaved=False)
         features.append({'type': 'Feature', 'geometry': mapping(geometry), 'properties': properties})
     DERIVED.mkdir(parents=True, exist_ok=True)
     write_json(DERIVED / 'parcels_san_juan.geojson', {**envelope(), 'type': 'FeatureCollection',
-                   'bbox': acquisition['config']['bbox'], 'provenance': report['provenance'], 'features': features})
+                   'bbox': list(__import__('shapely').union_all([__import__('shapely').geometry.shape(f['geometry']) for f in features]).bounds),
+                   'provenance': report['provenance'], 'features': features}, compact=True)
     write_json(DERIVED / 'model_report.json', report)
     make_figure(labels, records, cover_predictions, water_predictions, report)
     print(f'Exported {len(records)} approximate analysis units')

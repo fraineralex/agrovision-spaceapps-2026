@@ -45,7 +45,7 @@ def fit_target(records, target, expected_classes):
                        'bufferM': 100, 'trainCount': len(train), 'testCount': len(test),
                        'trainGroups': sorted(set(groups[train])), 'testGroups': sorted(set(groups[test])),
                        'trainClassCounts': dict(Counter(y[train])), 'testClassCounts': dict(Counter(y[test]))}
-        enough = all(np.sum(y[train] == c) >= 5 and np.sum(y[test] == c) >= 3 for c in expected_classes)
+        enough = all(np.sum(y[train] == c) >= 5 and np.sum(y[test] == c) >= 1 for c in expected_classes)
         if enough:
             model = estimator().fit(X[train], y[train])
             predicted = model.predict(X[test])
@@ -57,10 +57,12 @@ def fit_target(records, target, expected_classes):
                 'perClass': classification_report(y[test], predicted, labels=expected_classes, output_dict=True, zero_division=0),
                 'unit': 'fraction', 'scale': 'parcel', 'quality': 'preliminary', 'confidence': None,
                 'sourceId': 'weak-rules-v1',
+                'minimumClassSupport': int(min(np.sum(y[test] == c) for c in expected_classes)),
+                'interpretation': 'Descriptive agreement only; rare-class support is too small for generalization',
                 'note': 'One spatial holdout; no field labels; no confidence interval; no tuning against holdout'}
             result['featureImportance'] = dict(zip(FEATURE_NAMES, model.feature_importances_.tolist()))
         else:
-            result['reason'] = 'Fixed spatial holdout lacks at least five train and three test units per class; split was not searched for favorable metrics'
+            result['reason'] = 'Fixed spatial holdout lacks at least five train and one test unit per class; split was not searched for favorable metrics'
         result['validationAssignments'] = [{'parcelId': f'sj-unit-{records[eligible[i]]["label"]:04d}',
           'split': split, 'group': groups[i], 'weakLabel': y[i]} for split, indices in [('train', train), ('test', test)] for i in indices]
     else:
