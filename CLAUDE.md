@@ -23,7 +23,7 @@
 
 ## Desarrollo y colaboración
 
-- Todos los mensajes de commit deben estar en inglés y seguir Conventional Commits (por ejemplo, `docs: add technical implementation plan`).
+- Hacer muchos commits pequeños, uno por cambio lógico. Todos los mensajes de commit deben estar en inglés y seguir Conventional Commits (por ejemplo, `docs: add technical implementation plan`).
 - Todo el texto visible en la interfaz de usuario (UI) debe estar en inglés. La documentación del repositorio puede seguir en español.
 - Seguir `docs/10_plan_tecnico.md` para implementar y revisar el producto.
 - Crear ramas `feature/<nombre-corto>`, `fix/<nombre-corto>` o `docs/<nombre-corto>` desde `main`; no trabajar directamente en `main` salvo operación final de integración autorizada.
