@@ -121,3 +121,11 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes:** FAO GIEWS/ASIS DOM y ECMWF redistribuido por FAO; URLs y SHA-256 originales en `data/cache/fao_giews/access.json`. Regla de scoring y semáforo creados con asistencia IA por AgroVision: no son indicadores/alertas oficiales FAO ni validación agronómica.
 - **Límites:** GAUL 1 histórico, vegetación ~1 km, lluvia más gruesa; sin correspondencia geométrica validada con límites modernos. Fenología SOS/MOS/EOS accesible vía WMTS pero sin CSV provincial enlazado; calendario numérico pendiente. GAUL 2 sin descarga publicada verificada. Revisión de React con skill `vercel:react-best-practices`; sin nuevas librerías UI.
 - **Revisión por Frainer:** pendiente. Autor de commits solicitado por el usuario no equivale a revisión humana ni de campo completada.
+
+## 2026-11-14 — Integración de ramas y correcciones de la auditoría de productor
+
+- **Herramienta:** Claude (Anthropic), sesión remota pedida por Juan Carlos Báez (equipo AgroVision). **Propósito:** fusionar `wip/farmer-cards`, `feature/market-dominican-sources`, `feature/fao-giews` y `feature/field-boundaries`; construir el asesor de siembra y la tarjeta de mercado; corregir los hallazgos de la auditoría de usabilidad (simulación de productor de Juan de Herrera).
+- **Archivos:** `scripts/market/build_market_insights.py`, `web/public/data/market-insights.json`, `web/lib/{advisor,advisor.test}.ts`, `web/lib/map/fields.ts`, `web/components/{advisor-card,market-card,map,offline,voice-assistant,fao-giews}.tsx`, `web/lib/voice-context.ts`, `web/app/{page.tsx,globals.css,api/voice/chat/route.ts}`, `web/package.json`, `docs/16_asesor_siembra.md`, `docs/submission/casos_mercado.md`.
+- **Fuentes:** precios mayoristas, siembra nacional y costos de producción 2019 del Ministerio de Agricultura (URLs en `data/raw/market_rd/resources_manifest.json`; páginas del PDF citadas). Los artículos de prensa se leyeron el 14-11-2026; solo se citan hechos que dicen los artículos.
+- **Límites:** las reglas de puntuación y los umbrales son propios, no validados. No se calcula ganancia. Los precios son mayoristas de Santo Domingo.
+- **Revisión por Frainer:** pendiente.
