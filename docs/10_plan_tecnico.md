@@ -197,7 +197,7 @@ Cada función `scoreX(input): PillarResult` es pura, está cubierta por ejemplos
 - [ ] Añadir `AI_GATEWAY_API_KEY` únicamente a entorno servidor/local ignorado por git y a Vercel Project Environment Variables.
 - [ ] Crear route handler Next.js con AI SDK y Vercel AI Gateway; configurar modelo soportado y parámetros acotados, sin exponer key al navegador.
 - [ ] Formar request desde el resultado del motor; aceptar solo schema `ExplanationInput` con métricas/escenarios, nunca contenido de usuario libre ni raster/geometría.
-- [ ] Pedir explicación en inglés sencilla con evidencia recibida, incertidumbres y riesgos. No autorizar nuevos números ni recomendaciones fuera del JSON.
+- [ ] Pedir explicación en español sencilla con evidencia recibida, incertidumbres y riesgos. No autorizar nuevos números ni recomendaciones fuera del JSON.
 - [ ] Validar salida estructurada (Zod), truncar longitud, manejar timeout/rate limit; alternativa de plantilla determinista.
 - [ ] Mostrar “AI-generated explanation” y fuente de métricas junto a la explicación; agregar atribución OpenAI/model provider en `docs/AI_USAGE.md` y `README.md` con fecha/modelo cuando se conozca.
 
@@ -205,7 +205,7 @@ Cada función `scoreX(input): PillarResult` es pura, está cubierta por ejemplos
 
 ### Fase 6 — Calidad, deploy y demo estable (dom. 15, 10:30–16:00)
 
-- [ ] Revisar accesibilidad básica, responsive, inglés consistente, carga inicial y errores visibles.
+- [ ] Revisar accesibilidad básica, responsive, español consistente, carga inicial y errores visibles.
 - [ ] Comprobar que archivos locales y vistas principales abren offline después de precargar el sitio; describir que las capas GIBS remotas requieren red.
 - [ ] Revisar citas/fuentes junto a métricas y en `docs/DATA_SOURCES.md`; agregar método, reglas y confianza a `docs/METHODOLOGY.md`.
 - [ ] Desplegar en Vercel, cargar `AI_GATEWAY_API_KEY` solo si el flujo AI está listo y revisar logs para secretos.
