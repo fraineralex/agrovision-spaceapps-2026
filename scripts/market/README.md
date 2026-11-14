@@ -15,6 +15,8 @@ python3 -m unittest discover -s scripts/market -p 'test_*.py'
 
 La caché `data/cache/market/wholesale_2017_2026.csv` conserva Windows-1252, separador `;`, sin cabecera. Columnas: producto, categoría, nivel comercial, unidad/empaque, precio RD$, semana ordinal del mes, mes, año. El JSON de metadatos guarda URL y fecha real de descarga; `data/derived/market_prices.json` añade SHA-256. No se añade cabecera IA al CSV original de terceros; la transformación queda atribuida aquí, en el JSON y en `AI_USAGE.md`.
 
+La regla específica en `.gitattributes` conserva los bytes/CRLF originales y evita tratar este CSV Windows-1252 como un diff UTF-8. Para revisar datos, abrirlo con Windows-1252 o seguir `sourceRow` desde el derivado; no convertir la caché en el editor porque invalidaría el checksum.
+
 La exportación contiene observaciones de habichuela roja, maíz, guandul, batata y arroz; conserva nombre, variedad, calidad, empaque original y número de fila del CSV (base 1). No identifica mercado individual: se etiqueta como referencia mayorista de Santo Domingo. La columna categoría contiene errores y no se usa para clasificar cultivos.
 
 ## Método y límites
