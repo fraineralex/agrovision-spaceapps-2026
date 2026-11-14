@@ -1,0 +1,578 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-14T15:13:27Z",
+  "caseId": "valle-san-juan",
+  "description": "Illustrative FAO-56 crop water use for three Valle de San Juan rotations. Scenarios require local review.",
+  "templateYear": 2021,
+  "minimumYearsPerMonthDay": 10,
+  "february29Years": 3,
+  "effectiveRainMethod": "Smith, M. 1992. CROPWAT: a computer program for irrigation planning and management. FAO Irrigation and Drainage Paper 46. The USDA SCS monthly option used here is Peff = P*(125-0.2*P)/125 when P<=250 mm, else Peff = 125+0.1*P.",
+  "allocation": "Monthly effective rain is multiplied by crop days divided by days in the month. Rain on days without the crop is not credited. Soil water storage is not simulated.",
+  "wettestClimatologicalMonth": 11,
+  "rotationLeadMonth": 10,
+  "rotations": [
+    {
+      "id": "habichuela_maiz",
+      "label": "Red bean then maize",
+      "status": "illustrative",
+      "note": "Bean sowing is 15 November, inside the 5 November-15 December window cited from the IDIAF compendium. It is not an optimal date. Maize starts the next day.",
+      "cycles": [
+        {
+          "cropId": "habichuela_roja",
+          "label": "Red bean (habichuela roja)",
+          "proxy": false,
+          "kcIni": 0.4,
+          "kcMid": 1.15,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, Beans, dry and Pulses",
+          "stageDays": [
+            20,
+            30,
+            40,
+            20
+          ],
+          "stageSource": "FAO-56 Table 11, dry beans, continental climates, 20/30/40/20 days",
+          "heightM": 0.4,
+          "confidence": 0.5,
+          "sowingDateTemplate": "2021-11-15",
+          "endDateTemplate": "2022-03-04",
+          "etcMm": 307.789,
+          "effectiveRainMm": 205.257,
+          "netIrrigationMm": 144.302,
+          "months": [
+            {
+              "yearOffset": 0,
+              "month": 11,
+              "cropDays": 16,
+              "etcMm": 19.272,
+              "effectiveRainMm": 60.767,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 0,
+              "month": 12,
+              "cropDays": 31,
+              "etcMm": 63.909,
+              "effectiveRainMm": 64.184,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 1,
+              "month": 1,
+              "cropDays": 31,
+              "etcMm": 113.489,
+              "effectiveRainMm": 27.101,
+              "netIrrigationMm": 86.387
+            },
+            {
+              "yearOffset": 1,
+              "month": 2,
+              "cropDays": 28,
+              "etcMm": 104.002,
+              "effectiveRainMm": 48.295,
+              "netIrrigationMm": 55.707
+            },
+            {
+              "yearOffset": 1,
+              "month": 3,
+              "cropDays": 4,
+              "etcMm": 7.117,
+              "effectiveRainMm": 4.909,
+              "netIrrigationMm": 2.207
+            }
+          ]
+        },
+        {
+          "cropId": "maiz",
+          "label": "Maize (grain)",
+          "proxy": false,
+          "kcIni": 0.3,
+          "kcMid": 1.2,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, cereals Kc ini 0.3 and maize field grain Kc mid 1.20, Kc end 0.35 for field drying",
+          "stageDays": [
+            20,
+            35,
+            40,
+            30
+          ],
+          "stageSource": "FAO-56 Table 11, maize grain, Nigeria humid June example, 20/35/40/30 days",
+          "heightM": 2.0,
+          "confidence": 0.5,
+          "sowingDateTemplate": "2022-03-05",
+          "endDateTemplate": "2022-07-07",
+          "etcMm": 498.354,
+          "effectiveRainMm": 209.504,
+          "netIrrigationMm": 288.85,
+          "months": [
+            {
+              "yearOffset": 1,
+              "month": 3,
+              "cropDays": 27,
+              "etcMm": 41.176,
+              "effectiveRainMm": 33.138,
+              "netIrrigationMm": 8.038
+            },
+            {
+              "yearOffset": 1,
+              "month": 4,
+              "cropDays": 30,
+              "etcMm": 122.506,
+              "effectiveRainMm": 54.527,
+              "netIrrigationMm": 67.979
+            },
+            {
+              "yearOffset": 1,
+              "month": 5,
+              "cropDays": 31,
+              "etcMm": 176.903,
+              "effectiveRainMm": 57.625,
+              "netIrrigationMm": 119.278
+            },
+            {
+              "yearOffset": 1,
+              "month": 6,
+              "cropDays": 30,
+              "etcMm": 141.924,
+              "effectiveRainMm": 50.213,
+              "netIrrigationMm": 91.711
+            },
+            {
+              "yearOffset": 1,
+              "month": 7,
+              "cropDays": 7,
+              "etcMm": 15.845,
+              "effectiveRainMm": 14.001,
+              "netIrrigationMm": 1.845
+            }
+          ]
+        }
+      ],
+      "etcMm": 806.143,
+      "effectiveRainMm": 414.761,
+      "netIrrigationMm": 433.152,
+      "beanEtcWithinIdiaf250to400mm": true
+    },
+    {
+      "id": "leguminosa_maiz",
+      "label": "Pulse then maize, outside the November bean window",
+      "status": "illustrative",
+      "note": "The pulse uses FAO-56 dry-bean and pulses coefficients and starts on the first day of month 10. November is reserved for the red-bean window, so this start is the wettest remaining illustrative sowing month. It is not identified as red bean.",
+      "cycles": [
+        {
+          "cropId": "leguminosa_pulse",
+          "label": "Pulse (FAO-56 dry bean and pulses group)",
+          "proxy": false,
+          "kcIni": 0.4,
+          "kcMid": 1.15,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, Beans, dry and Pulses",
+          "stageDays": [
+            20,
+            30,
+            40,
+            20
+          ],
+          "stageSource": "FAO-56 Table 11, dry beans, continental climates, 20/30/40/20 days",
+          "heightM": 0.4,
+          "confidence": 0.4,
+          "sowingDateTemplate": "2021-10-01",
+          "endDateTemplate": "2022-01-18",
+          "etcMm": 286.497,
+          "effectiveRainMm": 263.282,
+          "netIrrigationMm": 62.104,
+          "months": [
+            {
+              "yearOffset": 0,
+              "month": 10,
+              "cropDays": 31,
+              "etcMm": 51.004,
+              "effectiveRainMm": 69.423,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 0,
+              "month": 11,
+              "cropDays": 30,
+              "etcMm": 93.469,
+              "effectiveRainMm": 113.938,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 0,
+              "month": 12,
+              "cropDays": 31,
+              "etcMm": 104.299,
+              "effectiveRainMm": 64.184,
+              "netIrrigationMm": 40.115
+            },
+            {
+              "yearOffset": 1,
+              "month": 1,
+              "cropDays": 18,
+              "etcMm": 37.725,
+              "effectiveRainMm": 15.736,
+              "netIrrigationMm": 21.989
+            }
+          ]
+        },
+        {
+          "cropId": "maiz",
+          "label": "Maize (grain)",
+          "proxy": false,
+          "kcIni": 0.3,
+          "kcMid": 1.2,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, cereals Kc ini 0.3 and maize field grain Kc mid 1.20, Kc end 0.35 for field drying",
+          "stageDays": [
+            20,
+            35,
+            40,
+            30
+          ],
+          "stageSource": "FAO-56 Table 11, maize grain, Nigeria humid June example, 20/35/40/30 days",
+          "heightM": 2.0,
+          "confidence": 0.5,
+          "sowingDateTemplate": "2022-01-19",
+          "endDateTemplate": "2022-05-23",
+          "etcMm": 469.047,
+          "effectiveRainMm": 194.989,
+          "netIrrigationMm": 274.058,
+          "months": [
+            {
+              "yearOffset": 1,
+              "month": 1,
+              "cropDays": 13,
+              "etcMm": 13.157,
+              "effectiveRainMm": 11.365,
+              "netIrrigationMm": 1.792
+            },
+            {
+              "yearOffset": 1,
+              "month": 2,
+              "cropDays": 28,
+              "etcMm": 57.631,
+              "effectiveRainMm": 48.295,
+              "netIrrigationMm": 9.337
+            },
+            {
+              "yearOffset": 1,
+              "month": 3,
+              "cropDays": 31,
+              "etcMm": 161.132,
+              "effectiveRainMm": 38.048,
+              "netIrrigationMm": 123.085
+            },
+            {
+              "yearOffset": 1,
+              "month": 4,
+              "cropDays": 30,
+              "etcMm": 164.719,
+              "effectiveRainMm": 54.527,
+              "netIrrigationMm": 110.191
+            },
+            {
+              "yearOffset": 1,
+              "month": 5,
+              "cropDays": 23,
+              "etcMm": 72.407,
+              "effectiveRainMm": 42.754,
+              "netIrrigationMm": 29.653
+            }
+          ]
+        }
+      ],
+      "etcMm": 755.544,
+      "effectiveRainMm": 458.271,
+      "netIrrigationMm": 336.162,
+      "beanEtcWithinIdiaf250to400mm": null
+    },
+    {
+      "id": "habichuela_guandul_maiz",
+      "label": "Red bean, pigeon-pea proxy, then maize",
+      "status": "illustrative",
+      "note": "Pigeon pea has no FAO-56 row. A full dry-bean stage length is used as a proxy, not a verified cover-crop duration.",
+      "cycles": [
+        {
+          "cropId": "habichuela_roja",
+          "label": "Red bean (habichuela roja)",
+          "proxy": false,
+          "kcIni": 0.4,
+          "kcMid": 1.15,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, Beans, dry and Pulses",
+          "stageDays": [
+            20,
+            30,
+            40,
+            20
+          ],
+          "stageSource": "FAO-56 Table 11, dry beans, continental climates, 20/30/40/20 days",
+          "heightM": 0.4,
+          "confidence": 0.5,
+          "sowingDateTemplate": "2021-11-15",
+          "endDateTemplate": "2022-03-04",
+          "etcMm": 307.789,
+          "effectiveRainMm": 205.257,
+          "netIrrigationMm": 144.302,
+          "months": [
+            {
+              "yearOffset": 0,
+              "month": 11,
+              "cropDays": 16,
+              "etcMm": 19.272,
+              "effectiveRainMm": 60.767,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 0,
+              "month": 12,
+              "cropDays": 31,
+              "etcMm": 63.909,
+              "effectiveRainMm": 64.184,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 1,
+              "month": 1,
+              "cropDays": 31,
+              "etcMm": 113.489,
+              "effectiveRainMm": 27.101,
+              "netIrrigationMm": 86.387
+            },
+            {
+              "yearOffset": 1,
+              "month": 2,
+              "cropDays": 28,
+              "etcMm": 104.002,
+              "effectiveRainMm": 48.295,
+              "netIrrigationMm": 55.707
+            },
+            {
+              "yearOffset": 1,
+              "month": 3,
+              "cropDays": 4,
+              "etcMm": 7.117,
+              "effectiveRainMm": 4.909,
+              "netIrrigationMm": 2.207
+            }
+          ]
+        },
+        {
+          "cropId": "guandul_cover_proxy",
+          "label": "Pigeon pea cover, pulses proxy",
+          "proxy": true,
+          "kcIni": 0.4,
+          "kcMid": 1.15,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 does not list pigeon pea. Table 12 Beans, dry and Pulses is used as a proxy.",
+          "stageDays": [
+            20,
+            30,
+            40,
+            20
+          ],
+          "stageSource": "Same indicative dry-bean stage lengths. Not a verified short cover duration.",
+          "heightM": 0.4,
+          "confidence": 0.3,
+          "sowingDateTemplate": "2022-03-05",
+          "endDateTemplate": "2022-06-22",
+          "etcMm": 439.162,
+          "effectiveRainMm": 182.114,
+          "netIrrigationMm": 257.048,
+          "months": [
+            {
+              "yearOffset": 1,
+              "month": 3,
+              "cropDays": 27,
+              "etcMm": 53.609,
+              "effectiveRainMm": 33.138,
+              "netIrrigationMm": 20.47
+            },
+            {
+              "yearOffset": 1,
+              "month": 4,
+              "cropDays": 30,
+              "etcMm": 131.405,
+              "effectiveRainMm": 54.527,
+              "netIrrigationMm": 76.877
+            },
+            {
+              "yearOffset": 1,
+              "month": 5,
+              "cropDays": 31,
+              "etcMm": 169.532,
+              "effectiveRainMm": 57.625,
+              "netIrrigationMm": 111.907
+            },
+            {
+              "yearOffset": 1,
+              "month": 6,
+              "cropDays": 22,
+              "etcMm": 84.616,
+              "effectiveRainMm": 36.823,
+              "netIrrigationMm": 47.793
+            }
+          ]
+        },
+        {
+          "cropId": "maiz",
+          "label": "Maize (grain)",
+          "proxy": false,
+          "kcIni": 0.3,
+          "kcMid": 1.2,
+          "kcEnd": 0.35,
+          "kcSource": "FAO-56 Table 12, cereals Kc ini 0.3 and maize field grain Kc mid 1.20, Kc end 0.35 for field drying",
+          "stageDays": [
+            20,
+            35,
+            40,
+            30
+          ],
+          "stageSource": "FAO-56 Table 11, maize grain, Nigeria humid June example, 20/35/40/30 days",
+          "heightM": 2.0,
+          "confidence": 0.5,
+          "sowingDateTemplate": "2022-06-23",
+          "endDateTemplate": "2022-10-25",
+          "etcMm": 484.317,
+          "effectiveRainMm": 268.041,
+          "netIrrigationMm": 217.372,
+          "months": [
+            {
+              "yearOffset": 1,
+              "month": 6,
+              "cropDays": 8,
+              "etcMm": 12.293,
+              "effectiveRainMm": 13.39,
+              "netIrrigationMm": 0.0
+            },
+            {
+              "yearOffset": 1,
+              "month": 7,
+              "cropDays": 31,
+              "etcMm": 74.976,
+              "effectiveRainMm": 62.002,
+              "netIrrigationMm": 12.974
+            },
+            {
+              "yearOffset": 1,
+              "month": 8,
+              "cropDays": 31,
+              "etcMm": 173.471,
+              "effectiveRainMm": 56.551,
+              "netIrrigationMm": 116.92
+            },
+            {
+              "yearOffset": 1,
+              "month": 9,
+              "cropDays": 30,
+              "etcMm": 158.744,
+              "effectiveRainMm": 80.112,
+              "netIrrigationMm": 78.632
+            },
+            {
+              "yearOffset": 1,
+              "month": 10,
+              "cropDays": 25,
+              "etcMm": 64.834,
+              "effectiveRainMm": 55.987,
+              "netIrrigationMm": 8.847
+            }
+          ]
+        }
+      ],
+      "etcMm": 1231.268,
+      "effectiveRainMm": 655.412,
+      "netIrrigationMm": 618.722,
+      "beanEtcWithinIdiaf250to400mm": true
+    }
+  ],
+  "metrics": [
+    {
+      "id": "habichuela_template_etc",
+      "label": "Red bean ETc on the 15 November template",
+      "value": 307.789,
+      "unit": "mm/cycle",
+      "confidence": 0.45,
+      "quality": "preliminary",
+      "provenance": {
+        "sourceId": "fao-56-kc",
+        "sourceName": "FAO Irrigation and Drainage Paper 56",
+        "url": "https://www.fao.org/4/x0490e/x0490e00.htm",
+        "periodStart": null,
+        "periodEnd": null,
+        "resolution": {
+          "value": 0.5,
+          "unit": "degree",
+          "note": "ET0 is the POWER-point climatology. Kc values are global table values."
+        },
+        "scale": "regional",
+        "method": "published_rule",
+        "citation": "Allen et al. 1998, Tables 11 and 12 and Chapter 6 Kc curve. Kc was not adjusted with equation 62 because POWER provides mean relative humidity rather than RHmin."
+      },
+      "limitation": "Compared with the 250-400 mm range cited from the IDIAF compendium. Stage lengths are a FAO-56 example, not a San Juan calibration."
+    },
+    {
+      "id": "idiaf_habichuela_water_range_low",
+      "label": "IDIAF cited red-bean water requirement, low end",
+      "value": 250,
+      "unit": "mm/cycle",
+      "confidence": 0.6,
+      "quality": "preliminary",
+      "provenance": {
+        "sourceId": "idiaf-habichuela-compendio",
+        "sourceName": "IDIAF bean compendium, as cited by the team inventory",
+        "url": "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf",
+        "periodStart": null,
+        "periodEnd": null,
+        "resolution": null,
+        "scale": "regional",
+        "method": "published_rule",
+        "citation": "Team inventory: sowing 5 November-15 December and 250-400 mm of water. The PDF was not re-parsed in this pipeline."
+      },
+      "limitation": "Taken from the team inventory citation. This pipeline did not re-read the PDF."
+    },
+    {
+      "id": "idiaf_habichuela_water_range_high",
+      "label": "IDIAF cited red-bean water requirement, high end",
+      "value": 400,
+      "unit": "mm/cycle",
+      "confidence": 0.6,
+      "quality": "preliminary",
+      "provenance": {
+        "sourceId": "idiaf-habichuela-compendio",
+        "sourceName": "IDIAF bean compendium, as cited by the team inventory",
+        "url": "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf",
+        "periodStart": null,
+        "periodEnd": null,
+        "resolution": null,
+        "scale": "regional",
+        "method": "published_rule",
+        "citation": "Team inventory: sowing 5 November-15 December and 250-400 mm of water. The PDF was not re-parsed in this pipeline."
+      },
+      "limitation": "Taken from the team inventory citation. This pipeline did not re-read the PDF."
+    }
+  ],
+  "missingData": [
+    "GPM IMERG rainfall for effective rain",
+    "SMAP soil moisture",
+    "Local Kc and stage lengths for San Juan",
+    "Pigeon pea coefficients and a verified cover duration",
+    "Soil water-holding capacity"
+  ],
+  "provenanceRain": {
+    "sourceId": "nasa-power-precip-climatology",
+    "sourceName": "NASA POWER PRECTOTCORR",
+    "url": "https://power.larc.nasa.gov/",
+    "periodStart": "2016-01-01",
+    "periodEnd": "2025-12-31",
+    "resolution": {
+      "value": 0.5,
+      "unit": "degree",
+      "note": "Not IMERG and not a field gauge."
+    },
+    "scale": "regional",
+    "method": "reanalysis",
+    "citation": "Monthly effective rain uses the 2016-2025 POWER climatology and the USDA SCS formula as implemented in FAO CROPWAT."
+  }
+}
