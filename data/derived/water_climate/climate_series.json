@@ -1,0 +1,2015 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-14T15:13:27Z",
+  "caseId": "valle-san-juan",
+  "description": "Monthly climate for one NASA POWER point in the Valle de San Juan. Rainfall in this file is POWER corrected precipitation, not GPM IMERG.",
+  "point": {
+    "latitude": 18.8,
+    "longitude": -71.23,
+    "elevationM": 935.34,
+    "elevationSource": "NASA POWER response geometry. This cell is not the valley-floor elevation.",
+    "bboxContext": {
+      "lonMin": -71.4,
+      "lonMax": -71.05,
+      "latMin": 18.65,
+      "latMax": 18.95
+    }
+  },
+  "rules": {
+    "hotDayScreenC": 32,
+    "hotDayNote": "Days with T2M_MAX >= 32 C are counted as a screen. This is not a crop-damage threshold validated for San Juan.",
+    "heatRisk": "Calendar months whose 2016-2025 mean daily T2M_MAX is at or above the 75th percentile of the 12 monthly means (NumPy linear percentile).",
+    "droughtMonth": "A complete month whose POWER rainfall is below half the 2016-2025 mean of that calendar month.",
+    "dryQuartile": "Calendar months at or below the 25th percentile of the 12 climatological monthly rainfall totals.",
+    "sowingWindow": "Illustrative only: climatological rainfall at or above the median of the 12 months and the month is not a heat-risk month. Not an agronomic recommendation.",
+    "publishedBeanWindow": {
+      "cropId": "habichuela_roja",
+      "start": "--11-05",
+      "end": "--12-15",
+      "source": "Team data inventory citation of the IDIAF bean compendium. The PDF was not re-parsed by this pipeline.",
+      "url": "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf"
+    }
+  },
+  "et0MethodCounts": {
+    "fao56_penman_monteith": 3653
+  },
+  "cacheCrosscheck": {
+    "cacheFile": "data/cache/power_daily_18.8_-71.23_2016-01-01_2025-12-31.csv",
+    "datesCompared": 3653,
+    "datesMissingFromCache": 0,
+    "maxAbsDiffT2M_C": 0.0,
+    "maxAbsDiffPRECTOTCORR_mm": 0.0
+  },
+  "thresholds": {
+    "heatRiskTmaxMeanC": 30.1182,
+    "dryQuartilePrecipMm": 54.4845,
+    "sowingMedianPrecipMm": 63.5505
+  },
+  "heatRiskMonths": [
+    7,
+    8,
+    9
+  ],
+  "dryQuartileMonths": [
+    1,
+    2,
+    3
+  ],
+  "illustrativeSowingMonths": [
+    5,
+    10,
+    11,
+    12
+  ],
+  "droughtMonths": [
+    {
+      "year": 2016,
+      "month": 1,
+      "precipMm": 11.87,
+      "thresholdMm": 14.195,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2016,
+      "month": 3,
+      "precipMm": 6.88,
+      "thresholdMm": 20.349,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2016,
+      "month": 9,
+      "precipMm": 47.15,
+      "thresholdMm": 47.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2017,
+      "month": 2,
+      "precipMm": 11.63,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2017,
+      "month": 6,
+      "precipMm": 23.39,
+      "thresholdMm": 27.532,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2017,
+      "month": 7,
+      "precipMm": 31.63,
+      "thresholdMm": 34.898,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2017,
+      "month": 11,
+      "precipMm": 68.35,
+      "thresholdMm": 74.941,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2017,
+      "month": 12,
+      "precipMm": 27.15,
+      "thresholdMm": 36.312,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 4,
+      "precipMm": 17.78,
+      "thresholdMm": 30.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 7,
+      "precipMm": 15.12,
+      "thresholdMm": 34.898,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 8,
+      "precipMm": 26.84,
+      "thresholdMm": 31.438,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 9,
+      "precipMm": 29.93,
+      "thresholdMm": 47.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 11,
+      "precipMm": 17.18,
+      "thresholdMm": 74.941,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2018,
+      "month": 12,
+      "precipMm": 9.46,
+      "thresholdMm": 36.312,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 2,
+      "precipMm": 9.86,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 6,
+      "precipMm": 26.19,
+      "thresholdMm": 27.532,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 7,
+      "precipMm": 24.1,
+      "thresholdMm": 34.898,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 8,
+      "precipMm": 18.7,
+      "thresholdMm": 31.438,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 10,
+      "precipMm": 30.58,
+      "thresholdMm": 39.774,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2019,
+      "month": 11,
+      "precipMm": 21.84,
+      "thresholdMm": 74.941,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2020,
+      "month": 2,
+      "precipMm": 19.9,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2020,
+      "month": 4,
+      "precipMm": 7.03,
+      "thresholdMm": 30.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2020,
+      "month": 5,
+      "precipMm": 31.46,
+      "thresholdMm": 32.112,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2020,
+      "month": 6,
+      "precipMm": 19.24,
+      "thresholdMm": 27.532,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2020,
+      "month": 9,
+      "precipMm": 24.38,
+      "thresholdMm": 47.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2021,
+      "month": 1,
+      "precipMm": 9.11,
+      "thresholdMm": 14.195,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2021,
+      "month": 4,
+      "precipMm": 21.68,
+      "thresholdMm": 30.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2021,
+      "month": 12,
+      "precipMm": 18.98,
+      "thresholdMm": 36.312,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2022,
+      "month": 1,
+      "precipMm": 14.14,
+      "thresholdMm": 14.195,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2022,
+      "month": 6,
+      "precipMm": 24.58,
+      "thresholdMm": 27.532,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2022,
+      "month": 10,
+      "precipMm": 27.29,
+      "thresholdMm": 39.774,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2022,
+      "month": 11,
+      "precipMm": 53.38,
+      "thresholdMm": 74.941,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2022,
+      "month": 12,
+      "precipMm": 8.88,
+      "thresholdMm": 36.312,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2023,
+      "month": 2,
+      "precipMm": 9.57,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2023,
+      "month": 3,
+      "precipMm": 3.51,
+      "thresholdMm": 20.349,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "precipMm": 12.5,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "precipMm": 45.28,
+      "thresholdMm": 47.178,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2025,
+      "month": 1,
+      "precipMm": 11.12,
+      "thresholdMm": 14.195,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "precipMm": 17.42,
+      "thresholdMm": 26.373,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "precipMm": 24.47,
+      "thresholdMm": 27.532,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "precipMm": 18.36,
+      "thresholdMm": 34.898,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "precipMm": 17.33,
+      "thresholdMm": 31.438,
+      "rule": "monthly_precip_below_half_of_2016_2025_calendar_month_mean"
+    }
+  ],
+  "climatology": [
+    {
+      "month": 1,
+      "sampleYears": 10,
+      "precipMm": 28.391,
+      "tmaxMeanC": 26.412,
+      "tminMeanC": 15.429,
+      "et0Mm": 98.89,
+      "hotDaysTmaxGe32C": 0.0
+    },
+    {
+      "month": 2,
+      "sampleYears": 10,
+      "precipMm": 52.746,
+      "tmaxMeanC": 27.511,
+      "tminMeanC": 15.518,
+      "et0Mm": 111.507,
+      "hotDaysTmaxGe32C": 0.0
+    },
+    {
+      "month": 3,
+      "sampleYears": 10,
+      "precipMm": 40.698,
+      "tmaxMeanC": 29.142,
+      "tminMeanC": 16.471,
+      "et0Mm": 142.69,
+      "hotDaysTmaxGe32C": 1.6
+    },
+    {
+      "month": 4,
+      "sampleYears": 10,
+      "precipMm": 60.356,
+      "tmaxMeanC": 29.724,
+      "tminMeanC": 17.878,
+      "et0Mm": 140.342,
+      "hotDaysTmaxGe32C": 4.5
+    },
+    {
+      "month": 5,
+      "sampleYears": 10,
+      "precipMm": 64.225,
+      "tmaxMeanC": 29.701,
+      "tminMeanC": 19.199,
+      "et0Mm": 147.419,
+      "hotDaysTmaxGe32C": 3.8
+    },
+    {
+      "month": 6,
+      "sampleYears": 10,
+      "precipMm": 55.064,
+      "tmaxMeanC": 30.104,
+      "tminMeanC": 19.445,
+      "et0Mm": 151.474,
+      "hotDaysTmaxGe32C": 5.6
+    },
+    {
+      "month": 7,
+      "sampleYears": 10,
+      "precipMm": 69.797,
+      "tmaxMeanC": 30.699,
+      "tminMeanC": 19.666,
+      "et0Mm": 164.044,
+      "hotDaysTmaxGe32C": 8.3
+    },
+    {
+      "month": 8,
+      "sampleYears": 10,
+      "precipMm": 62.876,
+      "tmaxMeanC": 30.821,
+      "tminMeanC": 19.839,
+      "et0Mm": 158.027,
+      "hotDaysTmaxGe32C": 9.4
+    },
+    {
+      "month": 9,
+      "sampleYears": 10,
+      "precipMm": 94.357,
+      "tmaxMeanC": 30.161,
+      "tminMeanC": 20.063,
+      "et0Mm": 133.754,
+      "hotDaysTmaxGe32C": 6.7
+    },
+    {
+      "month": 10,
+      "sampleYears": 10,
+      "precipMm": 79.548,
+      "tmaxMeanC": 28.536,
+      "tminMeanC": 19.409,
+      "et0Mm": 113.62,
+      "hotDaysTmaxGe32C": 1.7
+    },
+    {
+      "month": 11,
+      "sampleYears": 10,
+      "precipMm": 149.881,
+      "tmaxMeanC": 27.034,
+      "tminMeanC": 17.904,
+      "et0Mm": 93.333,
+      "hotDaysTmaxGe32C": 0.0
+    },
+    {
+      "month": 12,
+      "sampleYears": 10,
+      "precipMm": 72.623,
+      "tmaxMeanC": 26.014,
+      "tminMeanC": 16.33,
+      "et0Mm": 90.998,
+      "hotDaysTmaxGe32C": 0.0
+    }
+  ],
+  "monthly": [
+    {
+      "year": 2016,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 11.87,
+      "tmaxMeanC": 28.365,
+      "tminMeanC": 15.553,
+      "et0Mm": 106.496,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2016,
+      "month": 2,
+      "daysExpected": 29,
+      "daysPresent": 29,
+      "complete": true,
+      "precipMm": 40.03,
+      "tmaxMeanC": 28.322,
+      "tminMeanC": 15.833,
+      "et0Mm": 111.454,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2016,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 6.88,
+      "tmaxMeanC": 29.992,
+      "tminMeanC": 16.805,
+      "et0Mm": 151.822,
+      "hotDaysTmaxGe32C": 6
+    },
+    {
+      "year": 2016,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 45.26,
+      "tmaxMeanC": 30.49,
+      "tminMeanC": 18.448,
+      "et0Mm": 132.226,
+      "hotDaysTmaxGe32C": 5
+    },
+    {
+      "year": 2016,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 88.95,
+      "tmaxMeanC": 28.813,
+      "tminMeanC": 18.975,
+      "et0Mm": 137.731,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2016,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 49.31,
+      "tmaxMeanC": 29.295,
+      "tminMeanC": 19.023,
+      "et0Mm": 144.892,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2016,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 39.16,
+      "tmaxMeanC": 30.487,
+      "tminMeanC": 19.362,
+      "et0Mm": 163.934,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2016,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 56.27,
+      "tmaxMeanC": 31.01,
+      "tminMeanC": 19.119,
+      "et0Mm": 157.574,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2016,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 47.15,
+      "tmaxMeanC": 30.876,
+      "tminMeanC": 19.473,
+      "et0Mm": 147.664,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2016,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 175.95,
+      "tmaxMeanC": 25.969,
+      "tminMeanC": 19.211,
+      "et0Mm": 90.584,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2016,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 176.36,
+      "tmaxMeanC": 24.909,
+      "tminMeanC": 18.061,
+      "et0Mm": 80.984,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2016,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 42.48,
+      "tmaxMeanC": 24.782,
+      "tminMeanC": 16.446,
+      "et0Mm": 86.246,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 20.37,
+      "tmaxMeanC": 24.843,
+      "tminMeanC": 14.069,
+      "et0Mm": 95.047,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 11.63,
+      "tmaxMeanC": 27.713,
+      "tminMeanC": 15.802,
+      "et0Mm": 102.443,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 89.87,
+      "tmaxMeanC": 27.942,
+      "tminMeanC": 16.393,
+      "et0Mm": 131.731,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 94.8,
+      "tmaxMeanC": 27.881,
+      "tminMeanC": 17.561,
+      "et0Mm": 119.571,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 131.65,
+      "tmaxMeanC": 27.67,
+      "tminMeanC": 18.139,
+      "et0Mm": 134.162,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 23.39,
+      "tmaxMeanC": 30.091,
+      "tminMeanC": 18.607,
+      "et0Mm": 153.49,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2017,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 31.63,
+      "tmaxMeanC": 30.479,
+      "tminMeanC": 19.849,
+      "et0Mm": 163.32,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2017,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 45.53,
+      "tmaxMeanC": 31.245,
+      "tminMeanC": 19.812,
+      "et0Mm": 163.695,
+      "hotDaysTmaxGe32C": 10
+    },
+    {
+      "year": 2017,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 95.39,
+      "tmaxMeanC": 30.003,
+      "tminMeanC": 19.804,
+      "et0Mm": 131.513,
+      "hotDaysTmaxGe32C": 7
+    },
+    {
+      "year": 2017,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 76.28,
+      "tmaxMeanC": 28.438,
+      "tminMeanC": 18.934,
+      "et0Mm": 116.422,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 68.35,
+      "tmaxMeanC": 26.47,
+      "tminMeanC": 17.987,
+      "et0Mm": 80.425,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2017,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 27.15,
+      "tmaxMeanC": 27.054,
+      "tminMeanC": 16.48,
+      "et0Mm": 97.398,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 105.83,
+      "tmaxMeanC": 25.445,
+      "tminMeanC": 16.433,
+      "et0Mm": 85.34,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 45.71,
+      "tmaxMeanC": 25.546,
+      "tminMeanC": 14.417,
+      "et0Mm": 106.773,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 32.95,
+      "tmaxMeanC": 28.015,
+      "tminMeanC": 15.454,
+      "et0Mm": 137.672,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 17.78,
+      "tmaxMeanC": 29.881,
+      "tminMeanC": 18.045,
+      "et0Mm": 141.114,
+      "hotDaysTmaxGe32C": 3
+    },
+    {
+      "year": 2018,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 82.29,
+      "tmaxMeanC": 28.943,
+      "tminMeanC": 18.445,
+      "et0Mm": 141.014,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2018,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 39.73,
+      "tmaxMeanC": 30.348,
+      "tminMeanC": 18.983,
+      "et0Mm": 155.585,
+      "hotDaysTmaxGe32C": 5
+    },
+    {
+      "year": 2018,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 15.12,
+      "tmaxMeanC": 31.353,
+      "tminMeanC": 19.232,
+      "et0Mm": 172.022,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2018,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 26.84,
+      "tmaxMeanC": 31.238,
+      "tminMeanC": 19.463,
+      "et0Mm": 170.714,
+      "hotDaysTmaxGe32C": 12
+    },
+    {
+      "year": 2018,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 29.93,
+      "tmaxMeanC": 30.264,
+      "tminMeanC": 19.185,
+      "et0Mm": 141.249,
+      "hotDaysTmaxGe32C": 6
+    },
+    {
+      "year": 2018,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 51.88,
+      "tmaxMeanC": 28.829,
+      "tminMeanC": 18.278,
+      "et0Mm": 116.788,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 17.18,
+      "tmaxMeanC": 29.45,
+      "tminMeanC": 17.892,
+      "et0Mm": 110.169,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2018,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 9.46,
+      "tmaxMeanC": 28.553,
+      "tminMeanC": 15.84,
+      "et0Mm": 110.814,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 32.78,
+      "tmaxMeanC": 27.447,
+      "tminMeanC": 14.914,
+      "et0Mm": 105.425,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 9.86,
+      "tmaxMeanC": 28.744,
+      "tminMeanC": 15.847,
+      "et0Mm": 121.935,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 37.89,
+      "tmaxMeanC": 29.863,
+      "tminMeanC": 17.055,
+      "et0Mm": 141.02,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 38.75,
+      "tmaxMeanC": 29.866,
+      "tminMeanC": 18.002,
+      "et0Mm": 148.15,
+      "hotDaysTmaxGe32C": 3
+    },
+    {
+      "year": 2019,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 52.28,
+      "tmaxMeanC": 29.714,
+      "tminMeanC": 19.381,
+      "et0Mm": 145.207,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2019,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 26.19,
+      "tmaxMeanC": 31.582,
+      "tminMeanC": 19.412,
+      "et0Mm": 165.094,
+      "hotDaysTmaxGe32C": 12
+    },
+    {
+      "year": 2019,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 24.1,
+      "tmaxMeanC": 32.109,
+      "tminMeanC": 19.978,
+      "et0Mm": 182.247,
+      "hotDaysTmaxGe32C": 19
+    },
+    {
+      "year": 2019,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 18.7,
+      "tmaxMeanC": 32.004,
+      "tminMeanC": 20.171,
+      "et0Mm": 170.491,
+      "hotDaysTmaxGe32C": 16
+    },
+    {
+      "year": 2019,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 117.29,
+      "tmaxMeanC": 29.89,
+      "tminMeanC": 20.407,
+      "et0Mm": 128.827,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2019,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 30.58,
+      "tmaxMeanC": 29.356,
+      "tminMeanC": 19.132,
+      "et0Mm": 124.017,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 21.84,
+      "tmaxMeanC": 28.938,
+      "tminMeanC": 18.182,
+      "et0Mm": 106.786,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2019,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 104.16,
+      "tmaxMeanC": 26.963,
+      "tminMeanC": 17.239,
+      "et0Mm": 88.553,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2020,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 35.48,
+      "tmaxMeanC": 26.742,
+      "tminMeanC": 16.238,
+      "et0Mm": 103.541,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2020,
+      "month": 2,
+      "daysExpected": 29,
+      "daysPresent": 29,
+      "complete": true,
+      "precipMm": 19.9,
+      "tmaxMeanC": 28.509,
+      "tminMeanC": 16.309,
+      "et0Mm": 118.073,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2020,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 80.8,
+      "tmaxMeanC": 28.187,
+      "tminMeanC": 16.039,
+      "et0Mm": 138.457,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2020,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 7.03,
+      "tmaxMeanC": 32.566,
+      "tminMeanC": 19.111,
+      "et0Mm": 169.743,
+      "hotDaysTmaxGe32C": 21
+    },
+    {
+      "year": 2020,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 31.46,
+      "tmaxMeanC": 31.13,
+      "tminMeanC": 19.742,
+      "et0Mm": 164.07,
+      "hotDaysTmaxGe32C": 10
+    },
+    {
+      "year": 2020,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 19.24,
+      "tmaxMeanC": 32.196,
+      "tminMeanC": 20.244,
+      "et0Mm": 170.44,
+      "hotDaysTmaxGe32C": 18
+    },
+    {
+      "year": 2020,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 52.21,
+      "tmaxMeanC": 31.598,
+      "tminMeanC": 20.314,
+      "et0Mm": 174.764,
+      "hotDaysTmaxGe32C": 12
+    },
+    {
+      "year": 2020,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 134.15,
+      "tmaxMeanC": 29.939,
+      "tminMeanC": 19.423,
+      "et0Mm": 152.814,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2020,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 24.38,
+      "tmaxMeanC": 30.296,
+      "tminMeanC": 20.231,
+      "et0Mm": 134.931,
+      "hotDaysTmaxGe32C": 7
+    },
+    {
+      "year": 2020,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 50.14,
+      "tmaxMeanC": 29.276,
+      "tminMeanC": 19.332,
+      "et0Mm": 125.912,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2020,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 368.32,
+      "tmaxMeanC": 25.356,
+      "tminMeanC": 17.436,
+      "et0Mm": 82.066,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2020,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 94.35,
+      "tmaxMeanC": 24.321,
+      "tminMeanC": 16.058,
+      "et0Mm": 81.839,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 9.11,
+      "tmaxMeanC": 25.646,
+      "tminMeanC": 14.872,
+      "et0Mm": 96.298,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 320.1,
+      "tmaxMeanC": 25.911,
+      "tminMeanC": 15.135,
+      "et0Mm": 104.692,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 66.71,
+      "tmaxMeanC": 27.425,
+      "tminMeanC": 15.629,
+      "et0Mm": 138.594,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 21.68,
+      "tmaxMeanC": 29.692,
+      "tminMeanC": 16.993,
+      "et0Mm": 145.193,
+      "hotDaysTmaxGe32C": 2
+    },
+    {
+      "year": 2021,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 34.16,
+      "tmaxMeanC": 30.955,
+      "tminMeanC": 19.02,
+      "et0Mm": 159.743,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2021,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 155.98,
+      "tmaxMeanC": 28.018,
+      "tminMeanC": 19.042,
+      "et0Mm": 140.515,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 158.51,
+      "tmaxMeanC": 28.317,
+      "tminMeanC": 18.848,
+      "et0Mm": 146.867,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 140.32,
+      "tmaxMeanC": 28.93,
+      "tminMeanC": 18.974,
+      "et0Mm": 144.604,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2021,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 348.95,
+      "tmaxMeanC": 27.87,
+      "tminMeanC": 19.389,
+      "et0Mm": 127.877,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 63.97,
+      "tmaxMeanC": 26.343,
+      "tminMeanC": 18.772,
+      "et0Mm": 105.846,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 446.73,
+      "tmaxMeanC": 26.411,
+      "tminMeanC": 17.267,
+      "et0Mm": 94.498,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2021,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 18.98,
+      "tmaxMeanC": 25.63,
+      "tminMeanC": 16.012,
+      "et0Mm": 92.878,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 14.14,
+      "tmaxMeanC": 26.943,
+      "tminMeanC": 15.391,
+      "et0Mm": 101.111,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 40.74,
+      "tmaxMeanC": 26.925,
+      "tminMeanC": 15.598,
+      "et0Mm": 107.922,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 30.34,
+      "tmaxMeanC": 29.035,
+      "tminMeanC": 16.788,
+      "et0Mm": 147.844,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 37.34,
+      "tmaxMeanC": 28.934,
+      "tminMeanC": 17.342,
+      "et0Mm": 139.485,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 35.06,
+      "tmaxMeanC": 30.155,
+      "tminMeanC": 19.055,
+      "et0Mm": 154.518,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2022,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 24.58,
+      "tmaxMeanC": 30.995,
+      "tminMeanC": 19.691,
+      "et0Mm": 159.272,
+      "hotDaysTmaxGe32C": 9
+    },
+    {
+      "year": 2022,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 124.31,
+      "tmaxMeanC": 29.869,
+      "tminMeanC": 19.33,
+      "et0Mm": 154.994,
+      "hotDaysTmaxGe32C": 2
+    },
+    {
+      "year": 2022,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 48.17,
+      "tmaxMeanC": 30.212,
+      "tminMeanC": 19.956,
+      "et0Mm": 149.975,
+      "hotDaysTmaxGe32C": 3
+    },
+    {
+      "year": 2022,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 73.51,
+      "tmaxMeanC": 29.996,
+      "tminMeanC": 20.012,
+      "et0Mm": 128.992,
+      "hotDaysTmaxGe32C": 2
+    },
+    {
+      "year": 2022,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 27.29,
+      "tmaxMeanC": 29.259,
+      "tminMeanC": 19.423,
+      "et0Mm": 117.116,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 53.38,
+      "tmaxMeanC": 28.742,
+      "tminMeanC": 17.573,
+      "et0Mm": 109.214,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2022,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 8.88,
+      "tmaxMeanC": 27.279,
+      "tminMeanC": 15.192,
+      "et0Mm": 103.614,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2023,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 21.45,
+      "tmaxMeanC": 27.084,
+      "tminMeanC": 14.769,
+      "et0Mm": 108.064,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2023,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 9.57,
+      "tmaxMeanC": 28.593,
+      "tminMeanC": 14.848,
+      "et0Mm": 127.488,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2023,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 3.51,
+      "tmaxMeanC": 30.468,
+      "tminMeanC": 15.942,
+      "et0Mm": 157.022,
+      "hotDaysTmaxGe32C": 3
+    },
+    {
+      "year": 2023,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 171.99,
+      "tmaxMeanC": 28.71,
+      "tminMeanC": 17.715,
+      "et0Mm": 134.158,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2023,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 43.35,
+      "tmaxMeanC": 29.318,
+      "tminMeanC": 19.716,
+      "et0Mm": 148.994,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2023,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 69.36,
+      "tmaxMeanC": 29.501,
+      "tminMeanC": 19.994,
+      "et0Mm": 140.659,
+      "hotDaysTmaxGe32C": 4
+    },
+    {
+      "year": 2023,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 39.38,
+      "tmaxMeanC": 31.757,
+      "tminMeanC": 20.048,
+      "et0Mm": 169.15,
+      "hotDaysTmaxGe32C": 16
+    },
+    {
+      "year": 2023,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 60.52,
+      "tmaxMeanC": 31.556,
+      "tminMeanC": 20.796,
+      "et0Mm": 157.816,
+      "hotDaysTmaxGe32C": 15
+    },
+    {
+      "year": 2023,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 61.48,
+      "tmaxMeanC": 31.3,
+      "tminMeanC": 21.038,
+      "et0Mm": 136.638,
+      "hotDaysTmaxGe32C": 12
+    },
+    {
+      "year": 2023,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 75.5,
+      "tmaxMeanC": 30.485,
+      "tminMeanC": 20.91,
+      "et0Mm": 123.396,
+      "hotDaysTmaxGe32C": 11
+    },
+    {
+      "year": 2023,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 79.84,
+      "tmaxMeanC": 28.415,
+      "tminMeanC": 18.849,
+      "et0Mm": 97.621,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2023,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 220.11,
+      "tmaxMeanC": 25.273,
+      "tminMeanC": 17.033,
+      "et0Mm": 82.118,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 21.76,
+      "tmaxMeanC": 25.86,
+      "tminMeanC": 16.1,
+      "et0Mm": 93.643,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 2,
+      "daysExpected": 29,
+      "daysPresent": 29,
+      "complete": true,
+      "precipMm": 12.5,
+      "tmaxMeanC": 27.222,
+      "tminMeanC": 15.319,
+      "et0Mm": 108.451,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 21.6,
+      "tmaxMeanC": 30.781,
+      "tminMeanC": 17.422,
+      "et0Mm": 144.645,
+      "hotDaysTmaxGe32C": 7
+    },
+    {
+      "year": 2024,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 52.7,
+      "tmaxMeanC": 30.637,
+      "tminMeanC": 18.488,
+      "et0Mm": 139.509,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2024,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 103.69,
+      "tmaxMeanC": 30.195,
+      "tminMeanC": 20.185,
+      "et0Mm": 139.322,
+      "hotDaysTmaxGe32C": 6
+    },
+    {
+      "year": 2024,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 118.39,
+      "tmaxMeanC": 29.099,
+      "tminMeanC": 20.032,
+      "et0Mm": 133.185,
+      "hotDaysTmaxGe32C": 1
+    },
+    {
+      "year": 2024,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 195.19,
+      "tmaxMeanC": 28.933,
+      "tminMeanC": 19.831,
+      "et0Mm": 140.852,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 80.93,
+      "tmaxMeanC": 29.43,
+      "tminMeanC": 20.021,
+      "et0Mm": 144.886,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 45.28,
+      "tmaxMeanC": 30.812,
+      "tminMeanC": 20.481,
+      "et0Mm": 132.331,
+      "hotDaysTmaxGe32C": 8
+    },
+    {
+      "year": 2024,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 69.46,
+      "tmaxMeanC": 30.053,
+      "tminMeanC": 20.382,
+      "et0Mm": 117.35,
+      "hotDaysTmaxGe32C": 5
+    },
+    {
+      "year": 2024,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 191.37,
+      "tmaxMeanC": 25.859,
+      "tminMeanC": 18.237,
+      "et0Mm": 79.673,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2024,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 100.45,
+      "tmaxMeanC": 24.595,
+      "tminMeanC": 17.371,
+      "et0Mm": 78.671,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 1,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 11.12,
+      "tmaxMeanC": 25.749,
+      "tminMeanC": 15.954,
+      "et0Mm": 93.934,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 2,
+      "daysExpected": 28,
+      "daysPresent": 28,
+      "complete": true,
+      "precipMm": 17.42,
+      "tmaxMeanC": 27.628,
+      "tminMeanC": 16.07,
+      "et0Mm": 105.838,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 3,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 36.43,
+      "tmaxMeanC": 29.71,
+      "tminMeanC": 17.184,
+      "et0Mm": 138.09,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 4,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 116.23,
+      "tmaxMeanC": 28.586,
+      "tminMeanC": 17.073,
+      "et0Mm": 134.275,
+      "hotDaysTmaxGe32C": 2
+    },
+    {
+      "year": 2025,
+      "month": 5,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 39.36,
+      "tmaxMeanC": 30.121,
+      "tminMeanC": 19.331,
+      "et0Mm": 149.432,
+      "hotDaysTmaxGe32C": 5
+    },
+    {
+      "year": 2025,
+      "month": 6,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 24.47,
+      "tmaxMeanC": 29.919,
+      "tminMeanC": 19.42,
+      "et0Mm": 151.608,
+      "hotDaysTmaxGe32C": 2
+    },
+    {
+      "year": 2025,
+      "month": 7,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 18.36,
+      "tmaxMeanC": 32.086,
+      "tminMeanC": 19.871,
+      "et0Mm": 172.294,
+      "hotDaysTmaxGe32C": 18
+    },
+    {
+      "year": 2025,
+      "month": 8,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 17.33,
+      "tmaxMeanC": 32.647,
+      "tminMeanC": 20.651,
+      "et0Mm": 167.705,
+      "hotDaysTmaxGe32C": 25
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 100.21,
+      "tmaxMeanC": 30.306,
+      "tminMeanC": 20.606,
+      "et0Mm": 127.521,
+      "hotDaysTmaxGe32C": 9
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 174.43,
+      "tmaxMeanC": 27.348,
+      "tminMeanC": 19.713,
+      "et0Mm": 98.773,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "daysExpected": 30,
+      "daysPresent": 30,
+      "complete": true,
+      "precipMm": 75.44,
+      "tmaxMeanC": 25.789,
+      "tminMeanC": 17.554,
+      "et0Mm": 91.894,
+      "hotDaysTmaxGe32C": 0
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "daysExpected": 31,
+      "daysPresent": 31,
+      "complete": true,
+      "precipMm": 100.21,
+      "tmaxMeanC": 25.695,
+      "tminMeanC": 15.631,
+      "et0Mm": 87.845,
+      "hotDaysTmaxGe32C": 0
+    }
+  ],
+  "metrics": [
+    {
+      "id": "power_mean_annual_precip",
+      "label": "Mean annual POWER precipitation",
+      "value": 830.562,
+      "unit": "mm/year",
+      "confidence": 0.35,
+      "quality": "estimated",
+      "provenance": {
+        "sourceId": "nasa-power-daily-ag",
+        "sourceName": "NASA POWER Daily API",
+        "url": "https://power.larc.nasa.gov/",
+        "periodStart": "2016-01-01",
+        "periodEnd": "2025-12-31",
+        "resolution": {
+          "value": 0.5,
+          "unit": "degree",
+          "note": "Meteorology is about 0.5 degree. ALLSKY_SFC_SW_DWN is a 1 degree solar product sampled at the point."
+        },
+        "scale": "regional",
+        "method": "reanalysis",
+        "citation": "NASA POWER v2.10.3 community AG point 18.8, -71.23, elevation 935.34 m from the response geometry, 2016-01-01 to 2025-12-31. Parameters T2M_MAX, T2M_MIN, T2M, RH2M, WS2M, ALLSKY_SFC_SW_DWN, PRECTOTCORR."
+      },
+      "limitation": "POWER precipitation is a coarse reanalysis and is weak for tropical rainfall. It is not GPM IMERG and is not a field measurement. The technical plan excludes POWER rainfall from the principal rainfall score."
+    },
+    {
+      "id": "power_mean_daily_tmax",
+      "label": "Mean daily maximum temperature",
+      "value": 28.8271,
+      "unit": "C",
+      "confidence": 0.7,
+      "quality": "estimated",
+      "provenance": {
+        "sourceId": "nasa-power-daily-ag",
+        "sourceName": "NASA POWER Daily API",
+        "url": "https://power.larc.nasa.gov/",
+        "periodStart": "2016-01-01",
+        "periodEnd": "2025-12-31",
+        "resolution": {
+          "value": 0.5,
+          "unit": "degree",
+          "note": "Meteorology is about 0.5 degree. ALLSKY_SFC_SW_DWN is a 1 degree solar product sampled at the point."
+        },
+        "scale": "regional",
+        "method": "reanalysis",
+        "citation": "NASA POWER v2.10.3 community AG point 18.8, -71.23, elevation 935.34 m from the response geometry, 2016-01-01 to 2025-12-31. Parameters T2M_MAX, T2M_MIN, T2M, RH2M, WS2M, ALLSKY_SFC_SW_DWN, PRECTOTCORR."
+      },
+      "limitation": "Regional reanalysis at the POWER cell elevation. It mixes valley and higher terrain and is not a parcel temperature."
+    },
+    {
+      "id": "fao56_mean_annual_et0",
+      "label": "Mean annual reference evapotranspiration",
+      "value": 1546.0993,
+      "unit": "mm/year",
+      "confidence": 0.6,
+      "quality": "estimated",
+      "provenance": {
+        "sourceId": "fao-56-pm",
+        "sourceName": "FAO Irrigation and Drainage Paper 56",
+        "url": "https://www.fao.org/4/x0490e/x0490e00.htm",
+        "periodStart": "2016-01-01",
+        "periodEnd": "2025-12-31",
+        "resolution": {
+          "value": 0.5,
+          "unit": "degree",
+          "note": "Computed at the POWER point elevation, not at a field elevation."
+        },
+        "scale": "regional",
+        "method": "derived_model",
+        "citation": "Allen et al. 1998. FAO-56 Penman-Monteith equation 6, with Hargreaves equation 52 only if a POWER input for that day is missing. Mean relative humidity is used for actual vapor pressure because POWER RH2M is a daily mean."
+      },
+      "limitation": "FAO-56 Penman-Monteith from POWER inputs at the cell elevation. Not measured lysimeter ET and not crop ET."
+    },
+    {
+      "id": "drought_month_count",
+      "label": "Count of months below half of the calendar-month mean",
+      "value": 42,
+      "unit": "months",
+      "confidence": 0.35,
+      "quality": "preliminary",
+      "provenance": {
+        "sourceId": "nasa-power-daily-ag",
+        "sourceName": "NASA POWER Daily API",
+        "url": "https://power.larc.nasa.gov/",
+        "periodStart": "2016-01-01",
+        "periodEnd": "2025-12-31",
+        "resolution": {
+          "value": 0.5,
+          "unit": "degree",
+          "note": "Meteorology is about 0.5 degree. ALLSKY_SFC_SW_DWN is a 1 degree solar product sampled at the point."
+        },
+        "scale": "regional",
+        "method": "reanalysis",
+        "citation": "NASA POWER v2.10.3 community AG point 18.8, -71.23, elevation 935.34 m from the response geometry, 2016-01-01 to 2025-12-31. Parameters T2M_MAX, T2M_MIN, T2M, RH2M, WS2M, ALLSKY_SFC_SW_DWN, PRECTOTCORR."
+      },
+      "limitation": "Project rule on POWER rainfall, not an official ONAMET or INDRHI drought declaration."
+    }
+  ],
+  "missingData": [
+    "GPM IMERG monthly precipitation inside the valley bbox",
+    "Field-station monthly rainfall for Arroyo Loro"
+  ],
+  "incompleteMonths": []
+}
