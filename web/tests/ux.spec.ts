@@ -25,3 +25,22 @@ test("satellite parcel click opens its own card and keeps Esri at farm zoom",asy
  await page.screenshot({path:"test-results/satellite-parcel.png",fullPage:true});
  expect(errors).toEqual([]);
 });
+
+test("parcel recommendation is simple and evidence stays collapsed",async({page})=>{
+ await page.route("https://**",route=>route.abort());
+ await page.goto("/");
+ await page.getByLabel("Provincia",{exact:true}).selectOption({label:"San Juan"});
+ const recommendation=page.getByRole("region",{name:"Recomendación para la parcela"});
+ await expect(recommendation).toContainText("Considera habichuela → maíz");
+ await expect(page.locator(".farmer-pillar")).toHaveCount(12);
+ await expect(page.getByText(/Estimación preliminar: 433.152/)).not.toBeVisible();
+ const card=page.locator('[data-scenario="habichuela_maiz"]');
+ await expect(card.getByRole("img",{name:/Plagas: Favorable/})).toBeVisible();
+ await card.getByText("Ver detalles",{exact:true}).click();
+ await expect(card).toContainText("433.152 mm/secuencia");
+ await expect(card).toContainText("Santo Domingo");
+ await expect(card).toContainText("IDIAF");
+ await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:"test-results/farmer-recommendation.png",fullPage:true});
+});

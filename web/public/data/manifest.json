@@ -49,7 +49,8 @@
     "power/-71.575,18.661.json",
     "power/-71.595,19.433.json",
     "power/-71.605,18.410.json",
-    "parcels-san-juan.json"
+    "parcels-san-juan.json",
+    "farmer-pillars.json"
   ],
   "sha256": {
     "BlueMarble_Caribbean.jpeg": "71cb24c4b5f6f7dc6846630a4caacace605845d57763d7be031b401b3ddab572",
@@ -97,7 +98,8 @@
     "power/-71.575,18.661.json": "05658826df7c7927a24cbdc97b2b6ccdedc94383aa0be08349f454ce97407e07",
     "power/-71.595,19.433.json": "ab3f3e8848fed4ca21d988d00f7a98c8af08011ce09021b3eaf78d26e0df76e0",
     "power/-71.605,18.410.json": "f8fd495140e610fbd43b6e4ff810ef68f048e08d3b57c798681f5e5883fbd13d",
-    "parcels-san-juan.json": "2bbf144781877405f0c6bdfdc22e25d91d05281c0ead9b808fb6dcf1431a7c10"
+    "parcels-san-juan.json": "2bbf144781877405f0c6bdfdc22e25d91d05281c0ead9b808fb6dcf1431a7c10",
+    "farmer-pillars.json": "0703214bc338e6468092c97e7eeccaca27104757d097aa6a0224748377ecf098"
   },
   "limitations": [
     "Synthetic demo boundaries; no identified farms.",
