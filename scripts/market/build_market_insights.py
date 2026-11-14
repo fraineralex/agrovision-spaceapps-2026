@@ -46,7 +46,16 @@ CROPS = {
     "auyama": {"label": "Auyama", "sowing": ["Auyama"], "price": "raw:auyama"},
     "papa": {"label": "Papa", "sowing": ["Papa"], "price": "raw:papa"},
     "mani": {"label": "Maní", "sowing": ["Maní"], "price": "raw:none"},
-    "sorgo": {"label": "Sorgo", "sowing": ["Sorgo"], "price": "raw:none"},
+    "habichuela_negra": {"label": "Habichuela negra", "sowing": ["Frijol N."], "price": "raw:habichuela_negra"},
+    "guineo": {"label": "Guineo", "sowing": ["Guineo"], "price": "raw:guineo"},
+    "aguacate": {"label": "Aguacate", "sowing": ["Aguacate"], "price": "raw:aguacate"},
+    "pepino": {"label": "Pepino", "sowing": ["Pepino"], "price": "raw:pepino"},
+    "berenjena": {"label": "Berenjena", "sowing": ["Berenjena"], "price": "raw:berenjena"},
+    "repollo": {"label": "Repollo", "sowing": ["Repollo"], "price": "raw:repollo"},
+    "zanahoria": {"label": "Zanahoria", "sowing": ["Zanahoria"], "price": "raw:zanahoria"},
+    "pina": {"label": "Piña", "sowing": ["Piña"], "price": "raw:pina"},
+    "cafe": {"label": "Café", "sowing": [], "price": "raw:none"},
+    "cacao": {"label": "Cacao", "sowing": [], "price": "raw:none"},
 }
 
 # Series read directly from the cached MA wholesale CSV for crops not covered by build_prices.py.
@@ -59,6 +68,14 @@ RAW_SERIES = {
     "aji": ("aji (cubanela), verde, primera", "saco/50 lb", 50, "DOP/lb"),
     "auyama": ("auyama (cabello de angel), primera", "kilo", 1, "DOP/kg"),
     "papa": ("papa (granola), primera", "kilo", 1, "DOP/kg"),
+    "habichuela_negra": ("habichuela negra (arroyo loro negro), primera", "saco/100 lb", 100, "DOP/lb"),
+    "guineo": ("guineo verde (jonhson), primera", "ciento", 100, "DOP/unidad"),
+    "aguacate": ("aguacate (carla), primera", "ciento", 100, "DOP/unidad"),
+    "pepino": ("pepino (poisent), primera", "saco/90 lb", 90, "DOP/lb"),
+    "berenjena": ("berenjena (pompadur), primera", "saco/180 unid/125/lib", 125, "DOP/lb"),
+    "repollo": ("repollo (emblem), primera", "unidad", 1, "DOP/unidad"),
+    "zanahoria": ("zanahoria (chantenay), primera", "saco/100 lb", 100, "DOP/lb"),
+    "pina": ("pina (md2), mediana, primera", "ciento", 100, "DOP/unidad"),
 }
 WHOLESALE = ROOT / "data/raw/market_rd/wholesale.csv"
 
