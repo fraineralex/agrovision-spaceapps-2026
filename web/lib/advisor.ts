@@ -105,7 +105,9 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const m = marketFor(crop);
     const idx = perennial ? null : m?.seasonalIndex?.[String(harvestMonth)] ?? null;
     let marketScore: number | null = typeof idx === "number" ? clamp(2.5 + (idx - 100) / 5) : null;
-    if (m?.sowing?.status === "alta") { warnings.push("Este año se está sembrando más de lo normal en el país: el precio podría bajar."); if (marketScore !== null) marketScore = clamp(marketScore - 1); }
+    const glut = perennial ? null : oversupplyFor(crop, harvestMonth);
+    if (glut) warnings.push(glut.sentence);
+    if (m?.sowing?.status === "alta" && marketScore !== null) marketScore = clamp(marketScore - 1);
     const scores: Record<Pillar, number | null> = { water, climate, pests, market: marketScore };
     const weightFor = (p: Pillar) => (opts.priority === p || (opts.priority === "soil" && p === "water")) ? 2 : 1;
     const used = (Object.keys(scores) as Pillar[]).filter(p => scores[p] !== null);
@@ -136,3 +138,15 @@ export function adviceSentence(top: CropAdvice | undefined, previous: PreviousCr
 
 export const unitWord = (u?: string | null) => u === "DOP/lb" ? "la libra" : u === "DOP/quintal" ? "el quintal" : u === "DOP/kg" ? "el kilo" : u === "DOP/unidad" ? "la unidad" : "la unidad";
 export const lightFor = (score: number | null) => score === null ? "gray" : score >= 3.34 ? "green" : score >= 1.67 ? "amber" : "red";
+
+/** Oversupply warning: national sowing in the last 12 months vs. previous years (MA consolidado de siembra) plus the
+ *  price seasonality of the harvest month (MA wholesale prices). Provincial sowing is not published, so it says "en el país". */
+export function oversupplyFor(crop: string, harvestMonth: number): { level: "alta" | "temporada"; sentence: string } | null {
+  const m = marketFor(crop); if (!m) return null;
+  const name = (cropNames[crop] ?? crop).toLowerCase();
+  const idx = harvestMonth ? m.seasonalIndex?.[String(harvestMonth)] ?? null : null;
+  const low = typeof idx === "number" && idx <= 95;
+  if (m.sowing?.status === "alta") return { level: "alta", sentence: `Mucha gente está sembrando ${name} en el país (${Math.round(((m.sowing.ratio ?? 1) - 1) * 100)}% más que lo normal)${low || harvestMonth ? `; el precio podría bajar en la cosecha${harvestMonth ? ` (${monthNames[harvestMonth - 1]})` : ""}` : ""}.` };
+  if (low) return { level: "temporada", sentence: `En ${monthNames[harvestMonth - 1]} suele haber mucha ${name} en el mercado: el precio suele estar ${Math.round(100 - idx!)}% más bajo que el promedio.` };
+  return null;
+}
