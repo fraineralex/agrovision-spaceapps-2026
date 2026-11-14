@@ -15,6 +15,14 @@ La organización permite el uso de IA solo si se cita. Este registro es obligato
 
 ## Regla para contribuciones
 
+### Asistencias de esta rama (revisión aún pendiente)
+
+| Fecha | Herramienta | Para qué | Archivos afectados | Revisión por Frainer |
+|---|---|---|---|---|
+| 14-11-2026 | Codex (OpenAI) | Investigación de fuentes MA, descarga y diseño del pipeline de precios; limpieza, unidades, duplicados y estacionalidad auditable; pruebas de fallos de datos | `scripts/market/build_prices.py`, `scripts/market/test_prices.py`, `scripts/market/README.md`, `AI_USAGE.md` | Pendiente; no afirmar revisión completada |
+
+Los registros anteriores se conservan como historial declarado por el equipo; esta sesión no verificó esas revisiones.
+
 Cada PR que use IA debe añadir una fila a esta tabla con fecha, herramienta, propósito y archivos afectados; indicar una persona que revisó el resultado. Si una herramienta no generativa también asistió materialmente, documentarla.
 
 La presentación o video final debe incluir una diapositiva que explique para qué se usó IA y cómo se revisaron sus salidas. La IA no reemplaza validación agrícola ni revisión de fuentes.
