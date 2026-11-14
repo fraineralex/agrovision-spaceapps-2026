@@ -142,3 +142,17 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes nuevas:** Open-Meteo (pronóstico), NASA POWER (respaldo de lluvia), IPC del Banco Central de RD (informe de enero de 2026: índice 137,74; base oct. 2019–sep. 2020 = 100, según la presentación del BCRD a la CEPAL).
 - **Límites:** las reglas de lluvia, sobreoferta y ganancia son propias de AgroVision y aproximadas. Los precios son mayoristas, no de finca.
 - **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 (noche) — Rediseño de UI/UX y accesibilidad
+- **Herramienta:** Claude (Anthropic), con las skills `frontend-design`, `web-design-guidelines` y `shadcn`. **Propósito:**
+  - dirección visual “campo dominicano” con tokens;
+  - todas las tarjetas abiertas;
+  - dos columnas en escritorio, con el mapa arriba;
+  - quitar fórmulas de la interfaz y dejar solo datos y fuentes;
+  - tarjeta de 5 opciones (4 objetivos y seguir con el cultivo actual);
+  - onboarding de 3 pasos;
+  - íconos lucide;
+  - correcciones WCAG 2.2 AA y pruebas axe.
+- **Archivos:** `web/app/{page.tsx,layout.tsx,globals.css}`, `web/components/{options-card,fold,onboarding,advisor-card,sources-sheet,market-card,profit-card,rain-card,fao-giews,farm-switcher,map,share-button,voice-assistant}.tsx`, `web/lib/advisor.ts` (`fiveOptions`), `web/tests/demo.spec.ts`, `docs/17_ui_audit.md`, `docs/ui-audit/`.
+- **Datos:** no se añadieron números nuevos. Las 5 opciones reordenan los mismos datos (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura).
+- **Revisión por Frainer:** pendiente.
