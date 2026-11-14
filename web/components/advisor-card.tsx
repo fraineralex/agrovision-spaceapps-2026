@@ -1,9 +1,9 @@
-/* AI: Claude (Anthropic), 2026-11-14 — farmer recommendation card. Frainer review pending. See AI_USAGE.md. */
+/* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { Info, MapPin } from "lucide-react";
+import { CalendarDays, Info, MapPin, Sprout, TriangleAlert, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, cropEmoji, previousCropName, FAO56_URL, lightFor, marketFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropEmoji, previousCropName, lightFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation, Priority } from "@/lib/data";
@@ -12,7 +12,6 @@ const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
   { id: "water", label: "Agua", icon: "water" }, { id: "climate", label: "Sequía", icon: "climate" },
   { id: "pests", label: "Plagas", icon: "pests" }, { id: "market", label: "Precio", icon: "market" },
 ];
-const lightWord: Record<string, string> = { green: "Bien", amber: "Regular", red: "Cuidado", gray: "Sin dato" };
 const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rainfed: "sin riego", unconfirmed: "riego sin confirmar" };
 
 type Props = {
@@ -37,40 +36,39 @@ export function AdvisorCard(p: Props) {
   const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
   const top = advice[0];
   const sentence = adviceSentence(top, p.previous);
-  const peak = top ? marketFor(top.crop)?.sowing?.peakSowingMonths ?? [] : [];
+  const notes = [...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])];
   const speak = () => {
     try {
-      const u = new SpeechSynthesisUtterance(`${sentence} ${[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].join(" ")} Revisa siempre con tu técnico.`);
+      const u = new SpeechSynthesisUtterance(`${sentence} ${notes.join(" ")} Revisa siempre con tu técnico.`);
       u.lang = "es-DO"; speechSynthesis.cancel(); speechSynthesis.speak(u);
     } catch { /* Speech is optional. */ }
   };
   const light = lightFor(top?.overall ?? null);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
-      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {p.previous === "unknown" ? "sin cultivo anterior" : p.previous === "otro" ? "antes: otro cultivo" : `antes: ${previousCropName(p.previous).toLowerCase()}`} · {irrigationWord[p.irrigation]} · siembra en {monthNames[p.sowMonth - 1]}</span>
+      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
 
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
-    <h2>Tu recomendación</h2>
+    <h3>Opción para considerar</h3>
 
-    <div className={`verdict ${light}`}>
-      <span className={`recommendation-light light ${light}`} role="img" aria-label={lightWord[light]} />
-      <div>
-        <p className="verdict-text">{top && top.overall !== null && <span aria-hidden="true">{cropEmoji[top.crop]} </span>}{sentence}</p>
-        {top && top.overall !== null && top.harvestMonth > 0 && <p className="verdict-sub">Siembra en {monthNames[p.sowMonth - 1]} · cosecha en {monthNames[top.harvestMonth - 1]} (unos {Math.round(top.cycleDays / 30)} meses)</p>}
-        {peak.length > 0 && top && <p className="verdict-sub">En el país, {top.name.toLowerCase()} se siembra más en {peak.map(m => monthNames[m - 1]).join(", ")}.</p>}
-        {[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].map(w => <p key={w} className="warning">⚠ {w}</p>)}
-        <div className="verdict-actions"><button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
-          {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={20} /> ¿De dónde sale esto?</button>}</div>
-      </div>
+    <div className={`verdict visual-verdict ${light}`}>
+      {top && top.overall !== null ? <>
+        <div className="crop-feature"><span aria-hidden="true">{cropEmoji[top.crop] || "🌱"}</span><div><p className="verdict-text">{top.name}</p>
+          {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}</div></div>
+        {top.harvestMonth > 0 && <div className="crop-timeline"><div><Sprout aria-hidden="true"/><span><small>Siembra evaluada</small><strong>{monthNames[p.sowMonth - 1]}</strong></span></div>
+          <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]}</strong></span></div></div>}
+      </> : <p className="verdict-text">{sentence}</p>}
+      <div className="verdict-actions"><button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
+        {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={20} /> Datos y fuentes</button>}</div>
+      {notes.length > 0 && <details className="visual-details crop-alerts"><summary><TriangleAlert aria-hidden="true"/> Qué revisar ({notes.length})</summary><ul>{notes.map(w => <li key={w}>{w}</li>)}</ul></details>}
     </div>
 
-    <details className="compare-fold" open><summary>Comparar con tus otros cultivos ({advice.length})</summary>
+    <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
     </details>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
-    <p className="sources-line">Fuentes: <a href={FAO56_URL}>FAO (agua de los cultivos)</a>, <a href="https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM">FAO GIEWS (sequía)</a>, <a href="https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf">IDIAF (plagas)</a> y Ministerio de Agricultura (precios y siembras). Es una guía: confírmalo con tu técnico.</p>
 
   </section>;
 }

@@ -1,8 +1,8 @@
 /* AI: Codex/OpenAI, 2026-11-14; restructured for the farmer audit by Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { FaoDroughtCard } from "@/components/fao-giews";
-import { MapPanel } from "@/components/map";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceAssistant } from "@/components/voice-assistant";
 import { OfflineStatus } from "@/components/offline";
@@ -11,18 +11,19 @@ import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
 import { OptionsCard } from "@/components/options-card";
-import { MapPin, Mic } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
-import { RainCard, useRain } from "@/components/rain-card";
+import { useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
+import { FieldWeek, PlantingPlan, WorkbenchNav } from "@/components/farm-workbench";
+import { SaleBudget } from "@/components/sale-budget";
 import { ShareButton, type ShareSummary } from "@/components/share-button";
 import { adviceSentence, oversupplyFor } from "@/lib/advisor";
-import { profitFor, rd } from "@/lib/profit";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
-import { adviseNextCrop, cropEmoji, cropNames, defaultCrops, marketFor, monthNames, toTareas, unitWord, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, cropNames, defaultCrops, monthNames, toTareas, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { droughtSignal, faoProvince } from "@/lib/fao-giews";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
@@ -31,6 +32,7 @@ import parcels from "@/public/data/demo-parcels.json";
 import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced" as Priority;
+const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <p role="status">Cargando mapa…</p> });
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 
@@ -47,10 +49,11 @@ export default function Home() {
   const [climateStatus,setClimateStatus] = useState("");
   const [provinceSearch,setProvinceSearch] = useState("");
   const [gpsStatus,setGpsStatus] = useState("");
+  const [mapOpen,setMapOpen] = useState(false);
   const [crops,setCrops] = useState<CropId[]>(defaultCrops);
   const [onboarding,setOnboarding] = useState(false);
   const applyProfile = useCallback((pr:FarmProfile) => {
-    setLocation(pr.location);setSelectedParcel("location");setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.sowMonth);setPriority(pr.priority);
+    setLocation(pr.location);setSelectedParcel("location");setField(null);setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.plan?.sowMonth ?? pr.sowMonth);setPriority(pr.priority);
   },[]);
   const [farms,setFarms] = useState<Farm[]>([]);
   const [activeId,setActiveId] = useState<string|null>(null);
@@ -61,12 +64,18 @@ export default function Home() {
     const { farms: saved, active } = loadFarms();
     const timer = setTimeout(() => {
       if (saved.length) { setFarms(saved); const a = saved.find(f => f.id === active) ?? saved[0]; setActiveId(a.id); applyProfile(a); }
-      else setOnboarding(true);
     }, 0);
     return () => clearTimeout(timer);
   },[applyProfile]);
   const selectFarm = (id:string) => { const f = farms.find(x => x.id === id); if (!f) return; setActiveId(id); applyProfile(f); saveFarms(farms, id); window.scrollTo({top:0}); };
-  const deleteFarm = (id:string) => { const rest = farms.filter(f => f.id !== id); setFarms(rest); const next = rest[0] ?? null; setActiveId(next?.id ?? null); if (next) applyProfile(next); else setOnboarding(true); saveFarms(rest, next?.id ?? null); };
+  const deleteFarm = (id:string) => { const rest = farms.filter(f => f.id !== id); setFarms(rest); const next = rest[0] ?? null; setActiveId(next?.id ?? null); if (next) applyProfile(next); else { setChosen(false); setPrevious("unknown"); setIrrigation("unconfirmed"); setOnboarding(true); } saveFarms(rest, next?.id ?? null); };
+  const updateFarm = (patch: Partial<Pick<Farm, "plan" | "waterTurn">>) => {
+    if (!activeFarm) return false;
+    const list = farms.map(farm => farm.id === activeFarm.id ? { ...farm, ...patch } : farm);
+    if (!saveFarms(list, activeFarm.id)) return false;
+    setFarms(list);
+    return true;
+  };
   const finishOnboarding = (farm:Farm) => {
     const list = farms.some(f => f.id === farm.id) ? farms.map(f => f.id === farm.id ? farm : f) : [...farms, farm];
     setFarms(list); setActiveId(farm.id); applyProfile(farm); setOnboarding(false); setEditing(null); saveFarms(list, farm.id); window.scrollTo({top:0});
@@ -102,22 +111,21 @@ export default function Home() {
   const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
   const detectedParcel = findParcel(selectedParcel);
   const province = chosen ? provinceAt(location) : undefined;
+  const farmProvince = activeFarm?.province || province;
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [province, irrigation, previous, month, crops]);
+  const ranked = useMemo(() => adviseNextCrop({ province: farmProvince, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [farmProvince, irrigation, previous, month, crops]);
   const topAdvice = ranked[0];
   const topCrop = topAdvice?.crop ?? "habichuela_roja";
   const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
   const farmTareas = farmAreaM2 ? m2ToTareas(farmAreaM2) : null;
   const rain = useRain(chosen ? (activeFarm?.location ?? location) : null);
-  const profit = profitFor(topCrop, farmTareas ?? 10);
-  const profitText = "unavailable" in profit ? undefined : `${topAdvice?.name ?? ""} en ${Math.round(profit.tareas)} tareas: entre ${rd(profit.profit.low)} y ${rd(profit.profit.high)} (con el precio de hoy ${rd(profit.profit.mid)}), dato aproximado a precio mayorista`;
   const glut = topAdvice && topAdvice.harvestMonth ? oversupplyFor(topCrop, topAdvice.harvestMonth) : null;
-  const shareSummary: ShareSummary = { farm: activeFarm?.name ?? "Mi finca", place: province ?? "República Dominicana", area: farmAreaM2 ? areaLabel(farmAreaM2) : "", advice: adviceSentence(topAdvice, previous), rain: rain.alert?.sentence, profit: profitText, oversupply: glut?.sentence };
-  const topMarket = marketFor(topCrop);
-  const farmName = activeFarm?.name; const rainSentence = rain.alert?.sentence; const glutSentence = glut?.sentence;
-  const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
+  const rainSentence = rain.cached ? undefined : rain.alert?.sentence;
+  const shareSummary: ShareSummary = { farm: activeFarm?.name ?? "Mi finca", place: farmProvince ?? "República Dominicana", area: farmAreaM2 ? areaLabel(farmAreaM2) : "", advice: activeFarm?.plan ? `Mi plan: ${cropNames[activeFarm.plan.crop]} en ${monthNames[activeFarm.plan.sowMonth - 1]}.` : adviceSentence(topAdvice, previous), rain: rainSentence, oversupply: activeFarm?.plan ? undefined : glut?.sentence };
+  const saleCrop = activeFarm?.plan?.crop ?? topCrop;
+  const selection: VoiceSelection = {parcelId: activeFarm ? "location" : (selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location: activeFarm?.location ?? location,priority:BALANCED,month,irrigation,previousCrop:previous,crops:crops.join(","),farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,oversupply:glut?.sentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   return <>
@@ -125,20 +133,31 @@ export default function Home() {
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
     <header className="topbar" role="banner"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <main id="contenido" className="workspace" tabIndex={-1}>
-      <div className="heading-row"><div><h1>¿Qué siembro ahora?</h1><p className="subtitle">Con datos de la NASA, la FAO y el Ministerio de Agricultura, te decimos qué conviene sembrar en tu finca y por qué.</p></div></div>
+      <div className="heading-row"><h1>Mi finca</h1></div>
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
+      <WorkbenchNav/>
+      <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} onTurn={waterTurn => updateFarm({ waterTurn: waterTurn || undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
       <div className="home-grid">
       <div className="col-main">
-      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-      <OptionsCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
-      {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
-      <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
+      <Fold id="siembra" icon="🌱" title="Plan de siembra">
+        {activeFarm && <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>}
+        {chosen ? <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+          : <button className="workbench-button" type="button" onClick={() => setOnboarding(true)}>Empieza con tu provincia</button>}
+      </Fold>
+      {chosen && <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>}
       {chosen && <ShareButton summary={shareSummary}/>}
       </div>
       <div className="col-side">
+      <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?">
+        <SaleBudget key={activeFarm?.id ?? "new"}/>
+        <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
+          <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas}/>
+        </details>
+      </Fold>
       <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
-      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>3 · Tu finca en el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
+      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
+        {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
         <div className="location-controls">
           <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
           <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
@@ -147,7 +166,7 @@ export default function Home() {
           <label>O escoge de la lista<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.map(p => <option key={p.name}>{p.name}</option>)}</select></label>
           {gpsStatus && <p role="status">{gpsStatus}</p>}
         </div>
-        <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField}/>
+        {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
         {(field || detectedParcel) && <article className="card parcel-card" aria-label="Tu parcela" aria-live="polite">
           <h3>Tu parcela{field ? `: unas ${toTareas(field.areaHa)} tareas` : detectedParcel ? `: unas ${toTareas(detectedParcel.properties.areaHa)} tareas` : ""}</h3>
           {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {signalLabels[detectedParcel.properties.signal]} ({detectedParcel.properties.latestObservedMonth})</p>}
@@ -163,7 +182,8 @@ export default function Home() {
         </article>}
       </section>
       </Fold>
-      <Fold icon="💰" title="Precio y mercado" teaser={topMarket?.latest ? `${cropEmoji[topCrop]} ${cropNames[topCrop]}: RD$${Math.round(topMarket.latest.price)} ${unitWord(topMarket.unit)} al por mayor` : "Precios oficiales del Ministerio de Agricultura"}><MarketCard key={topCrop} initialCrop={topCrop}/></Fold>
+      <details className="card visual-extras"><summary>Mercado y clima regional</summary>
+      <Fold icon="💰" title="Precio y mercado"><MarketCard key={saleCrop} initialCrop={saleCrop}/></Fold>
 
       {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
 
@@ -175,6 +195,7 @@ export default function Home() {
         <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
         <p className="note"><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section></Fold>}
+      </details>
       </div>
       </div>
 
@@ -203,6 +224,5 @@ export default function Home() {
         <a href="/data/manifest.json">Fuentes y versión de datos</a>
       </footer>
     </main>
-    <a className="voice-fab" href="#voz"><Mic aria-hidden="true"/><span>Preguntar</span><span className="sr-only"> a AgroVision con tu voz</span></a>
   </>;
 }
