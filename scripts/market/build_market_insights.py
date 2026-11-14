@@ -242,6 +242,11 @@ def main():
             entry["yearAgo"] = {"period": prev["period"], "price": round(prev["mean"], 2)} if prev else None
             entry["recent"] = [{"period": r["period"], "price": round(r["mean"], 2)} for r in rows[-24:]]
             entry["seasonalIndex"] = idx
+            years = {}
+            for r in rows:
+                years.setdefault(r["period"][:4], set()).add(r["period"][5:])
+            entry["seasonalYearsUsed"] = sorted(y for y, ms in years.items() if len(ms) == 12)
+            entry["firstPeriod"] = rows[0]["period"]
             valid = {m: v for m, v in idx.items() if v is not None}
             entry["bestSellMonths"] = sorted(sorted(valid, key=valid.get, reverse=True)[:2]) if len(valid) >= 6 else []
             entry["worstSellMonths"] = sorted(sorted(valid, key=valid.get)[:2]) if len(valid) >= 6 else []
