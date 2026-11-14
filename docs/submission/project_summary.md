@@ -39,7 +39,7 @@ NASA data have defined roles: POWER provides regional meteorological context; IM
 
 The image-analysis design identifies bare-field periods and signals compatible with irrigation or rainfed conditions. Classification results must display their sensor, period, method, confidence and validation status. No accuracy result or field validation is claimed in this draft. If labels are insufficient, any displayed classification must be described as preliminary or deferred. An optional language model may explain already calculated metrics; it is secondary to data analysis.
 
-The implementation plan uses Next.js, React and TypeScript for the application, Python for data preparation, and local JSON artifacts for the demonstration. The app's offline path must use cached data. Availability of the final interface, classifier and optional explanation service must be checked against the frozen build before submission.
+The updated main branch implements Next.js, React and TypeScript, Python data preparation and local JSON artifacts; its documented checks cover the offline comparison. This market task did not rerun the application suite. The app's offline path must use cached data. Availability of the final interface, classifier and optional explanation service must be checked against the frozen build before submission.
 
 ### What this branch demonstrably delivers
 
@@ -47,7 +47,7 @@ The market pipeline downloads the Ministry of Agriculture's original wholesale C
 
 An ordinal week is retained as published; no exact observation day is invented. Zero and blank prices are missing. Explicit sack weights can be normalized, while quintal prices retain the original unit. Conflicting duplicate weeks are excluded from summaries. Seasonal ratios use complete comparable years and remain preliminary. The source describes Santo Domingo wholesale markets; the CSV does not identify an individual market, and these are not prices paid to farmers in San Juan. Integration of this artifact into the application is pending in this branch. See [reproduction and methodology](../../scripts/market/README.md).
 
-A local POWER cache is also present in the repository, with daily temperature, corrected precipitation and relative humidity for a regional query point over 2016–2025. This establishes cached source data, not completed application integration or verified farm-level accuracy.
+A local POWER cache is also present in the repository, with daily temperature, corrected precipitation and relative humidity for a regional query point over 2016–2025. Main now documents integration of this regional context, 18 Landsat point responses from six 2024 scenes, cached GIBS imagery, a FAO-56 Kc·day proxy, and optional evidence selection through Gateway with OpenAI `openai/gpt-4.1-mini`. Landsat signals use exploratory thresholds; there is no trained model, irrigation inference or measured classifier accuracy. See the updated data-source record and main methodology; no farm-level accuracy is established.
 
 ### Benefits, limitations and next steps
 
@@ -67,7 +67,7 @@ Use [nasa_data_used.md](nasa_data_used.md), retaining agency attribution and imp
 
 ## Use of AI / SI tools
 
-Use [ai_disclosure.md](ai_disclosure.md). Codex/OpenAI assistance is recorded; Grok details and any actual Vercel AI Gateway model/provider must be confirmed before claiming specific usage. Prior Claude assistance is retained from the team's existing log. Frainer review of this contribution remains pending.
+Use [ai_disclosure.md](ai_disclosure.md). Codex/OpenAI assistance is recorded. Main configures OpenAI `openai/gpt-4.1-mini` through Vercel AI Gateway; actual invocation history and Grok contribution details remain to be confirmed. Prior Claude assistance is retained from the team's existing log. Frainer review of this contribution remains pending.
 
 ## Terms and conditions / team details
 

@@ -34,3 +34,7 @@ Sources checked November 14, 2026:
 - [ ] Record video duration including credits and fades. Use only owned/licensed visuals and permitted identifiable adults; avoid private producer data.
 - [ ] Frainer signs off on text, data and AI disclosures. Record actual review in `AI_USAGE.md`; pending is not approval.
 - [ ] Submit in the portal before its displayed cutoff; save confirmation. Internal freeze is November 15, 18:00 AST, not the official deadline.
+
+## Base update during preparation
+
+The branch was reconciled with main commit `9ac7972` after the initial drafts. Main adds documented POWER/Landsat/GIBS/FAO demo artifacts and an optional Gateway endpoint configured for OpenAI `openai/gpt-4.1-mini`. The data and AI disclosures reflect this evidence. No `web/` or `scripts/ml/` files were edited by this contribution; the market export is still not wired into the app. Main’s existing UI tests are reported by its contributor, not rerun by this task.

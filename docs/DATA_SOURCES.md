@@ -19,3 +19,7 @@ NASA POWER y GIBS se atribuyen a NASA; imágenes de observación de la Tierra, s
 Las áreas son polígonos sintéticos explícitos, no observaciones de límites agrícolas. Las otras dos rotaciones son propuestas ilustrativas sin validación. No están incluidas series de precios MA limpias, relaciones de plagas IDIAF verificadas, ETo ni suelo local: esos scores no se fabrican.
 
 `web/public/data/manifest.json` enumera los artefactos con SHA-256. Cabeceras incompatibles con JSON/GeoJSON/JPEG/PNG se documentan aquí y en `AI_USAGE.md`: scripts/ensamblaje asistidos por Codex/OpenAI, 14-11-2026; valores e imágenes provienen de las fuentes citadas, no de IA generativa. Revisión de Frainer pendiente.
+
+## Mercado incorporado en rama de envío
+
+Actualización asistida por Codex/OpenAI, 14-11-2026; revisión de Frainer pendiente. Se añade la [fuente oficial MA y método](../scripts/market/README.md), caché original 2017–2026 y `data/derived/market_prices.json` con 4,037 observaciones, 926 medias mensuales y siete series estacionales preliminares. El derivado aún no está conectado a `web/`: el score de mercado de la aplicación continúa null. La ausencia de precios indicada arriba describe la demo web anterior, no la disponibilidad del nuevo artefacto. Precios de Santo Domingo, no en finca; licencia de redistribución por confirmar.
