@@ -6,7 +6,7 @@ import { getComparison, ndvi } from "@/lib/data";
 import { getFarmerComparison } from "./farmer-comparison";
 import { explanationInput } from "@/lib/explanation";
 import { adviseNextCrop, adviceSentence, cropNames, marketFor, marketLimits, monthNames, unitWord, type CropId } from "@/lib/advisor";
-export const voiceSelection = explanationInput.extend({ parcelId: z.enum(["demo-01", "demo-02", "demo-03", "location"]), location: locationSchema.optional(), previousCrop: z.enum(["habichuela_roja", "maiz", "arroz", "batata", "yuca", "platano", "mani", "tomate", "cebolla", "aji", "auyama", "papa", "sorgo", "otro", "unknown"]).optional(), crops: z.string().max(200).optional() }).strict().refine(value => value.parcelId !== "location" || Boolean(value.location), "Ubicación requerida");
+export const voiceSelection = explanationInput.extend({ parcelId: z.enum(["demo-01", "demo-02", "demo-03", "location"]), location: locationSchema.optional(), previousCrop: z.enum(["habichuela_roja", "habichuela_negra", "maiz", "arroz", "batata", "yuca", "platano", "guineo", "mani", "tomate", "cebolla", "aji", "auyama", "papa", "pepino", "berenjena", "repollo", "zanahoria", "pina", "cafe", "cacao", "aguacate", "otro", "unknown"]).optional(), crops: z.string().max(200).optional() }).strict().refine(value => value.parcelId !== "location" || Boolean(value.location), "Ubicación requerida");
 export type VoiceSelection = z.infer<typeof voiceSelection>;
 export const REALTIME_MODEL = "openai/gpt-realtime-mini";
 export const TEXT_MODEL = "openai/gpt-4.1-mini";

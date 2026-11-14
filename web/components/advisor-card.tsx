@@ -52,7 +52,7 @@ export function AdvisorCard(p: Props) {
       <span className={`recommendation-light light ${light}`} role="img" aria-label={lightWord[light]} />
       <div>
         <p className="verdict-text">{top && top.overall !== null && <span aria-hidden="true">{cropEmoji[top.crop]} </span>}{sentence}</p>
-        {top && top.overall !== null && <p className="verdict-sub">Siembra en {monthNames[p.sowMonth - 1]} · cosecha en {monthNames[top.harvestMonth - 1]} (unos {Math.round(top.cycleDays / 30)} meses)</p>}
+        {top && top.overall !== null && top.harvestMonth > 0 && <p className="verdict-sub">Siembra en {monthNames[p.sowMonth - 1]} · cosecha en {monthNames[top.harvestMonth - 1]} (unos {Math.round(top.cycleDays / 30)} meses)</p>}
         {peak.length > 0 && top && <p className="verdict-sub">En el país, {top.name.toLowerCase()} se siembra más en {peak.map(m => monthNames[m - 1]).join(", ")}.</p>}
         {top?.warnings.map(w => <p key={w} className="warning">⚠ {w}</p>)}
         <button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={22} /> Escuchar</button>
@@ -64,7 +64,7 @@ export function AdvisorCard(p: Props) {
     {advice.length > 3 && <button type="button" className="ob-link more" onClick={() => setShowAll(!showAll)}>{showAll ? "Ver menos" : `Ver los ${advice.length} cultivos`}</button>}
 
     <details className="evidence-details"><summary>Ver detalles: cómo se calcula</summary>
-      <p><strong>Agua:</strong> agua que usa el cultivo en todo su ciclo según la curva FAO-56 (1998), tablas 11 y 12, comparada en una escala fija entre 13 cultivos. No mide litros. El arroz inundado gasta más de lo que muestra el cálculo (no incluye lámina de agua ni pérdidas del canal). Filas FAO usadas: {advice.map(a => `${a.name}: ${a.faoRow}, ${a.kcDays} Kc·día`).join("; ")}. <a href={FAO56_URL}>Fuente</a></p>
+      <p><strong>Agua:</strong> agua que pide el cultivo en un ciclo completo según la curva FAO-56 (1998), tablas 11 y 12 (para café, cacao y aguacate, que son permanentes, un año con el promedio de los valores de la tabla 12), comparada en una escala fija entre todos los cultivos de la lista. Los cultivos largos ocupan la tierra más tiempo. No mide litros. El arroz inundado gasta más de lo que muestra el cálculo (no incluye lámina de agua ni pérdidas del canal). Filas FAO usadas: {advice.map(a => `${a.name}: ${a.faoRow}, ${a.kcDays} Kc·día`).join("; ")}. <a href={FAO56_URL}>Fuente</a></p>
       <p><strong>Sequía:</strong> {faoScoreRule} <a href="https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM">FAO GIEWS</a></p>
       <p><strong>Plagas:</strong> solo se usa la regla citada: habichuela seguida de maíz (cultivo no hospedero) ayuda contra antracnosis, bacteriosis común e insectos de la habichuela; repetir el mismo cultivo no rompe el ciclo. Oviedo, IDIAF, Compendio de habichuela, 2013, pp. 88, 94, 102. <a href="https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf">Fuente</a>. Sin regla verificada para otras combinaciones.</p>
       <p><strong>Precio:</strong> índice estacional del mes de cosecha (precios mayoristas del Ministerio de Agricultura, Santo Domingo, ago 2017–oct 2026; mediana de años completos). Puntos = 2,5 + (índice − 100)/5, menos 1 si la siembra nacional de los últimos 12 meses supera en 15% la de años anteriores. Reglas propias de AgroVision, no validadas.</p>
