@@ -1,7 +1,7 @@
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useState } from "react";
-import { allCrops, cropEmoji, cropNames, defaultCrops, monthNames, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { allCrops, cropEmoji, cropNames, defaultCrops, monthNames, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography";
 import type { Irrigation, Priority } from "@/lib/data";
 
@@ -66,7 +66,7 @@ export function Onboarding({ initial, onDone, onSkip }: { initial: Partial<FarmP
 
       {step === 2 && <div className="ob-step">
         <h2>¿Qué sembraste la última vez?</h2>
-        <div className="ob-grid">{allCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); setTimeout(next, 150); }}><span className="ob-emoji">{cropEmoji[c]}</span>{cropNames[c]}</Choice>)}
+        <div className="ob-grid">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); setTimeout(next, 150); }}><span className="ob-emoji">{cropEmoji[c]}</span>{previousCropName(c)}</Choice>)}
           <Choice on={previous === "otro"} onClick={() => { setPrevious("otro"); setTimeout(next, 150); }}>Otro</Choice>
           <Choice on={previous === "unknown"} onClick={() => { setPrevious("unknown"); setTimeout(next, 150); }}>Nada / no sé</Choice></div>
       </div>}

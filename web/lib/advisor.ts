@@ -1,4 +1,5 @@
 /* AI: Claude (Anthropic), 2026-11-14 — next-crop advisor for the farmer view. Frainer review pending. See AI_USAGE.md. */
+import { pestCatalog, pestsFor, sharedPests, type PestCrop } from "./pests";
 import market from "@/public/data/market-insights.json";
 import { droughtScore, droughtSignal, faoProvince } from "./fao-giews";
 import type { Irrigation, Priority } from "./data";
@@ -37,11 +38,13 @@ const FAO56: Record<CropId, { stages: [number, number, number, number] | null; k
 export const FAO56_URL = "https://www.fao.org/4/x0490e/x0490e0b.htm";
 
 export type CropId = "habichuela_roja" | "habichuela_negra" | "maiz" | "arroz" | "batata" | "yuca" | "platano" | "guineo" | "mani" | "tomate" | "cebolla" | "aji" | "auyama" | "papa" | "pepino" | "berenjena" | "repollo" | "zanahoria" | "pina" | "cafe" | "cacao" | "aguacate";
-export type PreviousCrop = CropId | "otro" | "unknown";
+export type PreviousCrop = CropId | PestCrop | "otro" | "unknown";
 export const cropNames: Record<string, string> = { habichuela_roja: "Habichuela roja", habichuela_negra: "Habichuela negra", maiz: "Maíz", arroz: "Arroz", batata: "Batata", yuca: "Yuca", platano: "Plátano", guineo: "Guineo", mani: "Maní", tomate: "Tomate", cebolla: "Cebolla", aji: "Ají", auyama: "Auyama", papa: "Papa", pepino: "Pepino", berenjena: "Berenjena", repollo: "Repollo", zanahoria: "Zanahoria", pina: "Piña", cafe: "Café", cacao: "Cacao", aguacate: "Aguacate" };
 export const cropEmoji: Record<string, string> = { habichuela_roja: "🫘", habichuela_negra: "🫘", maiz: "🌽", arroz: "🌾", batata: "🍠", yuca: "🌿", platano: "🍌", guineo: "🍌", mani: "🥜", tomate: "🍅", cebolla: "🧅", aji: "🫑", auyama: "🎃", papa: "🥔", pepino: "🥒", berenjena: "🍆", repollo: "🥬", zanahoria: "🥕", pina: "🍍", cafe: "☕", cacao: "🍫", aguacate: "🥑" };
 export const isPerennial = (id: string) => FAO56[id as CropId]?.stages === null;
 export const allCrops = Object.keys(FAO56) as CropId[];
+export const previousCrops = Array.from(new Set([...allCrops, ...Object.keys(pestCatalog) as PestCrop[]]));
+export const previousCropName = (crop: PreviousCrop) => pestsFor(crop)?.name ?? cropNames[crop] ?? "otro cultivo";
 export const defaultCrops: CropId[] = ["habichuela_roja", "habichuela_negra", "maiz", "arroz", "batata", "yuca", "platano", "guineo", "tomate", "aji", "auyama"];
 export const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 export const TAREAS_PER_HA = 10000 / 628.86; // 1 tarea = 628.86 m² (unidad usada en RD)
@@ -64,6 +67,7 @@ export type Pillar = "water" | "climate" | "pests" | "market";
 export type CropAdvice = {
   crop: CropId; name: string; cycleDays: number; harvestMonth: number;
   scores: Record<Pillar, number | null>; overall: number | null; viable: boolean;
+  sharedPests: ReturnType<typeof sharedPests>;
   words: Record<Pillar, string>; warnings: string[]; kcDays: number; faoRow: string;
 };
 
@@ -96,12 +100,17 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     if (crop === "arroz" && opts.irrigation === "rainfed") { water = 0; viable = false; warnings.push("El arroz necesita riego; sin riego no se recomienda."); }
     if (!perennial && cycleDays > 300) warnings.push(`Es un cultivo largo (unos ${Math.round(cycleDays / 30)} meses): ocupa la tierra todo ese tiempo.`);
     const climate = droughtScore(fao, kcDays, maxKc);
-    // Pests: only the cited IDIAF relation (bean followed by a non-host such as maize), and repeating the same host.
+    const shared = sharedPests(opts.previous, crop);
+    const reported = shared.filter(pest => !pest.external);
     let pests: number | null = null;
     // Red and black beans are the same species (Phaseolus vulgaris), so they share hosts in the IDIAF rule.
     const bean = (c: string) => c === "habichuela_roja" || c === "habichuela_negra";
     if (bean(opts.previous) && crop === "maiz") pests = 5;
     else if (opts.previous !== "unknown" && opts.previous !== "otro" && (opts.previous === crop || (bean(opts.previous) && bean(crop)))) pests = 1;
+    if (reported.length) {
+      pests = 1;
+      warnings.push(`Vigila ${reported.map(pest => pest.name.toLowerCase()).join(", ")}: aparecen en la lista de ambos cultivos.`);
+    }
     const m = marketFor(crop);
     const idx = perennial ? null : m?.seasonalIndex?.[String(harvestMonth)] ?? null;
     let marketScore: number | null = typeof idx === "number" ? clamp(2.5 + (idx - 100) / 5) : null;
@@ -109,15 +118,18 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const scores: Record<Pillar, number | null> = { water, climate, pests, market: marketScore };
     const weightFor = (p: Pillar) => (opts.priority === p || (opts.priority === "soil" && p === "water")) ? 2 : 1;
     const used = (Object.keys(scores) as Pillar[]).filter(p => scores[p] !== null);
-    const overall = used.length ? clamp(used.reduce((s, p) => s + scores[p]! * weightFor(p), 0) / used.reduce((s, p) => s + weightFor(p), 0)) : null;
+    // A host overlap must lower the ranking even when the other pillars average below one.
+    const weighted = used.filter(p => p !== "pests" || pests === 5);
+    const base = weighted.reduce((s, p) => s + scores[p]! * weightFor(p), 0) / weighted.reduce((s, p) => s + weightFor(p), 0);
+    const overall = clamp(base - (pests === 1 ? 0.5 * weightFor("pests") : 0));
     const pctVsAvg = typeof idx === "number" ? Math.round(idx - 100) : null;
     const words: Record<Pillar, string> = {
       water: !viable ? "Necesita riego" : water >= 3.34 ? "Gasta poca agua" : water >= 1.67 ? "Agua media" : "Gasta mucha agua",
       climate: climate === null ? "Sin dato de sequía" : signal.color === "green" ? "Sin sequía ahora" : climate >= 3.34 ? "Aguanta la sequía actual" : "Riesgo con la sequía",
-      pests: pests === 5 ? "Corta plagas de la habichuela" : pests === 1 ? "Repetir no corta plagas" : "Sin regla de plagas",
+      pests: reported.length ? "Plagas en común" : pests === 5 ? "Rotación citada por IDIAF" : pests === 1 ? "Repetición de cultivo" : shared.length ? "Plaga en común por confirmar †" : "Sin puntaje de plagas",
       market: perennial ? "Permanente: sin mes de cosecha" : pctVsAvg === null ? "Sin precio de referencia" : `Cosecha en ${monthNames[harvestMonth - 1]}: precio ${pctVsAvg > 0 ? `${pctVsAvg}% sobre` : pctVsAvg < 0 ? `${-pctVsAvg}% bajo` : "igual al"} promedio`,
     };
-    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
+    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
   // Permanent crops are investments, not the next rotation: list them after seasonal crops.
   return advice.sort((a, b) => Number(a.cycleDays === 0) - Number(b.cycleDays === 0) || (b.overall ?? -1) - (a.overall ?? -1));
@@ -127,10 +139,10 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
 export function adviceSentence(top: CropAdvice | undefined, previous: PreviousCrop): string {
   if (!top || top.overall === null) return "Falta información para recomendar. Consulta con tu técnico.";
   const reasons: string[] = [];
-  if (top.scores.pests === 5) reasons.push("corta plagas de la habichuela");
+  if (top.scores.pests === 5) reasons.push("el IDIAF respalda rotar habichuela con maíz");
   if ((top.scores.water ?? 0) >= 3.34) reasons.push("gasta menos agua");
   if ((top.scores.market ?? 0) >= 3.34) reasons.push(`suele venderse mejor en ${monthNames[top.harvestMonth - 1]}`);
-  const after = previous !== "unknown" && previous !== "otro" ? ` después de ${cropNames[previous].toLowerCase()}` : "";
+  const after = previous !== "unknown" && previous !== "otro" ? ` después de ${previousCropName(previous).toLowerCase()}` : "";
   return `Conviene sembrar ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
 }
 

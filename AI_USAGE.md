@@ -136,3 +136,9 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Revisión por Frainer:** pendiente.
 
 - 2026-11-14 (tarde): Claude añadió el panel “¿De dónde sale esto?” (`web/components/sources-sheet.tsx`). Explica en lenguaje sencillo cada punto de la recomendación (agua, sequía, plagas y precio), con los valores usados, sus fechas y enlaces a FAO-56, FAO GIEWS, IDIAF y el Ministerio de Agricultura. Revisión de Frainer pendiente.
+
+## 2026-11-14 — Plagas compartidas en el asesor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** incorporar la lista de plagas solicitada al catálogo, a la puntuación del asesor y al contexto de voz. **Archivos:** `web/lib/{pests,advisor,advisor.test,voice-context}.ts`, `web/components/{advisor-card,onboarding,sources-sheet,pest-catalog}.tsx` y `docs/16_asesor_siembra.md`.
+- **Fuentes y límites:** referencias del catálogo enlazadas por cultivo. Las referencias externas requieren confirmación local. El descuento es una regla del prototipo sin validación agronómica. No se estima incidencia provincial o mensual.
+- **Verificación:** lint, TypeScript, 15 pruebas y build local con Webpack. **Revisión por Frainer:** pendiente.

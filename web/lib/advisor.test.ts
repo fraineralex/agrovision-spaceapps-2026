@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { adviseNextCrop, adviceSentence, toTareas } from "./advisor";
 
-test("bean followed by maize is the only cited pest rule and is rewarded", () => {
+test("bean followed by maize retains the cited IDIAF benefit", () => {
   const a = adviseNextCrop({ province: "San Juan", irrigation: "irrigated", previous: "habichuela_roja", sowMonth: 11, priority: "pests" });
   assert.equal(a[0].crop, "maiz");
   assert.equal(a.find(x => x.crop === "maiz")!.scores.pests, 5);
@@ -40,4 +40,29 @@ test("only common Dominican crops; perennials are listed after seasonal crops", 
   const a = adviseNextCrop({ province: "San José de Ocoa", irrigation: "irrigated", previous: "unknown", sowMonth: 11, priority: "water", crops: ["cafe", "cacao", "habichuela_roja"] });
   assert.equal(a[0].crop, "habichuela_roja");
   assert.equal(a.find(x => x.crop === "cafe")!.harvestMonth, 0);
+});
+
+
+test("locally documented shared hosts lower the recommendation score", () => {
+  const opts = { irrigation: "irrigated", sowMonth: 11, priority: "pests" } as const;
+  const afterBeans = adviseNextCrop({ ...opts, previous: "habichuela_roja", crops: ["tomate"] })[0];
+  const unknown = adviseNextCrop({ ...opts, previous: "unknown", crops: ["tomate"] })[0];
+  assert.equal(afterBeans.scores.pests, 1);
+  assert.equal(Math.round((unknown.overall! - afterBeans.overall!) * 10), 10);
+  assert.equal(afterBeans.sharedPests[0].taxon, "Bemisia tabaci");
+
+  const afterYam = adviseNextCrop({ ...opts, previous: "name", crops: ["habichuela_negra"] })[0];
+  assert.equal(afterYam.scores.pests, 1);
+  assert.equal(afterYam.sharedPests[0].taxon, "Meloidogyne");
+
+  const afterGuandul = adviseNextCrop({ ...opts, previous: "guandul", crops: ["tomate"] })[0];
+  assert.equal(afterGuandul.scores.pests, null);
+  assert.equal(afterGuandul.overall, unknown.overall);
+});
+
+test("catalog preserves external references and excludes ambiguous group names from matches", async () => {
+  const { pestCatalog, sharedPests } = await import("./pests");
+  assert.equal(Object.keys(pestCatalog).length, 27);
+  assert.equal(sharedPests("name", "yautia").find(p => p.taxon === "Scutellonema bradys")?.external, true);
+  assert.equal(sharedPests("aji", "cacao").length, 0);
 });
