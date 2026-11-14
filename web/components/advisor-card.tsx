@@ -37,7 +37,7 @@ export function AdvisorCard(p: Props) {
   };
   const light = lightFor(top?.overall ?? null);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
-    <h2>2 · ¿Qué siembro ahora?</h2>
+    <h2>2 · Tu recomendación</h2>
     <Chips<PreviousCrop> label="¿Qué sembraste la última vez?" value={p.previous} onChange={p.setPrevious}
       options={[["arroz", "Arroz"], ["habichuela_roja", "Habichuela"], ["maiz", "Maíz"], ["otro", "Otro"], ["unknown", "No sé"]]} />
     <Chips<Irrigation> label="¿Tienes riego?" value={p.irrigation} onChange={p.setIrrigation}

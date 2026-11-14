@@ -118,7 +118,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   }
   const active = realtime.status === "connecting" || realtime.status === "connected";
   return <section className="card voice-card" aria-label="Asistente de voz">
-    <div className="voice-intro"><span className="step-label">3 · CONVERSEMOS</span><h2>Hablemos de tu parcela</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
+    <div className="voice-intro"><span className="step-label">4 · PREGÚNTALE A AGROVISION</span><h2>Pregunta con tu voz</h2><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
     <div className="voice-actions"><button className={`mic-button ${active ? "listening" : ""}`} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}><FarmIcon name={active ? "stop" : "mic"} size={40}/><span>{active ? "Terminar" : "Hablar"}</span></button><button className="secondary-action" onClick={interrupt}><FarmIcon name="stop"/>Silenciar</button></div>
     <p role="status">{realtime.status === "connected" ? "Micrófono encendido. Habla de nuevo para interrumpir." : realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
     <div className="voice-transcript" role="log" aria-label="Transcripción de la conversación" aria-live="polite">
