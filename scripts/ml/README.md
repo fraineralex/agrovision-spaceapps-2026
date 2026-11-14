@@ -136,8 +136,9 @@ confundirse con vegetación perenne, lluvia o manejo; NDVI bajo no prueba suelo
 pelado. No se predicen rendimientos, plagas ni rentabilidad.
 
 Tras evaluar el holdout se ajusta un modelo de demo con todas las etiquetas; sus
-votos no representan probabilidades calibradas de acierto. El campo `confidence`
-es el máximo voto RandomForest; cada predicción incluye estatus de validación.
+scores no representan probabilidades calibradas de acierto. El campo `confidence`
+es el máximo `predict_proba` RandomForest (promedio de probabilidades de clase
+en las hojas de cada árbol), no la fracción literal de votos duros; cada predicción incluye estatus de validación.
 Una métrica de calidad con `confidence: null` indica incertidumbre no cuantificada,
 no confianza perfecta. Los faltantes y resultados fuera del dominio quedan null.
 
@@ -150,9 +151,9 @@ no confianza perfecta. Los faltantes y resultados fuera del dominio quedan null.
 | `data/cache/ml/monthly.npz` | Evidencia real reducida para reconstruir offline, sin pickle |
 | `data/cache/ml/scenes/` | Recortes NDVI por escena, ignorados por git |
 | `data/model/*.joblib` | Dos modelos reproducibles locales, ignorados; cargar solo archivos propios |
-| `data/derived/parcels_san_juan.geojson` | Unidades WGS84, clases, votos, features, métricas y serie mensual |
+| `data/derived/parcels_san_juan.geojson` | Unidades WGS84, clases, scores, features, métricas y serie mensual |
 | `data/derived/model_report.json` | Método, período, sensor, fuentes, reglas, versiones y evaluación |
-| `data/derived/parcels_san_juan.png` | Mapas separados de cobertura/agua, votos, NDVI bajo y cobertura temporal |
+| `data/derived/parcels_san_juan.png` | Mapas separados de cobertura/agua, scores, NDVI bajo y cobertura temporal |
 
 JSON/GeoJSON llevan `schemaVersion`, `generatedAt`, `caseId`, procedencia y
 asistencia IA; geometrías WGS84. Las métricas siguen `Metric`/`Provenance` de
@@ -165,7 +166,7 @@ Integrador UI: consumir `coverClass`, `waterRegimeClass`, sus confianzas y
 `coverValidationStatus`/`waterValidationStatus` por separado. `class`/`confidence`
 son alias de agua cuando existe y de cobertura en otro caso. No confundirlos
 con estado de riego confirmado (`irrigationStatus` siempre `unconfirmed`).
-La PNG separa cobertura y agua en paneles con sus votos; los meses bajos y
+La PNG separa cobertura y agua en paneles con sus scores; los meses bajos y
 la cobertura temporal usan datos, no clasificación. `model_report.json.targets.*.validation` puede ser null.
 No renombrar `prototype_unvalidated` como "validated".
 

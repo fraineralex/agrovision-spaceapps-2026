@@ -21,7 +21,7 @@ from features import FEATURE_NAMES, segment_and_features
 from train import fit_target
 
 LIMITATION = ('Preliminary SLIC analysis unit, not a farm or cadastral boundary. '
-              'Weak labels and uncalibrated model votes; no field validation. '
+              'Weak labels and uncalibrated model scores; no field validation. '
               'NDVI alone does not establish irrigation, crop identity or bare soil.')
 
 
@@ -54,9 +54,9 @@ def make_figure(labels, records, cover_predictions, water_predictions, report):
     fig, axes = plt.subplots(2, 3, figsize=(16, 11))
     axes = axes.ravel()
     extent = [0, grid_shape[1]*0.01, 0, grid_shape[0]*0.01]
-    titles = ['Latest observed cover: weak-label prototype', 'Cover votes (not field accuracy)',
+    titles = ['Latest observed cover: weak-label prototype', 'Cover scores (not field accuracy)',
               'Low NDVI months; gaps excluded', 'Water regime: unvalidated prototype',
-              'Water votes (not field accuracy)', 'Temporal observation coverage']
+              'Water scores (not field accuracy)', 'Temporal observation coverage']
     for i, ax in enumerate(axes):
         if i in (0, 3):
             colors = ['#b78c52', '#4c9d46'] if i == 0 else ['#217db0', '#e4bd52']
@@ -70,7 +70,7 @@ def make_figure(labels, records, cover_predictions, water_predictions, report):
             im = ax.imshow(panels[i], extent=extent, cmap='viridis' if vote else 'YlOrBr',
                            vmin=0.5 if vote else 0, vmax=1 if vote else report['acquisition']['monthCount'])
             fig.colorbar(im, ax=ax, fraction=0.046,
-                         label='Uncalibrated RF vote fraction' if vote else 'Observed months')
+                         label='Uncalibrated RF class score' if vote else 'Observed months')
         ax.set_title(titles[i], fontsize=11)
         ax.set_xlabel('Eastward distance (km)')
         ax.set_ylabel('Northward distance (km)')
@@ -95,8 +95,7 @@ def build(n_segments=600):
     report = {**envelope(), 'status': 'prototype_preliminary', 'periodStart': prov['periodStart'],
         'periodEnd': prov['periodEnd'], 'sensor': 'Sentinel-2 MSI L2A (no HLS/Landsat fusion)',
         'provenance': [prov, {'sourceId': 'esa-worldcover-2021', 'sourceName': 'ESA WorldCover 2021 v200',
-             'url': WORLDCOVER, 'observedAt': '2021-01-01T00:00:00Z',
-             'periodStart': '2021-01-01T00:00:00Z', 'periodEnd': '2021-12-31T23:59:59Z',
+             'url': WORLDCOVER, 'periodStart': '2021-01-01T00:00:00Z', 'periodEnd': '2021-12-31T23:59:59Z',
              'resolution': {'value': 10, 'unit': 'm'}, 'scale': 'pixel', 'method': 'derived_model',
              'citation': 'Zanaga et al. (2022), ESA WorldCover 10 m 2021 v200, doi:10.5281/zenodo.7254221',
              'license': 'CC BY 4.0'}],
@@ -113,7 +112,7 @@ def build(n_segments=600):
                    'dryMonths': [1, 2, 3], 'wetMonths': [5, 6, 9, 10],
                    'seasonWindowStatus': 'Project heuristic; local rainfall and agronomist validation pending',
                    'mask': 'SCL 4/5 only with 20 m exclusion buffer; SCL has native 20 m resolution',
-                   'confidence': 'Maximum uncalibrated forest vote fraction after fitting all weak labels',
+                   'confidence': 'Maximum uncalibrated predict_proba after fitting all weak labels; mean tree leaf class probability',
                    'noTemporalImputation': True},
         'weakLabelRules': {'version': 'weak-rules-v1',
             'bare_soil': 'WorldCover crop+bare fraction >=0.6 and latest observed monthly NDVI <0.2',
@@ -155,7 +154,7 @@ def build(n_segments=600):
             'coverValidationStatus': cover_report['status'], 'waterValidationStatus': water_report['status'],
             'coverClass': cover['class'] if cover else None, 'coverConfidence': cover['confidence'] if cover else None,
             'waterRegimeClass': water['class'] if water else None, 'waterConfidence': water['confidence'] if water else None,
-            'classificationProvenance': model_prov, 'confidenceMeaning': 'Uncalibrated model vote; not field accuracy',
+            'classificationProvenance': model_prov, 'confidenceMeaning': 'Uncalibrated predict_proba; not field accuracy',
             'weakLabels': {'cover': r['cover_weak_label'], 'waterRegime': r['water_weak_label']},
             'irrigationStatus': 'unconfirmed', 'periodStart': prov['periodStart'], 'periodEnd': prov['periodEnd'],
             'latestObservedMonth': r['latest_month'], 'areaM2': r['size']*100,

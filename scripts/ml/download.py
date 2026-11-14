@@ -1,7 +1,6 @@
 # AI assistance: Codex (OpenAI), 2026-11-14; Frainer review pending.
 """Anonymous STAC discovery and small COG windows; no fabricated observations."""
 import argparse
-import calendar
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 import json
