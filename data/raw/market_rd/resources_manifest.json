@@ -1,0 +1,90 @@
+[
+  {
+    "id": "retail",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2023/01/Informe-de-precios-Minorista-Agosto-2017-Octubre-2026-1.csv",
+    "resourceId": "19a38173-f6db-4dae-adb9-52716e42d246",
+    "package": "info",
+    "status": 200,
+    "path": "data/raw/market_rd/retail.csv",
+    "bytes": 5447418,
+    "sha256": "429544824845ca0863c44d1991ea6fca0fb6db034f6955f948317e4aaa39e95a",
+    "retrievedAt": "2026-11-14T16:30:49.981155+00:00"
+  },
+  {
+    "id": "wholesale",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2023/01/Informe-de-precios-Mayorista-Agosto-2017-Octubre-2026..csv",
+    "resourceId": "0b37fbd7-85d2-46ff-bbfe-ce690b832b4c",
+    "package": "info",
+    "status": 200,
+    "path": "data/raw/market_rd/wholesale.csv",
+    "bytes": 4050825,
+    "sha256": "b9d4cda6b659eba8a645eabceefd79e54106aa7cd3f8cd8ddd8758ce081f14c2",
+    "retrievedAt": "2026-11-14T16:30:50.062053+00:00"
+  },
+  {
+    "id": "sowing",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2026/10/Consolidado-Mensual-Nacional-de-Siembra-Ano-2017-Enero-Septiembre-2026.csv",
+    "resourceId": "8fdfe501-aeb7-40bd-bcf6-a387b3c5d80a",
+    "package": "si",
+    "status": 200,
+    "path": "data/raw/market_rd/sowing.csv",
+    "bytes": 186117,
+    "sha256": "24cdfb99d129683da5bdac4e4443d946c92efeadaf247775ef52684a557fabf1",
+    "retrievedAt": "2026-11-14T16:30:49.713903+00:00"
+  },
+  {
+    "id": "harvest",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2026/10/Consolidado-Mensual-Nacional-de-Cosecha-Ano-2017-Enero-Septiembre-2026.csv",
+    "resourceId": "7d78f933-a060-481d-9305-ec3291a68e81",
+    "package": "si",
+    "status": 200,
+    "path": "data/raw/market_rd/harvest.csv",
+    "bytes": 190698,
+    "sha256": "105fd84100b96bf708af796edf04379cb78b45788c0e7a26759d232d0838289e",
+    "retrievedAt": "2026-11-14T16:30:49.658219+00:00"
+  },
+  {
+    "id": "production_quintales",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2026/10/Consolidado-Mensual-Nacional-de-Prod.-en-Quintales-Ano-2017-Enero-Septiembre-2026.csv",
+    "resourceId": "ff0c59f9-4da7-4901-91e8-bd681fcafb08",
+    "package": "si",
+    "status": 200,
+    "path": "data/raw/market_rd/production_quintales.csv",
+    "bytes": 200759,
+    "sha256": "de826d0edc2a9b02f64ced7ceb3368ee4e3745eb24fabc6c318ae2665d720b99",
+    "retrievedAt": "2026-11-14T16:30:50.014058+00:00"
+  },
+  {
+    "id": "production_millares",
+    "url": "https://agricultura.gob.do/transparencia/wp-content/uploads/2026/10/Consolidado-mensual-Nacional-de-Prod.-en-Millares-Ano-2017-Enero-Septiembre-2026.csv",
+    "resourceId": "fb61bf09-7a41-46ec-9df3-0743d9cad9b4",
+    "package": "si",
+    "status": 200,
+    "path": "data/raw/market_rd/production_millares.csv",
+    "bytes": 201413,
+    "sha256": "becfc950242edd7e22e2d6ae3606144ab42bc672efe6f053447643f67f09d2dd",
+    "retrievedAt": "2026-11-14T16:30:49.721589+00:00"
+  },
+  {
+    "id": "financed_area",
+    "url": "https://datos.gob.do/dataset/102b343f-a4c4-4aba-b253-77bff9ee4000/resource/8c7be455-e111-401e-849a-d1abab55ab97/download/areas-financiadas-bagricola-2017-2026.csv",
+    "resourceId": "8c7be455-e111-401e-849a-d1abab55ab97",
+    "package": "areasfinanciadasporsucursales",
+    "status": 200,
+    "path": "data/raw/market_rd/financed_area.csv",
+    "bytes": 159981,
+    "sha256": "23db8eb7133a5d4b126c2c738aad166d26132dba801760e818b0460d931111ea",
+    "retrievedAt": "2026-11-14T16:30:50.234341+00:00"
+  },
+  {
+    "id": "financed_amount",
+    "url": "https://datos.gob.do/dataset/6064d590-5ebd-498c-9c20-9bedae54280c/resource/9fe211dc-624d-48e1-a4db-26a859e34be6/download/montos-otorgados-por-destino-bagricola-2017-2026.csv",
+    "resourceId": "9fe211dc-624d-48e1-a4db-26a859e34be6",
+    "package": "montos-otorgados-por-destino",
+    "status": 200,
+    "path": "data/raw/market_rd/financed_amount.csv",
+    "bytes": 257075,
+    "sha256": "05add99af88eec8f5303c19c1c7b84e2f539bc24c3aa7a29c42d0de0270e4057",
+    "retrievedAt": "2026-11-14T16:30:50.483161+00:00"
+  }
+]
