@@ -114,3 +114,8 @@ Reconstrucción: con Shapely de `scripts/ml/requirements.txt`, ejecutar `python 
 La vista principal ahora consume las tres secuencias exactas de `data/derived/water_climate/`, con sus scores originales de agua y clima en San Juan. Sustituye las tarjetas antiguas; las afirmaciones anteriores de scores null describen la demo previa y el endpoint legado `/api/explain`. Fuera de San Juan usa el caché POWER del punto para un filtro térmico histórico distinto, sin trasladar sus mm de agua. Integra una regla parcial IDIAF habichuela→maíz y referencias estacionales preliminares de precios mayoristas de Santo Domingo; los faltantes siguen explícitos. Ninguno es precio de finca ni pronóstico. Una orientación superior y cuatro iconos resumen el caso; cifras y fuentes están plegadas en «Ver detalles».
 
 Reconstrucción sin red: `python3 scripts/export_pillar_data.py`. [Método, fuentes y límites vigentes](docs/12_farmer_pillars.md). Revisión humana de Frainer pendiente.
+
+
+## Asesor de siembra y mercado (14-11-2026)
+
+La vista principal recomienda qué sembrar ahora según provincia, cultivo anterior, riego y mes, con precios oficiales, tendencia, mejores meses de venta y aviso de sobreoferta. Método y límites: [docs/16_asesor_siembra.md](docs/16_asesor_siembra.md). Casos de prensa para el pitch: [docs/submission/casos_mercado.md](docs/submission/casos_mercado.md).

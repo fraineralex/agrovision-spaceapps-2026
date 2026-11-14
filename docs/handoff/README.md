@@ -1,23 +1,7 @@
-# Handoff (2026-11-14, 12:40 PM AST)
+# Handoff (actualizado 2026-11-14, tarde)
 
-`main` is in production on Vercel, which deploys every push to `main` automatically.
+Las cuatro ramas de trabajo ya están fusionadas en `main`: `wip/farmer-cards`, `feature/market-dominican-sources`, `feature/fao-giews` y `feature/field-boundaries`. Integración y correcciones de la auditoría de productor: ver `docs/16_asesor_siembra.md` y `AI_USAGE.md`.
 
-Work in progress. Each branch is a WIP checkpoint; its prompt is in this folder.
+Pendiente: calendario de siembra provincial (fenología FAO), agua de canal y presas, plagas por época, importaciones en el mercado, y el resto de ventanas SAM del valle (10 de 42 procesadas).
 
-| Branch | Task | Prompt |
-| --- | --- | --- |
-| `wip/farmer-cards` | One recommendation per parcel; real data for clima, plagas and mercado | prompt_cards.txt |
-| `feature/fao-giews` | FAO GIEWS: drought alert, historical risk, planting season | prompt_fao.txt |
-| `feature/market-dominican-sources` | Price forecast, oversupply risk, margin per tarea, press cases for the pitch | prompt_market.txt |
-| `feature/field-boundaries` | Farm boundaries in San Juan (SAM on Esri imagery) | prompt_fields.txt |
-
-To continue:
-1. `git checkout <branch>`.
-2. Give the prompt to your agent, adding: "continue from the existing WIP commit".
-3. Run `cd web && npm run lint && npm run build`.
-4. `git pull --rebase origin main && git push origin HEAD:main`.
-
-Rules (see AGENTS.md):
-- Small Conventional Commits, in English.
-- UI text in Spanish.
-- Cite all AI use in AI_USAGE.md.
+Verificación: `cd web && npm run lint && npm test && npm run build && npm run test:e2e`.
