@@ -87,3 +87,10 @@ Una coincidencia de taxón con evidencia local, o la repetición del cultivo, de
 Estas reglas comparan asociaciones documentadas; la ficha no mide incidencia ni actividad por provincia o mes. El puntaje es una regla del prototipo, pendiente de revisión agronómica.
 
 El asesor, la lectura en voz y las rotaciones de ejemplo muestran precauciones para cada transición concreta. Si hay un hospedero compartido, indican revisar el historial del cultivo anterior; también destacan una plaga del cultivo siguiente. Las referencias externas se presentan como pendientes de confirmación.
+
+## Clima para decidir qué sembrar y cuándo
+
+- Pasado y presente. El riesgo provincial conserva la frecuencia histórica de estrés FAO GIEWS aunque falten observaciones ASI/VHI recientes. Cuando están vigentes se incorporan al riesgo; NASA POWER sigue como contexto histórico local aproximado.
+- Próxima siembra. Open-Meteo consulta lluvia, ráfagas y código de tiempo de siete días. Solo se usa para una siembra en el mes en curso con datos de menos de 24 horas. Si quedan al menos cinco días y suman menos de 5 mm, para secano o riego sin confirmar el componente climático se limita a 5 menos 2 veces la demanda FAO relativa. La lluvia observada de respaldo nunca se emplea como pronóstico.
+- Eventos. 40 mm por día, 60 km/h de ráfaga o un código de tormenta activan una precaución de siembra, no un aviso oficial. El NHC aporta centros de ciclones activos dentro de un radio aproximado de 550 km, sin inferir trayectorias ni impactos. CAMS ENSEMBLE por Open-Meteo aporta el máximo horario de polvo en la ventana consultada de hasta tres días. No se aplica un umbral agronómico de polvo. Se enlazan los avisos de INDOMET.
+- Meses posteriores. El historial y la temporada ciclónica sirven para planificar; no se proyectan eventos específicos más allá de la ventana del pronóstico.

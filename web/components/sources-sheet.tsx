@@ -60,6 +60,7 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
           {fao.rain?.anomalyPct != null && <p>Lluvia en los 10 días desde el {date(fao.rain.date)}: {Math.round(Math.abs(fao.rain.anomalyPct))}% {fao.rain.anomalyPct >= 0 ? "más" : "menos"} que lo normal (estimación ECMWF publicada por la FAO).</p>}
           <p>Cuando hay sequía, o ha sido frecuente, los cultivos que piden más agua salen peor.</p>
         </> : <p>Elige tu provincia para ver la sequía de tu zona.</p>}
+        {advice.words.climate === "Inicio con poca lluvia" && <p>Para la siembra de este mes, el pronóstico de poca lluvia reduce más el puntaje de los cultivos con mayor demanda de agua cuando el riego es insuficiente o no está confirmado.</p>}
         <p className="src-limit">Es un dato de toda la provincia (cuadros de ~1 km), no de tu finca. El semáforo es una regla de AgroVision, no una alerta oficial de la FAO.</p>
       </Block>
 

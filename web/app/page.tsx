@@ -14,6 +14,7 @@ import { OptionsCard } from "@/components/options-card";
 import { MapPin, Mic } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
+import { weatherForSowing, weatherPrecautions } from "@/lib/climate-advice";
 import { RainCard, useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
 import { ShareButton, type ShareSummary } from "@/components/share-button";
@@ -105,19 +106,20 @@ export default function Home() {
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [province, irrigation, previous, month, crops]);
+  const rain = useRain(chosen ? (activeFarm?.location ?? location) : null);
+  const weather = useMemo(() => weatherForSowing(rain.forecast, month), [rain.forecast, month]);
+  const ranked = useMemo(() => adviseNextCrop({ province, irrigation, previous, sowMonth: month, priority: BALANCED, crops, weather }), [province, irrigation, previous, month, crops, weather]);
   const topAdvice = ranked[0];
   const topCrop = topAdvice?.crop ?? "habichuela_roja";
   const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
   const farmTareas = farmAreaM2 ? m2ToTareas(farmAreaM2) : null;
-  const rain = useRain(chosen ? (activeFarm?.location ?? location) : null);
   const profit = profitFor(topCrop, farmTareas ?? 10);
   const profitText = "unavailable" in profit ? undefined : `${topAdvice?.name ?? ""} en ${Math.round(profit.tareas)} tareas: entre ${rd(profit.profit.low)} y ${rd(profit.profit.high)} (con el precio de hoy ${rd(profit.profit.mid)}), dato aproximado a precio mayorista`;
   const glut = topAdvice && topAdvice.harvestMonth ? oversupplyFor(topCrop, topAdvice.harvestMonth) : null;
   const shareSummary: ShareSummary = { farm: activeFarm?.name ?? "Mi finca", place: province ?? "República Dominicana", area: farmAreaM2 ? areaLabel(farmAreaM2) : "", advice: adviceSentence(topAdvice, previous), rain: rain.alert?.sentence, profit: profitText, oversupply: glut?.sentence };
   const topMarket = marketFor(topCrop);
-  const farmName = activeFarm?.name; const rainSentence = rain.alert?.sentence; const glutSentence = glut?.sentence;
-  const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
+  const farmName = activeFarm?.name; const rainSentence = weather ? weatherPrecautions(weather).filter(note => !note.startsWith("Polvo de Sahara")).join(" ").slice(0, 240) || rain.alert?.sentence : undefined; const glutSentence = glut?.sentence;
+  const selection: VoiceSelection = {parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation,previousCrop:previous,weather,crops:crops.join(","),farmName:farmName,farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,profitRange:profitText,oversupply:glutSentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
   return <>
@@ -130,8 +132,8 @@ export default function Home() {
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
       <div className="home-grid">
       <div className="col-main">
-      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-      <OptionsCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
+      <AdvisorCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} weather={weather} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+      <OptionsCard province={province} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops} weather={weather}/>
       {chosen && <Fold icon="🌧️" title="Lluvia esta semana" teaser={rain.alert?.sentence ?? (rain.error || "Pronóstico de 7 días para tu finca")}><RainCard rain={rain}/></Fold>}
       <Fold icon="💵" title="¿Cuánto me deja?" teaser={"unavailable" in profit ? "Calcula costo, venta y ganancia por tareas" : `${topAdvice?.name}: ${rd(profit.profit.low)} a ${rd(profit.profit.high)} en ${Math.round(profit.tareas)} tareas`}><ProfitCard key={`${topCrop}/${activeFarm?.id}`} crops={crops} initialCrop={topCrop} tareas={farmTareas}/></Fold>
       {chosen && <ShareButton summary={shareSummary}/>}

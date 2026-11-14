@@ -1,5 +1,6 @@
 /* AI: Claude (Anthropic), 2026-11-14 — compare five options: best crop per goal plus keeping the current crop. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import type { WeatherSignal } from "@/lib/climate-advice";
 import { useMemo, useState } from "react";
 import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
 import { cropEmoji, fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
@@ -10,9 +11,9 @@ const goalIcon: Record<OptionKey, LucideIcon> = { water: Droplets, market: Coins
 const pillars: { id: Pillar; label: string; Icon: LucideIcon }[] = [{ id: "water", label: "Agua", Icon: Droplets }, { id: "climate", label: "Sequía", Icon: CloudSun }, { id: "pests", label: "Plagas", Icon: Bug }, { id: "market", label: "Precio", Icon: Coins }];
 const word: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
 
-export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
-  const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
-  const all = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }).map(o => o.advice).filter((a): a is CropAdvice => !!a), [province, irrigation, previous, sowMonth, crops]);
+export function OptionsCard({ province, irrigation, previous, sowMonth, crops, weather }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[]; weather?: WeatherSignal }) {
+  const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops, weather }), [province, irrigation, previous, sowMonth, crops, weather]);
+  const all = options.map(o => o.advice).filter((a): a is CropAdvice => !!a);
   const [sources, setSources] = useState<CropAdvice | null>(null);
   return <section className="card panel options" aria-labelledby="opciones-titulo">
     <h2 id="opciones-titulo" className="panel-title">Compara 5 opciones</h2>

@@ -1,5 +1,6 @@
 /* AI: Claude (Anthropic), 2026-11-14 — next-crop advisor for the farmer view. Frainer review pending. See AI_USAGE.md. */
 import { pestCatalog, pestsFor, pestPrecautions, sharedPests, type PestCrop } from "./pests";
+import type { WeatherSignal } from "./climate-advice";
 import market from "@/public/data/market-insights.json";
 import { droughtScore, droughtSignal, faoProvince } from "./fao-giews";
 import type { Irrigation, Priority } from "./data";
@@ -67,6 +68,7 @@ export type Pillar = "water" | "climate" | "pests" | "market";
 export type CropAdvice = {
   crop: CropId; name: string; cycleDays: number; harvestMonth: number;
   scores: Record<Pillar, number | null>; overall: number | null; viable: boolean;
+  weatherHold: boolean;
   pestPrecautions: string[];
   sharedPests: ReturnType<typeof sharedPests>;
   words: Record<Pillar, string>; warnings: string[]; kcDays: number; faoRow: string;
@@ -83,7 +85,7 @@ export function meanKc(id: CropId) {
 }
 
 /** Score each candidate crop for the next season. Every rule is documented in docs/16_asesor_siembra.md. */
-export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: Priority; crops?: CropId[] }): CropAdvice[] {
+export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: Priority; crops?: CropId[]; weather?: WeatherSignal }): CropAdvice[] {
   const ids = (opts.crops?.length ? opts.crops : defaultCrops).filter(id => id in FAO56);
   const crops = ids.map(crop => ({ crop, kcDays: meanKc(crop), cycleDays: FAO56[crop].stages?.reduce((a, b) => a + b, 0) ?? 0 }));
   const maxKc = Math.max(...allCrops.map(meanKc));
@@ -100,7 +102,10 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     let viable = true;
     if (crop === "arroz" && opts.irrigation === "rainfed") { water = 0; viable = false; warnings.push("El arroz necesita riego; sin riego no se recomienda."); }
     if (!perennial && cycleDays > 300) warnings.push(`Es un cultivo largo (unos ${Math.round(cycleDays / 30)} meses): ocupa la tierra todo ese tiempo.`);
-    const climate = droughtScore(fao, kcDays, maxKc);
+    const drought = droughtScore(fao, kcDays, maxKc);
+    const dryStart = opts.weather?.dry && opts.irrigation !== "irrigated";
+    const climate = dryStart ? clamp(Math.min(drought ?? 5, 5 - 2 * kcDays / maxKc)) : drought;
+    if (dryStart && kcDays >= maxKc / 3) warnings.push("Con poca lluvia prevista, confirma agua para establecer este cultivo antes de sembrar.");
     const shared = sharedPests(opts.previous, crop);
     const reported = shared.filter(pest => !pest.external);
     let pests: number | null = null;
@@ -127,11 +132,11 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const pctVsAvg = typeof idx === "number" ? Math.round(idx - 100) : null;
     const words: Record<Pillar, string> = {
       water: !viable ? "Necesita riego" : water >= 3.34 ? "Gasta poca agua" : water >= 1.67 ? "Agua media" : "Gasta mucha agua",
-      climate: climate === null ? "Sin dato de sequía" : signal.color === "green" ? "Sin sequía ahora" : climate >= 3.34 ? "Aguanta la sequía actual" : "Riesgo con la sequía",
+      climate: climate === null ? "Sin datos de sequía" : dryStart ? "Inicio con poca lluvia" : signal.color === "gray" ? "Riesgo histórico de sequía" : signal.color === "green" ? "Estrés provincial bajo" : "Estrés provincial por sequía",
       pests: reported.length ? "Plagas en común" : pests === 5 ? "Rotación citada por IDIAF" : pests === 1 ? "Repetición de cultivo" : shared.length ? "Plaga en común por confirmar †" : "Sin puntaje de plagas",
       market: perennial ? "Permanente: sin mes de cosecha" : pctVsAvg === null ? "Sin precio de referencia" : `Cosecha en ${monthNames[harvestMonth - 1]}: precio ${pctVsAvg > 0 ? `${pctVsAvg}% sobre` : pctVsAvg < 0 ? `${-pctVsAvg}% bajo` : "igual al"} promedio`,
     };
-    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
+    return { crop, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, weatherHold: Boolean(opts.weather?.severe || opts.weather?.cyclone), pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
   // Permanent crops are investments, not the next rotation: list them after seasonal crops.
   return advice.sort((a, b) => Number(a.cycleDays === 0) - Number(b.cycleDays === 0) || (b.overall ?? -1) - (a.overall ?? -1));
@@ -145,7 +150,8 @@ export function adviceSentence(top: CropAdvice | undefined, previous: PreviousCr
   if ((top.scores.water ?? 0) >= 3.34) reasons.push("gasta menos agua");
   if ((top.scores.market ?? 0) >= 3.34) reasons.push(`suele venderse mejor en ${monthNames[top.harvestMonth - 1]}`);
   const after = previous !== "unknown" && previous !== "otro" ? ` después de ${previousCropName(previous).toLowerCase()}` : "";
-  return `Conviene sembrar ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
+  const lead = top.weatherHold ? "Considera sembrar, cuando pase el riesgo meteorológico," : "Conviene sembrar";
+  return `${lead} ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
 }
 
 export const unitWord = (u?: string | null) => u === "DOP/lb" ? "la libra" : u === "DOP/quintal" ? "el quintal" : u === "DOP/kg" ? "el kilo" : u === "DOP/unidad" ? "la unidad" : "la unidad";
@@ -166,7 +172,7 @@ export function oversupplyFor(crop: string, harvestMonth: number): { level: "alt
 export type OptionKey = "water" | "market" | "pests" | "climate" | "keep";
 export type FarmOption = { key: OptionKey; goal: string; advice: CropAdvice | null; note?: string };
 /** The five choices the farmer compares: the best crop for each goal plus keeping the current crop. */
-export function fiveOptions(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops?: CropId[] }): FarmOption[] {
+export function fiveOptions(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops?: CropId[]; weather?: WeatherSignal }): FarmOption[] {
   const goals: [Exclude<OptionKey, "keep">, string][] = [["water", "Gastar menos agua"], ["market", "Vender a mejor precio"], ["pests", "Tener menos plagas"], ["climate", "Aguantar la sequía"]];
   const out: FarmOption[] = goals.map(([key, goal]) => {
     const ranked = adviseNextCrop({ ...opts, priority: key });

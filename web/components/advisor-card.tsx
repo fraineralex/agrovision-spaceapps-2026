@@ -1,6 +1,7 @@
 /* AI: Claude (Anthropic), 2026-11-14 — farmer recommendation card. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { Info, MapPin } from "lucide-react";
+import { climateSources, weatherPrecautions, type WeatherSignal } from "@/lib/climate-advice";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
 import { adviseNextCrop, adviceSentence, cropEmoji, previousCropName, FAO56_URL, lightFor, marketFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
@@ -17,6 +18,7 @@ const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rai
 
 type Props = {
   province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: Priority; crops: CropId[];
+  weather?: WeatherSignal;
   onEdit: () => void; onTop?: (crop: CropId) => void;
 };
 
@@ -34,13 +36,14 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
 
 export function AdvisorCard(p: Props) {
   const [sources, setSources] = useState<CropAdvice | null>(null);
-  const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
+  const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops, weather: p.weather }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops, p.weather]);
   const top = advice[0];
+  const climateNotes = weatherPrecautions(p.weather);
   const sentence = adviceSentence(top, p.previous);
   const peak = top ? marketFor(top.crop)?.sowing?.peakSowingMonths ?? [] : [];
   const speak = () => {
     try {
-      const u = new SpeechSynthesisUtterance(`${sentence} ${[...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].join(" ")} Revisa siempre con tu técnico.`);
+      const u = new SpeechSynthesisUtterance(`${sentence} ${[...climateNotes, ...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])].join(" ")} Revisa siempre con tu técnico.`);
       u.lang = "es-DO"; speechSynthesis.cancel(); speechSynthesis.speak(u);
     } catch { /* Speech is optional. */ }
   };
@@ -53,6 +56,12 @@ export function AdvisorCard(p: Props) {
     </div>
     <h2>Tu recomendación</h2>
 
+    <div className="note">
+      {p.sowMonth >= 6 && p.sowMonth <= 11 && <p>La siembra cae en la temporada ciclónica del Atlántico. Consulta el boletín de INDOMET al acercarse la fecha.</p>}
+      {p.weather ? <p>Pronóstico de siembra hasta el {p.weather.through}. {p.weather.cyclone === null && "Seguimiento de ciclones no disponible. "}{p.weather.dustPeak === null && "Pronóstico de polvo no disponible."}</p> : <p>La comparación usa el historial y el último dato provincial disponible. El pronóstico se aplica al mes en curso cuando hay datos de la finca.</p>}
+      {climateNotes.map(note => <p key={note}>{note}</p>)}
+      <details><summary>Fuentes meteorológicas</summary><ul>{climateSources.map(([label, url]) => <li key={url}><a href={url}>{label}</a></li>)}</ul></details>
+    </div>
     <div className={`verdict ${light}`}>
       <span className={`recommendation-light light ${light}`} role="img" aria-label={lightWord[light]} />
       <div>

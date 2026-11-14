@@ -8,10 +8,27 @@ export async function GET(request: Request) {
   const loc = locationSchema.safeParse({ longitude: Number(params.get("longitude")), latitude: Number(params.get("latitude")) });
   if (!loc.success) return Response.json({ error: "Ubicación fuera de RD" }, { status: 400 });
   const { latitude, longitude } = loc.data;
-  const om = `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&daily=precipitation_sum,precipitation_probability_max,temperature_2m_max&timezone=America%2FSanto_Domingo&forecast_days=7`;
+  const om = `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&daily=precipitation_sum,precipitation_probability_max,temperature_2m_max,wind_gusts_10m_max,weather_code&timezone=America%2FSanto_Domingo&forecast_days=7`;
   try {
     const r = await fetch(om, { signal: AbortSignal.timeout(8000) });
-    if (r.ok) { const days = parseOpenMeteo(await r.json()); if (days.length) return Response.json({ source: "open-meteo", kind: "forecast", url: om, fetchedAt: new Date().toISOString(), days } satisfies RainForecast, { headers: { "Cache-Control": "public, max-age=3600" } }); }
+    if (r.ok) { const days = parseOpenMeteo(await r.json()); if (days.length) {
+      const read = async (url: string) => {
+        try { const response = await fetch(url, { signal: AbortSignal.timeout(3500) }); return response.ok ? await response.json() : null; }
+        catch { return null; }
+      };
+      const [nhc, cams] = await Promise.all([
+        read("https://www.nhc.noaa.gov/CurrentStorms.json"),
+        read(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&hourly=dust&domains=cams_global&forecast_days=3`),
+      ]);
+      const storms = nhc?.activeStorms;
+      // Approximate screen near Hispaniola; official warnings and tracks are linked separately.
+      const cyclone = Array.isArray(storms) ? storms.some(s =>
+        Number.isFinite(s.latitude_numeric) && Number.isFinite(s.longitude_numeric)
+        && Math.hypot(s.latitude_numeric - latitude, (s.longitude_numeric - longitude) * .95) <= 5
+      ) : null;
+      const dust: number[] = Array.isArray(cams?.hourly?.dust) ? cams.hourly.dust.filter(Number.isFinite) : [];
+      return Response.json({ source: "open-meteo", kind: "forecast", url: om, fetchedAt: new Date().toISOString(), days, cyclone, dustPeak: dust.length ? Math.max(...dust) : null } satisfies RainForecast, { headers: { "Cache-Control": "public, max-age=3600" } });
+    } }
   } catch { /* fall back to NASA POWER */ }
   const fmt = (d: Date) => d.toISOString().slice(0, 10).replaceAll("-", "");
   const end = new Date(Date.now() - 2 * 864e5), start = new Date(end.getTime() - 6 * 864e5);

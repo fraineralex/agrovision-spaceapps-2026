@@ -6,22 +6,23 @@ import { dayIcon, dayName, rainAlert, type RainForecast } from "@/lib/rain";
 import type { Location } from "@/lib/geography";
 
 export function useRain(location: Location | null) {
-  const [data, setData] = useState<{ f: RainForecast; cached: boolean } | null>(null);
+  const [data, setData] = useState<{ key: string; f: RainForecast; cached: boolean } | null>(null);
   const [error, setError] = useState("");
-  const key = location ? `rain:${location.longitude.toFixed(3)},${location.latitude.toFixed(3)}` : "";
+  const key = location ? `rain:${location.longitude.toFixed(4)},${location.latitude.toFixed(4)}` : "";
   useEffect(() => {
     if (!location) return;
     const ctrl = new AbortController();
     let saved: RainForecast | null = null;
     try { saved = JSON.parse(localStorage.getItem(key) ?? "null"); } catch { saved = null; }
-    const t = setTimeout(() => { if (saved) setData({ f: saved, cached: true }); }, 0);
+    const t = setTimeout(() => { if (saved) setData({ key, f: saved, cached: true }); }, 0);
     fetch(`/api/rain?longitude=${location.longitude}&latitude=${location.latitude}`, { signal: ctrl.signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error(String(r.status))))
-      .then((f: RainForecast) => { setData({ f, cached: false }); setError(""); try { localStorage.setItem(key, JSON.stringify(f)); } catch { /* optional */ } })
+      .then((f: RainForecast) => { if (ctrl.signal.aborted) return; setData({ key, f, cached: false }); setError(""); try { localStorage.setItem(key, JSON.stringify(f)); } catch { /* optional */ } })
       .catch(() => { if (!ctrl.signal.aborted) setError(saved ? "" : "Pronóstico no disponible ahora. Vuelve a intentar con internet."); });
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [key, location]);
-  return { forecast: data?.f ?? null, cached: data?.cached ?? false, error, alert: data ? rainAlert(data.f) : null };
+  const current = data?.key === key ? data : null;
+  return { forecast: current?.f ?? null, cached: current?.cached ?? false, error, alert: current ? rainAlert(current.f) : null };
 }
 
 export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {

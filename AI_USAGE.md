@@ -172,3 +172,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Integración del rediseño
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** resolver conflictos entre el rediseño y las mejoras del asesor de plagas. **Archivos:** `AI_USAGE.md`, `web/components/{advisor-card,onboarding,sources-sheet}.tsx`, `web/lib/advisor.ts`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Clima en el asesor de siembra
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** combinar estrés histórico y reciente con la ventana de siembra y mostrar precauciones por tormentas, ciclones y polvo. **Archivos:** `web/app/{page.tsx,api/rain/route.ts}`, `web/components/{advisor-card,options-card,rain-card,sources-sheet}.tsx`, `web/lib/{advisor,advisor.test,climate-advice,fao-giews,rain,voice-context}.ts` y `docs/16_asesor_siembra.md`.
+- **Fuentes y límites:** FAO GIEWS, NASA POWER, Open-Meteo, CAMS ENSEMBLE, NOAA/NHC e INDOMET. Reglas de AgroVision sin validación agronómica. **Verificación:** lint, 27 pruebas y compilación con Webpack (incluye TypeScript). **Revisión por Frainer:** pendiente.

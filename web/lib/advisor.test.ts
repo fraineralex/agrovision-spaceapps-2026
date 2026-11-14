@@ -74,3 +74,22 @@ test("precautions follow the actual transition and include surveillance for the 
   assert.match(pestPrecautions("name", "yautia")[0], /por confirmar localmente/);
   assert.deepEqual(pestPrecautions("tomate", "unknown"), []);
 });
+
+
+test("sowing uses fresh forecasts for the selected month and applies a dry-start penalty", async () => {
+  const { weatherForSowing } = await import("./climate-advice");
+  const now = new Date("2026-11-14T16:00:00Z");
+  const forecast = {
+    source: "open-meteo", kind: "forecast", url: "", fetchedAt: now.toISOString(),
+    days: Array.from({ length: 7 }, (_, i) => ({ date: `2026-11-${14 + i}`, rainMm: 0, probPct: 0, tMaxC: 31 })),
+    cyclone: true, dustPeak: 40,
+  } as const;
+  const input = { ...forecast, days: [...forecast.days] };
+  assert.equal(weatherForSowing(input, 12, now), undefined);
+  assert.equal(weatherForSowing(input, 11, new Date("2026-11-16T16:00:00Z")), undefined);
+  const weather = weatherForSowing(input, 11, now);
+  assert.equal(weather?.dry, true);
+  const advice = adviseNextCrop({ irrigation: "rainfed", previous: "unknown", sowMonth: 11, priority: "water", crops: ["maiz"], weather })[0];
+  assert.ok(advice.scores.climate! < 5);
+  assert.match(adviceSentence(advice, "unknown"), /cuando pase el riesgo/);
+});
