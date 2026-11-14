@@ -10,6 +10,7 @@ import { nationalCenter, provinces, provinceAt, type Location } from "@/lib/geog
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
 import parcels from "@/public/data/demo-parcels.json";
+import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
 const months = Array.from({ length:12 },(_,i) => new Date(2024,i).toLocaleString("es",{month:"long"}));
 export default function Home() {
   const [month,setMonth] = useState(11);
@@ -21,7 +22,7 @@ export default function Home() {
   const [climateStatus,setClimateStatus] = useState("");
   const [provinceSearch,setProvinceSearch] = useState("");
   const locationKey = `${location.longitude.toFixed(3)},${location.latitude.toFixed(3)}`;
-  const onSelect = useCallback((id:string) => { const parcel = parcels.features.find(p => p.id === id); if (!parcel) return; const p = parcel.geometry.coordinates[0][0]; setLocation({longitude:p[0]+.005,latitude:p[1]+.004});setSelectedParcel(id);setIrrigation("unconfirmed"); },[]);
+  const onSelect = useCallback((id:string) => { const detected=findParcel(id);if(detected){setLocation({longitude:detected.properties.center[0],latitude:detected.properties.center[1]});setSelectedParcel(id);setIrrigation("unconfirmed");return;} const parcel = parcels.features.find(p => p.id === id); if (!parcel) return; const p = parcel.geometry.coordinates[0][0]; setLocation({longitude:p[0]+.005,latitude:p[1]+.004});setSelectedParcel(id);setIrrigation("unconfirmed"); },[]);
   const onLocation = useCallback((point:Location) => {setLocation(point);setSelectedParcel("location");setIrrigation("unconfirmed");},[]);
   useEffect(() => {
     if (selectedParcel !== "location") return;
@@ -41,7 +42,8 @@ export default function Home() {
   const comparison = useMemo(() => getComparison(month),[month]);
   const ordered = useMemo(() => orderScenarios(comparison.scenarios,priority),[comparison.scenarios,priority]);
   const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
-  const selection = useMemo<VoiceSelection>(() => ({parcelId:selectedParcel as VoiceSelection["parcelId"],location,priority,month,irrigation}),[selectedParcel,location,priority,month,irrigation]);
+  const selection = useMemo<VoiceSelection>(() => ({parcelId:(selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location,priority,month,irrigation}),[selectedParcel,location,priority,month,irrigation]);
+  const detectedParcel = findParcel(selectedParcel);
   const province = provinceAt(location);
   const waterMax = Math.max(...comparison.scenarios.map(s => s.coefficientDays));
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
@@ -52,6 +54,17 @@ export default function Home() {
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>1 · ¿Dónde cultivas?</h2><span>{province ?? "Selecciona un punto terrestre"}</span></div>
         <div className="location-controls"><label>Buscar provincia<input type="search" placeholder="Escribe el nombre…" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label><label>Provincia<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.filter(p => p.name === province || p.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(provinceSearch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase())).map(p => <option key={p.name}>{p.name}</option>)}</select></label></div>
         <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation}/>
+        {detectedParcel && <article className="card parcel-card" aria-label="Ficha de parcela" aria-live="polite">
+          <h3>{detectedParcel.properties.name}</h3>
+          <p>{signalLabels[detectedParcel.properties.signal]} · NDVI {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}</p>
+          <p>Superficie aproximada: {detectedParcel.properties.areaHa} ha · unidad de análisis satelital.</p>
+          <details className="evidence-details"><summary>Vegetación observada y límites</summary>
+            <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m · NDVI sin unidad. Observaciones satelitales agregadas por unidad aproximada; confianza preliminar sin validación de campo.</p>
+            <p>{parcelEvidence.signalRule}</p><p>{parcelEvidence.limitation}</p>
+            <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`NDVI ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
+            <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026). Delimitación SLIC aproximada, no identifica propietarios ni fincas verificadas. El color indica verdor, no salud, riesgo ni régimen de riego.</p>
+          </details>
+        </article>}
         <details className="evidence-details"><summary>Explorar áreas de ejemplo · San Juan</summary><div className="field-buttons">{parcels.features.map((p,i) => <button key={p.id} onClick={() => onSelect(p.id)} aria-pressed={selectedParcel === p.id}><FarmIcon name="field"/>Área {String.fromCharCode(65+i)}</button>)}</div><p>Límites sintéticos y aproximados. No identifican fincas reales.</p></details>
       </section>
       <section className="card climate-card" aria-label="Clima regional"><div className="section-row"><h2>Clima de tu zona</h2><select aria-label="Mes del clima" value={month} onChange={e => setMonth(Number(e.target.value))}>{months.map((m,i) => <option key={m} value={i+1}>{m}</option>)}</select></div>
@@ -67,7 +80,7 @@ export default function Home() {
       </article>)}</div>
       <div className="field-controls"><label className="control-label">Acceso al agua<select aria-label="Acceso al agua" value={irrigation} onChange={e => setIrrigation(e.target.value as Irrigation)}><option value="unconfirmed">Sin confirmar</option><option value="irrigated">Riego · declarado</option><option value="rainfed">Secano · declarado</option></select></label></div>
       <VoiceAssistant key={`${selectedParcel}/${locationKey}/${month}/${priority}/${irrigation}`} selection={selection}/>
-      {selectedParcel !== "location" && <details className="card landscape-details"><summary>Vegetación observada · área de ejemplo</summary><p>Landsat 8–9, Collection 2 Level-2 · 2024 · píxel de 30 m · NDVI sin unidad · observación satelital con máscara de calidad · confianza preliminar, sin validación de campo.</p><div className="ndvi-bars">{ndvi.rows.filter(r => r.parcelId===selectedParcel).map(r => <div key={r.date}><span>{r.date}</span><meter min={-1} max={1} value={r.ndvi??-1} aria-label={`NDVI ${r.date}`}/><strong>{r.ndvi?.toFixed(2)??"Sin dato"}</strong></div>)}</div><p><a href={ndvi.source.url}>Fuente Landsat / Planetary Computer</a>. Una señal baja no confirma campo pelado. Clasificación de riego y secano pendiente de validación.</p></details>}
+      {selectedParcel.startsWith("demo-") && <details className="card landscape-details"><summary>Vegetación observada · área de ejemplo</summary><p>Landsat 8–9, Collection 2 Level-2 · 2024 · píxel de 30 m · NDVI sin unidad · observación satelital con máscara de calidad · confianza preliminar, sin validación de campo.</p><div className="ndvi-bars">{ndvi.rows.filter(r => r.parcelId===selectedParcel).map(r => <div key={r.date}><span>{r.date}</span><meter min={-1} max={1} value={r.ndvi??-1} aria-label={`NDVI ${r.date}`}/><strong>{r.ndvi?.toFixed(2)??"Sin dato"}</strong></div>)}</div><p><a href={ndvi.source.url}>Fuente Landsat / Planetary Computer</a>. Una señal baja no confirma campo pelado. Clasificación de riego y secano pendiente de validación.</p></details>}
       <footer className="provenance"><span>NASA POWER · NASA GIBS · FAO-56 · IDIAF. Ejemplos sin validación en finca.</span><a href="/data/manifest.json">Fuentes y versión de datos</a></footer>
     </div>
   </main>;

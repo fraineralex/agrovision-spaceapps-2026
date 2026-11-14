@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import parcels from "@/public/data/demo-parcels.json";
+import { parcelCollection as parcels, parcelFillColor } from "@/lib/map/parcels";
 import boundaries from "@/public/data/provinces.json";
 import { isInCountry, type Location } from "@/lib/geography";
 import sample from "@/public/data/gibs-sample.json";
@@ -25,6 +25,7 @@ export function MapPanel({ selected, onSelect, location, onLocation }: Props) {
   const map = useRef<MapLibreMap | null>(null);
   const [activeLayer, setActiveLayer] = useState("");
   const [remote, setRemote] = useState(false);
+  const [opacity, setOpacity] = useState(0.4);
   const [date, setDate] = useState("2026-11-01");
   const [error, setError] = useState("");
   const [mapReady, setMapReady] = useState(false);
@@ -34,7 +35,7 @@ export function MapPanel({ selected, onSelect, location, onLocation }: Props) {
     void import("maplibre-gl").then((module) => {
       if (disposed || !container.current) return;
       module.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const instance = new module.Map({ container: container.current, style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION }, labels: { type: "raster", tiles: ESRI_LABEL_TILES, tileSize: 256, maxzoom: 19, attribution: "Esri" } }, layers: [{ id: "background", type: "background", paint: { "background-color": "#e1e9e1" } }, { id: "esri-imagery", type: "raster", source: "imagery" }] }, center: [-70.2, 18.8], zoom: 7.3, pitch: 35, locale: {"Map.Title":"Mapa","NavigationControl.ZoomIn":"Acercar","NavigationControl.ZoomOut":"Alejar","AttributionControl.ToggleAttribution":"Mostrar fuentes"}, attributionControl: {}, canvasContextAttributes: { preserveDrawingBuffer: true } });
+      const instance = new module.Map({ container: container.current, style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION }, labels: { type: "raster", tiles: ESRI_LABEL_TILES, tileSize: 256, maxzoom: 19, attribution: "Esri" } }, layers: [{ id: "background", type: "background", paint: { "background-color": "#e1e9e1" } }, { id: "esri-imagery", type: "raster", source: "imagery" }] }, center: [-70.2, 18.8], zoom: 7.3, pitch: 35, locale: {"Map.Title":"Mapa","NavigationControl.ZoomIn":"Acercar","NavigationControl.ZoomOut":"Alejar","NavigationControl.ResetBearing":"Orientar al norte","AttributionControl.MapFeedback":"Comentarios del mapa","AttributionControl.ToggleAttribution":"Mostrar fuentes"}, attributionControl: {}, canvasContextAttributes: { preserveDrawingBuffer: true } });
       map.current = instance;
       instance.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3,duration:0});
       instance.on("idle", () => {
@@ -52,25 +53,17 @@ export function MapPanel({ selected, onSelect, location, onLocation }: Props) {
           instance.addLayer({ id: `cached-${tile.id}`, type: "raster", source: tile.id, layout: { visibility: tile.id.startsWith("BlueMarble") ? "visible" : "none" }, maxzoom: tile.id.startsWith("BlueMarble") ? 10 : 24, paint: { "raster-opacity": tile.id.startsWith("BlueMarble") ? 1 : 0.65, "raster-fade-duration": 0 } }, tile.id.startsWith("BlueMarble") ? "esri-imagery" : undefined);
         }
         instance.addSource("provinces", { type:"geojson", data:boundaries as GeoJSON.FeatureCollection });
-        instance.addLayer({ id:"province-fill",type:"fill",source:"provinces",paint:{"fill-color":"#9cae6b","fill-opacity":.12} });
+        instance.addLayer({ id:"province-fill",type:"fill",source:"provinces",paint:{"fill-color":"#9cae6b","fill-opacity":["interpolate",["linear"],["zoom"],7,.06,11,0]} });
         instance.addLayer({ id:"province-lines",type:"line",source:"provinces",paint:{"line-color":"#eef5d5","line-width":1.5} });
         instance.addSource("point", {type:"geojson",data:{type:"FeatureCollection",features:[]}});
         instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#fff3a2","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
         instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels"]}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("Selecciona un punto terrestre de República Dominicana."); });
         instance.addSource("parcels", { type: "geojson", promoteId: "parcelId", data: parcels as GeoJSON.FeatureCollection });
-        instance.addLayer({ id: "parcels", type: "fill", source: "parcels", paint: { "fill-color": "#55bd8c", "fill-opacity": 0.7 } });
-        instance.addLayer({ id: "outlines", type: "line", source: "parcels", paint: { "line-color": "#0c3e29", "line-width": 2 } });
-        for (const feature of parcels.features) {
-          const ring = feature.geometry.coordinates[0];
-          const button = document.createElement("button");
-          button.className = "parcel-marker"; button.textContent = `Área ${String.fromCharCode(65+parcels.features.indexOf(feature))}`;
-          button.setAttribute("aria-label", `Seleccionar área de ejemplo ${String.fromCharCode(65+parcels.features.indexOf(feature))}`);
-          button.onclick = () => onSelect(feature.id);
-          const showMarker = () => {button.style.display=instance.getZoom()>=9?"block":"none";};
-          showMarker();instance.on("zoom",showMarker);
-          new module.Marker({ element: button, anchor: "bottom" }).setLngLat([ring[0][0] + .005, ring[0][1] + .008]).addTo(instance);
-        }
-        instance.on("click", "parcels", (event) => { const id = event.features?.[0]?.id; if (id) onSelect(String(id)); });
+        instance.addLayer({ id: "parcels", type: "fill", source: "parcels", minzoom: 11, paint: { "fill-color": parcelFillColor(), "fill-opacity": 0.18 } });
+        instance.addLayer({ id: "outlines", type: "line", source: "parcels", minzoom: 11, paint: { "line-color": parcelFillColor(), "line-width": 1.8 } });
+        instance.on("click", "parcels", (event) => { const id = event.features?.[0]?.properties?.parcelId; if (id) onSelect(String(id)); });
+        instance.on("mouseenter", "parcels", () => { instance.getCanvas().style.cursor = "pointer"; });
+        instance.on("mouseleave", "parcels", () => { instance.getCanvas().style.cursor = ""; });
         instance.addLayer({id:"esri-labels",type:"raster",source:"labels",paint:{"raster-opacity":.85}});
         instance.addControl(new module.NavigationControl({ visualizePitch: true }), "top-right");
         setMapReady(true);
@@ -81,7 +74,8 @@ export function MapPanel({ selected, onSelect, location, onLocation }: Props) {
   useEffect(() => {
     const instance = map.current;
     if (!instance || !mapReady) return;
-    instance.setPaintProperty("parcels", "fill-color", ["case", ["==", ["id"], selected], "#fff0a4", "#55bd8c"]);
+    instance.setPaintProperty("outlines", "line-width", ["case", ["==", ["get", "parcelId"], selected], 4, 1.8]);
+    instance.setPaintProperty("parcels", "fill-opacity", ["case", ["==", ["get", "parcelId"], selected], 0.45, 0.18]);
     const source = instance.getSource("point") as import("maplibre-gl").GeoJSONSource;
     source.setData({type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"Point",coordinates:[location.longitude,location.latitude]}}]});
     // Keep the initial country view. Fly only after an explicit selection changes location.
@@ -92,20 +86,26 @@ export function MapPanel({ selected, onSelect, location, onLocation }: Props) {
     if (!instance || !mapReady) return;
     if (instance.getLayer("remote-layer")) instance.removeLayer("remote-layer");
     if (instance.getSource("remote")) instance.removeSource("remote");
-    layers.forEach((layer) => instance.setLayoutProperty(`cached-${layer.id}`, "visibility", activeLayer === layer.id ? "visible" : "none"));
+    layers.forEach((layer) => {
+      instance.setLayoutProperty(`cached-${layer.id}`, "visibility", activeLayer === layer.id && (!remote || date === "2026-11-01") ? "visible" : "none");
+      instance.setPaintProperty(`cached-${layer.id}`, "raster-opacity", opacity);
+    });
     const layer = layers.find((item) => item.id === activeLayer);
     if (remote && layer) {
       instance.addSource("remote", { type: "raster", tileSize: 256, maxzoom: layer.level, attribution: "NASA EOSDIS GIBS", tiles: [`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer.id}/default/${date}/GoogleMapsCompatible_Level${layer.level}/{z}/{y}/{x}.png`] });
-      instance.addLayer({ id: "remote-layer", type: "raster", source: "remote", paint: { "raster-opacity": .65 } }, "parcels");
+      instance.addLayer({ id: "remote-layer", type: "raster", source: "remote", paint: { "raster-opacity": opacity } }, "parcels");
     }
-  }, [activeLayer, remote, date, mapReady]);
+  }, [activeLayer, remote, date, opacity, mapReady]);
   const layer = layers.find((item) => item.id === activeLayer);
   return <>
     <div className="map-wrap"><div id="map" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
-      {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Límites aproximados de ejemplo</p>{parcels.features.map((feature) => <Button size="sm" variant="outline" key={feature.id} onClick={() => onSelect(feature.id)}>{`Área ${String.fromCharCode(65+parcels.features.indexOf(feature))}`}</Button>)}</div>}
-      <div className="map-views"><Button size="sm" variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button size="sm" variant="outline" onClick={() => map.current?.flyTo({ center: [-71.23, 18.8], zoom: 11 })}>Parcelas San Juan</Button><Button size="sm" variant="outline" onClick={() => {const m=map.current;if(m)m.easeTo({pitch:m.getPitch()>20?0:45,duration:500});}}>Inclinar</Button></div>
+      {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Preparando mapa… Puedes seleccionar una provincia arriba.</p></div>}
+      <div className="map-views"><Button size="sm" variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button size="sm" variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 13, pitch: 40 })}>Parcelas San Juan</Button><Button size="sm" variant="outline" onClick={() => {const m=map.current;if(m)m.easeTo({pitch:m.getPitch()>20?0:45,duration:500});}}>Inclinar</Button></div>
     </div>
     <div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.label}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> Capas NASA en línea</label></div>
+    <p className="map-caption">Parcelas aproximadas (detectadas por satélite, no catastrales)</p>
+    <div className="pillar-legend" aria-label="Verdor de parcelas"><span><i className="light red"/>Verdor bajo</span><span><i className="light amber"/>Intermedio</span><span><i className="light green"/>Alto</span><span><i className="light gray"/>Sin datos</span></div>
+    {activeLayer && <label className="timeline">Opacidad NASA <input aria-label="Opacidad NASA" type="range" min="0" max="0.8" step="0.05" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/></label>}
     {remote && <label className="timeline">Fecha de imagen <input aria-label="Fecha de imagen" type="date" min="2026-10-01" max="2026-11-10" value={date} onChange={(event) => setDate(event.target.value)} /></label>}
     <details className="map-caption"><summary>Fuentes del mapa y estado de imágenes</summary><div aria-live="polite">{error || (remote ? `Imagen en línea solicitada: ${date}. Si falla se conserva la imagen guardada.` : "Esri World Imagery · detalle hasta zoom 19 · requiere conexión. Contexto NASA guardado · 2026-11-01 · sin conexión al alejar.")}<br />{layer?.detail ?? "Esri / Maxar / Earthstar Geographics; fechas de captura variables, sin verificar por parcela. NASA Blue Marble solo como contexto sin conexión."}<br />{layer && "Colores de visualización NASA; no se infieren valores numéricos. "}Límites generales geoBoundaries / Natural Earth (2022, dominio público), no catastrales. © NASA EOSDIS GIBS.</div></details>
   </>;
