@@ -1,9 +1,12 @@
 /* AI: Claude (Anthropic), 2026-11-14 — plain-language "where does this come from" panel per recommendation. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useEffect } from "react";
-import { cropNames, FAO56_URL, marketFor, marketSources, monthNames, unitWord, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
+import { previousCropName, FAO56_URL, marketFor, marketSources, monthNames, unitWord, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
 import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
 import type { Irrigation } from "@/lib/data";
+
+import { pestLimit, pestSources, pestsFor } from "@/lib/pests";
+import { PestList } from "./pest-catalog";
 
 const IDIAF_URL = "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf";
 const money = (n: number) => `RD$${Math.round(n).toLocaleString("es-DO")}`;
@@ -31,7 +34,12 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
   const rank = sorted.findIndex(a => a.crop === advice.crop) + 1;
   const idx = perennial ? null : m?.seasonalIndex?.[String(advice.harvestMonth)] ?? null;
   const hist = fao?.history.reduce<NonNullable<typeof fao>["history"][number] | undefined>((h, x) => !h || x.frequency30Pct > h.frequency30Pct ? x : h, undefined);
-  const prevName = previous === "unknown" || previous === "otro" ? null : cropNames[previous].toLowerCase();
+  const prevName = previous === "unknown" || previous === "otro" ? null : previousCropName(previous).toLowerCase();
+  const pestEntry = pestsFor(advice.crop);
+  const shared = advice.sharedPests;
+  const sourceIds = new Set([...(pestEntry?.sources ?? []), ...(shared.length ? pestsFor(previous)?.sources ?? [] : [])]);
+  const pestLinks = Array.from(sourceIds, id => pestSources[id]);
+  if (advice.scores.pests === 5) pestLinks.push(["IDIAF · Compendio de habichuela (2013), págs. 88, 94 y 102", IDIAF_URL]);
   return <div className="src-overlay" role="dialog" aria-modal="true" aria-label={`De dónde sale la recomendación de ${advice.name}`} onClick={onClose}>
     <div className="src-sheet" onClick={e => e.stopPropagation()}>
       <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" onClick={onClose}>Cerrar ✕</button></div>
@@ -55,11 +63,13 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
         <p className="src-limit">Es un dato de toda la provincia (cuadros de ~1 km), no de tu finca. El semáforo es una regla de AgroVision, no una alerta oficial de la FAO.</p>
       </Block>
 
-      <Block icon="🐛" title="Plagas" verdict={advice.words.pests} links={[["IDIAF · Compendio de habichuela (2013), págs. 88, 94 y 102", IDIAF_URL]]}>
-        {advice.scores.pests === 5 ? <p>El IDIAF (instituto de investigación agropecuaria de RD) recomienda sembrar maíz después de habichuela porque el maíz no hospeda las enfermedades de la habichuela (antracnosis, bacteriosis común) ni sus insectos. Así se corta el ciclo.</p>
-          : advice.scores.pests === 1 ? <p>Repetir el mismo cultivo{advice.crop.startsWith("habichuela") ? " (la habichuela roja y la negra son la misma especie)" : ""} deja vivas las plagas y enfermedades de la cosecha anterior. El IDIAF recomienda rotar con un cultivo que no las hospede.</p>
-          : <p>No tenemos una regla verificada de plagas para {prevName ? `${advice.name.toLowerCase()} después de ${prevName}` : advice.name.toLowerCase()}. Por eso este punto no suma ni resta. Pregunta a tu técnico por las plagas de la zona.</p>}
-        <p className="src-limit">No predecimos plagas. Solo usamos reglas publicadas.</p>
+      <Block icon="🐛" title="Plagas" verdict={advice.words.pests} links={pestLinks}>
+        {pestEntry ? <><p>Plagas que conviene vigilar en {advice.name.toLowerCase()}.</p><PestList pests={pestEntry.pests} /></> : <p>Este cultivo no tiene ficha de plagas en el catálogo.</p>}
+        {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p><PestList pests={shared} /></>}
+        {advice.scores.pests === 5 && <p>El IDIAF cita el maíz como opción de rotación después de habichuela para problemas específicos de ese cultivo.</p>}
+        {advice.scores.pests === 1 && <p>El puntaje baja por repetición del cultivo o por plagas en común respaldadas por referencias locales.</p>}
+        {advice.scores.pests === null && <p>Este criterio no cambia el puntaje de la combinación.</p>}
+        <p className="src-limit">{pestLimit}</p>
       </Block>
 
       <Block icon="💰" title="Precio" verdict={advice.words.market} links={[...(m?.latest ? [[`Ministerio de Agricultura · precios mayoristas ${marketSources.pricesPeriod}`, marketSources.prices] as [string, string]] : []), ...(m?.sowing?.tareasLast12 ? [["Ministerio de Agricultura · siembra nacional mensual", marketSources.sowing] as [string, string]] : []), ...(m?.cost2019 ? [[`Costos de producción 2019, pág. ${m.cost2019.pdfPage}`, `${m.cost2019.source}#page=${m.cost2019.pdfPage}`] as [string, string]] : [])]}>
@@ -75,7 +85,7 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
 
       <section className="src-block">
         <h3>🧮 Cómo se juntan</h3>
-        <p>Cada punto va de 0 a 5. Sacamos el promedio de los puntos que tienen dato; lo que marcaste como más importante cuenta doble. {advice.name} sacó <strong>{advice.overall != null ? `${String(advice.overall).replace(".", ",")} de 5` : "sin nota"}</strong>. Verde es 3,3 o más, amarillo de 1,7 a 3,3 y rojo menos de 1,7.</p>
+        <p>Cada punto va de 0 a 5. Promediamos los criterios con datos y aplicamos el descuento de plagas cuando corresponde. Tu prioridad cuenta doble. {advice.name} sacó <strong>{advice.overall != null ? `${String(advice.overall).replace(".", ",")} de 5` : "sin nota"}</strong>. Verde es 3,3 o más, amarillo de 1,7 a 3,3 y rojo menos de 1,7.</p>
         <p>Riego que declaraste: {irrigation === "irrigated" ? "sí tienes" : irrigation === "rainfed" ? "no tienes" : "no sabes"}. Tus respuestas solo se guardan en este teléfono.</p>
         <p className="src-limit">Estas reglas son de AgroVision (estudiantes de UNIBE) y no están validadas en el campo. Úsalas como guía y confírmalas con tu técnico o extensionista.</p>
       </section>
