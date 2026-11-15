@@ -1,5 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — "¿Cuánto me deja?" profit range per crop and farm. Frainer review pending. See AI_USAGE.md. */
+import type { Locale } from "./i18n/messages";
+import { localeTag } from "./i18n/locale";
 import type { Irrigation } from "./data";
 import { marketFor } from "./advisor";
 
@@ -65,4 +67,4 @@ export function profitFor(crop: string, tareas: number, irrigation: Irrigation =
   const notes = ["Precio mayorista de Santo Domingo: en la finca normalmente te pagan menos.", "Costo de 2019 ajustado con la inflación general, no con el precio real de tus insumos.", "Rendimiento promedio del Ministerio; tu cosecha puede ser mayor o menor.", ...(y.note ? [y.note] : [])];
   return { crop, tareas, costRD, yieldLb, pricePerLb: pl, income, profit: { low: income.low - costRD, mid: income.mid - costRD, high: income.high - costRD }, notes, costSource: { page: c.pdfPage, url: c.source, area: c.area, cost2019PerTarea: c.costPerTarea }, priceUnit: m!.unit ?? "" };
 }
-export const rd = (n: number) => `${n < 0 ? "−" : ""}RD$${Math.round(Math.abs(n)).toLocaleString("es-DO")}`;
+export const rd = (n: number, locale: Locale = "es") => `${n < 0 ? "−" : ""}RD$${Math.round(Math.abs(n)).toLocaleString(localeTag(locale))}`;

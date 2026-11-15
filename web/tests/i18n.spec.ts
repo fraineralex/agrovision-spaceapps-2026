@@ -143,3 +143,33 @@ test("provincial drought card retains sources and measurements when changing lan
   expect(await english.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
   expect(await english.locator(".mini-ring-arc").evaluateAll(items => items.map(item => item.getAttribute("stroke-dashoffset")))).toEqual(rings);
 });
+
+test("sale calculators retain inputs and results across languages", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("tab", { name: "Venta" }).click();
+  const guided = page.locator(".guided-sale");
+  await guided.getByLabel("Tareas a sembrar").fill("10");
+  await guided.getByRole("button", { name: "Continuar" }).click();
+  await guided.getByRole("button", { name: "Continuar" }).click();
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(guided.getByText("Do you have irrigation?")).toBeVisible();
+  await guided.getByRole("button", { name: "Continue" }).click();
+  await guided.getByLabel("Total expenses (RD$)").fill("25000");
+  await guided.getByRole("button", { name: "Continue" }).click();
+  await guided.getByLabel("Harvest to sell (100-pound quintals)").fill("40");
+  await guided.getByRole("button", { name: "Continue" }).click();
+  await guided.getByLabel("Offer per quintal (RD$, optional)").fill("700");
+  await guided.getByRole("button", { name: "View result" }).click();
+  await expect(guided.getByRole("region", { name: "Calculator result" })).toContainText("RD$625");
+  await page.getByLabel("Language").selectOption("es");
+  await expect(guided.getByRole("region", { name: "Resultado de la calculadora" })).toContainText("RD$625");
+  await page.getByText("Ya tengo mis gastos y cosecha").click();
+  const budget = page.locator(".sale-budget");
+  await budget.getByLabel("Gasto total (RD$)").fill("25000");
+  await budget.getByLabel("Cantidad para vender").fill("40");
+  await budget.getByLabel("Oferta por quintal (RD$)").fill("700");
+  await budget.getByRole("button", { name: "Calcular precio mínimo" }).click();
+  await expect(budget.locator(".budget-result")).toContainText("RD$625.00");
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(budget.locator(".budget-result")).toContainText("RD$625.00 per quintal");
+});

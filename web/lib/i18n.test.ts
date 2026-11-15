@@ -134,3 +134,20 @@ test("farm area uses each locale's decimal conventions without changing units", 
   assert.equal(areaLabel(2500, "en"), "4.0 tareas · 0.25 ha");
   assert.equal(areaLabel(2500, "es"), "4.0 tareas · 0.25 ha");
 });
+
+import { saleMessages } from "./i18n/sale-messages";
+test("sale calculator dictionaries have matching keys and interpolation fields", () => {
+  assert.deepEqual(leafKeys(saleMessages.en), leafKeys(saleMessages.es));
+  for (const key of Object.keys(saleMessages.en) as Array<keyof typeof saleMessages.en>) {
+    const english = saleMessages.en[key], spanish = saleMessages.es[key];
+    if (typeof english !== "string" || typeof spanish !== "string") continue;
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(english), placeholders(spanish), key);
+  }
+});
+
+import { rd } from "./profit";
+test("currency formatting preserves the Dominican peso symbol", () => {
+  assert.equal(rd(625, "en"), "RD$625");
+  assert.equal(rd(-625, "es"), "−RD$625");
+});
