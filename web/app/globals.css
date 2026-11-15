@@ -3,7 +3,7 @@
 
 :root { color-scheme: light; --ink: #19312b; --muted: #71817a; --paper: #f6f7f2; --green: #286b4f; --line: #e3e8df; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-sans, "Plus Jakarta Sans"), system-ui, sans-serif; }
 button, select { font: inherit; }
 .app-shell { min-height:100vh; }
 .topbar { height:72px; display:flex; align-items:center; justify-content:space-between; padding:0 4vw; background:var(--card); border-bottom:1px solid var(--line); }
@@ -3711,7 +3711,7 @@ body {
 .stars .star.on{color:#d99a00;fill:#f2b705}
 .recommendation-score{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700}
 .stars-help{margin:10px 0 4px;font-size:15px;line-height:1.45;opacity:.9}
-.metric-tile.tile-green{border-left:6px solid #2e8b47}.metric-tile.tile-amber{border-left:6px solid #d99a00}.metric-tile.tile-red{border-left:6px solid #c0392b}.metric-tile.tile-gray{border-left:6px solid #8a938a}
+.metric-tile.tile-green{border-color:rgba(21,128,61,0.28);background:#f8fcf9}.metric-tile.tile-amber{border-color:rgba(161,98,7,0.28);background:#fffcf5}.metric-tile.tile-red{border-color:rgba(185,28,28,0.28);background:#fef7f7}.metric-tile.tile-gray{border-color:var(--border);background:var(--card)}
 .src-why{border:2px solid #2e8b47;border-radius:16px;padding:14px 16px;margin:6px 0 16px}
 .src-why p{margin:8px 0;font-size:18px;line-height:1.45}
 .src-why-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -3719,8 +3719,8 @@ body {
 .stars-help{grid-column:1/-1}
 /* Rotación y suelo */
 .soil-lead{font-size:18px;line-height:1.45;margin:0 0 12px}
-.soil-now{border-radius:14px;padding:12px 14px;margin:10px 0;border-left:6px solid #8a938a;background:color-mix(in srgb,currentColor 6%,transparent)}
-.soil-now.lv-good{border-left-color:#2e8b47}.soil-now.lv-bad{border-left-color:#c0392b}.soil-now.lv-ok{border-left-color:#d99a00}
+.soil-now{border-radius:14px;padding:16px 18px;margin:0;border:1px solid var(--border);background:var(--elevated)}
+.soil-now.lv-good{border-color:rgba(21,128,61,0.28);background:#f4fbf6}.soil-now.lv-bad{border-color:rgba(185,28,28,0.28);background:#fef6f6}.soil-now.lv-ok{border-color:rgba(161,98,7,0.28);background:#fffbeb}
 .soil-now h3{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 6px;font-size:19px}
 .soil-now p{margin:4px 0;line-height:1.45}
 .soil-sub{font-size:18px;margin:16px 0 6px}
@@ -3963,3 +3963,91 @@ body {
 #siembra .option-crop-copy { flex: 1 1 100px; min-width: 0; }
 #siembra .option-crop-copy small { white-space: normal; overflow: visible; text-overflow: clip; }
 #siembra .option-crop-card .src-button { margin-inline-start: auto; }
+
+/* Use the same card surface and a calm, readable precaution message. */
+#siembra .crop-row.top { background: var(--card); border: 1px solid var(--border); box-shadow: 0 4px 12px -2px rgba(15, 38, 24, 0.04); }
+#siembra .crop-row-alert .warning { background: transparent; border: 0; padding: 4px 0 8px; margin: 0; color: var(--foreground); font-size: .95rem; font-weight: 400; line-height: 1.5; }
+
+/* Keep open planting selectors above neighboring panels. */
+#siembra .siembra-plan-card { position: relative; overflow: visible; }
+#siembra .siembra-plan-card:has(.ag-select[data-open="true"]) { z-index: 30; }
+#siembra .ag-select[data-open="true"] { z-index: 31; }
+#siembra .ag-select-menu { max-height: min(248px, 40vh); padding: 8px; border-color: var(--border); box-shadow: 0 16px 36px rgba(15, 38, 24, .2); overscroll-behavior: contain; }
+#siembra .ag-select-option { min-height: 44px; font-size: 1rem; }
+#siembra .ag-select-option:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+/* Siembra: consistent rhythm across recommendation, comparisons and planning. */
+#siembra { max-width: 1240px; }
+#siembra .siembra-stack { gap: 20px; }
+#siembra :is(.siembra-unified-card, .siembra-plan-card, .planting-review) { margin-bottom: 0; border-radius: 16px; }
+#siembra :is(.siembra-unified-card, .siembra-plan-card) { padding: clamp(18px, 2vw, 26px); }
+#siembra .options-subtitle { margin: 4px 0 18px; line-height: 1.5; }
+#siembra :is(.crop-row, .option.option-row-card) { border-radius: 14px; box-shadow: none; }
+#siembra .option-goal-copy, #siembra .crop-row-title { line-height: 1.4; }
+#siembra .planting-plan { margin: 0; }
+#siembra .planting-plan .workbench-form { gap: 12px; align-items: end; }
+#siembra .ag-select-trigger { min-height: 48px; }
+#siembra .plan-form-actions button { min-height: 48px; }
+#siembra :is(button, summary, .ag-select-trigger):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+@media (max-width: 640px) { #siembra .siembra-stack { gap: 14px; } #siembra :is(.siembra-unified-card, .siembra-plan-card) { padding: 16px; } #siembra .planting-plan .workbench-form { grid-template-columns: 1fr; } }
+
+/* Always-visible crop comparison and consistent planting layout. */
+#siembra .crop-comparison { margin: 0; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); }
+#siembra .crop-comparison-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 14px; }
+#siembra .crop-comparison-head h2 { margin: 0; color: var(--foreground); font-size: 1.125rem; line-height: 1.35; }
+#siembra .crop-comparison-head h2 svg { width: 20px; height: 20px; color: var(--success); }
+#siembra .crop-comparison .crop-list { margin-top: 12px; padding: 0; list-style: none; }
+#siembra .crop-comparison .crop-row { background: var(--card); border: 1px solid var(--border); }
+#siembra .siembra-stack > * { min-width: 0; }
+#siembra .option-goal > span { white-space: normal; overflow-wrap: anywhere; }
+#siembra .option-crop-card { gap: 8px; }
+@media (max-width: 640px) { #siembra .crop-comparison { padding: 16px; } #siembra .crop-comparison-head { align-items: flex-start; flex-direction: column; } }
+
+/* Planting workspace: a shared panel vocabulary and readable information hierarchy. */
+#siembra { --planting-gap: 24px; }
+#siembra .siembra-stack { gap: var(--planting-gap); }
+#siembra .advisor { gap: 20px; }
+#siembra .profile-line { flex-wrap: wrap; gap: 12px; padding: 12px 0; }
+#siembra .recommendation-heading { grid-template-columns: minmax(0, 1fr) auto; gap: 16px; }
+#siembra .recommendation-heading > div:first-child { grid-column: 1; }
+#siembra .recommendation-heading .crop-illustration { grid-column: 2; grid-row: 1 / span 2; }
+#siembra .recommendation-score { grid-column: 1; justify-items: start; align-items: start; }
+#siembra .recommendation-caption { display: none; }
+#siembra .recommendation-heading h2 { font-size: 2.75rem; }
+#siembra .metric-tile { min-height: 150px; padding: 20px; gap: 8px; }
+#siembra .metric-tile strong { font-size: 1.4rem; line-height: 1.2; }
+#siembra .metric-tile small { display: block; overflow: visible; font-size: .95rem; line-height: 1.45; }
+#siembra .siembra-stack > .panel { margin: 0; padding: 24px; border-radius: 16px; }
+#siembra .panel-head-row { align-items: center; gap: 12px; margin-bottom: 18px; }
+#siembra .panel-title { margin: 0; font-size: 1.35rem; line-height: 1.3; font-weight: 750; color: var(--foreground); }
+#siembra .options .option-list { margin: 0; padding: 0; list-style: none; }
+#siembra .option-goal-sub { line-height: 1.4; }
+#siembra .soil-lead { max-width: 72ch; font-size: 1rem; line-height: 1.6; }
+#siembra .soil-reasons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px; }
+#siembra .soil-reasons li { padding-top: 12px; border-top: 1px solid var(--border); line-height: 1.6; }
+#siembra .soil-reasons li strong { display: block; margin-bottom: 4px; }
+#siembra .soil-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#siembra .soil-sources { margin-top: 20px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+#siembra .soil-sources summary { cursor: pointer; font-weight: 700; min-height: 28px; }
+#siembra .soil-sources p { max-width: 75ch; line-height: 1.55; }
+#siembra .planting-review { padding: 20px 24px; }
+@media (max-width: 760px) {
+ #siembra .advisor { display: flex; flex-direction: column; }
+ #siembra .advisor > * { width: 100%; }
+ #siembra .metric-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+ #siembra .recommendation-heading h2 { font-size: 2.2rem; }
+ #siembra .recommendation-heading .crop-illustration { position: static; opacity: 1; width: 80px; height: 80px; background: var(--muted-surface); border-radius: 50%; }
+ #siembra .soil-list, #siembra .soil-reasons { grid-template-columns: 1fr; }
+ #siembra .siembra-stack > .panel { padding: 18px; }
+}
+@media (max-width: 400px) { #siembra .metric-tiles { grid-template-columns: 1fr; } }
+
+/* Saved-farm toolbar: clear management actions. */
+.heading-farms-bar .farm-switcher { padding: 12px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+.heading-farms-bar .farm-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+.heading-farms-bar .farm-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.farm-action-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--input); border-radius: 10px; background: var(--card); color: var(--foreground); font: inherit; font-size: .9rem; font-weight: 700; text-decoration: none; cursor: pointer; }
+.farm-action-button:hover { background: var(--muted-surface); border-color: var(--success); }
+.farm-action-button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.farm-action-button.danger { color: var(--risk); border-color: var(--risk); }
+@media(max-width: 640px) { .workspace.has-farm .heading-farms-bar .farm-switcher { padding: 12px; gap: 12px; } .heading-farms-bar .farm-meta { width: 100%; justify-content: space-between; } }

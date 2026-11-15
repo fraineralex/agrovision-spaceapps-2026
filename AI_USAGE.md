@@ -328,6 +328,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **2026-11-15 — Antigravity / Gemini (Google):** creación de `CustomSelect` (`web/components/custom-select.tsx`, `web/app/globals.css`) y reemplazo de los `<select>` nativos en `page.tsx`, `advisor-card.tsx`, `farm-workbench.tsx`, `guided-sale.tsx`, `market-card.tsx`, `onboarding.tsx`, `profit-card.tsx` y `sale-budget.tsx` para que todas las listas desplegables tengan el diseño propio en blanco y verde bosque de la aplicación. Revisión por Frainer: pendiente.
 
+- **2026-11-15 — Antigravity / Gemini (Google):** refinamiento integral de la sección `Siembra` con la guía de `Impeccable` (`web/app/planting.css`, `web/app/globals.css`, `web/app/page.tsx`): eliminación de bordes laterales gruesos (`border-left: 6px`), unificación de la jerarquía visual sin tarjetas anidadas innecesarias, uso directo de `--font-sans` (`Plus Jakarta Sans`), numerales tabulares y reordenamiento de `Tu plan de siembra` justo debajo de la recomendación principal. Revisión por Frainer: pendiente.
+
 - **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
@@ -395,3 +397,23 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex / OpenAI:** alineación de indicadores de cultivos junto al título (`web/app/globals.css`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** ajuste del ancho de ficha de cultivo y legibilidad de objetivos en Otras opciones (`web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** uniformidad del fondo de tarjetas y simplificación visual de precauciones (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección de superposición y estilo del selector del plan de siembra (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** refinamiento de la sección Siembra siguiendo Impeccable: espaciado, jerarquía, formularios y foco (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** revisión Impeccable de Siembra; comparación de cultivos siempre visible y ajustes de jerarquía y adaptación (`web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI, Impeccable:** revisión integral de Siembra: panel reutilizado en opciones y plan, jerarquía de recomendación, suelo legible y adaptación móvil (`web/app/page.tsx`, `web/app/globals.css`, `web/components/{fold,options-card,soil-card}.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI, Impeccable:** nueva composición de Siembra con recomendación horizontal, indicadores por fila y bloques adaptables de opciones, plan y suelo (`web/app/planting.css`, `web/app/layout.tsx`, `web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** restauración de los cuatro pilares junto a la recomendación en escritorio y alineación de controles superiores de Siembra (`web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** alineación del ancho de toda Siembra con encabezado y navegación (`web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** barra de fincas uniforme y botones de edición y borrado con iconos (`web/components/farm-switcher.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** integración de Tu plan de siembra dentro de Otras opciones (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/planting.css`). Revisión por Frainer: pendiente.

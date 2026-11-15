@@ -303,15 +303,10 @@ export default function Home() {
                   irrigation={irrigation}
                   previous={previous}
                   sowMonth={month}
-                  crops={crops}
-
-                />
-                {activeFarm && <section className="card panel siembra-plan-card" aria-labelledby="planting-plan-title">
-                  <div className="panel-head-row siembra-plan-head">
-                    <h2 id="planting-plan-title" className="panel-title"><Sprout aria-hidden="true" className="panel-icon" /> Tu plan de siembra</h2>
-                  </div>
+                  crops={crops} />
+                {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
                   <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                </section>}
+                </Fold>}
                 <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica cómo la rotación puede cuidar el suelo."><SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture}/></Fold>
                 <ShareButton summary={shareSummary}/>
                 <PlantingReview province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
