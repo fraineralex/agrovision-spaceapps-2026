@@ -190,3 +190,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** corregir la validación de la prioridad equilibrada y activar el micrófono cuando la sesión está lista. Reducir la interfaz a hablar, colgar y alternativas plegadas. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,voice-assistant}.tsx`, `web/lib/{advisor,farmer-comparison,voice-context}.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`.
 - **Verificación:** conexión real a Vercel AI Gateway con `openai/gpt-realtime-mini`. Una frase sintética generada con Windows Speech se usó como entrada de micrófono en Chromium. Se verificaron detección de voz, recepción de audio y cierre de la pista al colgar. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Pantalla de conversación por voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** crear una vista de voz con orbe de estado, subtítulos, silencio y cierre. **Archivos:** `web/components/voice-assistant.tsx`, `web/components/voice-session.module.css` y `web/tests/demo.spec.ts`.
+- **Referencia visual:** demo y documentación públicas de [Voice Mode de HextaUI](https://hextaui.com/es/blocks/voice-mode). Implementación original con CSS, diálogo nativo e iconos Lucide. No se importó código del registro privado. **Revisión por Frainer:** pendiente.

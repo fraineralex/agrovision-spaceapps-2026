@@ -194,3 +194,23 @@ test("missing realtime credentials release microphone and preserve text input",a
  await page.getByText("Escribir", {exact:true}).click();
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
 });
+
+test("voice view shows accessible controls and closes during a pending connection", async ({page}) => {
+ await page.setViewportSize({width:360,height:780});
+ await page.addInitScript(() => {
+   navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
+ });
+ await page.goto("/");
+ const start = page.getByRole("button", {name:"Hablar",exact:true});
+ await start.click();
+ const voice = page.getByRole("dialog", {name:"Voz de AgroVision"});
+ await expect(voice.getByRole("status")).toHaveText("Conectando…");
+ await expect(voice.getByRole("button", {name:"Silenciar micrófono"})).toBeDisabled();
+ await voice.getByRole("button", {name:"Subtítulos"}).click();
+ await expect(voice.getByRole("region", {name:"Subtítulos de voz"})).toBeVisible();
+ expect(await axeSerious(page)).toEqual([]);
+ await page.screenshot({path:"test-results/voice-mobile.png"});
+ await page.keyboard.press("Escape");
+ await expect(voice).toBeHidden();
+ await expect(start).toBeFocused();
+});

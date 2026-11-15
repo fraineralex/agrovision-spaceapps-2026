@@ -1,10 +1,11 @@
-/* AI: Codex/OpenAI, 2026-11-14; conversational voice UI by Claude (Anthropic), 2026-11-14. Frainer review pending. */
+/* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Keyboard, Mic, PhoneOff, Volume2 } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { AudioLines, Captions, Keyboard, Mic, MicOff, PhoneOff, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
+import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
@@ -12,6 +13,10 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [captions, setCaptions] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const sessionTitle = useId();
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
   const generation = useRef(0);
@@ -49,7 +54,9 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     if (starting.current) return;
     interrupt();
     setNotice("");
+    setMuted(false);
     setRequesting(true);
+    dialog.current?.showModal();
     starting.current = true;
     const attempt = ++generation.current;
     try {
@@ -62,6 +69,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } catch (error) {
       if (attempt !== generation.current) return;
       releaseMedia();
+      dialog.current?.close();
       const name = error instanceof Error ? error.name : "";
       setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
     } finally {
@@ -74,8 +82,16 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     setRequesting(false);
     realtime.disconnect();
     releaseMedia();
+    dialog.current?.close();
     window.speechSynthesis?.cancel();
     setNotice(message);
+  }
+  function toggleMute() {
+    const tracks = media.current?.getAudioTracks();
+    if (!tracks?.length) return;
+    const next = !muted;
+    tracks.forEach(track => { track.enabled = !next; });
+    setMuted(next);
   }
   function speak(text: string) {
     if (!window.speechSynthesis) return;
@@ -118,14 +134,36 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
   const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
-  const voiceState = realtime.isPlaying ? "Hablando…" : realtime.isCapturing ? "Escuchando…" : active ? "Conectando…" : notice;
+  const orbState = realtime.isPlaying ? "speaking" : muted ? "muted" : realtime.isCapturing ? "listening" : active ? "connecting" : "idle";
+  const voiceState = realtime.isPlaying ? "Hablando…" : muted ? "Micrófono silenciado" : realtime.isCapturing ? "Escuchando…" : active ? "Conectando…" : "Sesión terminada";
+  const latestCaption = realtime.messages.at(-1)?.parts.flatMap(part => part.type === "text" ? [part.text] : []).join(" ").trim();
+  const hangUp = () => stopVoice("Micrófono apagado.");
   return <section className="voice-compact" aria-label="Asistente de voz">
     <div className="voice-controls">
-      <button type="button" className={active ? "voice-end" : "voice-start"} onClick={active ? () => stopVoice("Micrófono apagado.") : startVoice}>
-        {active ? <PhoneOff aria-hidden="true"/> : <Mic aria-hidden="true"/>}{active ? "Colgar" : "Hablar"}
+      <button type="button" className="voice-start" aria-haspopup="dialog" onClick={startVoice}>
+        <AudioLines aria-hidden="true"/> Hablar
       </button>
-      <span role="status">{realtime.isPlaying && <AudioLines aria-hidden="true"/>}{voiceState || "Voz de IA"}</span>
+      <span role="status">{notice || "Voz de IA"}</span>
     </div>
+    <dialog ref={dialog} className={session.dialog} aria-labelledby={sessionTitle} onCancel={event => { event.preventDefault(); hangUp(); }}>
+      <div className={session.session}>
+        <div className={session.header}>
+          <h3 id={sessionTitle} className={session.title}>Voz de AgroVision</h3>
+          <button type="button" className={session.control} aria-label="Subtítulos" aria-pressed={captions} title="Subtítulos" onClick={() => setCaptions(value => !value)}><Captions aria-hidden="true"/></button>
+        </div>
+        <div className={session.center}>
+          <div className={session.orb} data-state={orbState} aria-hidden="true"/>
+          <p className={session.status} role="status">{voiceState}</p>
+        </div>
+        {captions && <div className={session.captions} role="region" aria-label="Subtítulos de voz">{latestCaption || "Los subtítulos aparecerán aquí."}</div>}
+        <div className={session.actions}>
+          <button type="button" className={session.control} aria-label="Silenciar micrófono" aria-pressed={muted} disabled={!realtime.isCapturing} onClick={toggleMute}>
+            {muted ? <MicOff aria-hidden="true"/> : <Mic aria-hidden="true"/>} Silenciar
+          </button>
+          <button type="button" className={`${session.control} ${session.hangup}`} onClick={hangUp}><PhoneOff aria-hidden="true"/> Colgar</button>
+        </div>
+      </div>
+    </dialog>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
