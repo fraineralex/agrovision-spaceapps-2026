@@ -257,10 +257,19 @@ export default function Home() {
             <section id="siembra" aria-label="Recomendación y plan de siembra">
               <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
-                {activeFarm && <Fold icon="🌱" title="Tu plan de siembra">
-                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                </Fold>}
-                <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
+                <OptionsCard
+                  province={farmProvince}
+                  irrigation={irrigation}
+                  previous={previous}
+                  sowMonth={month}
+                  crops={crops}
+                  headerSlot={activeFarm ? <>
+                    <div className="panel-head-row siembra-plan-head">
+                      <h2 className="panel-title">🌱 Tu plan de siembra</h2>
+                    </div>
+                    <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                  </> : undefined}
+                />
                 <ShareButton summary={shareSummary}/>
               </div>
             </section>

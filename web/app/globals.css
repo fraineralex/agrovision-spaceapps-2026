@@ -2737,6 +2737,14 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
   grid-template-columns: minmax(0, 1fr) !important;
   gap: 12px;
 }
+@media (min-width: 780px) {
+  .options .option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .option.option-row-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
 .option.option-row-card {
   display: flex;
   flex-direction: column;
@@ -2752,8 +2760,22 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
 .siembra-stack {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   gap: 14px;
-  margin-top: 14px;
+  max-width: 1080px;
+  margin: 16px auto 0;
+  width: 100%;
+}
+.siembra-unified-card {
+  width: 100%;
+}
+.siembra-plan-block {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.siembra-plan-head {
+  margin-bottom: 10px;
 }
 .option-top-bar {
   display: flex;
@@ -2772,7 +2794,7 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
   align-items: center;
   gap: 10px;
   min-width: 0;
-  flex: 1 1 200px;
+  flex: 1 1 140px;
 }
 .option-goal-copy {
   display: flex;
@@ -2817,7 +2839,7 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
 }
 @media (min-width: 640px) {
   .option-row-card .option-pillars {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .option-row-card .option-pillars .pill {

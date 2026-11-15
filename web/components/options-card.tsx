@@ -2,6 +2,7 @@
 /* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { AlertTriangle, CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
 import { FarmIcon } from "@/components/farm-icon";
 import { HelpTip } from "@/components/help-tip";
@@ -19,12 +20,13 @@ const pillars: { id: "water" | "climate" | "pests" | "market"; label: string }[]
 const word: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
 const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Precio histórico", pests: "Plagas", climate: "Sequía", keep: "Seguir igual" };
 
-export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
+export function OptionsCard({ province, irrigation, previous, sowMonth, crops, headerSlot }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[]; headerSlot?: ReactNode }) {
   const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
   const grouped = options.filter((option, index) => !option.advice || options.findIndex(candidate => candidate.advice?.crop === option.advice?.crop) === index);
   const all = grouped.flatMap(option => option.advice ? [option.advice] : []);
   const [sources, setSources] = useState<CropAdvice | null>(null);
-  return <section className="card panel options" aria-labelledby="opciones-titulo">
+  return <section className="card panel options siembra-unified-card" aria-labelledby="opciones-titulo">
+    {headerSlot && <div className="siembra-plan-block">{headerSlot}</div>}
     <div className="panel-head-row">
       <h2 id="opciones-titulo" className="panel-title">Otras opciones</h2>
       <HelpTip label="Otras opciones" text="Compara el mejor cultivo según lo que más te importe hoy: ahorrar agua, cuidar el precio, evitar plagas, resistir sequía o seguir igual." />
