@@ -309,6 +309,7 @@ test("voice tools, location validation and honest missing-key fallback",async({r
   messages: [{ role: "user", content: "En qué mes me conviene sembrar maíz" }],
  } });
  expect(await sowing.text()).toMatch(/histórico nacional.*abril, mayo y junio/);
+ expect(sowing.headers()["x-agrovision-mode"]).toBe("data");
  const tool=await request.post("/api/voice/tools",{data:{selection,name:"get_parcel_metrics",args:{}}});
  const data=await tool.json();expect(data.climate.temperatureC).toBe(25.43);expect(data.climateSource.period).toBe("2016–2025");expect(data.ndvi.rows).toHaveLength(0);
  expect((await request.post("/api/voice/tools",{data:{selection,name:"run_command",args:{}}})).status()).toBe(400);
@@ -400,13 +401,13 @@ test("summary prefers generated audio and reuses it on restart", async ({ page }
  expect(requests).toBe(1);
 });
 
-test("the voice button sends a dictated question when realtime setup fails", async ({ page }) => {
+test("the voice button sends a dictated question without waiting for realtime setup", async ({ page }) => {
  const errors: string[] = [];
  page.on("pageerror", error => errors.push(error.message));
  const setupMethods: string[] = [];
  await page.route(/\/api\/voice\/setup(?:\?|$)/, route => {
   setupMethods.push(route.request().method());
-  return route.fulfill({ status: 503 });
+  return route.fulfill({ status: 204 });
  });
  await page.route("**/api/voice/chat", route => {
   expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
@@ -429,13 +430,14 @@ test("the voice button sends a dictated question when realtime setup fails", asy
  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
  await expect(page.getByRole("region", { name: "Respuesta a tu pregunta" })).toContainText("Este es tu resumen.");
  await expect(page.getByRole("button", { name: "Oír respuesta", exact: true })).toBeVisible();
- expect(setupMethods).toEqual(["HEAD"]);
+ expect(setupMethods).toEqual([]);
  expect(errors).toEqual([]);
 });
 
 test("the voice button stays outside the main workspace content", async ({page}) => {
  await page.setViewportSize({width:360,height:780});
  await page.addInitScript(() => {
+   Object.assign(window, { SpeechRecognition: undefined, webkitSpeechRecognition: undefined });
    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
  });
  await page.goto("/");

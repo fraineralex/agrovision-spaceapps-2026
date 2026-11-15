@@ -140,6 +140,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     interrupt();
     setNotice("");
     setVoiceError(false);
+    const browser = window as DictationWindow;
+    if (navigator.onLine && (browser.SpeechRecognition || browser.webkitSpeechRecognition)) {
+      fallbackToDictation();
+      return;
+    }
     setRequesting(true);
     // Keep the session on its starting farm and month while the page remains interactive.
     starting.current = true;
@@ -340,7 +345,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
           <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
         </div>}
       </>}
-      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
+      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>El dictado usa el servicio de voz de tu navegador. La conversación en tiempo real, cuando se usa, envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
     </div>
     </div>
   </section>;
