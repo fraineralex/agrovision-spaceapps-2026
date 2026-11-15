@@ -277,6 +277,8 @@ body { font-size:17px; }
   box-shadow: 0 24px 60px rgba(21, 35, 26, 0.18), 0 4px 14px rgba(21, 35, 26, 0.08);
 }
 .ob-card.ob-card-wide { max-width: 1040px; }
+/* Keep the location step stationary while its search results scroll. */
+@media (min-width: 721px) { .ob-card-location { height: min(604px, calc(100dvh - 24px)); } }
 .ob-top {
   display: flex;
   justify-content: space-between;
@@ -1145,9 +1147,6 @@ h1 { color: var(--monte); }
 .mode-switch button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--monte); font-size: 15px; font-weight: 750; cursor: pointer; }
 .mode-switch button[aria-pressed="true"] { background: var(--legacy-action); color: #fff; }
 .mode-switch svg, .parcel-export svg { width: 18px; height: 18px; }
-.supervisor-tools { display: inline-flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 4px 6px; background: var(--muted-surface); border: 1px solid var(--border); border-radius: 11px; }
-.supervisor-tools a { display: inline-flex; align-items: center; min-height: 36px; padding: 4px 10px; border-radius: 8px; font-size: 14px; font-weight: 750; color: var(--monte); text-decoration: none; }
-.supervisor-tools a:hover { background: var(--muted-surface); text-decoration: underline; }
 .place-choices { grid-template-columns: 1fr; }
 .ob-place { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 15px; color: var(--monte); }
 .ob-place button { margin-left: auto; }
@@ -1285,18 +1284,6 @@ body {
   background-image: none;
   color: var(--water);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-}
-.heading-row .supervisor-tools {
-  background-color: rgba(11, 36, 22, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  padding: 4px 6px;
-}
-.heading-row .supervisor-tools a {
-  color: #dcfce7;
-}
-.heading-row .supervisor-tools a:hover {
-  background-color: rgba(255, 255, 255, 0.12);
 }
 .heading-row .workbench-button {
   background-color: var(--card);
@@ -2382,7 +2369,9 @@ a { color: var(--success); }
 .ob-choice, .ob-choice:hover, .rain-day-btn, .rain-wet .rain-day-btn, .mode-switch, .src-block, .voice-guide-item, .ob-map-launch, .voice-alternatives details[open] {
   background: var(--elevated); color: var(--foreground); border-color: var(--input); box-shadow: none;
 }
-.ob-choice.on, .ob-choice.on:hover { background: var(--muted-surface); color: var(--foreground); border-color: var(--focus); box-shadow: inset 0 0 0 1px var(--focus); }
+.ob-choice.on, .ob-choice.on:hover { background: linear-gradient(135deg, #14532d 0%, #166534 100%); color: #ffffff; border-color: #14532d; box-shadow: 0 4px 12px rgba(20, 83, 45, 0.22); }
+.ob-choice.on .ob-icon-chip { background: rgba(255, 255, 255, 0.18); color: #ffffff; border-color: rgba(255, 255, 255, 0.28); }
+.ob-choice.on small { color: rgba(255, 255, 255, 0.85); }
 .ob-icon-chip, .ob-hero-badge, .panel-icon { background: var(--muted-surface); color: var(--success); border-color: var(--input); box-shadow: none; }
 .ob-top .ob-link, .ob-place .ob-link { min-height: 44px; color: var(--success); }
 .ob-step h2 { color: var(--foreground); font-size: clamp(1.65rem, 4vw, 2.65rem); font-weight: 800; letter-spacing: -.04em; }

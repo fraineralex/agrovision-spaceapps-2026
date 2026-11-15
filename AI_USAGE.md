@@ -315,3 +315,9 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Venta / Mercado` (`web/components/market-card.tsx` y `web/app/globals.css`) de la franja hero de precio (`.market-hero-strip`), mini barras verticales estacionales en los 12 meses (`.sm-bar-wrap`) y medidor comparativo de presión de siembra nacional (`.sowing-pressure-card`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Clima normal` (`web/app/page.tsx`) del climograma anual de 12 meses NASA POWER (`Climograph12M`) con barras de lluvia, línea de temperatura y botones de mes interactivos, y en `Mapa` (`web/components/map.tsx`, `web/app/globals.css`) de la tarjeta con barra espectral continua de NDVI (`.spectral-legend-card` y `.spectral-gradient-bar`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** ajuste del estado seleccionado `.ob-choice.on` en el asistente de inicio (`web/app/globals.css`) a verde bosque oscuro (`#14532d`–`#166534`) con texto e icono en blanco para dar alto contraste y visibilidad clara al pulsar opciones. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
