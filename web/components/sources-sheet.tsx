@@ -4,6 +4,7 @@ import { Bug, Coins, Droplets, FileText, Leaf, Sun } from "lucide-react";
 import { Fragment, useEffect, useRef, type ReactNode } from "react";
 import { FAO56_URL, marketFor, marketSources, starsFor, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
 import { LanguageSelector } from "@/components/language-selector";
+import { soilNoteFor } from "@/lib/i18n/soil-messages";
 import { soilSources } from "@/lib/soil";
 import { Stars } from "@/components/field-ui";
 import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
@@ -83,10 +84,10 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
       </section>
       <h3 className="src-detail-title">{text.detail}</h3>
       <p className="src-intro">{rich(text.intro, { crop: <strong>{name.toLowerCase()}</strong>, province: <strong>{province ?? text.nationwide}</strong>, month: <strong>{monthLabel(sowMonth, locale)}</strong>, previous: previousText })}</p>
-      <Block icon={<Leaf />} title="Suelo" verdict={advice.soil.title} links={advice.soil.sources.map(k => [soilSources[k].label, soilSources[k].url] as [string, string])}>
-        <p>{advice.soil.text}</p>
-        <p>Rotar es sobre todo para cuidar la tierra: cada cultivo busca los nutrientes en una capa distinta, las leguminosas dejan nitrógeno y las raíces y el rastrojo variados forman materia orgánica.</p>
-        <p className="src-limit">Es una regla general de la FAO, no una medición de tu finca. Para saber cómo está tu tierra hace falta un análisis de suelo. Esta parte no cambia las estrellas.</p>
+      <Block icon={<Leaf />} title={locale === "en" ? "Soil" : "Suelo"} verdict={soilNoteFor(locale,previous,advice.crop,advice.soil).title} links={advice.soil.sources.map(k => [soilSources[k].label, soilSources[k].url] as [string, string])}>
+        <p>{soilNoteFor(locale,previous,advice.crop,advice.soil).text}</p>
+        <p>{locale === "en" ? "Rotation helps care for soil: crops draw nutrients from different layers, legumes leave nitrogen, and diverse roots and residues form organic matter." : "Rotar es sobre todo para cuidar la tierra: cada cultivo busca los nutrientes en una capa distinta, las leguminosas dejan nitrógeno y las raíces y el rastrojo variados forman materia orgánica."}</p>
+        <p className="src-limit">{locale === "en" ? "This is general FAO guidance, not a measurement of your farm. A soil test is needed to assess your soil. This does not change the stars." : "Es una regla general de la FAO, no una medición de tu finca. Para saber cómo está tu tierra hace falta un análisis de suelo. Esta parte no cambia las estrellas."}</p>
       </Block>
       <Block icon={<Droplets />} title={text.water} verdict={localizedPillarWord(advice, "water", locale)} links={[[text.faoTables, FAO56_URL]]}>
         <p>{fmt(text.waterMethod, { crop: name.toLowerCase(), row: advice.faoRow })}</p>

@@ -3,6 +3,7 @@
 "use client";
 import type { SoilColor, SoilTexture } from "@/lib/soil";
 import { useEffect, useRef, useState } from "react";
+import { soilMessages } from "@/lib/i18n/soil-messages";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import { mapMessages } from "@/lib/i18n/map-messages";
@@ -29,6 +30,7 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial: Partial<FarmProfile>; onDone: (p: FarmProfile) => void; onSkip: () => void; farmCount?: number }) {
   const locale = useLocale();
   const text = messages[locale].onboarding;
+  const soilText = soilMessages[locale];
   const dialog = useRef<HTMLDialogElement>(null);
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -188,22 +190,22 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               <Choice on={irrigation === "rainfed"} onClick={() => setIrrigation("rainfed")}><CloudRain size={19} aria-hidden="true" /> {text.rainfed} {irrigation === "rainfed" && <Check size={18} aria-hidden="true" />}</Choice>
               <Choice on={irrigation === "unconfirmed"} onClick={() => setIrrigation("unconfirmed")}><CircleHelp size={19} aria-hidden="true" /> {text.dontKnow} {irrigation === "unconfirmed" && <Check size={18} aria-hidden="true" />}</Choice>
             </div>
-            <h3 className="ob-sub">¿Cómo es tu tierra? <small>(opcional)</small></h3>
-            <div className="ob-row" role="group" aria-label="¿Cómo es tu tierra?">
-              <Choice on={soilTexture === "arenosa"} onClick={() => setSoilTexture("arenosa")}>Arenosa</Choice>
-              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>Mezclada</Choice>
-              <Choice on={soilTexture === "arcillosa"} onClick={() => setSoilTexture("arcillosa")}>Barro</Choice>
-              <Choice on={!soilTexture} onClick={() => setSoilTexture(undefined)}>No sé</Choice>
+            <h3 className="ob-sub">{soilText.texture} <small>({soilText.optional})</small></h3>
+            <div className="ob-row" role="group" aria-label={soilText.texture}>
+              <Choice on={soilTexture === "arenosa"} onClick={() => setSoilTexture("arenosa")}>{soilText.sandy}</Choice>
+              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>{soilText.loam}</Choice>
+              <Choice on={soilTexture === "arcillosa"} onClick={() => setSoilTexture("arcillosa")}>{soilText.clay}</Choice>
+              <Choice on={!soilTexture} onClick={() => setSoilTexture(undefined)}>{soilText.unknown}</Choice>
             </div>
-            <p className="ob-hint">Arenosa: suelta, se escurre entre los dedos. Barro: se pega cuando se moja y se agrieta al secarse. Mezclada: ni arena ni barro, se desmorona fácil.</p>
-            <h3 className="ob-sub">¿De qué color es tu tierra? <small>(opcional)</small></h3>
-            <div className="ob-row" role="group" aria-label="¿De qué color es tu tierra?">
-              <Choice on={soilColor === "negra"} onClick={() => setSoilColor("negra")}>Negra</Choice>
-              <Choice on={soilColor === "roja"} onClick={() => setSoilColor("roja")}>Roja</Choice>
-              <Choice on={soilColor === "amarilla"} onClick={() => setSoilColor("amarilla")}>Amarilla</Choice>
-              <Choice on={soilColor === "gris"} onClick={() => setSoilColor("gris")}>Gris</Choice>
-              <Choice on={soilColor === "blanca"} onClick={() => setSoilColor("blanca")}>Blanca</Choice>
-              <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>No sé</Choice>
+            <p className="ob-hint">{soilText.textureHint}</p>
+            <h3 className="ob-sub">{soilText.color} <small>({soilText.optional})</small></h3>
+            <div className="ob-row" role="group" aria-label={soilText.color}>
+              <Choice on={soilColor === "negra"} onClick={() => setSoilColor("negra")}>{soilText.black}</Choice>
+              <Choice on={soilColor === "roja"} onClick={() => setSoilColor("roja")}>{soilText.red}</Choice>
+              <Choice on={soilColor === "amarilla"} onClick={() => setSoilColor("amarilla")}>{soilText.yellow}</Choice>
+              <Choice on={soilColor === "gris"} onClick={() => setSoilColor("gris")}>{soilText.gray}</Choice>
+              <Choice on={soilColor === "blanca"} onClick={() => setSoilColor("blanca")}>{soilText.white}</Choice>
+              <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>{soilText.unknown}</Choice>
             </div>
             <details className="ob-more ob-compare"><summary>{text.changeCrops} ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
               <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label={text.changeCrops}>{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c]}{c === "ajo" ? ` · ${text.noData}` : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>

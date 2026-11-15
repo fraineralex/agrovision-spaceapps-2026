@@ -7,6 +7,7 @@ import { FarmIcon } from "@/components/farm-icon";
 import { VoiceDock } from "@/components/voice-dock";
 import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
+import { soilMessages } from "@/lib/i18n/soil-messages";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import { cropLabel, localizedAdviceSentence, localizedOversupply, monthLabel } from "@/lib/i18n/advice";
@@ -336,7 +337,7 @@ export default function Home() {
             <section id="siembra" aria-label={text.recommendationPlan}>
               <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
-                {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
+                {activeFarm && <Fold id="planting-plan" icon="🌱" title={text.plantingPlan} className="siembra-plan-card">
                   <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
                 </Fold>}
                 <OptionsCard
@@ -345,10 +346,10 @@ export default function Home() {
                   previous={previous}
                   sowMonth={month}
                   crops={crops} />
-                <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica por qué cambiar de cultivo cuida la tierra: nutrientes, abono natural de las leguminosas y materia orgánica.">
+                <Fold id="rotacion-y-suelo" icon="🍂" title={soilMessages[locale].heading} help={soilMessages[locale].help}>
                   <SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture} color={activeFarm?.soilColor}/>
                 </Fold>
-                <Fold id="plagas-a-vigilar" icon="🐛" title="Plagas a vigilar" help="Lista las plagas principales de cada cultivo de tu lista según guías dominicanas, y si se repiten con tu cultivo anterior.">
+                <Fold id="plagas-a-vigilar" icon="🐛" title={soilMessages[locale].pestHeading} help={soilMessages[locale].pestHelp}>
                   <PestCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
                 </Fold>
                 <ShareButton summary={shareSummary}/>
