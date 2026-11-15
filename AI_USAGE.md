@@ -179,7 +179,8 @@ La organización del reto permite el uso de herramientas de inteligencia artific
   - Enrutamiento localizable `/es` y `/en` con selector de idioma sincronizado y diccionarios completos sin alterar el diseño dominante.
   - Recuperación documental RAG con citas en el chat de voz/texto y limpieza de formato Markdown en respuestas habladas (`plainVoiceText`).
   - Eliminación de barra duplicada en modo Supervisor, selección múltiple directa de cultivos de interés en el paso 3 de Onboarding, ampliación de fichas por cultivo en `AdvisorCard` (`CropRow`) y cohorte agronómica por familia FAO (`defaultComparisonPool`) en `adviseNextCrop`.
-  - *Archivos:* `web/app/[locale]/{layout,page,fuentes/page}.tsx`, `web/lib/i18n/*`, `web/lib/{advisor,advisor.test,rag,voice-context,local-voice-model}.ts`, `web/components/{advisor-card,onboarding}.tsx`, `web/app/{workspace,planting}.css`, `web/tests/demo.spec.ts`.
+  - Restricción estricta del asistente de voz y texto al alcance del proyecto AgroVision y consultas agrícolas de la finca (`PROJECT_SCOPE_RULE`, `isProjectQuestion`, `projectScopeRefusal` en prompts y guardas de `/api/voice/chat`, RAG y modelo local).
+  - *Archivos:* `web/app/[locale]/{layout,page,fuentes/page}.tsx`, `web/app/api/voice/chat/route.ts`, `web/lib/i18n/*`, `web/lib/{advisor,advisor.test,rag,voice-context,voice-context.test,local-voice-model}.ts`, `web/components/{advisor-card,onboarding}.tsx`, `web/app/{workspace,planting}.css`, `web/tests/demo.spec.ts`.
 
 ---
 

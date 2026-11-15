@@ -2,7 +2,7 @@
 import { gateway } from "@ai-sdk/gateway";
 import { streamText, stepCountIs } from "ai";
 import { z } from "zod";
-import { TEXT_MODEL, voiceSelection, adviceMetrics, localAdviceText, localVoiceAnswer, plainVoiceInstructions, plainVoiceText, plantingCalendar } from "@/lib/voice-context";
+import { TEXT_MODEL, PROJECT_SCOPE_RULE, voiceSelection, adviceMetrics, isProjectQuestion, localAdviceText, localVoiceAnswer, plainVoiceInstructions, plainVoiceText, plantingCalendar, projectScopeRefusal } from "@/lib/voice-context";
 import { guard, localTools, readJson } from "@/lib/voice-server";
 import { askLocalVoiceModel } from "@/lib/local-voice-model";
 import { formatRagContext, ragAnswerSystem, ragSources, retrieveRag, RAG_NO_DATA } from "@/lib/rag";
@@ -28,7 +28,15 @@ export async function POST(request: Request) {
   if (calendar) {
     return new Response(calendar.answer, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "data", "Cache-Control": "no-store" } });
   }
-  if (!process.env.AI_GATEWAY_API_KEY && !process.env.VERCEL_OIDC_TOKEN) {
+  const hasGateway = Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
+  if (!isProjectQuestion(question, input.messages.length > 1)) {
+    const refusal = projectScopeRefusal(input.locale);
+    return new Response(
+      hasGateway ? refusal : `${input.locale === "en" ? "AI is offline." : "Sin conexión con IA."} ${refusal}`,
+      { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": hasGateway ? "scope" : "local", "Cache-Control": "no-store" } },
+    );
+  }
+  if (!hasGateway) {
     const answer = await askLocalVoiceModel(input.selection, input.messages, request.signal, input.locale);
     if (answer) return new Response(answer, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "ai-local", "Cache-Control": "no-store" } });
     return new Response(`${input.locale === "en" ? "AI is offline." : "Sin conexión con IA."} ${localVoiceAnswer(input.selection, question, input.locale)}`, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "local", "Cache-Control": "no-store" } });
@@ -38,7 +46,7 @@ export async function POST(request: Request) {
   const langRule = input.locale === "en"
     ? "Responde siempre en inglés claro y sencillo (2 a 4 frases), incluso si las guías están en español."
     : "Responde en español dominicano sencillo, en 2 a 4 frases.";
-  let ragSystem = `Eres AgroVision, asistente de texto para agricultores dominicanos. ${langRule} ${plainVoiceInstructions} ${farm} No inventes fuentes, datos ni pronósticos. Para la lluvia de la parcela demo usa la fuente del contexto de finca, no la de guías generales. No atribuyas una fuente sin evidencia explícita. No infieras necesidades de agua de etiquetas relativas. Si la pregunta contradice la selección, no presentes sus resultados como recomendación para esa situación. Responde solo lo pertinente. Si piden una alternativa, elige otro cultivo de las opciones evaluadas. Usa el historial para entender las preguntas de seguimiento. Sin cifras nuevas: usa herramientas locales si hace falta.
+  let ragSystem = `Eres AgroVision, asistente de texto para agricultores dominicanos. ${PROJECT_SCOPE_RULE} ${langRule} ${plainVoiceInstructions} ${farm} No inventes fuentes, datos ni pronósticos. Para la lluvia de la parcela demo usa la fuente del contexto de finca, no la de guías generales. No atribuyas una fuente sin evidencia explícita. No infieras necesidades de agua de etiquetas relativas. Si la pregunta contradice la selección, no presentes sus resultados como recomendación para esa situación. Responde solo lo pertinente. Si piden una alternativa, elige otro cultivo de las opciones evaluadas. Usa el historial para entender las preguntas de seguimiento. Sin cifras nuevas: usa herramientas locales si hace falta.
 Si no hay dato verificado, di: "${RAG_NO_DATA}".`;
   let sourcesHeader = "[]";
   const budget = AbortSignal.any([request.signal, AbortSignal.timeout(3_000)]);

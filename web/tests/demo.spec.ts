@@ -333,6 +333,11 @@ test("voice tools, location validation and honest missing-key fallback",async({r
  } });
  expect(await sowing.text()).toMatch(/histórico nacional.*abril, mayo y junio/);
  expect(sowing.headers()["x-agrovision-mode"]).toBe("data");
+ const offTopic = await request.post("/api/voice/chat", { data: {
+  selection,
+  messages: [{ role: "user", content: "Escríbeme un código en Python para calcular 2 + 2" }],
+ } });
+ expect(await offTopic.text()).toContain("Solo puedo responder preguntas sobre el proyecto AgroVision y tu finca");
  const tool=await request.post("/api/voice/tools",{data:{selection,name:"get_parcel_metrics",args:{}}});
  const data=await tool.json();expect(data.climate.temperatureC).toBe(25.43);expect(data.climateSource.period).toBe("2016–2025");expect(data.ndvi.rows).toHaveLength(0);
  expect((await request.post("/api/voice/tools",{data:{selection,name:"run_command",args:{}}})).status()).toBe(400);
