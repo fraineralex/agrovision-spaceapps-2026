@@ -128,3 +128,9 @@ test("drought dictionaries have matching keys and interpolation fields", () => {
     assert.deepEqual(placeholders(droughtMessages.en[key]), placeholders(droughtMessages.es[key]), key);
   }
 });
+
+import { areaLabel } from "./farms";
+test("farm area uses each locale's decimal conventions without changing units", () => {
+  assert.equal(areaLabel(2500, "en"), "4.0 tareas · 0.25 ha");
+  assert.equal(areaLabel(2500, "es"), "4.0 tareas · 0.25 ha");
+});

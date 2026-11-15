@@ -38,13 +38,13 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  const canvas = map.locator("canvas");
  await canvas.click({ position: { x: 90, y: 220 } });
  await canvas.click({ position: { x: 150, y: 220 } });
- await expect(page.locator(".picker-total")).toContainText("Marcado: 8,0 tareas");
+ await expect(page.locator(".picker-total")).toContainText("Marcado: 8.0 tareas");
  // Drag a box to select a range of cells.
  await ob.getByRole("button",{name:/Arrastrar/}).click();
  bb=(await map.boundingBox())!;
  await page.mouse.move(bb.x+30,bb.y+120); await page.mouse.down(); await page.mouse.move(bb.x+150,bb.y+200,{steps:6}); await page.mouse.up();
  const afterBox=await page.locator(".picker-total").innerText();
- expect(afterBox).not.toContain("8,0 tareas");
+ expect(afterBox).not.toContain("8.0 tareas");
  // Draw a polygon by tapping corners.
  await ob.getByRole("button",{name:/Dibujar/}).click();
  bb=(await map.boundingBox())!;

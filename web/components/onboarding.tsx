@@ -213,7 +213,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
         {step > 0 && (step === 1 ? (initial.id ? <>
           <button type="button" className="ob-primary" onClick={finish}>{text.save}</button>
           <button type="button" className="link-button" onClick={next}>{text.changeCropWater}</button>
-        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `${text.done}: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? text.doneContinue : text.continueWithout}</button>)
+        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `${text.done}: ${areaLabel(piecesAreaM2(pieces), locale)}` : showMap ? text.doneContinue : text.continueWithout}</button>)
           : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> {text.recommendation}</button>)}
       </footer>
     </div>

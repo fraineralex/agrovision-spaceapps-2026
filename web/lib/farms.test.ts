@@ -27,6 +27,6 @@ test("a drawn polygon of 100 m × 100 m is about 1 ha and 15.9 tareas", () => {
   const p = drawnPiece([[-71.23, 18.8], [-71.23 + dLon, 18.8], [-71.23 + dLon, 18.8 + dLat], [-71.23, 18.8 + dLat]])!;
   const m2 = piecesAreaM2([p]);
   assert.ok(Math.abs(m2 - 10000) < 150, `${m2}`);
-  assert.match(areaLabel(m2), /15,9 tareas · 1,00 ha|16 tareas/);
+  assert.match(areaLabel(m2), /15[.,]9 tareas · 1[.,]00 ha|16 tareas/);
   assert.equal(drawnPiece([[0, 0], [1, 1]]), null);
 });

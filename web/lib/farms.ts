@@ -1,5 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — saved farms: geometry, grid cells, area and local storage. Frainer review pending. See AI_USAGE.md. */
+import type { Locale } from "./i18n/messages";
+import { localeTag } from "./i18n/locale";
 import type { CropId, PreviousCrop } from "./advisor";
 import type { Irrigation, Priority } from "./data";
 import type { Location } from "./geography";
@@ -36,10 +38,13 @@ export function ringAreaM2(ring: Ring): number {
 export const piecesAreaM2 = (pieces: Piece[]) => pieces.reduce((s, p) => s + ringAreaM2(p.ring), 0);
 export const m2ToTareas = (m2: number) => m2 / TAREA_M2;
 export const m2ToHa = (m2: number) => m2 / 10000;
-export function areaLabel(m2: number) {
-  const t = m2ToTareas(m2), ha = m2ToHa(m2);
-  return `${t < 10 ? t.toFixed(1).replace(".", ",") : Math.round(t).toLocaleString("es-DO")} tareas · ${ha < 10 ? ha.toFixed(2).replace(".", ",") : ha.toFixed(1).replace(".", ",")} ha`;
+export function areaLabel(m2: number, locale: Locale = "es") {
+  const t = m2ToTareas(m2), ha = m2ToHa(m2), tag = localeTag(locale);
+  const tareas = new Intl.NumberFormat(tag, { minimumFractionDigits: t < 10 ? 1 : 0, maximumFractionDigits: t < 10 ? 1 : 0 }).format(t < 10 ? t : Math.round(t));
+  const hectares = new Intl.NumberFormat(tag, { minimumFractionDigits: ha < 10 ? 2 : 1, maximumFractionDigits: ha < 10 ? 2 : 1 }).format(ha);
+  return `${tareas} tareas · ${hectares} ha`;
 }
+
 export function centroid(pieces: Piece[]): Location | null {
   const pts = pieces.flatMap(p => p.ring);
   if (!pts.length) return null;
