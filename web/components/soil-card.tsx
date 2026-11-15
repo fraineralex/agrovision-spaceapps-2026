@@ -3,16 +3,17 @@
 import { useMemo } from "react";
 import { Leaf } from "lucide-react";
 import { adviseNextCrop, previousCropName, recommendedCrop, type AdvicePriority, type CropId, type PreviousCrop } from "@/lib/advisor";
-import { rotationReasons, soilSources, textureNames, textureNote, type SoilTexture } from "@/lib/soil";
+import { colorNames, colorNote, rotationReasons, soilSources, textureNames, textureNote, type SoilColor, type SoilTexture } from "@/lib/soil";
 import type { Irrigation } from "@/lib/data";
 
 const levelWord = { good: "Bueno para la tierra", ok: "Regular", bad: "Cansa la tierra", none: "Sin rotación que comparar" } as const;
 const levelLight = { good: "lv-good", ok: "lv-ok", bad: "lv-bad", none: "lv-none" } as const;
 
-export function SoilCard(p: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[]; texture?: SoilTexture }) {
+export function SoilCard(p: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[]; texture?: SoilTexture; color?: SoilColor }) {
   const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
   const top = recommendedCrop(advice);
   const tex = p.texture ? textureNote(p.texture) : null;
+  const col = p.color ? colorNote(p.color) : null;
   const light = [...advice].filter(a => a.viable && !a.repeats && (a.scores.water ?? 0) >= 3.34).map(a => a.name.toLowerCase());
   const known = p.previous !== "unknown" && p.previous !== "otro";
   return <div className="soil">
@@ -26,6 +27,11 @@ export function SoilCard(p: { province?: string; irrigation: Irrigation; previou
       <p>{tex.text}{p.texture === "arenosa" && light.length ? ` De tu lista, piden poca agua: ${light.slice(0, 4).join(", ")}.` : ""}</p>
       <p className="note">Tierra que nos dijiste: {textureNames[p.texture!].toLowerCase()}. Es lo que tú declaraste, no una medición.</p>
     </div> : <p className="note">Si nos dices cómo es tu tierra (arenosa, mezclada o barro) en “Editar”, te decimos cómo guarda el agua.</p>}
+    {col ? <div className="soil-now lv-none">
+      <h3>{col.title}</h3>
+      <p>{col.text}</p>
+      <p className="note">Color que nos dijiste: {colorNames[p.color!].toLowerCase()}. El color es una pista, no un análisis de suelo.</p>
+    </div> : <p className="note">Si nos dices de qué color es tu tierra en “Editar”, te decimos qué suele indicar.</p>}
     {!known && <p className="note">Dinos qué sembraste la última vez (botón “Cambiar”) para decirte cómo queda tu tierra con cada cultivo.</p>}
     {known && advice.length > 1 && <>
       <h3 className="soil-sub">Cómo queda la tierra con cada cultivo de tu lista</h3>
@@ -38,6 +44,7 @@ export function SoilCard(p: { province?: string; irrigation: Irrigation; previou
     <div className="sources-box"><h3>¿De dónde sale esto?</h3>
       <p><a href={soilSources.rotation.url}>{soilSources.rotation.label}</a>.</p>
       <p><a href={soilSources.legumes.url}>{soilSources.legumes.label}</a>.</p>
+      <p><a href={soilSources.color.url}>{soilSources.color.label}</a> (qué indica el color).</p>
       <p><a href={soilSources.texture.url}>{soilSources.texture.label}</a> (cuánta agua guarda cada tipo de tierra).</p>
       <p>Son reglas generales de la FAO, no una medición de tu finca. No sabemos cuánto nitrógeno ni cuánta materia orgánica tiene tu tierra: para eso hace falta un análisis de suelo. Las estrellas no cambian por esta parte.</p>
     </div>

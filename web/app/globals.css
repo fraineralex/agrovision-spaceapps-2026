@@ -2581,3 +2581,11 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
 .soil-list li.lv-good i{background:#2e8b47}.soil-list li.lv-bad i{background:#c0392b}.soil-list li.lv-ok i{background:#d99a00}
 .soil-reasons li{line-height:1.45}
 .soil-now h3{flex-wrap:nowrap;align-items:flex-start}.soil-now h3 svg{flex-shrink:0;margin-top:3px}
+/* Plagas a vigilar */
+.pest-crops{list-style:none;padding:0;margin:10px 0;display:grid;gap:12px}
+.pest-crops>li{border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:12px;padding:10px 12px}
+.pest-crops h3{display:flex;gap:8px;align-items:center;margin:0 0 6px;font-size:18px}
+.pest-list{margin:0 0 6px;padding-left:20px;display:grid;gap:4px;line-height:1.4}
+.pest-shared{font-weight:700}
+.pest-state{margin:4px 0;line-height:1.4}
+.pest-src{margin:4px 0 0;font-size:15px;opacity:.9}

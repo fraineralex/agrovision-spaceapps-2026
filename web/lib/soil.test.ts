@@ -26,3 +26,16 @@ test("unknown previous crop and perennials make no rotation claim", () => {
 test("every general reason cites a listed source and gives no numbers", () => {
   for (const r of rotationReasons) { assert.ok(soilSources[r.source].url.startsWith("https://")); assert.ok(!/\d/.test(r.text)); }
 });
+test("soil colour notes are clues with a source and never claim nutrient amounts", async () => {
+  const { colorNote, soilSources } = await import("./soil");
+  for (const c of ["negra", "roja", "amarilla", "gris", "blanca"] as const) { const n = colorNote(c); assert.ok(n.title && n.text); assert.ok(!/\d/.test(n.text)); }
+  assert.match(colorNote("gris").text, /agua/);
+  assert.match(colorNote("negra").text, /materia orgánica/);
+  assert.ok(soilSources.color.url.startsWith("https://"));
+});
+test("pest kinds come from the common name", async () => {
+  const { pestKind } = await import("./pests");
+  assert.equal(pestKind({ name: "Nematodos agalladores" }).kind, "nematodo");
+  assert.equal(pestKind({ name: "Ácaro del vaneo" }).kind, "ácaro");
+  assert.equal(pestKind({ name: "Gusano cogollero" }).kind, "insecto");
+});
