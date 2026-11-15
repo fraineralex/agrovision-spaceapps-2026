@@ -1,6 +1,6 @@
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
@@ -26,6 +26,8 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const [busy, setBusy] = useState(false);
   const [sessionSelection, setSessionSelection] = useState<VoiceSelection>();
   const sessionContext = sessionSelection ?? selection;
+  const [pendingConnection, setPendingConnection] = useState<number | null>(null);
+  const connectedAttempt = useRef<number | null>(null);
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
   const dictation = useRef<Dictation | null>(null);
@@ -44,8 +46,35 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
     },
-    onError: () => { if (starting.current || media.current) fallbackToDictation(); },
+    onError: error => {
+      if (media.current && error.name !== "AbortError") fallbackToDictation();
+    },
   });
+  const connectVoice = useEffectEvent(async (attempt: number) => {
+    const stream = media.current;
+    if (!stream || generation.current !== attempt || connectedAttempt.current === attempt) return;
+    connectedAttempt.current = attempt;
+    try {
+      await realtime.connect({ stream });
+    } catch (error) {
+      if (generation.current !== attempt) return;
+      if (error instanceof Error && error.name === "AbortError") {
+        stopVoice("Micrófono apagado.", false);
+      } else {
+        fallbackToDictation();
+      }
+    } finally {
+      if (generation.current === attempt) {
+        starting.current = false;
+        setRequesting(false);
+      }
+    }
+  });
+  useEffect(() => {
+    // Wait for the SDK to commit the store for the selected farm before connecting.
+    if (pendingConnection !== null) void connectVoice(pendingConnection);
+  }, [pendingConnection]);
+
   useEffect(() => {
     // The SDK's connect() opens transport. Capture starts once the server accepts the session.
     if (realtime.status === "connected" && media.current && !captureStarted.current) {
@@ -101,7 +130,6 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     setVoiceError(false);
     setRequesting(true);
     // Keep the session on its starting farm and month while the page remains interactive.
-    setSessionSelection(selection);
     starting.current = true;
     const attempt = ++generation.current;
     try {
@@ -110,23 +138,25 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
       if (attempt !== generation.current) { stream.getTracks().forEach(track => track.stop()); return; }
       media.current = stream;
-      await realtime.connect({ stream });
+      setSessionSelection(selection);
+      setPendingConnection(attempt);
     } catch (error) {
       if (attempt !== generation.current) return;
+      starting.current = false;
+      setRequesting(false);
       releaseMedia();
       setVoiceError(true);
       const name = error instanceof Error ? error.name : "";
       setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
-    } finally {
-      if (attempt === generation.current) { starting.current = false; setRequesting(false); }
     }
   }
   function stopVoice(message: string, failed = true) {
     generation.current++;
     starting.current = false;
     setRequesting(false);
-    realtime.disconnect();
+    setPendingConnection(null);
     releaseMedia();
+    realtime.disconnect();
     const recognition = dictation.current;
     dictation.current = null;
     recognition?.abort();

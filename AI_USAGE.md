@@ -251,3 +251,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-15 — Controles del resumen y respaldo de voz
 
 - Codex (OpenAI) añadió controles de reproducción, preferencia por voces naturales en español y dictado del navegador cuando falla la sesión en tiempo real. Archivos: `web/components/voice-assistant.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias y tres pruebas dirigidas en Chrome, con voz y dictado simulados. La conversación real está pendiente de una credencial de AI Gateway. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): ajustó el inicio de voz para conectar después de aplicar el contexto de la finca y tratar las cancelaciones como cierre de sesión. Archivos: `web/components/voice-assistant.tsx` y `web/tests/demo.spec.ts`. TypeScript, lint y tres pruebas dirigidas en Chrome pasaron. La prueba de respaldo comprueba que no aparezca un error de página ante un 503 simulado. Revisión por Frainer pendiente.
