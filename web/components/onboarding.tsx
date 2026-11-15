@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import { mapMessages } from "@/lib/i18n/map-messages";
+import { placeKind } from "@/lib/i18n/place";
 import dynamic from "next/dynamic";
 import { LanguageSelector } from "@/components/language-selector";
 import { FarmIcon } from "@/components/farm-icon";
@@ -54,7 +55,10 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [priority] = useState<Priority>(initial.priority ?? "water");
   const [pieces, setPieces] = useState<Piece[]>(initial.pieces ?? []);
   const [showMap, setShowMap] = useState(Boolean(initial.pieces?.length));
-  const [name, setName] = useState(initial.name ?? (farmCount ? `Finca ${farmCount + 1}` : "Mi finca"));
+  const [name, setName] = useState(initial.name ?? "");
+  const [nameEdited, setNameEdited] = useState(Boolean(initial.name));
+  const defaultName = farmCount ? text.numberedFarm.replace("{number}", String(farmCount + 1)) : text.defaultFarm;
+  const displayName = nameEdited ? name : defaultName;
   const [declaredTareas, setDeclaredTareas] = useState(initial.declaredTareas ?? "");
   const [placeName, setPlaceName] = useState(initial.placeName);
   const next = () => setStep(s => Math.min(STEPS - 1, s + 1));
@@ -84,7 +88,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     const farmProvince = (markedCenter && provinceAt(markedCenter)) || province;
     const area = Number(declaredTareas);
     onDone({
-      id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces,
+      id: initial.id ?? newFarmId(), name: displayName.trim() || defaultName, pieces,
       province: farmProvince, location: markedCenter ?? location,
       declaredTareas: area > 0 && area <= 100000 ? area : undefined,
       soilTexture,
@@ -132,7 +136,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
           {search.trim() ? places.map(p => (
             <Choice key={p.id} on={p.kind ? placeName === p.name && province === p.province : province === p.name && !placeName} onClick={() => p.kind ? pick(p.province, { longitude: p.longitude, latitude: p.latitude }, p.name) : pick(p.name)}>
               <span className="ob-icon-chip sm" aria-hidden="true"><MapPin size={15} /></span>
-              <span>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</span>
+              <span>{p.name}{p.kind && <small>{placeKind(p.kind, locale)} · {p.province}</small>}</span>
             </Choice>
           )) : provinces.filter(p => ["San Juan", "Santiago", "La Vega", "Azua", "Monte Cristi", "Valverde"].includes(p.name)).map(p => (
             <Choice key={p.name} on={province === p.name} onClick={() => pick(p.name)}>
@@ -152,7 +156,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             <h2>{initial.id ? text.editFarm : text.nameFarm}</h2>
             <p className="ob-place"><MapPin aria-hidden="true" size={16} /> {[placeName, province].filter(Boolean).join(" · ")} <button type="button" className="ob-link" onClick={back}>{text.changePlace}</button></p>
           </div>
-          <label className="ob-label ob-name-field">{text.farmName}<input value={name} maxLength={40} placeholder={text.farmExample} onChange={e => setName(e.target.value)} /></label>
+          <label className="ob-label ob-name-field">{text.farmName}<input value={displayName} maxLength={40} placeholder={text.farmExample} onChange={e => { setName(e.target.value); setNameEdited(true); }} /></label>
         </div>
         <details className="ob-more"><summary>{text.farmSize}</summary>
           <label className="ob-label">{text.declaredArea}<input type="number" min="0" max="100000" step="any" value={declaredTareas} onChange={event => setDeclaredTareas(event.target.value === "" ? "" : event.target.valueAsNumber)} /></label>

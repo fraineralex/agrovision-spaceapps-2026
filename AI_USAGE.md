@@ -497,3 +497,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: añadió pruebas de idioma y preservación del área marcada y etiquetas de MapLibre en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: tradujo el contenido y los controles para compartir por WhatsApp y conservó el idioma en el enlace compartido. Archivos: `web/components/share-button.tsx` y `web/lib/i18n/share-messages.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: verificó el texto y el destino de WhatsApp sin enviar mensajes, con pruebas en `web/lib/i18n.test.ts` y `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo rótulos de venta, mapa, clima y ayuda, junto a tipos de lugares y límites de fuentes; mantuvo los datos y métodos existentes. Archivos: `web/app/[locale]/page.tsx`, `web/components/onboarding.tsx`, `web/lib/i18n/{home-details-messages,place}.ts`. Revisión de fuentes y traducciones por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo el nombre predeterminado de finca y tipos de localidad sin cambiar nombres introducidos por el usuario en `web/components/onboarding.tsx` y mensajes. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: añadió pruebas de paridad para textos y categorías geográficas en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: añadió prueba de navegación y cambio de idioma entre venta, mapa, clima y ayuda en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.

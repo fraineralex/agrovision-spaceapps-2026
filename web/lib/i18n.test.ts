@@ -203,3 +203,17 @@ test("sharing text and link follow the selected locale", () => {
   assert.match(shareText(summary, "en"), /vercel\.app\/en/);
   assert.match(decodeURIComponent(whatsappUrl(summary, "es")), /vercel\.app\/es/);
 });
+
+import { homeDetailsMessages } from "./i18n/home-details-messages";
+import { placeKind } from "./i18n/place";
+test("home detail messages and place categories have matching translations", () => {
+  assert.deepEqual(leafKeys(homeDetailsMessages.en), leafKeys(homeDetailsMessages.es));
+  for (const key of Object.keys(homeDetailsMessages.en) as Array<keyof typeof homeDetailsMessages.en>) {
+    const en = homeDetailsMessages.en[key], es = homeDetailsMessages.es[key];
+    if (typeof en !== "string" || typeof es !== "string") continue;
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(en), placeholders(es), key);
+  }
+  assert.equal(placeKind("Municipio", "en"), "Municipality");
+  assert.equal(placeKind("Sección", "es"), "Sección");
+});

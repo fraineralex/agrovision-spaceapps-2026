@@ -276,3 +276,21 @@ test("WhatsApp text and destination follow the chosen language", async ({ page }
   expect(href).toContain("Approximate data");
   expect(href).toContain("vercel.app/en");
 });
+
+test("sale, map, climate and assistant section headings switch both ways", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  await page.getByRole("tab", { name: "Venta" }).click();
+  await expect(page.getByRole("heading", { name: "¿Cuánto me deja?" })).toBeVisible();
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(page.getByRole("heading", { name: "What could I earn?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Price and market" })).toBeVisible();
+  await page.getByRole("tab", { name: "Farms" }).click();
+  await expect(page.getByRole("heading", { name: "Your farm on the map" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Drought and rain" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Normal climate in/ }).first()).toBeVisible();
+  await page.getByRole("tab", { name: "Help" }).click();
+  await expect(page.getByRole("heading", { name: "Ask AgroVision" })).toBeVisible();
+  await page.getByLabel("Language").selectOption("es");
+  await expect(page.getByRole("heading", { name: "Pregúntale a AgroVision" })).toBeVisible();
+});
