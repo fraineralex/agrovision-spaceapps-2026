@@ -38,4 +38,7 @@ export const corpusDocs: CorpusDoc[] = [
   doc("fao-giews", "Sequía FAO GIEWS", "FAO GIEWS", "web/public/data/fao-giews.json", "https://www.fao.org/giews/earthobservation/country/index.jsp?lang=es&code=DOM"),
   doc("farmer-pillars", "Rotaciones San Juan", "AgroVision / NASA POWER", "web/public/data/farmer-pillars.json"),
   doc("ndvi-series", "Muestra Landsat NDVI", "USGS/NASA Landsat", "web/public/data/ndvi-series.json", "https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-reflectance"),
+  doc("cedaf-crop-guides", "Guías CEDAF de arroz y guandul: siembra, variedades y cosecha", "CEDAF", "data/rag-corpus/cedaf-crop-guides-excerpts.md", "https://www.cedaf.org.do/guias-tecnicas/"),
+  doc("cedaf-bean-guide", "CEDAF Cultivo de Habichuela: variedades, preparación de suelo, riego y cosecha", "CEDAF", "data/rag-corpus/cedaf-bean-guide.md", "https://intranet.cedaf.org.do/publicaciones/guias/detalle.asp?Codigo=CU02"),
+  doc("cedaf-plantain-cassava", "CEDAF guías técnicas de plátano y yuca", "CEDAF", "data/rag-corpus/cedaf-plantain-cassava.md", "https://www.cedaf.org.do/guias-tecnicas/"),
 ];
