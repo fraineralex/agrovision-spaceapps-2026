@@ -1,6 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — map to pick one or more cells/parcels, draw a polygon or drag a box; responsive layout & unified Lucide SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { FieldMapCard } from "@/components/field-ui";
 import { Check, MousePointerClick, Pencil, RotateCcw, SquareDashed, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-gl";
@@ -52,8 +53,8 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
         m.addLayer({ id: "fields-fill", type: "fill", source: "fields", layout: { visibility: "none" }, paint: { "fill-color": "#fff3a2", "fill-opacity": 0.06 } });
         m.addLayer({ id: "fields-line", type: "line", source: "fields", layout: { visibility: "none" }, paint: { "line-color": "#fff3a2", "line-width": 2 } });
         m.addSource("sel", { type: "geojson", data: piecesToGeoJSON(piecesRef.current) });
-        m.addLayer({ id: "sel-fill", type: "fill", source: "sel", paint: { "fill-color": "#22c55e", "fill-opacity": 0.45 } });
-        m.addLayer({ id: "sel-line", type: "line", source: "sel", paint: { "line-color": "#14532d", "line-width": 2.5 } });
+        m.addLayer({ id: "sel-fill", type: "fill", source: "sel", paint: { "fill-color": "#DDFF86", "fill-opacity": 0.35 } });
+        m.addLayer({ id: "sel-line", type: "line", source: "sel", paint: { "line-color": "#DDFF86", "line-width": 3 } });
         m.addSource("draft", { type: "geojson", data: empty });
         m.addLayer({ id: "draft-line", type: "line", source: "draft", paint: { "line-color": "#f59e0b", "line-width": 3, "line-dasharray": [2, 1] } });
         m.addLayer({ id: "draft-pts", type: "circle", source: "draft", filter: ["==", "$type", "Point"], paint: { "circle-radius": 7, "circle-color": "#f59e0b", "circle-stroke-color": "#fff", "circle-stroke-width": 2 } });
@@ -113,7 +114,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
       <p className="picker-help">{mode === "tap" ? "Toca para marcar o quitar un cuadro." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
       <details className="picker-instructions"><summary>¿Cómo marco mi finca?</summary><p className="note">Toca los cuadros de tu finca, marca un rectángulo o dibuja el borde. Los cuadros miden 50 × 50 m (unas 4 tareas). Las imágenes Esri requieren internet.</p></details>
     </div>
-    <div className="picker-stage">
+    <FieldMapCard>
       <div ref={box} className="picker-map" data-testid="farm-picker-map" />
       <div className="picker-map-actions">
         <button type="button" className="chip" disabled={!ready} aria-pressed={showFields} onClick={toggleFields}>Ver fincas de San Juan</button>
@@ -122,7 +123,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
       </div>
       {showFields && <p className="note picker-outlines-note">Contornos aproximados por satélite, no catastrales.</p>}
       <p className="note picker-scale-note">Los contornos amarillos son candidatos aproximados, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m². {fieldMeta.attribution}</p>
-    </div>
+    </FieldMapCard>
     <div className="picker-status">
       {mode === "draw" && <div className="picker-draw">
         <span>{draft.length} puntos</span>

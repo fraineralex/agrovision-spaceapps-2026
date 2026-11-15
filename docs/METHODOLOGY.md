@@ -33,7 +33,11 @@ La prioridad agua ordena de mayor a menor score del proxy. Las otras prioridades
 
 ## Explicación opcional y offline
 
-`POST /api/explain` acepta solo prioridad, mes y categoría de riego; rechaza campos extra y más de 2 KB. El servidor reconstruye métricas verificadas y las envía a AI SDK/Vercel AI Gateway, modelo `openai/gpt-4.1-mini`. La salida estructurada Zod solo selecciona IDs de afirmaciones permitidas; se agregan siempre límites, prioridad, revisión humana y definición del proxy. No puede introducir cifras ni texto libre. Se identifica como selección de evidencia asistida por IA. Timeout 10 s, límite 180 tokens, fallback de plantilla al faltar clave/error. Clave solo servidor; nunca geometrías o información personal.
+`POST /api/explain` acepta solo prioridad, mes y categoría de riego; rechaza campos extra y más de 2 KB. El servidor reconstruye métricas verificadas y las envía a AI SDK/Vercel AI Gateway, modelo `anthropic/claude-haiku-5.5`. La salida estructurada Zod solo selecciona IDs de afirmaciones permitidas; se agregan siempre límites, prioridad, revisión humana y definición del proxy. No puede introducir cifras ni texto libre. Se identifica como selección de evidencia asistida por IA. Timeout 10 s, límite 180 tokens, fallback de plantilla al faltar clave/error. Clave solo servidor; nunca geometrías o información personal.
+
+## RAG de guías verificadas (texto y voz)
+
+Corpus fijo del repositorio (documentación, inventario, mercado, FAO-56, GIEWS, POWER). Índice `web/data/rag-index.json` generado con `web/scripts/build-rag-index.ts` y embeddings `google/gemini-embedding-2` (respaldo `google/gemini-embedding-001`). Recuperación local: coseno, top 5, umbral mínimo, sin base de datos (posible migración futura a Turso vector search). El asistente de texto usa Haiku con contexto recuperado, chips de fuente en UI, pregunta ≤ 500 caracteres y resumen determinista si falta clave, índice o respuesta vacía del modelo. Voz realtime añade herramienta `search_guides`. No modifica recomendaciones ni puntajes.
 
 El navegador puede usar la misma plantilla sin servidor ni red. Tras la primera visita online, un service worker guarda HTML, JS/CSS/chunks dinámicos y datos. Se prueba recarga con red completamente deshabilitada. Instalación inicial desde una URL nunca visitada requiere red; localmente `npm start` sirve el caso sin internet. Timeline GIBS online es opcional y conserva la imagen cacheada bajo errores. No hay base de datos ni despliegue realizado en esta tarea.
 

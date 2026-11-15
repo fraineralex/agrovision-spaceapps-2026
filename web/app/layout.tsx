@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-sans", display: "swap" });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
 export const metadata: Metadata = {
   title: "AgroVision | República Dominicana",
@@ -11,8 +11,10 @@ export const metadata: Metadata = {
   description: "Consulta la lluvia, organiza tu siembra y calcula el precio mínimo para cubrir tus gastos en el campo dominicano.",
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1f4d2c" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0B120D", viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es-DO" className={plusJakarta.variable}><body>{children}</body></html>;
+  return <html lang="es-DO" className={plusJakarta.variable} suppressHydrationWarning><head>
+    <script dangerouslySetInnerHTML={{ __html: "try{if(localStorage.getItem('agrovision:theme')==='sun')document.documentElement.dataset.theme='sun'}catch{}" }} />
+  </head><body>{children}</body></html>;
 }

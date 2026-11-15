@@ -1,8 +1,8 @@
 /* AI: Codex/OpenAI, 2026-11-14; balanced 2-column odd child span by Antigravity (Gemini), 2026-11-15. Frainer review pending. */
 .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: .85rem; margin-top: .75rem; }
-.item { padding: .85rem 1rem; background: #f4f7f0; border: 1px solid #e1ebe0; border-radius: 12px; }
+.item { padding: .85rem 1rem; background: var(--elevated); border: 1px solid var(--border); border-radius: 12px; }
 .item:last-child:nth-child(odd) { grid-column: 1 / -1; }
-.item h3 { margin: 0 0 .5rem; font-size: .95rem; display: flex; align-items: center; gap: .35rem; color: #24372b; }
+.item h3 { margin: 0 0 .5rem; font-size: .95rem; display: flex; align-items: center; gap: .35rem; color: var(--foreground); }
 .item p { margin: .45rem 0; }
 .status { display: flex; align-items: center; gap: .5rem; font-size: 1.2rem; }
-.note { font-size: .84rem; color: #46584b; }
+.note { font-size: .84rem; color: var(--muted); }

@@ -1,26 +1,35 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers; centered natural backdrop & unified SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
 import { allCrops, cropNames, monthNames, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
-import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography";
+import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography-core";
 import { usePlaceSearch } from "@/lib/place-search";
 import { Check, MapPin, Search } from "lucide-react";
 import { areaLabel, centroid, newFarmId, piecesAreaM2, type Farm, type Piece } from "@/lib/farms";
 import type { Irrigation, Priority } from "@/lib/data";
 
 export type FarmProfile = Farm;
-const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <p role="status">Cargando mapa…</p> });
+const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <div className="picker-map map-loading" role="status">Cargando mapa…</div> });
 const STEPS = 3;
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" className={on ? "ob-choice on" : "ob-choice"} aria-pressed={on} onClick={onClick}>{children}</button>;
 }
 
 export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial: Partial<FarmProfile>; onDone: (p: FarmProfile) => void; onSkip: () => void; farmCount?: number }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const body = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    const previousFocus = document.activeElement;
+    element?.showModal();
+    return () => { element?.close(); if (previousFocus instanceof HTMLElement) previousFocus.focus(); };
+  }, []);
   const now = new Date().getMonth() + 1;
   const [step, setStep] = useState(initial.id && initial.location ? 1 : 0);
+  useEffect(() => { body.current?.scrollTo(0, 0); }, [step]);
   const [province, setProvince] = useState(initial.province ?? "");
   const [location, setLocation] = useState<Location | null>(initial.location ?? null);
   const [search, setSearch] = useState("");
@@ -77,7 +86,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     });
   };
 
-  return <div className="onboarding" role="dialog" aria-modal="true" aria-label="Cuéntanos de tu finca">
+  return <dialog ref={dialog} className="onboarding" aria-label="Cuéntanos de tu finca" onCancel={event => { event.preventDefault(); onSkip(); }}>
     <div className="ob-backdrop" aria-hidden="true">
       <div className="ob-backdrop-photo" />
       <div className="ob-backdrop-scrim" />
@@ -94,7 +103,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
         <button type="button" className="ob-link" onClick={onSkip}>Saltar</button>
       </div>
 
-      <div className="ob-body">
+      <div className="ob-body" ref={body}>
 
       {step === 0 && <div className="ob-step">
         <div className="ob-hero-badge" aria-hidden="true"><FarmIcon name="soil" size={28} /></div>
@@ -151,10 +160,6 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             </button>
           </div>
         )}
-        {initial.id ? <>
-          <button type="button" className="ob-primary ob-map-done" onClick={finish}>Guardar cambios</button>
-          <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>
-        </> : <button type="button" className="ob-primary ob-map-done" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? "Listo · seguir sin marcar" : "Seguir sin marcar"}</button>}
       </div>}
 
       {step === 2 && <div className="ob-step ob-step-crops">
@@ -177,13 +182,19 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               <div className="ob-grid ob-grid-compact">{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{cropNames[c]}{c === "ajo" ? " · sin datos todavía" : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
               <label className="ob-label">Mes en que piensas sembrar<select value={sowMonth} onChange={e => setSowMonth(Number(e.target.value))}>{monthNames.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}</select></label>
             </details>
-            <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> Listo, ver mi recomendación</button>
             {!location && <p role="status">Falta elegir dónde está tu finca (paso 1).</p>}
           </div>
         </div>
       </div>}
       </div>
+      <footer className="ob-footer">
+        <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan · Paisaje rural (CC0)</span>
+        {step > 0 && (step === 1 ? (initial.id ? <>
+          <button type="button" className="ob-primary" onClick={finish}>Guardar cambios</button>
+          <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>
+        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? "Listo · seguir sin marcar" : "Seguir sin marcar"}</button>)
+          : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> Listo, ver mi recomendación</button>)}
+      </footer>
     </div>
-    <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan · Paisaje rural (CC0)</span>
-  </div>;
+  </dialog>;
 }

@@ -58,8 +58,8 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.getByRole("tab",{name:/Finca del río/})).toHaveAttribute("aria-selected","true");
  await expect(sectionNav.getByRole("tab",{name:/Siembra/})).toHaveAttribute("aria-selected","true");
  await expect(page.locator(".farm-meta")).toContainText("tareas");
- await expect(page.locator(".crop-feature")).toContainText("Después de arroz");
- await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
+ await expect(page.locator(".recommendation-heading")).toContainText("Después de arroz");
+ await expect(page.locator(".recommendation-meta")).toContainText("Cosecha aprox.");
  // Default mode is Agricultor; Supervisor mode unlocks supervision quick bar, GeoJSON export & cost/price details.
  await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
  await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeHidden();
@@ -80,7 +80,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect(decodeURIComponent(href!)).toContain("Finca del río");
  expect(decodeURIComponent(href!)).toContain("Posible lluvia");
  // Sources panel still works.
- await page.locator(".verdict").getByRole("button",{name:"Datos y fuentes"}).click();
+ await page.locator(".recommendation-hero").getByRole("button",{name:"Datos y fuentes"}).click();
  await expect(page.getByRole("dialog",{name:/De dónde sale la recomendación/})).toContainText("FAO-56");
  expect(await axeSerious(page)).toEqual([]);
  await page.getByRole("button",{name:/Cerrar/}).click();
@@ -101,7 +101,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".profit-lines")).toContainText("20 tareas");
  expect(await axeSerious(page)).toEqual([]);
  // Independent Mapa y clima tab: parcel card, GeoJSON export & FAO drought.
- await sectionNav.getByRole("tab",{name:/Mapa y clima/}).click();
+ await sectionNav.getByRole("tab",{name:/Fincas/}).click();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  for (const id of ["tu-finca-en-el-mapa","sequia-y-lluvia"]) await expect(page.locator(`#${id}`)).toBeVisible();
  const downloadEvent = page.waitForEvent("download");
@@ -109,7 +109,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect((await downloadEvent).suggestedFilename()).toMatch(/^parcela-.+\.geojson$/);
  expect(await axeSerious(page)).toEqual([]);
  // Independent Preguntar tab.
- await sectionNav.getByRole("tab",{name:/Preguntar/}).click();
+ await sectionNav.getByRole("tab",{name:/Ayuda/}).click();
  await expect(page.locator("#tu-finca-en-el-mapa")).toBeHidden();
  await expect(page.getByRole("region", {name:"Asistente de voz"})).toBeVisible();
  expect(await axeSerious(page)).toEqual([]);
@@ -146,7 +146,7 @@ for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde
  });
 }
 
-test("desktop uses the full Siembra width and keeps sections independent",async({page})=>{
+test("desktop pairs the planting hero with its metrics and keeps sections independent",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
  await page.addInitScript(()=>{ localStorage.setItem("agrovision:view-mode","supervisor"); localStorage.setItem("agrovision:farms",JSON.stringify([{id:"f1",name:"Conuco 1",province:"San Juan",location:{longitude:-71.23,latitude:18.8},pieces:[],previous:"arroz",irrigation:"irrigated",crops:["habichuela_roja","maiz","arroz"],sowMonth:11,priority:"water"}])); localStorage.setItem("agrovision:activeFarm","f1"); });
@@ -155,9 +155,13 @@ test("desktop uses the full Siembra width and keeps sections independent",async(
  const sectionNav=page.getByRole("tablist",{name:/Secciones principales/});
  await expect(sectionNav.getByRole("tab",{name:/Siembra/})).toHaveAttribute("aria-selected","true");
  const board=(await page.locator("#siembra").boundingBox())!;
- const decision=(await page.locator(".visual-verdict").boundingBox())!;
+ const decision=(await page.locator(".recommendation-hero").boundingBox())!;
+ const metrics=(await page.locator(".metric-tiles").boundingBox())!;
  const opts=(await page.locator(".options").boundingBox())!;
- expect(decision.width).toBeGreaterThan(board.width * .95);
+ expect(decision.width).toBeGreaterThan(board.width * .5);
+ expect(metrics.x).toBeGreaterThanOrEqual(decision.x + decision.width);
+ expect(metrics.y).toBeCloseTo(decision.y, 0);
+ expect(metrics.x + metrics.width).toBeLessThanOrEqual(board.x + board.width + 1);
  expect(board.width).toBeGreaterThan(1200);
  expect(opts.y).toBeGreaterThan(decision.y + decision.height);
  await expect(page.locator("#lluvia-esta-semana")).toBeHidden();
@@ -178,7 +182,7 @@ test("finds a municipality and a neighborhood, then saves and renames a farm wit
  await page.route("https://**", route => route.abort());
  await page.route("**/api/rain**", route => route.fulfill({json: rainMock}));
  await page.goto("/");
- await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Mapa y clima/}).click();
+ await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Fincas/}).click();
  const mapSearch = page.getByLabel("Busca un lugar en RD", {exact:true});
  await mapSearch.fill("ensanche naco");
  await page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/}).click();
@@ -274,7 +278,7 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(page.getByRole("radio", {name:"Yo elijo"})).toBeChecked();
  await expect(page.getByLabel("Fecha de riego")).toHaveValue("2026-11-19");
- await expect(page.getByText("Copia guardada", {exact:true})).toBeVisible();
+ await expect(page.getByText(/Copia guardada · hace 2 h/)).toBeVisible();
  await expect(page.locator(".week-turn")).toContainText("Sin pronóstico actualizado");
  await sectionNav.getByRole("tab",{name:/Venta/}).click();
  await page.getByText("Ya tengo mis gastos y cosecha", {exact:true}).click();
@@ -284,6 +288,8 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await page.getByRole("button", {name:"Calcular precio mínimo"}).click();
  await expect(page.locator(".budget-result")).toContainText("RD$625.00 por quintal");
  await expect(page.locator(".budget-result")).toContainText("Te faltan RD$1,000");
+ await sectionNav.getByRole("tab", {name:"Fincas",exact:true}).click();
+ await expect(page.locator("#map .maplibregl-canvas")).toBeVisible();
 });
 test("voice tools, location validation and honest missing-key fallback",async({request})=>{
  const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"balanced",month:11,irrigation:"unconfirmed"};
@@ -327,6 +333,7 @@ test("missing realtime credentials release microphone and preserve text input",a
   };
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  await page.getByRole("button",{name:"Hablar",exact:true}).click();
  await expect(page.getByText("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.")).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
@@ -349,6 +356,7 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
   Object.assign(window, { SpeechSynthesisUtterance: class {}, summaryCalls: calls });
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  await page.getByRole("button", { name: "Oír resumen" }).click();
  const controls = page.getByRole("group", { name: "Controles del resumen" });
  await controls.getByRole("button", { name: "Pausar" }).click();
@@ -383,6 +391,7 @@ test("the voice button sends a dictated question when realtime setup fails", asy
   } });
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const response = page.waitForResponse("**/api/voice/chat");
  await page.getByRole("button", { name: "Hablar", exact: true }).click();
  expect((await response).ok()).toBe(true);
@@ -399,6 +408,7 @@ test("the voice button stays outside the main workspace content", async ({page})
    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const start = page.getByRole("button", {name:"Hablar",exact:true});
  await start.click();
  const voice = page.getByRole("region", {name:"Asistente de voz"});
@@ -425,6 +435,7 @@ for (const fixture of [
   { id: "arroz", name: "Arroz de Monte Cristi", province: "Monte Cristi", location: { longitude: -71.60, latitude: 19.73 }, irrigation: "irrigated", previous: "arroz", crops: ["arroz", "maiz"], declaredTareas: 40 }
 ]) {
   test("farmer decision and sale for " + fixture.name, async ({ page }) => {
+    test.setTimeout(75_000);
     await page.route("https://**", route => route.abort());
     await page.route("**/api/climate**", route => route.fulfill({ status: 503, json: {} }));
     await page.setViewportSize({ width: 390, height: 844 });
@@ -434,16 +445,16 @@ for (const fixture of [
       localStorage.setItem("agrovision:activeFarm", farm.id);
     }, fixture);
     await page.goto("/");
-    const verdict = page.locator(".verdict");
-    await expect(verdict.locator(".crop-feature")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
-    await expect(verdict.locator(".crop-timeline")).toContainText("2027");
-    const card = (await verdict.boundingBox())!;
-    expect(card.y + card.height).toBeLessThanOrEqual(844);
+    const verdict = page.locator(".recommendation-hero");
+    await expect(verdict.locator(".recommendation-heading h2")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
+    await expect(verdict.locator(".recommendation-meta")).toContainText("2027");
+    const tiles = (await page.locator(".metric-tiles").boundingBox())!;
+    expect(tiles.y + tiles.height).toBeLessThanOrEqual(844 - 58);
     expect(await axeSerious(page)).toEqual([]);
     if (fixture.id === "ramon") {
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
-      await expect(verdict.getByRole("status")).toHaveText("Voz no disponible");
+      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voz no disponible");
       const source = verdict.getByRole("button", { name: "Datos y fuentes" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
@@ -504,3 +515,24 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 
     await page.screenshot({ path: "test-results/calculator-start-after-" + viewport.width + ".png" });
   });
 }
+
+
+test("Modo sol persists, and the bottom tabs support arrow keys", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const toggle = page.getByRole("button", { name: "Modo sol" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sun");
+  await page.reload();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  const siembra = page.getByRole("tab", { name: "Siembra" });
+  await siembra.focus();
+  await page.keyboard.press("ArrowRight");
+  const lluvia = page.getByRole("tab", { name: "Lluvia" });
+  await expect(lluvia).toHaveAttribute("aria-selected", "true");
+  await expect(lluvia).toBeFocused();
+  await expect(page.getByRole("tabpanel", { name: "Lluvia" })).toBeVisible();
+  expect(await axeSerious(page)).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});

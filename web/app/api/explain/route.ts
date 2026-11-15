@@ -1,9 +1,10 @@
-/* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
+/* AI: Cursor agent (composer-2.5), 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 import { generateText, Output } from "ai";
 import { gateway } from "@ai-sdk/gateway";
 import { z } from "zod";
 import { evidenceStatements, explanationInput, fallbackExplanation } from "@/lib/explanation";
 import { getComparison } from "@/lib/data";
+import { TEXT_MODEL } from "@/lib/rag-config";
 export const maxDuration = 20;
 export async function POST(request: Request) {
   // Read at most 2 KB, including chunked requests. Never accept geometry or free-form prompts.
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const statements = evidenceStatements(input);
     const result = await generateText({
-      model: gateway("openai/gpt-4.1-mini"),
+      model: gateway(TEXT_MODEL),
       system: "Select the most relevant supplied evidence statement IDs for the selected priority. Include priority, water, gaps and review. You only select IDs: you cannot write facts, change scores or supply numbers.",
       prompt: JSON.stringify({ input, comparison: getComparison(input.month), statements }),
       output: Output.object({ schema: z.object({ statementIds: z.array(z.enum(["priority", "climate", "water", "gaps", "review"])).min(4).max(5) }) }),
@@ -36,6 +37,6 @@ export async function POST(request: Request) {
       abortSignal: AbortSignal.timeout(10_000),
     });
     const ids = [...new Set([...result.output.statementIds, "priority", "water", "gaps", "review"] as const)];
-    return Response.json({ explanation: ids.map((id) => statements[id]).join(" "), mode: "ai-generated", model: "openai/gpt-4.1-mini" });
+    return Response.json({ explanation: ids.map((id) => statements[id]).join(" "), mode: "ai-generated", model: TEXT_MODEL });
   } catch { return fallback(); }
 }

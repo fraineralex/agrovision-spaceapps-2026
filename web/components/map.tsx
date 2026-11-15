@@ -2,16 +2,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import { parcelCollection as parcels, parcelFillColor } from "@/lib/map/parcels";
+import { findParcel, parcelCollection as parcels, parcelEvidence, parcelFillColor, signalLabels, type ParcelSelection } from "@/lib/map/parcels";
 import boundaries from "@/public/data/provinces.json";
-import { isInCountry, type Location } from "@/lib/geography";
+import { isInCountry, type Location } from "@/lib/geography-core";
 import sample from "@/public/data/gibs-sample.json";
 import { Button } from "@/components/ui/button";
 import { ESRI_IMAGERY_TILES, ESRI_LABEL_TILES, ESRI_ATTRIBUTION } from "@/lib/map/basemaps";
 import { FIELDS_URL, type FieldInfo } from "@/lib/map/fields";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-type Props = { selected: string; onSelect: (id: string) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void; advanced?: boolean };
+type Props = { selected: string; onSelect: (id: string, parcel?: ParcelSelection) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void; advanced?: boolean };
 const layers = [
   { id: "MODIS_Terra_NDVI_8Day", label: "NDVI", level: 9, detail: "MODIS Terra · visualización de 8 días · 250 m · NDVI sin unidad; baja confianza a escala de parcela" },
   { id: "IMERG_Precipitation_Rate", label: "Lluvia IMERG", level: 6, detail: "GPM IMERG · visualización diaria · ~10 km · mm/h; contexto regional" },
@@ -57,12 +57,21 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
         instance.addLayer({ id:"province-fill",type:"fill",source:"provinces",paint:{"fill-color":"#9cae6b","fill-opacity":["interpolate",["linear"],["zoom"],7,.06,11,0]} });
         instance.addLayer({ id:"province-lines",type:"line",source:"provinces",paint:{"line-color":"#eef5d5","line-width":1.5} });
         instance.addSource("point", {type:"geojson",data:{type:"FeatureCollection",features:[]}});
-        instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#fff3a2","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
+        instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#DDFF86","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
         instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels","fields-fill"].filter(l=>instance.getLayer(l))}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("Selecciona un punto terrestre de República Dominicana."); });
         instance.addSource("parcels", { type: "geojson", promoteId: "parcelId", data: parcels as GeoJSON.FeatureCollection });
         instance.addLayer({ id: "parcels", type: "fill", source: "parcels", minzoom: 11, paint: { "fill-color": parcelFillColor(), "fill-opacity": 0.18 } });
         instance.addLayer({ id: "outlines", type: "line", source: "parcels", minzoom: 11, paint: { "line-color": parcelFillColor(), "line-width": 1.8 } });
-        instance.on("click", "parcels", (event) => { const id = event.features?.[0]?.properties?.parcelId; if (id) onSelect(String(id)); });
+        instance.on("click", "parcels", event => {
+          const id = event.features?.[0]?.properties?.parcelId;
+          if (!id) return;
+          const parcel = findParcel(String(id));
+          onSelect(String(id), parcel && {
+            properties: parcel.properties,
+            signalLabel: signalLabels[parcel.properties.signal],
+            evidence: parcelEvidence,
+          });
+        });
         instance.on("mouseenter", "parcels", () => { instance.getCanvas().style.cursor = "pointer"; });
         instance.on("mouseleave", "parcels", () => { instance.getCanvas().style.cursor = ""; });
         instance.addSource("fields", { type: "geojson", data: FIELDS_URL });
@@ -82,6 +91,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
     const instance = map.current;
     if (!instance || !mapReady) return;
     instance.setPaintProperty("outlines", "line-width", ["case", ["==", ["get", "parcelId"], selected], 4, 1.8]);
+    instance.setPaintProperty("outlines", "line-color", ["case", ["==", ["get", "parcelId"], selected], "#DDFF86", parcelFillColor()]);
     instance.setPaintProperty("parcels", "fill-opacity", ["case", ["==", ["get", "parcelId"], selected], 0.45, 0.18]);
     const source = instance.getSource("point") as import("maplibre-gl").GeoJSONSource;
     source.setData({type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"Point",coordinates:[location.longitude,location.latitude]}}]});

@@ -3,30 +3,23 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { FaoDroughtCard } from "@/components/fao-giews";
 import { FarmIcon } from "@/components/farm-icon";
-import { VoiceAssistant } from "@/components/voice-assistant";
+import { VoiceDock } from "@/components/voice-dock";
 import { usePlaceSearch } from "@/lib/place-search";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
-import { AdvisorCard } from "@/components/advisor-card";
-import { MarketCard } from "@/components/market-card";
-import { Onboarding, type FarmProfile } from "@/components/onboarding";
+import type { FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
-import { OptionsCard } from "@/components/options-card";
 import { ClipboardList, CloudRain, Download, MapPin, MessageCircle, Sprout } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, piecesToGeoJSON, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
-import { ProfitCard } from "@/components/profit-card";
-import { FieldWeek, PlantingPlan, WorkbenchNav, type SectionTab } from "@/components/farm-workbench";
+import { FieldWeek, PlantingPlan, BottomNav, type SectionTab } from "@/components/farm-workbench";
 import { HelpTip } from "@/components/help-tip";
-import { GuidedSale } from "@/components/guided-sale";
-import { SaleBudget } from "@/components/sale-budget";
-import { ShareButton, type ShareSummary } from "@/components/share-button";
+import type { ShareSummary } from "@/components/share-button";
 import { adviceSentence, oversupplyFor, recommendedCrop } from "@/lib/advisor";
-import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
-import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
-import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
+import type { Priority, Irrigation } from "@/lib/data";
+import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography-core";
 import { adviseNextCrop, cropNames, defaultCrops, monthNames, toTareas, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { droughtSignal, faoProvince } from "@/lib/fao-giews";
 import type { ClimateContext } from "@/lib/location-climate";
@@ -34,10 +27,20 @@ import type { VoiceSelection } from "@/lib/voice-context";
 import { fieldMeta, type FieldInfo } from "@/lib/map/fields";
 import manifest from "@/public/data/manifest.json";
 import parcels from "@/public/data/demo-parcels.json";
-import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
+import type { ParcelSelection } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced";
-const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <p role="status">Cargando mapa…</p> });
+const AdvisorCard = dynamic(() => import("@/components/advisor-card").then(module => module.AdvisorCard));
+const MarketCard = dynamic(() => import("@/components/market-card").then(module => module.MarketCard));
+const OptionsCard = dynamic(() => import("@/components/options-card").then(module => module.OptionsCard));
+const FaoDroughtCard = dynamic(() => import("@/components/fao-giews").then(module => module.FaoDroughtCard));
+const ProfitCard = dynamic(() => import("@/components/profit-card").then(module => module.ProfitCard));
+const GuidedSale = dynamic(() => import("@/components/guided-sale").then(module => module.GuidedSale));
+const SaleBudget = dynamic(() => import("@/components/sale-budget").then(module => module.SaleBudget));
+const ShareButton = dynamic(() => import("@/components/share-button").then(module => module.ShareButton));
+const Onboarding = dynamic(() => import("@/components/onboarding").then(module => module.Onboarding));
+const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <div className="map-placeholder"><div className="map-wrap map-loading" role="status">Cargando mapa…</div><div className="map-placeholder-tail" aria-hidden="true" /></div> });
+const SupervisorRotations = dynamic(() => import("@/components/supervisor-rotations").then(module => module.SupervisorRotations));
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 const modeKey = "agrovision:view-mode";
 type ViewMode = "farmer" | "supervisor";
@@ -66,6 +69,7 @@ export default function Home() {
   };
   const [month,setMonth] = useState(new Date().getMonth() + 1);
   const [selectedParcel,setSelectedParcel] = useState("location");
+  const [detectedParcel,setDetectedParcel] = useState<ParcelSelection | null>(null);
   const [location,setLocation] = useState<Location>(nationalCenter);
   const [chosen,setChosen] = useState(false);
   const [priority,setPriority] = useState<Priority>("water");
@@ -74,6 +78,7 @@ export default function Home() {
   const [field,setField] = useState<FieldInfo | null>(null);
   const [context,setContext] = useState<{key:string;data:ClimateContext} | null>(null);
   const [climateStatus,setClimateStatus] = useState("");
+  const [caseClimate,setCaseClimate] = useState<typeof import("@/lib/data").climate | null>(null);
   const [provinceSearch,setProvinceSearch] = useState("");
   const [gpsStatus,setGpsStatus] = useState("");
   const [mapOpen,setMapOpen] = useState(true);
@@ -81,7 +86,7 @@ export default function Home() {
   const [crops,setCrops] = useState<CropId[]>(defaultCrops);
   const [onboarding,setOnboarding] = useState(false);
   const applyProfile = useCallback((pr:FarmProfile) => {
-    setLocation(pr.location);setMapPlace(pr.placeName ?? "");setSelectedParcel("location");setField(null);setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.plan?.sowMonth ?? pr.sowMonth);setPriority(pr.priority);
+    setLocation(pr.location);setMapPlace(pr.placeName ?? "");setSelectedParcel("location");setDetectedParcel(null);setField(null);setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.plan?.sowMonth ?? pr.sowMonth);setPriority(pr.priority);
   },[]);
   const [farms,setFarms] = useState<Farm[]>([]);
   const [activeId,setActiveId] = useState<string|null>(null);
@@ -114,14 +119,14 @@ export default function Home() {
   // Text typed before hydration on slow phones must not be lost.
   useEffect(() => { const typed = searchRef.current?.value; if (typed) setProvinceSearch(typed); }, []);
   const locationKey = `${location.longitude.toFixed(3)},${location.latitude.toFixed(3)}`;
-  const onLocation = useCallback((point:Location) => {setLocation(point);setMapPlace("");setSelectedParcel("location");setField(null);setChosen(true);},[]);
-  const onSelect = useCallback((id:string) => {
-    const detected = findParcel(id);
+  const onLocation = useCallback((point:Location) => {setLocation(point);setMapPlace("");setSelectedParcel("location");setDetectedParcel(null);setField(null);setChosen(true);},[]);
+  const onSelect = useCallback((id:string, detected?: ParcelSelection) => {
     const demo = parcels.features.find(p => p.id === id)?.geometry.coordinates[0][0];
     if (detected) onLocation({longitude:detected.properties.center[0],latitude:detected.properties.center[1]});
     else if (demo) onLocation({longitude:demo[0]+.005,latitude:demo[1]+.004});
     else return;
     setSelectedParcel(id);
+    setDetectedParcel(detected ?? null);
   },[onLocation]);
   const onField = useCallback((f:FieldInfo) => {onLocation({longitude:f.center[0],latitude:f.center[1]});setField(f);},[onLocation]);
   const useGps = () => {
@@ -145,14 +150,21 @@ export default function Home() {
     void load();return () => controller.abort();
   },[locationKey,location.longitude,location.latitude,selectedParcel,chosen]);
 
-  const selectedClimate = selectedParcel !== "location" ? climate.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
-  const detectedParcel = findParcel(selectedParcel);
+  const needsCaseClimate = selectedParcel !== "location";
+  useEffect(() => {
+    if (!needsCaseClimate || caseClimate) return;
+    let current = true;
+    void import("@/lib/data").then(({ climate }) => { if (current) setCaseClimate(climate); }).catch(() => { if (current) setClimateStatus("Clima sin datos disponibles."); });
+    return () => { current = false; };
+  }, [needsCaseClimate, caseClimate]);
+
+  const selectedClimate = needsCaseClimate ? caseClimate?.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
   const province = chosen ? provinceAt(location) : undefined;
   const farmProvince = activeFarm?.province || province;
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
   const selectedContext = context?.key === locationKey ? context.data : null;
-  const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
-  const ranked = useMemo(() => adviseNextCrop({ province: farmProvince, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [farmProvince, irrigation, previous, month, crops]);
+  const needsAdvice = chosen || activeTab !== "siembra";
+  const ranked = useMemo(() => needsAdvice ? adviseNextCrop({ province: farmProvince, irrigation, previous, sowMonth: month, priority: BALANCED, crops }) : [], [needsAdvice, farmProvince, irrigation, previous, month, crops]);
   const topAdvice = recommendedCrop(ranked);
   const topCrop = topAdvice?.crop ?? "habichuela_roja";
   const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
@@ -163,7 +175,7 @@ export default function Home() {
   const shareSummary: ShareSummary = { farm: activeFarm?.name ?? "Mi finca", place: farmProvince ?? "República Dominicana", area: farmAreaM2 ? areaLabel(farmAreaM2) : "", advice: activeFarm?.plan ? `Mi plan: ${cropNames[activeFarm.plan.crop]} en ${monthNames[activeFarm.plan.sowMonth - 1]}.` : adviceSentence(topAdvice, previous), rain: rainSentence, oversupply: activeFarm?.plan ? undefined : glut?.sentence };
   const saleCrop = activeFarm?.plan?.crop ?? topCrop;
   const selection: VoiceSelection = {parcelId: activeFarm ? "location" : (selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location: activeFarm?.location ?? location,priority:BALANCED,month,irrigation,previousCrop:previous,crops:crops.join(","),farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,oversupply:glut?.sentence};
-  const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
+  const source = needsCaseClimate ? caseClimate && { url:caseClimate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
   const { places, loading: placesLoading, unavailable: placesUnavailable } = usePlaceSearch(provinceSearch, 6);
   const drought = province ? droughtSignal(faoProvince(province)) : null;
   const weekRainMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((s, d) => s + d.rainMm, 0)) : null;
@@ -178,13 +190,12 @@ export default function Home() {
           <small className="brand-sub">NASA · FAO · Agricultura RD</small>
         </span>
       </div>
-      <OfflineStatus/>
+      <div className="header-actions"><OfflineStatus/><ThemeToggle/></div>
     </header>
     <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
       <div className="heading-row">
         <div className="heading-copy">
-          <span className="eyebrow">Guía agronómica y satelital · RD</span>
-          <h1>{activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
+          <h1>{activeTab === "lluvia" ? "Lluvia" : activeTab === "venta" ? "Venta" : activeTab === "mapa" ? "Fincas" : activeTab === "preguntar" ? "Ayuda" : activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
         </div>
         <div className="heading-controls">
           <div className="heading-toolbar">
@@ -212,7 +223,7 @@ export default function Home() {
         </div>
       )}
 
-      <WorkbenchNav activeTab={activeTab} onSelectTab={setActiveTab} weekRainMm={weekRainMm}/>
+      <BottomNav activeTab={activeTab} onSelectTab={tab => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} weekRainMm={weekRainMm}/>
 
       {activeTab === "siembra" && (
         <div id="panel-siembra" role="tabpanel" aria-labelledby="tab-siembra" className="tab-stage" key={`siembra-${activeFarm?.id ?? "none"}`}>
@@ -313,14 +324,14 @@ export default function Home() {
                   </div>}
                   {(field || detectedParcel) && <article className="card parcel-card" aria-label="Tu parcela" aria-live="polite">
                     <h3>Tu parcela{field ? `: unas ${toTareas(field.areaHa)} tareas` : detectedParcel ? `: unas ${toTareas(detectedParcel.properties.areaHa)} tareas` : ""}</h3>
-                    {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {signalLabels[detectedParcel.properties.signal]} ({detectedParcel.properties.latestObservedMonth})</p>}
+                    {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {detectedParcel.signalLabel} ({detectedParcel.properties.latestObservedMonth})</p>}
                     {supervisor && <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
                       {field && <p>Borde aproximado: {field.areaHa.toFixed(2)} ha ({toTareas(field.areaHa)} tareas; 1 tarea = 628,86 m²). {fieldMeta.method} {fieldMeta.limitations} {fieldMeta.attribution}</p>}
                       {detectedParcel && <>
                         <p>Verdor (NDVI) {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}. Unidad de análisis satelital de {detectedParcel.properties.areaHa} ha.</p>
-                        <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m. {parcelEvidence.signalRule} {parcelEvidence.limitation}</p>
+                        <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m. {detectedParcel.evidence.signalRule} {detectedParcel.evidence.limitation}</p>
                         <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.slice(-12).map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`Verdor ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
-                        <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
+                        <p><a href={detectedParcel.evidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
                       </>}
                     </details>}
                   </article>}
@@ -374,20 +385,7 @@ export default function Home() {
             </div>
           </div>
           {supervisor && <details id="rotaciones" className="card landscape-details"><summary>Rotaciones de ejemplo y modelo de riego (San Juan)</summary>
-            <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
-            <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
-              <h3>{s.label}</h3>
-              <div className="farmer-pillars" aria-label="Agua y suelo, clima, plagas y mercado">{scoreDefinitions.map(p => {
-                const score=s.scores[p.id];
-                const label=score===null?"Sin datos suficientes":score>=3.34?"Favorable":score>=1.67?"Revisar":"Menos favorable";
-                return <span key={p.id} className={`farmer-pillar ${pillarColor(score)}`} role="img" aria-label={`${p.label}: ${label}`} title={`${p.label}: ${label}`}><FarmIcon name={p.id} size={28}/></span>;
-              })}</div>
-              {s.pestPrecautions.length > 0 && <div><strong>Precauciones de plagas</strong><ul>{s.pestPrecautions.map(note => <li key={note}>{note}</li>)}</ul></div>}
-              <details className="evidence-details"><summary>Ver detalles</summary>
-                <p>Fechas ilustrativas: {s.dates}.</p>
-                {scoreDefinitions.map(p=><p key={p.id}><strong>{p.label}</strong>: {s.details[p.id]} <a href={s.sourceUrls[p.id]}>Fuente</a></p>)}
-              </details>
-            </article>)}</div>
+            <SupervisorRotations sanJuan={sanJuan} context={selectedContext} priority={priority}/>
           </details>}
         </div>
       )}
@@ -399,26 +397,27 @@ export default function Home() {
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
               <HelpTip label="Pregúntale a AgroVision" text="Usa Hablar en el asistente, Escribir u Oír resumen." />
             </div>
-            <p className="panel-intro">Elige cómo prefieres consultar los datos de tu finca: hablando en vivo, leyendo tu pregunta o escuchando el resumen en voz alta.</p>
+            <p className="panel-intro">Pregunta por tu siembra, la lluvia o el precio.</p>
+            <details className="visual-details"><summary>Cómo usar voz y texto</summary>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
-                <strong>1. Hablar por micrófono</strong>
-                <p>Toca Hablar en el asistente para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
+                <strong>Hablar</strong>
+                <p>Toca el micrófono para hacer tu pregunta.</p>
               </div>
               <div className="voice-guide-item">
-                <strong>2. Consultar por escrito</strong>
-                <p>Escribe tu pregunta en el recuadro de abajo (por ejemplo: <em>“¿Qué me conviene sembrar este mes?”</em>) y recibe respuesta al instante.</p>
+                <strong>Escribir</strong>
+                <p>Prueba con «¿Qué siembro este mes?».</p>
               </div>
               <div className="voice-guide-item">
-                <strong>3. Escuchar en voz alta</strong>
-                <p>Toca <strong>Oír resumen</strong> abajo para que el teléfono o computadora te lea la recomendación sin tener que leer la pantalla.</p>
+                <strong>Oír resumen</strong>
+                <p>Escucha la recomendación de tu finca.</p>
               </div>
-            </div>
+            </div></details>
           </section>
         </div>
       )}
 
-      <VoiceAssistant selection={selection} defaultOpenWrite={activeTab === "preguntar"}/>
+      <VoiceDock selection={selection} openWrite={activeTab === "preguntar"}/>
 
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>

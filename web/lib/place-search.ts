@@ -1,6 +1,6 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
 import { useEffect, useState } from "react";
-import { provinceAt, provinces, type Location } from "./geography";
+import { provinceAt, provinces, type Location } from "./geography-core";
 
 type Row = [number, string, number, number, string, string];
 type Place = Location & { id: string | number; name: string; province: string; kind?: string };

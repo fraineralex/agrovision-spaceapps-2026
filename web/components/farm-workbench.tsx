@@ -2,18 +2,18 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
-import { CalendarDays, CloudRain, Coins, Droplets, MapPin, MessageCircle, Sprout, Sun, ThermometerSun } from "lucide-react";
+import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Mic, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { HelpTip } from "@/components/help-tip";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
 import type { Farm, IrrigationDate } from "@/lib/farms";
-import { provinces, type Location } from "@/lib/geography";
+import { provinces, type Location } from "@/lib/geography-core";
 import { localDate, shortDate } from "@/lib/rain";
 import { RainCard, type useRain } from "@/components/rain-card";
 
 export type SectionTab = "siembra" | "lluvia" | "venta" | "mapa" | "preguntar";
 
-export function WorkbenchNav({
+export function BottomNav({
   activeTab,
   onSelectTab,
   weekRainMm,
@@ -26,8 +26,8 @@ export function WorkbenchNav({
     { id: "siembra", label: "Siembra", Icon: Sprout },
     { id: "lluvia", label: "Lluvia", Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
     { id: "venta", label: "Venta", Icon: Coins },
-    { id: "mapa", label: "Mapa y clima", Icon: MapPin },
-    { id: "preguntar", label: "Preguntar", Icon: MessageCircle },
+    { id: "mapa", label: "Fincas", Icon: MapPin },
+    { id: "preguntar", label: "Ayuda", Icon: Mic },
   ];
   return (
     <div className="workbench-nav" role="tablist" aria-label="Secciones principales de tu finca">
@@ -40,6 +40,17 @@ export function WorkbenchNav({
             role="tab"
             id={`tab-${id}`}
             aria-selected={selected}
+            tabIndex={selected ? 0 : -1}
+            onKeyDown={event => {
+              const index = tabs.findIndex(tab => tab.id === id);
+              const next = event.key === "ArrowRight" ? (index + 1) % tabs.length
+                : event.key === "ArrowLeft" ? (index - 1 + tabs.length) % tabs.length
+                : event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : -1;
+              if (next < 0) return;
+              event.preventDefault();
+              onSelectTab(tabs[next].id);
+              document.getElementById("tab-" + tabs[next].id)?.focus();
+            }}
             aria-controls={`panel-${id}`}
             className={selected ? "wnav-tab is-active" : "wnav-tab"}
             onClick={() => onSelectTab(id)}
@@ -90,8 +101,8 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
           <HelpTip label="Lluvia de la semana" text="Mira la lluvia esperada de los próximos 7 días. Toca cualquier día para ver el detalle y anota aquí tu próxima fecha de riego." />
         </div>
       </div>
-      <div className="week-telemetry" aria-label="Indicadores rápidos de la semana">
-        {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> {weekRainMm} mm / 7 días</span>}
+      <div className="week-telemetry" role="group" aria-label="Indicadores rápidos de la semana">
+        {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> <strong>{weekRainMm} mm</strong> <small>/ 7 días</small></span>}
         {droughtLabel && <span className="wt-chip drought"><Sun size={15} aria-hidden="true"/> {droughtLabel}</span>}
         {tempC != null && <span className="wt-chip temp"><ThermometerSun size={15} aria-hidden="true"/> {Math.round(tempC)} °C normal</span>}
       </div>
