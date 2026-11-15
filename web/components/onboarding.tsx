@@ -8,7 +8,7 @@ import { messages } from "@/lib/i18n/messages";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
 import { CustomSelect } from "@/components/custom-select";
-import { allCrops, cropNames, monthNames, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { allCrops, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography-core";
 import { usePlaceSearch } from "@/lib/place-search";
 import { Check, ChevronDown, Droplets, CloudRain, CircleHelp, MapPin, Search } from "lucide-react";
@@ -23,7 +23,8 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 }
 
 export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial: Partial<FarmProfile>; onDone: (p: FarmProfile) => void; onSkip: () => void; farmCount?: number }) {
-  const text = messages[useLocale()].onboarding;
+  const locale = useLocale();
+  const text = messages[locale].onboarding;
   const dialog = useRef<HTMLDialogElement>(null);
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -100,8 +101,8 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       <div className="ob-top">
         {step > 0 ? <button type="button" className="ob-link" onClick={back}>{text.back}</button> : <span className="ob-top-spacer" />}
         <div className="ob-progress-wrap">
-          <span className="ob-step-count">Paso {step + 1} de {STEPS}</span>
-          <span className="ob-progress" role="progressbar" aria-valuemin={1} aria-valuemax={STEPS} aria-valuenow={step + 1} aria-label={`Paso ${step + 1} de ${STEPS}`}>
+          <span className="ob-step-count">{text.step} {step + 1} {text.of} {STEPS}</span>
+          <span className="ob-progress" role="progressbar" aria-valuemin={1} aria-valuemax={STEPS} aria-valuenow={step + 1} aria-label={`${text.step} ${step + 1} ${text.of} ${STEPS}`}>
             {Array.from({ length: STEPS }, (_, i) => <i key={i} className={i === step ? "on current" : i < step ? "on" : ""} />)}
           </span>
         </div>
@@ -145,20 +146,20 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       {step === 1 && location && <div className="ob-step ob-step-map">
         <div className={showMap ? "ob-map-head" : "ob-map-head compact"}>
           <div>
-            <h2>{initial.id ? "Editar finca" : "Dale un nombre a tu finca"}</h2>
-            <p className="ob-place"><MapPin aria-hidden="true" size={16} /> {[placeName, province].filter(Boolean).join(" · ")} <button type="button" className="ob-link" onClick={back}>Cambiar lugar</button></p>
+            <h2>{initial.id ? text.editFarm : text.nameFarm}</h2>
+            <p className="ob-place"><MapPin aria-hidden="true" size={16} /> {[placeName, province].filter(Boolean).join(" · ")} <button type="button" className="ob-link" onClick={back}>{text.changePlace}</button></p>
           </div>
-          <label className="ob-label ob-name-field">Nombre de esta finca<input value={name} maxLength={40} placeholder="Ej.: Finca del río" onChange={e => setName(e.target.value)} /></label>
+          <label className="ob-label ob-name-field">{text.farmName}<input value={name} maxLength={40} placeholder={text.farmExample} onChange={e => setName(e.target.value)} /></label>
         </div>
-        <details className="ob-more"><summary>¿Cuántas tareas tiene? (opcional)</summary>
-          <label className="ob-label">Área declarada en tareas<input type="number" min="0" max="100000" step="any" value={declaredTareas} onChange={event => setDeclaredTareas(event.target.value === "" ? "" : event.target.valueAsNumber)} /></label>
-          <p className="note">Venta usa primero el área que declaras. El mapa y la ubicación usan lo marcado.</p>
+        <details className="ob-more"><summary>{text.farmSize}</summary>
+          <label className="ob-label">{text.declaredArea}<input type="number" min="0" max="100000" step="any" value={declaredTareas} onChange={event => setDeclaredTareas(event.target.value === "" ? "" : event.target.valueAsNumber)} /></label>
+          <p className="note">{text.areaNote}</p>
         </details>
         {showMap ? <FarmPicker center={location} pieces={pieces} onChange={setPieces} /> : (
           <div className="ob-map-prompt">
             <button type="button" className="ob-map-launch" onClick={() => setShowMap(true)}>
               <span className="ob-icon-chip" aria-hidden="true"><MapPin size={18} /></span>
-              <span>Marcar la finca en el mapa (opcional)</span>
+              <span>{text.markFarm}</span>
             </button>
           </div>
         )}
@@ -166,19 +167,19 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
 
       {step === 2 && <div className="ob-step ob-step-crops">
         <div className="ob-crops-head">
-          <h2>¿Qué siembras tú?</h2>
-          <p className="ob-hint">Elige lo último que sembraste. Lo incluimos junto a otras opciones para comparar.</p>
+          <h2>{text.whatGrow}</h2>
+          <p className="ob-hint">{text.choosePrevious}</p>
         </div>
         <div className="ob-step3-layout">
-          <div className="ob-grid ob-grid-crops">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); if (chosenCrops && allCrops.some(crop => crop === c)) setCrops(Array.from(new Set([...chosenCrops, c as CropId]))); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{previousCropName(c)}{c === "ajo" ? <small>sin datos todavía</small> : null}</span></Choice>)}
-            <Choice on={previous === "otro"} onClick={() => setPrevious("otro")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>Otro</span></Choice>
-            <Choice on={previous === "unknown"} onClick={() => setPrevious("unknown")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>Nada / no sé</span></Choice></div>
+          <div className="ob-grid ob-grid-crops">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); if (chosenCrops && allCrops.some(crop => crop === c)) setCrops(Array.from(new Set([...chosenCrops, c as CropId]))); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c as CropId] ?? previousCropName(c)}{c === "ajo" ? <small>{text.noData}</small> : null}</span></Choice>)}
+            <Choice on={previous === "otro"} onClick={() => setPrevious("otro")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>{text.other}</span></Choice>
+            <Choice on={previous === "unknown"} onClick={() => setPrevious("unknown")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>{text.unknown}</span></Choice></div>
           <div className="ob-step3-side">
-            <h3 className="ob-sub">¿Tienes riego?</h3>
-            <div className="ob-row" role="group" aria-label="¿Tienes riego?">
-              <Choice on={irrigation === "irrigated"} onClick={() => setIrrigation("irrigated")}><Droplets size={19} aria-hidden="true" /> Sí {irrigation === "irrigated" && <Check size={18} aria-hidden="true" />}</Choice>
-              <Choice on={irrigation === "rainfed"} onClick={() => setIrrigation("rainfed")}><CloudRain size={19} aria-hidden="true" /> No, de lluvia {irrigation === "rainfed" && <Check size={18} aria-hidden="true" />}</Choice>
-              <Choice on={irrigation === "unconfirmed"} onClick={() => setIrrigation("unconfirmed")}><CircleHelp size={19} aria-hidden="true" /> No sé {irrigation === "unconfirmed" && <Check size={18} aria-hidden="true" />}</Choice>
+            <h3 className="ob-sub">{text.irrigation}</h3>
+            <div className="ob-row" role="group" aria-label={text.irrigation}>
+              <Choice on={irrigation === "irrigated"} onClick={() => setIrrigation("irrigated")}><Droplets size={19} aria-hidden="true" /> {text.yes} {irrigation === "irrigated" && <Check size={18} aria-hidden="true" />}</Choice>
+              <Choice on={irrigation === "rainfed"} onClick={() => setIrrigation("rainfed")}><CloudRain size={19} aria-hidden="true" /> {text.rainfed} {irrigation === "rainfed" && <Check size={18} aria-hidden="true" />}</Choice>
+              <Choice on={irrigation === "unconfirmed"} onClick={() => setIrrigation("unconfirmed")}><CircleHelp size={19} aria-hidden="true" /> {text.dontKnow} {irrigation === "unconfirmed" && <Check size={18} aria-hidden="true" />}</Choice>
             </div>
             <h3 className="ob-sub">¿Cómo es tu tierra? <small>(opcional)</small></h3>
             <div className="ob-row" role="group" aria-label="¿Cómo es tu tierra?">
@@ -197,22 +198,22 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               <Choice on={soilColor === "blanca"} onClick={() => setSoilColor("blanca")}>Blanca</Choice>
               <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>No sé</Choice>
             </div>
-            <details className="ob-more ob-compare"><summary>Cambiar los cultivos que se comparan ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
-              <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label="Cultivos para comparar">{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{cropNames[c]}{c === "ajo" ? " · sin datos todavía" : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
-              <div className="ob-label ag-select-field"><span className="ag-select-label">Mes en que piensas sembrar</span><CustomSelect ariaLabel="Mes en que piensas sembrar" value={String(sowMonth)} options={monthNames.map((m, i) => ({ value: String(i + 1), label: m }))} onChange={val => setSowMonth(Number(val))} /></div>
+            <details className="ob-more ob-compare"><summary>{text.changeCrops} ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
+              <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label={text.changeCrops}>{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c]}{c === "ajo" ? ` · ${text.noData}` : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
+              <div className="ob-label ag-select-field"><span className="ag-select-label">{text.sowMonth}</span><CustomSelect ariaLabel={text.sowMonth} value={String(sowMonth)} options={Array.from({length:12}, (_, i) => ({ value: String(i + 1), label: new Intl.DateTimeFormat(locale === "es" ? "es-DO" : "en-US", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(2020,i,1))) }))} onChange={val => setSowMonth(Number(val))} /></div>
             </details>
-            {!location && <p role="status">Falta elegir dónde está tu finca (paso 1).</p>}
+            {!location && <p role="status">{text.missingLocation}</p>}
           </div>
         </div>
       </div>}
       </div>
       <footer className="ob-footer">
-        <span className="ob-credit" aria-hidden="true">El Cercado, San Juan Valley</span>
+        <span className="ob-credit" aria-hidden="true">{text.credit}</span>
         {step > 0 && (step === 1 ? (initial.id ? <>
-          <button type="button" className="ob-primary" onClick={finish}>Guardar cambios</button>
-          <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>
-        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? "Listo · seguir sin marcar" : "Seguir sin marcar"}</button>)
-          : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> Listo, ver mi recomendación</button>)}
+          <button type="button" className="ob-primary" onClick={finish}>{text.save}</button>
+          <button type="button" className="link-button" onClick={next}>{text.changeCropWater}</button>
+        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `${text.done}: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? text.doneContinue : text.continueWithout}</button>)
+          : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> {text.recommendation}</button>)}
       </footer>
     </div>
   </dialog>;
