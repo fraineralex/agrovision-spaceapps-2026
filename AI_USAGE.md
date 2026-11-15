@@ -332,3 +332,11 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Archivos:** `web/lib/{advisor,advisor.test,soil}.ts`, `web/components/{advisor-card,options-card,sources-sheet,onboarding,soil-card}.tsx`, `web/tests/demo.spec.ts`.
 - **Límites:** “Plagas distintas” no cambia las estrellas. El catálogo lista solo las plagas principales de cada cultivo (1 a 4), así que puede haber otras en la zona; la app lo dice.
 - **Revisión por Frainer:** pendiente.
+
+## 2026-11-15 — Color de la tierra y sección “Plagas a vigilar”
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:** pregunta opcional “¿De qué color es tu tierra?” con una nota por color en “Rotación y suelo”; sección “Plagas a vigilar” con todas las plagas del catálogo por cultivo (nombre científico, tipo, si se repite con el cultivo anterior y enlaces a las fuentes) y un aviso sobre nematodos.
+- **Archivos:** `web/lib/{soil,soil.test,pests,farms}.ts`, `web/components/{pest-card,soil-card,onboarding,fold}.tsx`, `web/app/{page.tsx,globals.css}`, `web/tests/demo.spec.ts`.
+- **Fuentes:** color del suelo, Soil Science Society of America (adaptado de Lynn y Pearson, 2000), consultada el 15-11-2026. Plagas: el catálogo que ya estaba en `web/lib/pests.ts`, que coincide con la hoja “Plagas a vigilar por cultivo” del equipo; no se añadieron plagas nuevas.
+- **Límites:** el color es una pista, no un análisis; no afirma cantidades de nutrientes. El tipo de plaga (insecto, ácaro, nematodo) se deduce del nombre común. Nada de esto cambia las estrellas.
+- **Revisión por Frainer:** pendiente.
