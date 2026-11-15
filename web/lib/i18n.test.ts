@@ -151,3 +151,12 @@ test("currency formatting preserves the Dominican peso symbol", () => {
   assert.equal(rd(625, "en"), "RD$625");
   assert.equal(rd(-625, "es"), "−RD$625");
 });
+
+import { optionsMessages } from "./i18n/options-messages";
+test("alternative option messages have matching keys and fields", () => {
+  assert.deepEqual(leafKeys(optionsMessages.en), leafKeys(optionsMessages.es));
+  for (const key of Object.keys(optionsMessages.en) as Array<keyof typeof optionsMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(optionsMessages.en[key]), placeholders(optionsMessages.es[key]), key);
+  }
+});

@@ -173,3 +173,15 @@ test("sale calculators retain inputs and results across languages", async ({ pag
   await page.getByLabel("Idioma").selectOption("en");
   await expect(budget.locator(".budget-result")).toContainText("RD$625.00 per quintal");
 });
+
+test("alternative crop options switch language while preserving their number", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  const options = page.locator(".options");
+  await expect(options.getByRole("heading", { name: "Otras opciones" })).toBeVisible();
+  const count = await options.locator(".option").count();
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(options.getByRole("heading", { name: "Other options" })).toBeVisible();
+  expect(await options.locator(".option").count()).toBe(count);
+  await expect(options.getByText("Less water", { exact: false }).first()).toBeVisible();
+});
