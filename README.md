@@ -82,7 +82,15 @@ AI_GATEWAY_API_KEY=
 
 Con clave y cuenta Gateway habilitada, el botón **Hablar** abre audio bidireccional nativo con `openai/gpt-realtime-mini` mediante AI SDK 7 experimental. El servidor emite un token efímero (60 segundos para conectar); la clave no sale del servidor. Hay transcripción visible, VAD del navegador y del servidor, interrupción y herramientas de lectura `get_parcel_metrics` / `compare_rotations`. Las respuestas son en español y se limitan al JSON de métricas y rotaciones con sus fuentes. El audio es generado por IA; no se promete latencia medida ni predicción agrícola.
 
-Si realtime no está disponible, puedes escribir: con clave se usa `streamText` (`openai/gpt-4.1-mini`) por Gateway y lectura por frases con voz del navegador. **Sin clave tampoco es posible generar texto vía Gateway**: se muestra un resumen local determinista y se ofrece `speechSynthesis` si el navegador lo admite. No hay reconocimiento de voz garantizado en ese modo. La voz del navegador depende de las voces españolas instaladas. Se requiere HTTPS o localhost y permiso de micrófono para conversar; al terminar o cambiar selección se cierran micrófono y sesión. La aplicación no persiste grabaciones; revisar políticas del proveedor para su tratamiento.
+Si la conversación en tiempo real no está disponible, el dictado en navegadores compatibles y la entrada escrita comparten la ruta de preguntas. Con clave se usa `openai/gpt-4.1-mini` por AI Gateway. Sin clave, el entorno de desarrollo consulta un servidor local de inferencia si está disponible. La app conserva las últimas preguntas y respuestas para entender consultas de seguimiento. El navegador lee en voz alta las respuestas dictadas. La app requiere HTTPS o localhost y permiso de micrófono para conversar. AgroVision no guarda grabaciones.
+
+Para usar [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B-GGUF) en Windows, descarga el archivo GGUF del modelo y el binario de [llama.cpp](https://github.com/ggml-org/llama.cpp/releases). Ejecuta el servidor en PowerShell:
+
+```powershell
+.\llama-server.exe --model .\Qwen3-1.7B-Q8_0.gguf --alias agrovision-voice --host 127.0.0.1 --port 11435 --ctx-size 8192 --reasoning off
+```
+
+En un servidor de producción autohospedado, establece `AGROVISION_LOCAL_VOICE=1` si llama.cpp corre en la misma máquina. En ausencia de ambos proveedores, la app responde por temas con datos locales y lo indica en la respuesta.
 
 Las rutas de voz validan origen, tamaño, selecciones y herramientas. El límite por instancia no sustituye un control global de gasto: configurar presupuesto en AI Gateway antes de compartir una instalación con clave. Los tokens son credenciales efímeras ligadas al modelo; las instrucciones de sesión no son un aislamiento frente a clientes modificados.
 

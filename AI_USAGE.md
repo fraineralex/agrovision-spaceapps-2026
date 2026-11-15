@@ -258,3 +258,17 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 · OpenAI** — Lectura accesible compartida en `web/lib/use-read-aloud.ts`, Siembra y Preguntar, con prueba del mensaje sin voz. Revisión por Frainer pendiente.
 
 - **2026-11-15 · OpenAI** — Rediseño de la tarjeta de Siembra y ampliación del área de trabajo en `web/components/advisor-card.tsx`, `web/app/page.tsx`, `web/app/globals.css` y pruebas de ancho. Revisión por Frainer pendiente.
+
+## 2026-11-15 — Controles del resumen y respaldo de voz
+
+- Codex (OpenAI) añadió controles de reproducción, preferencia por voces naturales en español y dictado del navegador cuando falla la sesión en tiempo real. Archivos: `web/components/voice-assistant.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias y tres pruebas dirigidas en Chrome, con voz y dictado simulados. La conversación real está pendiente de una credencial de AI Gateway. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): ajustó el inicio de voz para conectar después de aplicar el contexto de la finca y tratar las cancelaciones como cierre de sesión. Archivos: `web/components/voice-assistant.tsx` y `web/tests/demo.spec.ts`. TypeScript, lint y tres pruebas dirigidas en Chrome pasaron. La prueba de respaldo comprueba que no aparezca un error de página ante un 503 simulado. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): añadió una comprobación de configuración antes de abrir una sesión de voz. Archivos: `web/app/api/voice/setup/route.ts`, `web/components/voice-assistant.tsx`, `web/tests/demo.spec.ts`. Tres pruebas dirigidas en Chrome pasaron. La prueba del respaldo verifica que un 503 evita iniciar el SDK y conserva el dictado. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): hizo visible la respuesta al dictado, añadió un control para terminar la pregunta y reutilizó los datos de la finca para responder por tema en modo local. Archivos: `web/components/voice-assistant.tsx`, `web/lib/voice-context.ts`, `web/app/api/voice/chat/route.ts` y `web/tests/demo.spec.ts`. Pasaron cuatro pruebas en Chrome con dictado simulado. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): conectó la ruta de preguntas a Qwen3 mediante llama.cpp local y mantuvo AI Gateway para instalaciones con clave. Añadió instrucciones para interpretar preguntas de seguimiento y un respaldo para alternar cultivos. Archivos: README.md, web/lib/{local-voice-model,voice-context}.ts, web/app/api/voice/chat/route.ts y web/tests/demo.spec.ts. Revisión por Frainer pendiente.
+
+- 2026-11-15, Codex (OpenAI): sincronizó la rama con main, corrigió la validación del origen local en `web/lib/voice-server.ts` y ajustó la evidencia enviada al modelo. Chrome, con dictado y síntesis simulados, comprobó dos turnos contra Qwen3-1.7B real: recomendó habichuela roja como alternativa al maíz y usó el historial para responder febrero en la pregunta sobre cosecha. Pasaron 29 pruebas unitarias, cuatro pruebas dirigidas de voz, TypeScript y lint. Revisión por Frainer pendiente.

@@ -4,6 +4,13 @@ import { experimental_getRealtimeToolDefinitions } from "ai";
 import { REALTIME_MODEL, voiceSelection } from "@/lib/voice-context";
 import { guard, localTools } from "@/lib/voice-server";
 export const maxDuration = 20;
+export function HEAD() {
+  return new Response(null, {
+    status: process.env.AI_GATEWAY_API_KEY ? 204 : 503,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
 export async function POST(request: Request) {
   const blocked = guard(request); if (blocked) return blocked;
   // Query month is encoded as text by URLSearchParams; all other inputs remain strict enums.
