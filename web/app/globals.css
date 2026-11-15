@@ -2725,3 +2725,141 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
     font-size: 1.6rem;
   }
 }
+
+/* Otras opciones: formato de filas horizontales manteniendo tokens del tema actual */
+.options-subtitle {
+  margin: 2px 0 12px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.options .option-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px;
+}
+.option.option-row-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+}
+.option.option-row-card.keep {
+  border-style: dashed;
+}
+.option-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+}
+.option-goal-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+.option-goal-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.option-goal-copy .option-goal {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+.option-goal-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.option-crop-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background-color: var(--elevated);
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+.option-crop-card .option-score-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.option-row-card .option-pillars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .option-row-card .option-pillars {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.option-row-card .option-pillars .pill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background-color: var(--muted-surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.option-row-card .option-pillars .pill-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.option-row-card .option-pillars .pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.option-row-card .pill.green .pill-dot { background-color: var(--success); }
+.option-row-card .pill.amber .pill-dot { background-color: var(--caution); }
+.option-row-card .pill.red .pill-dot { background-color: var(--risk); }
+.option-row-card .pill.gray .pill-dot { background-color: var(--muted); }
+.option-row-card .option-pillars .pill-val {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.option-warn-bar,
+.option-empty-bar {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  background-color: var(--elevated);
+}
+.option-warn-bar > summary,
+.option-empty-bar > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 750;
+  min-height: 28px;
+}
+.option-warn-bar > summary {
+  color: var(--caution);
+}
