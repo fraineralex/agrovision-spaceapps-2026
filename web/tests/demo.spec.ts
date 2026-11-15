@@ -206,6 +206,8 @@ test("the voice orb stays centered while the grower scrolls and uses the page", 
  const voice = page.getByRole("region", {name:"Asistente de voz"});
  const stop = voice.getByRole("button", {name:"Colgar",exact:true});
  await expect(voice.getByRole("status")).toHaveText("Conectando…");
+ await expect(voice.getByText("Escribir", {exact:true})).toBeHidden();
+ await expect(voice.getByText("Sobre el micrófono", {exact:true})).toBeHidden();
  await expect(page.getByRole("dialog")).toHaveCount(0);
  const before = (await stop.boundingBox())!;
  expect(before.x + before.width / 2).toBeCloseTo(180, 0);
@@ -218,5 +220,6 @@ test("the voice orb stays centered while the grower scrolls and uses the page", 
  await page.screenshot({path:"test-results/voice-mobile.png"});
  await stop.click();
  await expect(voice.getByRole("status")).toHaveText("Micrófono apagado.");
+ await expect(voice.getByText("Escribir", {exact:true})).toBeVisible();
  await expect(start).toBeFocused();
 });

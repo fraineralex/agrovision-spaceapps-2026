@@ -1,7 +1,7 @@
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Keyboard, Mic, MicOff, Square, Volume2 } from "lucide-react";
+import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
@@ -13,7 +13,6 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
-  const [muted, setMuted] = useState(false);
   const [sessionSelection, setSessionSelection] = useState<VoiceSelection>();
   const sessionContext = sessionSelection ?? selection;
   const abort = useRef<AbortController | null>(null);
@@ -45,7 +44,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   useEffect(() => {
     const button = orb.current;
     const stream = media.current;
-    if (!button || !stream || !isCapturing || isPlaying || muted || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!button || !stream || !isCapturing || isPlaying || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const context = new AudioContext();
     const source = context.createMediaStreamSource(stream);
     const analyser = context.createAnalyser();
@@ -70,7 +69,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
       source.disconnect();
       void context.close().catch(() => undefined);
     };
-  }, [isCapturing, isPlaying, muted]);
+  }, [isCapturing, isPlaying]);
   function releaseMedia() {
     media.current?.getTracks().forEach(track => track.stop()); media.current = null;
     captureStarted.current = false;
@@ -84,7 +83,6 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     if (starting.current) return;
     interrupt();
     setNotice("");
-    setMuted(false);
     setRequesting(true);
     // Keep the session on its starting farm and month while the page remains interactive.
     setSessionSelection(selection);
@@ -114,13 +112,6 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     releaseMedia();
     window.speechSynthesis?.cancel();
     setNotice(message);
-  }
-  function toggleMute() {
-    const tracks = media.current?.getAudioTracks();
-    if (!tracks?.length) return;
-    const next = !muted;
-    tracks.forEach(track => { track.enabled = !next; });
-    setMuted(next);
   }
   function speak(text: string) {
     if (!window.speechSynthesis) return;
@@ -163,15 +154,16 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
   const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
-  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : muted ? "muted" : realtime.isCapturing ? "listening" : "connecting";
-  const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…", muted: "Micrófono silenciado" }[orbState];
+  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : realtime.isCapturing ? "listening" : "connecting";
+  const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
   const hangUp = () => stopVoice("Micrófono apagado.");
-  return <section className="voice-compact" aria-label="Asistente de voz">
+  return <section id="voz" className="voice-compact" aria-label="Asistente de voz">
     <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
       onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
       {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
     </button>
     <p className={notice ? "note" : "sr-only"} role="status">{voiceStatus}</p>
+    <div hidden={active}>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
@@ -179,8 +171,8 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     <div className="voice-alternatives">
       <details className="visual-details"><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
       {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
-      {realtime.isCapturing && <button type="button" className="link-button" aria-pressed={muted} onClick={toggleMute}>{muted ? <MicOff aria-hidden="true"/> : <Mic aria-hidden="true"/>} Silenciar micrófono</button>}
     </div>
     <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
+    </div>
   </section>;
 }

@@ -199,7 +199,7 @@ export default function Home() {
       </div>
       </div>
 
-      <Fold id="voz" icon="🎙️" title="Habla con AgroVision"><VoiceAssistant selection={selection}/></Fold>
+      <VoiceAssistant selection={selection}/>
 
       <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
