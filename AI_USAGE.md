@@ -277,3 +277,10 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 | 15-11-2026 | Vercel AI Gateway runtime — Anthropic `anthropic/claude-haiku-5.5`, Google `google/gemini-embedding-2` | Generación de respuestas de texto y embeddings para índice RAG en build/evaluación local | Mismos archivos de API/RAG anteriores | Pendiente: Frainer; sin afirmar validación agronómica |
 
 - **2026-11-15 — Codex (gpt-6-luna):** verificó la integración de PR #13 con Haiku/RAG, ajustó el mensaje de respuesta vacía con contexto recuperado y ejecutó seis preguntas reales vía AI Gateway para auditar `docs/rag_eval.md`. Archivos: `web/app/api/voice/chat/route.ts`, `docs/rag_eval.md`, `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
+
+### 2026-11-15 — rediseño de la vista del agricultor
+
+- Herramienta y modelo: OpenAI GPT-6.
+- Uso: revisión visual de TERA como referencia externa, tokens y Modo sol, navegación y presentación de siembra, ajustes de onboarding, lluvia, venta, mercado, mapa, fuentes y controles de voz; captura y revisión de accesibilidad.
+- Archivos: `web/app/{globals.css,layout.tsx,page.tsx}`, `web/components/{advisor-card,farm-picker,farm-workbench,field-ui,guided-sale,map,market-card,onboarding,rain-card,theme-toggle}.tsx`, `web/components/{fao-giews,voice-session}.module.css`, `web/components/ui/{button,card}.tsx`, `web/package.json`, `web/tests/demo.spec.ts`, `docs/design-system.md`.
+- Revisión humana: Frainer, pendiente. Las cifras y fuentes existentes conservan su significado.
