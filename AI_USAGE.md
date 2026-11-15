@@ -486,3 +486,6 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: corrigió y probó la conservación del símbolo RD$ tras localizar la moneda en `web/lib/profit.ts` y `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: tradujo las alternativas y sus criterios, sin cambiar la selección de opciones. Archivos: `web/components/options-card.tsx` y `web/lib/i18n/options-messages.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: agregó pruebas de paridad y de cambio de idioma de las alternativas en `web/lib/i18n.test.ts` y `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo el escenario histórico, sus límites y fuentes sin cambiar el cálculo de costos ni rendimientos. Archivos: `web/components/profit-card.tsx` y `web/lib/i18n/profit-messages.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: añadió comprobación de paridad para textos del escenario de costos en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: añadió verificación de cifras y enlaces del escenario histórico al cambiar idioma en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.

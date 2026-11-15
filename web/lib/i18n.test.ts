@@ -160,3 +160,12 @@ test("alternative option messages have matching keys and fields", () => {
     assert.deepEqual(placeholders(optionsMessages.en[key]), placeholders(optionsMessages.es[key]), key);
   }
 });
+
+import { profitMessages } from "./i18n/profit-messages";
+test("profit messages preserve keys and interpolation fields", () => {
+  assert.deepEqual(leafKeys(profitMessages.en), leafKeys(profitMessages.es));
+  for (const key of Object.keys(profitMessages.en) as Array<keyof typeof profitMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(profitMessages.en[key]), placeholders(profitMessages.es[key]), key);
+  }
+});

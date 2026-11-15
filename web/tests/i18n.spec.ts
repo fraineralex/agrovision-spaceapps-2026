@@ -185,3 +185,28 @@ test("alternative crop options switch language while preserving their number", a
   expect(await options.locator(".option").count()).toBe(count);
   await expect(options.getByText("Less water", { exact: false }).first()).toBeVisible();
 });
+
+test("historical profit scenario keeps figures and sources when language changes", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "Agregar mi finca", exact: true }).click();
+  const setup = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+  await setup.getByRole("button", { name: "San Juan", exact: true }).click();
+  await setup.getByRole("button", { name: "Seguir sin marcar" }).click();
+  await setup.getByRole("button", { name: "Habichuela roja", exact: true }).click();
+  await setup.getByRole("button", { name: "Sí", exact: true }).click();
+  await setup.getByRole("button", { name: "Listo, ver mi recomendación" }).click();
+  await page.getByRole("button", { name: "Supervisor", exact: true }).click();
+  await page.getByRole("tab", { name: "Venta" }).click();
+  await page.getByText("Consultar costos y precios de referencia").click();
+  const profit = page.locator(".profit");
+  await profit.getByLabel("Cultivo").selectOption("habichuela_roja");
+  await profit.getByLabel("Tareas").fill("1");
+  await expect(profit.getByRole("heading", { name: "Escenario histórico (precio mayorista)" })).toBeVisible();
+  const amounts = await profit.locator(".profit-range strong").allTextContents();
+  await profit.getByText(/¿De dónde salen estos números/).click();
+  const links = await profit.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort());
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(profit.getByRole("heading", { name: "Historical scenario (wholesale price)" })).toBeVisible();
+  expect(await profit.locator(".profit-range strong").allTextContents()).toEqual(amounts);
+  expect(await profit.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
+});
