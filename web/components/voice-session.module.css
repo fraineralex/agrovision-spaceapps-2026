@@ -1,4 +1,21 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
+.error {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: calc(82px + env(safe-area-inset-bottom));
+  translate: -50% 0;
+  width: max-content;
+  max-width: min(310px, 90vw);
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: #263957;
+  color: #fff;
+  font-size: 15px;
+  text-align: center;
+  pointer-events: none;
+}
 .orb {
   position: fixed;
   z-index: 40;

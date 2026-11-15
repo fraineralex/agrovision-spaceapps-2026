@@ -71,7 +71,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
         <button type="button" className="ob-primary" onClick={useGps}><MapPin aria-hidden="true" /> Usar mi ubicación</button>
         {gps && <p role="status">{gps}</p>}
         <label className="ob-label">Busca un lugar en RD<input type="search" value={search} placeholder="Ej.: Pedro Brand" onChange={e => setSearch(e.target.value)} /></label>
-        <div className="ob-grid">{search.trim() ? places.map(p => <Choice key={p.id} on={province === p.name || placeName === p.name} onClick={() => p.kind ? pick(p.province, { longitude: p.longitude, latitude: p.latitude }, p.name) : pick(p.name)}>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</Choice>)
+        <div className={search.trim() ? "ob-grid place-choices" : "ob-grid"}>{search.trim() ? places.map(p => <Choice key={p.id} on={p.kind ? placeName === p.name && province === p.province : province === p.name && !placeName} onClick={() => p.kind ? pick(p.province, { longitude: p.longitude, latitude: p.latitude }, p.name) : pick(p.name)}><span>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</span></Choice>)
           : provinces.filter(p => ["San Juan", "Santiago", "La Vega", "Azua", "Monte Cristi", "Valverde"].includes(p.name)).map(p => <Choice key={p.name} on={province === p.name} onClick={() => pick(p.name)}>{p.name}</Choice>)}</div>
         {loading && <p role="status">Buscando lugares…</p>}
         {unavailable && <p role="status">No se pudo cargar el catálogo. Puedes buscar por provincia o usar el mapa.</p>}
@@ -79,17 +79,19 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       </div>}
 
       {step === 1 && location && <div className="ob-step">
-        <h2>Dale un nombre a tu finca</h2>
+        <h2>{initial.id ? "Editar finca" : "Dale un nombre a tu finca"}</h2>
         <label className="ob-label">Nombre de esta finca<input value={name} maxLength={40} placeholder="Ej.: Finca del río" onChange={e => setName(e.target.value)} /></label>
-        {placeName && <p className="note">{placeName} · {province}</p>}
+        <p className="ob-place"><MapPin aria-hidden="true" size={18}/> {[placeName, province].filter(Boolean).join(" · ")} <button type="button" className="ob-link" onClick={back}>Cambiar lugar</button></p>
         <details className="ob-more"><summary>Maquinaria y pesticidas (opcional)</summary>
           <label className="ob-label">Maquinaria disponible<textarea rows={2} value={machinery} maxLength={500} placeholder="Ej.: tractor alquilado, bomba propia" onChange={e => setMachinery(e.target.value)}/></label>
           <label className="ob-label">Pesticidas registrados en la finca<textarea rows={2} value={pesticides} maxLength={500} placeholder="Anota los nombres de los productos que usas" onChange={e => setPesticides(e.target.value)}/></label>
           <p className="note">Tus apuntes quedan en este navegador.</p>
         </details>
         {showMap ? <FarmPicker center={location} pieces={pieces} onChange={setPieces} /> : <button type="button" className="link-button" onClick={() => setShowMap(true)}>Marcar la finca en el mapa (opcional)</button>}
-        <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : "Seguir sin marcar"}</button>
-        {initial.id && <button type="button" className="link-button" onClick={finish}>Guardar cambios</button>}
+        {initial.id ? <>
+          <button type="button" className="ob-primary" onClick={finish}>Guardar cambios</button>
+          <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>
+        </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : "Seguir sin marcar"}</button>}
       </div>}
 
       {step === 2 && <div className="ob-step">

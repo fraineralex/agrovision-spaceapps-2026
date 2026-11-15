@@ -10,6 +10,7 @@ const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const [notice, setNotice] = useState("");
+  const [voiceError, setVoiceError] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
@@ -83,6 +84,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     if (starting.current) return;
     interrupt();
     setNotice("");
+    setVoiceError(false);
     setRequesting(true);
     // Keep the session on its starting farm and month while the page remains interactive.
     setSessionSelection(selection);
@@ -98,13 +100,14 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } catch (error) {
       if (attempt !== generation.current) return;
       releaseMedia();
+      setVoiceError(true);
       const name = error instanceof Error ? error.name : "";
       setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
     } finally {
       if (attempt === generation.current) { starting.current = false; setRequesting(false); }
     }
   }
-  function stopVoice(message: string) {
+  function stopVoice(message: string, failed = true) {
     generation.current++;
     starting.current = false;
     setRequesting(false);
@@ -112,6 +115,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     releaseMedia();
     window.speechSynthesis?.cancel();
     setNotice(message);
+    setVoiceError(failed);
   }
   function speak(text: string) {
     if (!window.speechSynthesis) return;
@@ -156,13 +160,13 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
   const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : realtime.isCapturing ? "listening" : "connecting";
   const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
-  const hangUp = () => stopVoice("Micrófono apagado.");
+  const hangUp = () => stopVoice("Micrófono apagado.", false);
   return <section id="voz" className="voice-compact" aria-label="Asistente de voz">
     <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
       onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
       {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
     </button>
-    <p className={notice ? "note" : "sr-only"} role="status">{voiceStatus}</p>
+    <p className={voiceError && !active ? session.error : "sr-only"} role="status">{voiceStatus}</p>
     <div hidden={active}>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}

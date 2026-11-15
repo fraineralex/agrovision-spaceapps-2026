@@ -48,6 +48,11 @@ function downloadFarmBoundary(farm: Farm) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function openReport(id: string) {
+  const report = document.getElementById(id);
+  if (report instanceof HTMLDetailsElement) report.open = true;
+}
+
 export default function Home() {
   const [mode, setMode] = useState<ViewMode>("farmer");
   const supervisor = mode === "supervisor";
@@ -68,10 +73,11 @@ export default function Home() {
   const [provinceSearch,setProvinceSearch] = useState("");
   const [gpsStatus,setGpsStatus] = useState("");
   const [mapOpen,setMapOpen] = useState(false);
+  const [mapPlace,setMapPlace] = useState("");
   const [crops,setCrops] = useState<CropId[]>(defaultCrops);
   const [onboarding,setOnboarding] = useState(false);
   const applyProfile = useCallback((pr:FarmProfile) => {
-    setLocation(pr.location);setSelectedParcel("location");setField(null);setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.plan?.sowMonth ?? pr.sowMonth);setPriority(pr.priority);
+    setLocation(pr.location);setMapPlace(pr.placeName ?? "");setSelectedParcel("location");setField(null);setChosen(true);setPrevious(pr.previous);setIrrigation(pr.irrigation);setCrops(pr.crops);setMonth(pr.plan?.sowMonth ?? pr.sowMonth);setPriority(pr.priority);
   },[]);
   const [farms,setFarms] = useState<Farm[]>([]);
   const [activeId,setActiveId] = useState<string|null>(null);
@@ -103,9 +109,16 @@ export default function Home() {
   // Text typed before hydration on slow phones must not be lost.
   useEffect(() => { const typed = searchRef.current?.value; if (typed) setProvinceSearch(typed); }, []);
   const locationKey = `${location.longitude.toFixed(3)},${location.latitude.toFixed(3)}`;
-  const onSelect = useCallback((id:string) => { const detected=findParcel(id);if(detected){setLocation({longitude:detected.properties.center[0],latitude:detected.properties.center[1]});setSelectedParcel(id);setChosen(true);return;} const parcel = parcels.features.find(p => p.id === id); if (!parcel) return; const p = parcel.geometry.coordinates[0][0]; setLocation({longitude:p[0]+.005,latitude:p[1]+.004});setSelectedParcel(id);setChosen(true); },[]);
-  const onLocation = useCallback((point:Location) => {setLocation(point);setSelectedParcel("location");setField(null);setChosen(true);},[]);
-  const onField = useCallback((f:FieldInfo) => {setField(f);setLocation({longitude:f.center[0],latitude:f.center[1]});setChosen(true);},[]);
+  const onLocation = useCallback((point:Location) => {setLocation(point);setMapPlace("");setSelectedParcel("location");setField(null);setChosen(true);},[]);
+  const onSelect = useCallback((id:string) => {
+    const detected = findParcel(id);
+    const demo = parcels.features.find(p => p.id === id)?.geometry.coordinates[0][0];
+    if (detected) onLocation({longitude:detected.properties.center[0],latitude:detected.properties.center[1]});
+    else if (demo) onLocation({longitude:demo[0]+.005,latitude:demo[1]+.004});
+    else return;
+    setSelectedParcel(id);
+  },[onLocation]);
+  const onField = useCallback((f:FieldInfo) => {onLocation({longitude:f.center[0],latitude:f.center[1]});setField(f);},[onLocation]);
   const useGps = () => {
     if (!("geolocation" in navigator)) { setGpsStatus("Tu teléfono no permite ubicación."); return; }
     setGpsStatus("Buscando tu ubicación…");
@@ -161,6 +174,9 @@ export default function Home() {
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
       <WorkbenchNav/>
+      {supervisor && <nav className="supervisor-tools" aria-label="Herramientas de supervisión">
+        <a href="#tu-finca-en-el-mapa">Parcelas</a><a href="#diagnostico" onClick={() => openReport("diagnostico")}>Clima y mercado</a><a href="#rotaciones" onClick={() => openReport("rotaciones")}>Rotaciones</a>
+      </nav>}
       <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
       <div className="home-grid">
       <div className="col-main">
@@ -180,12 +196,12 @@ export default function Home() {
         </details>}
       </Fold>
       <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
-      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
+      <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place" role="status">{[mapPlace, province].filter(Boolean).join(" · ") || "Sin elegir"}</span></div>
         {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
         <div className="location-controls">
           <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
           <label>Busca un lugar en RD<input ref={searchRef} type="search" placeholder="Ej.: Pedro Brand" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
-          {places.length > 0 && <div className="search-results" role="group" aria-label="Lugares encontrados">{places.map(p => <button type="button" key={p.id} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");setMapOpen(true);}}>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</button>)}</div>}
+          {places.length > 0 && <div className="search-results" role="group" aria-label="Lugares encontrados">{places.map(p => <button type="button" key={p.id} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setMapPlace(p.kind ? p.name : "");setProvinceSearch("");setMapOpen(true);searchRef.current?.focus();}}>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</button>)}</div>}
           {placesLoading && <p role="status">Buscando lugares…</p>}
           {placesUnavailable && <p role="status">Catálogo temporalmente no disponible. Puedes escoger una provincia.</p>}
           {provinceSearch.trim().length >= 2 && !places.length && !placesLoading && !placesUnavailable && <p role="status">No encontramos ese lugar.</p>}
@@ -212,7 +228,7 @@ export default function Home() {
         </article>}
       </section>
       </Fold>
-      {supervisor && <details className="card visual-extras"><summary>Mercado y clima regional</summary>
+      {supervisor && <details id="diagnostico" className="card visual-extras"><summary>Mercado y clima regional</summary>
       <Fold icon="💰" title="Precio y mercado"><MarketCard key={saleCrop} initialCrop={saleCrop}/></Fold>
 
       {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
@@ -231,7 +247,7 @@ export default function Home() {
 
       <VoiceAssistant selection={selection}/>
 
-      {supervisor && <details className="card landscape-details"><summary>Rotaciones de ejemplo y modelo de riego (San Juan)</summary>
+      {supervisor && <details id="rotaciones" className="card landscape-details"><summary>Rotaciones de ejemplo y modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
         <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
           <h3>{s.label}</h3>

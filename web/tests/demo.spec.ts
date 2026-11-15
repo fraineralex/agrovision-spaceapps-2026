@@ -65,7 +65,7 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  await opts.nth(2).getByText("Sin datos suficientes").click();
  await expect(opts.nth(2).getByText(/Falta evidencia local/)).toBeVisible();
  await expect(opts.last()).toContainText("Arroz");
- await page.getByText("Mercado y clima regional", {exact:true}).click();
+ await page.getByRole("link", {name:"Clima y mercado",exact:true}).click();
  for (const id of ["tu-finca-en-el-mapa","cuanto-me-deja","precio-y-mercado","sequia-y-lluvia","voz"]) await expect(page.locator(`#${id}`)).toBeVisible();
  // Profit calculator.
  await page.getByText("Consultar costos y precios de referencia", {exact:true}).click();
@@ -107,7 +107,9 @@ test("finds a municipality and a neighborhood, then saves and renames a farm wit
  await page.goto("/");
  const mapSearch = page.getByLabel("Busca un lugar en RD", {exact:true});
  await mapSearch.fill("ensanche naco");
- await expect(page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/})).toBeVisible();
+ await page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/}).click();
+ await expect(page.getByRole("region", {name:"Elige tu zona"}).locator(".place")).toHaveText("Ensanche Naco · Distrito Nacional");
+ await expect(mapSearch).toBeFocused();
  await page.getByRole("button", {name:"Agregar mi finca",exact:true}).click();
  const dialog = page.getByRole("dialog", {name:"Cuéntanos de tu finca"});
  await dialog.getByLabel("Busca un lugar en RD").fill("pedro brand");
