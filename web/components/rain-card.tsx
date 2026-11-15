@@ -1,7 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14; interactive day inspector & weather animations by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { CloudRain, CloudSun, Droplets, Sun, ThermometerSun } from "lucide-react";
+import { CloudRain, CloudSun, Droplets, Gauge, Sun, ThermometerSun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { currentRain, isFreshForecast, dayName, rainAlert, shortDate, type RainForecast } from "@/lib/rain";
 import type { Location } from "@/lib/geography";
@@ -48,6 +48,20 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
   const defaultIdx = Math.max(0, days.findIndex(d => d.rainMm >= 5));
   const activeIdx = selectedIdx !== null && selectedIdx < days.length ? selectedIdx : defaultIdx;
   const activeDay = days[activeIdx];
+  const total7dMm = Math.round(days.reduce((sum, day) => sum + (Number.isFinite(day.rainMm) ? day.rainMm : 0), 0));
+  const rainyDays = days.filter(day => day.rainMm >= 5).length;
+
+  // 7-day SVG wave coordinates (viewBox 0 0 600 68)
+  const w = 600, h = 68, padX = 34, padTop = 14, padBot = 10;
+  const stepX = days.length > 1 ? (w - padX * 2) / (days.length - 1) : 0;
+  const pts = days.map((d, i) => {
+    const x = padX + i * stepX;
+    const ratio = Math.max(0, Math.min(1, d.rainMm / maxRain));
+    const y = h - padBot - ratio * (h - padTop - padBot);
+    return { x, y, wet: d.rainMm >= 5 };
+  });
+  const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const areaPath = pts.length > 0 ? `${linePath} L${pts[pts.length - 1].x.toFixed(1)},${h - padBot} L${pts[0].x.toFixed(1)},${h - padBot} Z` : "";
 
   return <div className="rain">
     <div className="rain-legend">
@@ -57,6 +71,35 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
       {cached && <span className="rain-cached">Copia guardada{ageHours === null ? "" : ageHours < 1 ? " · hace menos de 1 h" : " · hace " + ageHours + " h"}</span>}
       {alert?.sentence && <span className="rain-summary-pill">{alert.sentence}</span>}
     </div>
+    {pts.length > 0 && (
+      <div className="rain-wave-banner">
+        <div className="rain-wave-head">
+          <span>Acumulado 7d: <strong>{total7dMm} mm</strong></span>
+          <span>Días con lluvia (≥5 mm): <strong>{rainyDays} de {days.length}</strong></span>
+        </div>
+        <svg className="rain-wave-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="rainWaveGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#0284c7" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          <path d={areaPath} fill="url(#rainWaveGrad)" />
+          <path d={linePath} fill="none" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          {pts.map((p, idx) => (
+            <circle
+              key={days[idx].date}
+              cx={p.x}
+              cy={p.y}
+              r={idx === activeIdx ? 5 : 3.5}
+              fill={p.wet || idx === activeIdx ? "#0284c7" : "#d97706"}
+              stroke="#ffffff"
+              strokeWidth="1.5"
+            />
+          ))}
+        </svg>
+      </div>
+    )}
     <ol className="rain-days" aria-label={forecast.kind === "forecast" ? "Próximos 7 días" : "Últimos días"}>
       {days.map((day, idx) => {
         const wet = day.rainMm >= 5;
@@ -80,12 +123,35 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
     </ol>
     {activeDay && (
       <div className="rain-day-inspector" aria-live="polite">
-        <span className="rdi-date"><strong style={{ textTransform: "capitalize" }}>{dayName(activeDay.date)}</strong> {shortDate(activeDay.date)}</span>
-        <span className="rdi-metrics">
-          <span><Droplets size={15} aria-hidden="true" /> {activeDay.rainMm > 0 && activeDay.rainMm < 1 ? "<1" : Math.round(activeDay.rainMm)} mm</span>
-          {activeDay.probPct !== null && <span>· {activeDay.probPct}% prob. lluvia</span>}
-          {activeDay.tMaxC !== null && <span><ThermometerSun size={15} aria-hidden="true" /> Máx {Math.round(activeDay.tMaxC)} °C</span>}
-        </span>
+        <div className="rdi-head">
+          <span className="rdi-date"><strong style={{ textTransform: "capitalize" }}>{dayName(activeDay.date)}</strong> · {shortDate(activeDay.date)}</span>
+          <span className={`rdi-status-pill ${activeDay.rainMm >= 5 ? "wet" : activeDay.rainMm > 0 ? "light" : "dry"}`}>
+            {activeDay.rainMm >= 5 ? "Lluvia importante · Evalúa ahorro de riego" : activeDay.rainMm > 0 ? "Lluvia ligera prevista" : "Día sin lluvia esperada"}
+          </span>
+        </div>
+        <div className="rdi-bento-grid">
+          <div className="rdi-bento-cell">
+            <span className="rdi-cell-icon" aria-hidden="true"><Droplets size={16} /></span>
+            <div>
+              <small>Lámina esperada</small>
+              <strong>{activeDay.rainMm > 0 && activeDay.rainMm < 1 ? "<1" : Math.round(activeDay.rainMm)} mm</strong>
+            </div>
+          </div>
+          <div className="rdi-bento-cell">
+            <span className="rdi-cell-icon" aria-hidden="true"><Gauge size={16} /></span>
+            <div>
+              <small>Probabilidad</small>
+              <strong>{activeDay.probPct !== null ? `${activeDay.probPct}% prob. lluvia` : "Sin dato"}</strong>
+            </div>
+          </div>
+          <div className="rdi-bento-cell">
+            <span className="rdi-cell-icon" aria-hidden="true"><ThermometerSun size={16} /></span>
+            <div>
+              <small>Temp. máxima</small>
+              <strong>{activeDay.tMaxC !== null ? `Máx ${Math.round(activeDay.tMaxC)} °C` : "Sin dato"}</strong>
+            </div>
+          </div>
+        </div>
       </div>
     )}
     <details className="visual-details"><summary>Fuente y fecha</summary>

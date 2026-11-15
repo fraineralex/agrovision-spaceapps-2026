@@ -3088,3 +3088,120 @@ body {
 :is(.compare-fold, .visual-details, .sources-fold) > summary::after {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233d5244' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
+
+/* Lluvia: grafico de onda 7 dias + capsulas azules + inspector Bento diario */
+.rain-wave-banner {
+  background: linear-gradient(180deg, #f0f8ff 0%, #e8f3ff 100%);
+  border: 1px solid rgba(3, 105, 161, 0.22);
+  border-radius: 18px;
+  padding: 12px 16px 8px;
+  margin-bottom: 12px;
+}
+.rain-wave-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+  margin-bottom: 4px;
+}
+.rain-wave-head strong {
+  color: #0f2419;
+  font-weight: 850;
+}
+.rain-wave-svg {
+  width: 100%;
+  height: 68px;
+  display: block;
+}
+.rain-days > li {
+  border-radius: 18px;
+  border: 1.5px solid rgba(3, 105, 161, 0.16);
+  background: #f8fbff;
+}
+.rain-days > li.is-selected {
+  border: 2px solid #0369a1;
+  background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%);
+  box-shadow: 0 6px 16px -6px rgba(3, 105, 161, 0.28);
+}
+.rain-bar-track {
+  background: rgba(3, 105, 161, 0.12);
+}
+.rain-bar-track > span {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+}
+.rain-day-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.rdi-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.rdi-status-pill {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  padding: 4px 11px;
+  border-radius: 999px;
+}
+.rdi-status-pill.wet {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.rdi-status-pill.light {
+  background: #fef3c7;
+  color: #92400e;
+}
+.rdi-status-pill.dry {
+  background: var(--muted-surface);
+  color: var(--muted);
+}
+.rdi-bento-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+@media (min-width: 640px) {
+  .rdi-bento-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.rdi-bento-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--elevated);
+}
+.rdi-cell-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: #e0f2fe;
+  color: #0369a1;
+  flex-shrink: 0;
+}
+.rdi-bento-cell small {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.rdi-bento-cell strong {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--foreground);
+}
