@@ -4060,3 +4060,6 @@ body {
 .pest-shared{font-weight:700;color:var(--caution)}
 .pest-state{margin:6px 0;line-height:1.45;font-weight:600}
 .pest-src{margin:6px 0 0;font-size:.9rem;color:var(--muted)}
+
+/* AI: OpenAI GPT-6, 2026-11-15. Frainer review pending; see AI_USAGE.md. */
+.language-selector { color: inherit; background: transparent; border: 1px solid currentColor; border-radius: var(--radius-control); min-height: 40px; padding: 0 6px; font: inherit; }

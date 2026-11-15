@@ -442,3 +442,4 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - 2026-11-15, OpenAI GPT-6: añadió un almacén reactivo de idioma con persistencia local y sincronización entre pestañas en `web/lib/i18n/client.ts`. Integración y revisión por Frainer pendientes.
 - 2026-11-15, OpenAI GPT-6: tradujo controles comunes, estado sin conexión y selector de fincas en `web/lib/i18n/messages.ts` y `web/components/{offline,theme-toggle,farm-switcher}.tsx`. Integración completa y revisión por Frainer pendientes.
+- 2026-11-15, OpenAI GPT-6: añadió selector persistente, idioma del documento y metadatos bilingües. Archivos: `web/components/language-selector.tsx`, `web/lib/i18n/messages.ts`, `web/app/{page.tsx,layout.tsx,globals.css}`. Traducción integral y revisión por Frainer pendientes.

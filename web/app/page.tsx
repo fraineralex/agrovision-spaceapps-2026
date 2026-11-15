@@ -7,6 +7,7 @@ import { FarmIcon } from "@/components/farm-icon";
 import { VoiceDock } from "@/components/voice-dock";
 import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
+import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
 import type { FarmProfile } from "@/components/onboarding";
@@ -239,7 +240,7 @@ export default function Home() {
           <small className="brand-sub">NASA · FAO · Agricultura RD</small>
         </span>
       </div>
-      <div className="header-actions"><OfflineStatus/><ThemeToggle/></div>
+      <div className="header-actions"><OfflineStatus/><LanguageSelector/><ThemeToggle/></div>
     </header>
     <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
       <div className="heading-row">
