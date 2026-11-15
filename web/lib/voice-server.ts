@@ -2,6 +2,8 @@
 import { loadClimate } from "@/lib/location-climate";
 import { tool } from "ai";
 import { parcelMetrics, rotationMetrics, toolArguments, type VoiceSelection } from "@/lib/voice-context";
+import { ragSources, retrieveRag } from "@/lib/rag";
+import { z } from "zod";
 // Best-effort per-instance abuse limit; Gateway key budgets remain the global cap.
 const requests = new Map<string, { count: number; until: number }>();
 export function guard(request: Request): Response | null {
@@ -39,9 +41,28 @@ export async function selectedMetrics(input:VoiceSelection) {
   }
   return metrics;
 }
+const searchGuideSchema = z.object({ query: z.string().min(2).max(500) }).strict();
+
+export async function searchGuides(query: string) {
+  const result = await retrieveRag(query);
+  if (!result.ok) {
+    return { chunks: [], sources: [], message: result.message, grounded: false };
+  }
+  return {
+    chunks: result.chunks.map(c => ({ id: c.id, title: c.title, sourceName: c.sourceName, sourceUrl: c.sourceUrl, filePath: c.filePath, text: c.text, score: c.score })),
+    sources: ragSources(result.chunks),
+    grounded: true,
+  };
+}
+
 export function localTools(input: VoiceSelection) {
   return {
     get_parcel_metrics: tool({ description:"Lee métricas de la zona seleccionada, fuentes y límites.",inputSchema:toolArguments,execute:async()=>selectedMetrics(input) }),
     compare_rotations: tool({ description:"Compara rotaciones ilustrativas locales con fuentes y evidencia faltante.",inputSchema:toolArguments,execute:async()=>rotationMetrics(input) }),
+    search_guides: tool({
+      description: "Busca en guías verificadas del equipo (fuentes, costos 2019, siembra, NASA POWER/GIEWS, mercado). Solo lectura.",
+      inputSchema: searchGuideSchema,
+      execute: async ({ query }) => searchGuides(query),
+    }),
   };
 }

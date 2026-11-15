@@ -13,7 +13,7 @@ La organización permite el uso de IA solo si se cita. Este registro es obligato
 
 ## Registro
 
-| 15-11-2026 | Codex (OpenAI) | Retirar Turso/JSON RAG de respuestas de voz y texto en producción, volver al prompt de voz conversacional y conservar el modelo Haiku; preparar rama separada para reactivación experimental | `web/app/api/voice/chat/route.ts`, `web/app/api/voice/tools/route.ts`, `web/components/voice-assistant.tsx`, `web/lib/voice-context.ts`, `web/lib/voice-server.ts`, `AI_USAGE.md` | Pendiente: Frainer |
+| 15-11-2026 | Codex (OpenAI) | Rama experimental: reactivar RAG con Turso y respaldo JSON, búsqueda `search_guides` y fuentes en respuestas para evaluación aparte de producción | `web/app/api/voice/chat/route.ts`, `web/app/api/voice/tools/route.ts`, `web/components/voice-assistant.tsx`, `web/lib/voice-context.ts`, `web/lib/voice-server.ts`, `AI_USAGE.md` | Pendiente: Frainer |
 
 | 15-11-2026 | Codex (OpenAI) | Migración RAG a Turso con fallback JSON, carga idempotente, pruebas y documentación | `web/lib/rag.ts`, `web/lib/rag-turso.ts`, `web/lib/rag-turso.test.ts`, `web/scripts/upload-rag-index.ts`, `web/package.json`, `web/package-lock.json`, `docs/rag_eval.md`, `AI_USAGE.md` | Pendiente: Frainer |
 
