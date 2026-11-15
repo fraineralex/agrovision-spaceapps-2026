@@ -2,9 +2,12 @@
 "use client";
 
 import { HelpCircle, X } from "lucide-react";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import { useId, useState } from "react";
 
 export function HelpTip({ label, text }: { label: string; text: string }) {
+  const textLabels = messages[useLocale()].helpTip;
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
@@ -14,17 +17,17 @@ export function HelpTip({ label, text }: { label: string; text: string }) {
         className={open ? "help-tip-btn is-open" : "help-tip-btn"}
         aria-expanded={open}
         aria-controls={id}
-        aria-label={`¿Para qué sirve ${label}?`}
-        title={`¿Para qué sirve ${label}?`}
+        aria-label={textLabels.whatFor.replace("{label}", label)}
+        title={textLabels.whatFor.replace("{label}", label)}
         onClick={() => setOpen(v => !v)}
       >
         <HelpCircle size={17} aria-hidden="true" />
-        <span>¿Para qué sirve?</span>
+        <span>{textLabels.what}</span>
       </button>
       {open && (
-        <span id={id} role="region" aria-label={`Ayuda sobre ${label}`} className="help-tip-box">
+        <span id={id} role="region" aria-label={`${textLabels.about} ${label}`} className="help-tip-box">
           <span className="help-tip-text">{text}</span>
-          <button type="button" className="help-tip-close" aria-label="Cerrar ayuda" onClick={() => setOpen(false)}>
+          <button type="button" className="help-tip-close" aria-label={textLabels.close} onClick={() => setOpen(false)}>
             <X size={16} aria-hidden="true" />
           </button>
         </span>

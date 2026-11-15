@@ -2,23 +2,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { localeTag } from "@/lib/i18n/locale";
+import { messages, type Locale } from "@/lib/i18n/messages";
 
 type Phase = "loading" | "playing" | "paused" | "finished" | "stopped" | "unavailable";
-type Reading = { text: string; phase: Phase; generated: boolean };
+type Reading = { text: string; locale: Locale; phase: Phase; generated: boolean };
 type Playback = { pause: () => void; resume: () => void; dispose: () => void };
 
-const statuses: Record<Phase, string> = {
-  loading: "Preparing audio…",
-  playing: "Reading summary…",
-  paused: "Reading paused",
-  finished: "Reading finished",
-  stopped: "Reading stopped",
-  unavailable: "Voice unavailable",
-};
 
 export function useReadAloud() {
+  const locale = useLocale();
   const current = useRef<{ controller: AbortController; playback?: Playback } | null>(null);
-  const cached = useRef<{ text: string; audio: Blob } | null>(null);
+  const cached = useRef<{ text: string; locale: Locale; audio: Blob } | null>(null);
   const [reading, setReading] = useState<Reading | null>(null);
 
   function cancel() {
@@ -28,7 +24,7 @@ export function useReadAloud() {
     attempt?.playback?.dispose();
   }
 
-  useEffect(() => cancel, []);
+  useEffect(() => cancel, [locale]);
 
   async function read(text: string) {
     cancel();
@@ -39,19 +35,19 @@ export function useReadAloud() {
     function finish(phase: Phase, generated = false) {
       if (current.current !== attempt) return;
       cancel();
-      setReading({ text, phase, generated });
+      setReading({ text, locale, phase, generated });
     }
 
-    const saved = cached.current?.text === text ? cached.current.audio : undefined;
+    const saved = cached.current?.text === text && cached.current.locale === locale ? cached.current.audio : undefined;
     if (saved || navigator.onLine) {
-      setReading({ text, phase: "loading", generated: false });
+      setReading({ text, locale, phase: "loading", generated: false });
       try {
         let audio = saved;
         if (!audio) {
           const response = await fetch("/api/voice/summary", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text, locale }),
             signal: controller.signal,
           });
           if (!response.ok || response.headers.get("Content-Type") !== "audio/wav") throw new Error("Audio unavailable");
@@ -76,8 +72,8 @@ export function useReadAloud() {
           if (cached.current?.audio === audio) cached.current = null;
           finish("unavailable");
         };
-        cached.current = { text, audio };
-        setReading({ text, phase: "playing", generated: true });
+        cached.current = { text, locale, audio };
+        setReading({ text, locale, phase: "playing", generated: true });
         return;
       } catch {
         if (controller.signal.aborted) return;
@@ -92,12 +88,12 @@ export function useReadAloud() {
       return;
     }
     const utterance = new SpeechSynthesisUtterance(text);
-    const spanish = synthesis.getVoices().filter(voice => /^es(?:[-_]|$)/i.test(voice.lang));
+    const voices = synthesis.getVoices().filter(voice => voice.lang.toLowerCase().startsWith(locale));
     const natural = (voice: SpeechSynthesisVoice) => /natural|neural|premium|enhanced|google|online/i.test(voice.name);
-    const regional = (voice: SpeechSynthesisVoice) => /^es[-_](DO|US|MX|419)$/i.test(voice.lang);
-    utterance.voice = spanish.find(voice => natural(voice) && regional(voice))
-      ?? spanish.find(natural) ?? spanish.find(regional) ?? spanish[0] ?? null;
-    utterance.lang = utterance.voice?.lang ?? "es-DO";
+    const regional = (voice: SpeechSynthesisVoice) => voice.lang.toLowerCase() === localeTag(locale).toLowerCase();
+    utterance.voice = voices.find(voice => natural(voice) && regional(voice))
+      ?? voices.find(natural) ?? voices.find(regional) ?? voices[0] ?? null;
+    utterance.lang = utterance.voice?.lang ?? localeTag(locale);
     utterance.rate = 0.95;
     utterance.onend = () => finish("finished");
     utterance.onerror = event => finish(event.error === "interrupted" || event.error === "canceled" ? "stopped" : "unavailable");
@@ -110,7 +106,7 @@ export function useReadAloud() {
       },
     };
     if (synthesis.paused) synthesis.resume();
-    setReading({ text, phase: "playing", generated: false });
+    setReading({ text, locale, phase: "playing", generated: false });
     synthesis.speak(utterance);
   }
 
@@ -130,5 +126,5 @@ export function useReadAloud() {
     }
   }
 
-  return { reading: reading && { ...reading, status: statuses[reading.phase] }, read, stop, togglePause };
+  return { reading: reading?.locale === locale ? { ...reading, status: messages[locale].reading[reading.phase] } : null, read, stop, togglePause };
 }

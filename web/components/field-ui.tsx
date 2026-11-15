@@ -1,4 +1,7 @@
 /* AI: OpenAI GPT-6, 2026-11-15. Frainer review pending. */
+"use client";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import { AlertTriangle, Satellite, Star } from "lucide-react";
 import type { ReactNode } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -22,8 +25,9 @@ export function WaterGauge({ value }: { value: number | null }) {
 }
 
 export function Stars({ score, size = 22 }: { score: number | null; size?: number }) {
+  const text = messages[useLocale()].fieldUi;
   const n = score === null ? 0 : Math.max(1, Math.min(5, Math.round(score)));
-  return <span className="stars" role="img" aria-label={score === null ? "Sin estrellas: falta información" : `${n} de 5 estrellas`}>
+  return <span className="stars" role="img" aria-label={score === null ? text.noStars : text.stars.replace("{count}", String(n))}>
     {[1, 2, 3, 4, 5].map(i => <Star key={i} aria-hidden="true" size={size} className={i <= n ? "star on" : "star"} />)}
   </span>;
 }
@@ -51,5 +55,6 @@ export function HeroRecommendation({ children, actions, tone }: { children: Reac
 }
 
 export function FieldMapCard({ children }: { children: ReactNode }) {
-  return <section className="picker-stage" aria-label="Mapa para marcar la finca">{children}</section>;
+  const text = messages[useLocale()].fieldUi;
+  return <section className="picker-stage" aria-label={text.farmMap}>{children}</section>;
 }

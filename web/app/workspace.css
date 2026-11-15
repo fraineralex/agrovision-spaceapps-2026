@@ -2,6 +2,9 @@
 /* Shared shell and section composition. Theme tokens stay in globals.css/theme-dark.css. */
 .workspace { width:100%; max-width:1440px; margin:0 auto; padding:20px 24px 28px; }
 .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; height:auto; padding:12px max(24px,calc((100vw - 1392px)/2)); background:var(--background); border-bottom:1px solid var(--border); }
+.header-actions,.ob-top-actions,.src-head-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.language-selector { min-height:40px; padding:0 12px; border:1px solid var(--border); border-radius:999px; background:var(--card); color:var(--foreground); font:inherit; font-size:.875rem; font-weight:650; cursor:pointer; }
+.language-selector:hover { border-color:var(--input); background:var(--elevated); }
 .heading-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px 20px; margin:0 0 8px; padding:12px 20px; border:0; border-radius:16px; background:#104b2b; color:white; box-shadow:none; }
 .heading-copy { min-width:0; }
 .heading-row h1 { margin:0; color:white; font-size:clamp(1.5rem,3vw,2rem); line-height:1.15; letter-spacing:-.03em; font-weight:800; }

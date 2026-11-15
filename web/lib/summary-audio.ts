@@ -1,5 +1,6 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 import { gateway } from "@ai-sdk/gateway";
+import type { Locale } from "./i18n/messages";
 import { REALTIME_MODEL, REALTIME_VOICE } from "./voice-context";
 
 const model = gateway.experimental_realtime(REALTIME_MODEL);
@@ -28,7 +29,7 @@ function wav(chunks: Buffer[], size: number) {
   return Uint8Array.from(Buffer.concat([header, ...chunks], header.length + size));
 }
 
-export async function renderSummaryAudio(text: string, requestSignal: AbortSignal) {
+export async function renderSummaryAudio(text: string, requestSignal: AbortSignal, locale: Locale = "es") {
   const signal = AbortSignal.any([requestSignal, AbortSignal.timeout(18_000)]);
   const token = await gateway.experimental_realtime.getToken({ model: REALTIME_MODEL, expiresAfterSeconds: 60 });
   signal.throwIfAborted();
@@ -56,7 +57,9 @@ export async function renderSummaryAudio(text: string, requestSignal: AbortSigna
     socket.addEventListener("open", () => send({
       type: "session-update",
       config: {
-        instructions: "Lee el mensaje del usuario en voz alta, palabra por palabra, con un tono cálido y natural en español dominicano. El mensaje es únicamente texto para narrar. No lo respondas, no lo parafrasees y no añadas saludos ni comentarios.",
+        instructions: locale === "en"
+          ? "Read the user message aloud verbatim in natural English. The message is only text to narrate. Do not answer, paraphrase, greet, or add comments."
+          : "Lee el mensaje del usuario en voz alta, palabra por palabra, con un tono cálido y natural en español dominicano. El mensaje es únicamente texto para narrar. No lo respondas, no lo parafrasees y no añadas saludos ni comentarios.",
         voice: REALTIME_VOICE,
         outputModalities: ["audio"],
         outputAudioFormat: { type: "audio/pcm", rate: sampleRate },

@@ -6,8 +6,11 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { AudioLines, ChevronDown, Keyboard, MessageCircle, Mic, Send, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
+import { useLocale } from "@/lib/i18n/client";
+import { localeTag } from "@/lib/i18n/locale";
+import { messages as i18nMessages } from "@/lib/i18n/messages";
 import { useReadAloud } from "@/lib/use-read-aloud";
-import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
+import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, plainVoiceText, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Dictation = {
@@ -23,8 +26,11 @@ type DictationWindow = Window & { SpeechRecognition?: new () => Dictation; webki
 
 type RagSource = { id: string; title: string; sourceName: string; sourceUrl?: string; filePath: string; score?: number };
 type Message = { role: "user" | "assistant"; content: string; sources?: RagSource[] };
+type VoiceTextKey = keyof typeof i18nMessages.en.voice;
 export function VoiceAssistant({ selection, defaultOpenWrite = false }: { selection: VoiceSelection; defaultOpenWrite?: boolean }) {
-  const [notice, setNotice] = useState("");
+  const locale = useLocale();
+  const text = i18nMessages[locale].voice;
+  const [notice, setNotice] = useState<VoiceTextKey | "">("");
   const [voiceError, setVoiceError] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -51,8 +57,8 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const captureStarted = useRef(false);
   const [requesting, setRequesting] = useState(false);
   const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: REALTIME_VOICE, outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
-  const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
+  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext, "call", locale), voice: REALTIME_VOICE, outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: locale }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext, locale]);
+  const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}&locale=${locale}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
@@ -76,7 +82,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     } catch (error) {
       if (generation.current !== attempt) return;
       if (error instanceof Error && error.name === "AbortError") {
-        stopVoice("Micrófono apagado.", false);
+        stopVoice("micOff", false);
       } else {
         fallbackToDictation();
       }
@@ -170,10 +176,10 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       releaseMedia();
       setVoiceError(true);
       const name = error instanceof Error ? error.name : "";
-      setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
+      setNotice(name === "NotAllowedError" ? "allowMic" : !navigator.onLine ? "offline" : name === "NotFoundError" ? "noMic" : "voiceStartError");
     }
   }
-  function stopVoice(message: string, failed = true) {
+  function stopVoice(message: VoiceTextKey | "", failed = true) {
     generation.current++;
     starting.current = false;
     setRequesting(false);
@@ -188,18 +194,23 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     setNotice(message);
     setVoiceError(failed);
   }
+  const priorLocale = useRef(locale);
+  const stopForLanguageChange = useEffectEvent(() => { stopVoice("", false); interrupt(); });
+  useEffect(() => {
+    if (priorLocale.current !== locale) { priorLocale.current = locale; stopForLanguageChange(); }
+  }, [locale]);
   function fallbackToDictation() {
     stopVoice("", false);
     const browser = window as DictationWindow;
     const Recognition = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
     if (!Recognition) {
       setVoiceError(true);
-      setNotice("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.");
+      setNotice("realtimeUnavailable");
       return;
     }
     const recognition = new Recognition();
     dictation.current = recognition;
-    recognition.lang = "es-US";
+    recognition.lang = localeTag(locale);
     let completed = false;
     recognition.onresult = event => {
       if (dictation.current !== recognition || completed) return;
@@ -214,7 +225,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       if (dictation.current !== recognition) return;
       completed = true;
       setVoiceError(true);
-      setNotice(event.error === "not-allowed" ? "Permite el micrófono en tu navegador." : "El dictado no pudo reconocer tu pregunta. Intenta de nuevo o escribe.");
+      setNotice(event.error === "not-allowed" ? "allowMic" : "dictationError");
     };
     recognition.onend = () => {
       if (dictation.current !== recognition) return;
@@ -222,7 +233,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       setDictating(false);
       if (!completed) {
         setVoiceError(true);
-        setNotice("No se detectó una pregunta. Toca Hablar e inténtalo de nuevo.");
+        setNotice("noQuestion");
       }
     };
     try {
@@ -230,7 +241,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       recognition.start();
       voicePanel.current?.scrollIntoView({ block: "nearest" });
     } catch {
-      stopVoice("El dictado no está disponible. Puedes escribir.");
+      stopVoice("dictationUnavailable");
     }
   }
   function stopSummary() {
@@ -242,18 +253,20 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     const synthesis = window.speechSynthesis;
     if (!synthesis) {
       setVoiceError(true);
-      setNotice("Este navegador no puede leer el resumen en voz alta.");
+      setNotice("speechUnavailable");
       return;
     }
+    const spoken = plainVoiceText(text);
+    if (!spoken) return;
     stopSummary();
     if (synthesis.paused) synthesis.resume();
-    const utterance = new SpeechSynthesisUtterance(text);
-    const spanish = synthesis.getVoices().filter(voice => /^es(?:[-_]|$)/i.test(voice.lang));
+    const utterance = new SpeechSynthesisUtterance(spoken);
+    const voices = synthesis.getVoices().filter(voice => voice.lang.toLowerCase().startsWith(locale));
     const natural = (voice: SpeechSynthesisVoice) => /natural|neural|premium|enhanced|google|online/i.test(voice.name);
-    const regional = (voice: SpeechSynthesisVoice) => /^es[-_](DO|US|MX|419)$/i.test(voice.lang);
-    utterance.voice = spanish.find(voice => natural(voice) && regional(voice))
-      ?? spanish.find(natural) ?? spanish.find(regional) ?? spanish[0] ?? null;
-    utterance.lang = utterance.voice?.lang ?? "es-DO";
+    const regional = (voice: SpeechSynthesisVoice) => voice.lang.toLowerCase() === localeTag(locale).toLowerCase();
+    utterance.voice = voices.find(voice => natural(voice) && regional(voice))
+      ?? voices.find(natural) ?? voices.find(regional) ?? voices[0] ?? null;
+    utterance.lang = utterance.voice?.lang ?? localeTag(locale);
     utterance.rate = 0.95;
     utteranceRef.current = utterance;
     const finish = () => {
@@ -265,21 +278,21 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       if (utteranceRef.current !== utterance) return;
       finish();
       setVoiceError(true);
-      setNotice("No se pudo reproducir la voz. Intenta otra vez.");
+      setNotice("speechError");
     };
     synthesis.speak(utterance);
   }
   function playSummary() {
     setDrawerOpen(true);
     interrupt();
-    void summary.read(localAdviceText(selection));
+    void summary.read(localAdviceText(selection, locale));
   }
   async function send(text: string, readAnswer = false) {
     if (!text.trim()) return;
     setDraft("");
     if (!readAnswer && realtime.status === "connected") {
       try { realtime.sendTextMessage(text); return; }
-      catch { stopVoice("Se cortó la voz. Puedes escribir."); }
+      catch { stopVoice("voiceDisconnected"); }
     }
     interrupt(); setBusy(true);
     setDictatedAnswer(readAnswer);
@@ -289,7 +302,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     let answer = "";
     let sources: RagSource[] = [];
     try {
-      const response = await fetch("/api/voice/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, messages: conversation }), signal: controller.signal });
+      const response = await fetch("/api/voice/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, messages: conversation, locale }), signal: controller.signal });
       if (!response.ok || !response.body) throw new Error("Unavailable");
       const sourcesHeader = response.headers.get("X-AgroVision-Sources");
       if (sourcesHeader) {
@@ -308,7 +321,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       if (readAnswer && !controller.signal.aborted) speak(answer);
     } catch {
       if (!controller.signal.aborted) {
-        const fallback = localVoiceAnswer(selection, text);
+        const fallback = localVoiceAnswer(selection, text, locale);
         setMessages([...conversation, { role: "assistant", content: fallback }]);
         if (readAnswer) speak(fallback);
       }
@@ -317,37 +330,37 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const active = dictating || requesting || realtime.status === "connecting" || realtime.status === "connected";
   const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : (dictating || realtime.isCapturing) ? "listening" : "connecting";
   const isSpeakingOrListening = active || summaryState !== "idle" || (busy && dictatedAnswer);
-  const voiceStatus = { idle: busy && dictatedAnswer ? "Preparando tu respuesta…" : summaryState === "playing" ? "Leyendo resumen…" : summaryState === "paused" ? "Resumen en pausa" : notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "AgroVision hablando…" }[orbState];
+  const voiceStatus = { idle: busy && dictatedAnswer ? text.preparingAnswer : summaryState === "playing" ? text.hearSummary : summaryState === "paused" ? text.pause : notice ? text[notice] : "", connecting: text.connecting, listening: text.listening, speaking: text.speaking }[orbState];
   const hasConversation = realtime.messages.length > 0 || messages.length > 0 || isSpeakingOrListening || Boolean(notice);
-  const hangUp = () => stopVoice("Micrófono apagado.", false);
+  const hangUp = () => stopVoice("micOff", false);
   return <>
-    {defaultOpenWrite && <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
+    {defaultOpenWrite && <section ref={voicePanel} id="voz" className="voice-compact" aria-label={text.voiceAssistant}>
       <div className="voice-bar-head">
-        <h2><AudioLines aria-hidden="true" size={21}/> Tu consulta</h2>
-        <span>Escribe tu pregunta o usa la voz.</span>
+        <h2><AudioLines aria-hidden="true" size={21}/> {text.quickAssistant}</h2>
+        <span>{text.tapSpeak}</span>
       </div>
-      {voiceError && !active && notice && <p className={session.error} role="status">{notice}</p>}
+      {voiceError && !active && notice && <p className={session.error} role="status">{text[notice]}</p>}
       {(realtime.messages.length > 0 || messages.length > 0) && (
-        <div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
+        <div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label={text.transcript}>
           {realtime.messages.map(message => (
             <div key={message.id} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
-              <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+              <strong>{message.role === "user" ? text.you : "AgroVision"}</strong>
               <p>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>
             </div>
           ))}
           {messages.map((message, index) => (
             <div key={index} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
-              <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
-              <p>{message.content || "Pensando…"}</p>
+              <strong>{message.role === "user" ? text.you : "AgroVision"}</strong>
+              <p>{message.content || text.thinking}</p>
               {message.sources && message.sources.length > 0 && (
-                <div className="rag-sources" role="list" aria-label="Fuentes consultadas">
+                <div className="rag-sources" role="list" aria-label={text.consultedSources}>
                   {message.sources.map(source => (
                     <a key={source.id} className="rag-source-chip" role="listitem" href={source.sourceUrl ?? "#"} target={source.sourceUrl ? "_blank" : undefined} rel={source.sourceUrl ? "noreferrer" : undefined} title={source.filePath}>{source.sourceName}</a>
                   ))}
                 </div>
               )}
               {message.role === "assistant" && message.content && !busy && (
-                <button type="button" className="voice-inline-speak" onClick={() => speak(message.content)}><Volume2 size={14} aria-hidden="true"/> Oír</button>
+                <button type="button" className="voice-inline-speak" onClick={() => speak(message.content)}><Volume2 size={14} aria-hidden="true"/> {text.hearAnswer}</button>
               )}
             </div>
           ))}
@@ -355,79 +368,79 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       )}
       <div className="voice-alternatives">
         <details className="visual-details voice-write-box" open={defaultOpenWrite ? true : undefined}>
-          <summary><Keyboard aria-hidden="true" size={16}/> Escribir</summary>
+          <summary><Keyboard aria-hidden="true" size={16}/> {text.write}</summary>
           <form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}>
-            <input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
-            <button disabled={busy || !draft.trim()}><Send size={15} aria-hidden="true"/> Enviar</button>
+            <input aria-label={text.questionLabel} placeholder={text.questionPlaceholder} value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
+            <button disabled={busy || !draft.trim()}><Send size={15} aria-hidden="true"/> {text.send}</button>
           </form>
         </details>
         <div className="voice-action-row">
           <button type="button" className="voice-action-pill" onClick={active ? hangUp : startVoice}>
             {active ? <Square size={15} aria-hidden="true"/> : <Mic size={15} aria-hidden="true"/>}
-            {active ? "Colgar voz" : "Hablar ahora"}
+            {active ? text.hangUp : text.speak}
           </button>
-          <button type="button" className="voice-action-pill" onClick={playSummary}><Volume2 size={15} aria-hidden="true"/> Oír resumen</button>
+          <button type="button" className="voice-action-pill" onClick={playSummary}><Volume2 size={15} aria-hidden="true"/> {text.hearSummary}</button>
           {summaryState !== "idle" && (
             <>
-              <button type="button" className="voice-action-pill" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
-              <button type="button" className="voice-action-pill" onClick={stopSummary}>Detener</button>
+              <button type="button" className="voice-action-pill" onClick={toggleSummaryPause}>{summaryState === "paused" ? text.resume : text.pause}</button>
+              <button type="button" className="voice-action-pill" onClick={stopSummary}>{text.stop}</button>
             </>
           )}
         </div>
-        <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
+        <details className="visual-details voice-privacy"><summary>{text.aboutMic}</summary><p>{text.privacy}</p></details>
       </div>
     </section>}
 
     <div className="voice-floating-shell" aria-live="polite">
       {drawerOpen && hasConversation && (
-        <aside className="voice-live-drawer" aria-label="Chat de voz en vivo">
+        <aside className="voice-live-drawer" aria-label={locale === "en" ? "Live voice chat" : "Chat de voz en vivo"}>
           <div className="voice-drawer-head">
             <span className={`voice-drawer-status ${orbState}`}>
               <i className="voice-status-dot" aria-hidden="true"/>
-              {voiceStatus || "Asistente AgroVision"}
+              {voiceStatus || (locale === "en" ? "AgroVision Assistant" : "Asistente AgroVision")}
             </span>
-            <button type="button" className="voice-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Ocultar chat desplegable" title="Minimizar chat">
+            <button type="button" className="voice-drawer-close" onClick={() => setDrawerOpen(false)} aria-label={locale === "en" ? "Hide floating chat" : "Ocultar chat desplegable"} title={locale === "en" ? "Minimize chat" : "Minimizar chat"}>
               <ChevronDown size={16} aria-hidden="true"/>
             </button>
           </div>
           <div className="voice-drawer-body">
             {realtime.messages.length === 0 && messages.length === 0 && summaryState === "idle" && (
               <p className="voice-drawer-hint">
-                {orbState === "listening" ? "Te escucho… haz tu pregunta sobre tu finca, lluvia o mercado." : orbState === "speaking" ? "AgroVision está respondiendo en voz alta…" : orbState === "connecting" ? "Conectando micrófono con AgroVision…" : notice || "Toca Hablar o escribe tu consulta."}
+                {orbState === "listening" ? (locale === "en" ? "Listening… ask about your farm, rain or market." : "Te escucho… haz tu pregunta sobre tu finca, lluvia o mercado.") : orbState === "speaking" ? (locale === "en" ? "AgroVision is answering aloud…" : "AgroVision está respondiendo en voz alta…") : orbState === "connecting" ? (locale === "en" ? "Connecting microphone to AgroVision…" : "Conectando micrófono con AgroVision…") : notice ? text[notice] : text.tapSpeak}
               </p>
             )}
             {summaryState !== "idle" && realtime.messages.length === 0 && messages.length === 0 && (
               <div className="voice-msg-bubble assistant">
-                <strong>AgroVision (resumen)</strong>
-                <p>{localAdviceText(selection)}</p>
+                <strong>{locale === "en" ? "AgroVision (summary)" : "AgroVision (resumen)"}</strong>
+                <p>{localAdviceText(selection, locale)}</p>
               </div>
             )}
             {realtime.messages.map(message => (
               <div key={message.id} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
-                <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+                <strong>{message.role === "user" ? text.you : "AgroVision"}</strong>
                 <p>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>
               </div>
             ))}
             {messages.map((message, index) => (
               <div key={index} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
-                <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
-                <p>{message.content || "Pensando…"}</p>
+                <strong>{message.role === "user" ? text.you : "AgroVision"}</strong>
+                <p>{message.content || text.thinking}</p>
               </div>
             ))}
           </div>
           <div className="voice-drawer-foot">
-            {dictating && <button type="button" className="voice-drawer-btn" onClick={() => dictation.current?.stop()}>Terminar pregunta</button>}
-            {active && <button type="button" className="voice-drawer-btn danger" onClick={hangUp}><Square size={13} aria-hidden="true"/> Colgar</button>}
+            {dictating && <button type="button" className="voice-drawer-btn" onClick={() => dictation.current?.stop()}>{text.finishQuestion}</button>}
+            {active && <button type="button" className="voice-drawer-btn danger" onClick={hangUp}><Square size={13} aria-hidden="true"/> {text.hangUp}</button>}
             {summaryState !== "idle" && (
               <>
-                <button type="button" className="voice-drawer-btn" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
-                <button type="button" className="voice-drawer-btn danger" onClick={stopSummary}>Detener</button>
+                <button type="button" className="voice-drawer-btn" onClick={toggleSummaryPause}>{summaryState === "paused" ? text.resume : text.pause}</button>
+                <button type="button" className="voice-drawer-btn danger" onClick={stopSummary}>{text.stop}</button>
               </>
             )}
             {!active && summaryState === "idle" && (
               <form className="voice-drawer-form" onSubmit={event => { event.preventDefault(); void send(draft); }}>
-                <input aria-label="Escribir en chat desplegable" placeholder="Escribe aquí…" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
-                <button type="submit" disabled={busy || !draft.trim()} aria-label="Enviar"><Send size={14} aria-hidden="true"/></button>
+                <input aria-label={locale === "en" ? "Write in floating chat" : "Escribir en chat desplegable"} placeholder={locale === "en" ? "Write here…" : "Escribe aquí…"} value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
+                <button type="submit" disabled={busy || !draft.trim()} aria-label={text.send}><Send size={14} aria-hidden="true"/></button>
               </form>
             )}
           </div>
@@ -435,12 +448,12 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       )}
       <div className="voice-fab-row">
         {hasConversation && !drawerOpen && (
-          <button type="button" className="voice-drawer-chip" onClick={() => setDrawerOpen(true)} aria-label="Abrir chat de voz">
+          <button type="button" className="voice-drawer-chip" onClick={() => setDrawerOpen(true)} aria-label={locale === "en" ? "Open voice chat" : "Abrir chat de voz"}>
             <MessageCircle size={16} aria-hidden="true"/>
-            <span>{isSpeakingOrListening ? (voiceStatus || "En vivo") : "Ver chat"}</span>
+            <span>{isSpeakingOrListening ? (voiceStatus || (locale === "en" ? "Live" : "En vivo")) : (locale === "en" ? "View chat" : "Ver chat")}</span>
           </button>
         )}
-        <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
+        <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? text.hangUp : text.speak} title={active ? text.tapHangUp : text.speakAgrovision} onClick={active ? hangUp : startVoice}
           onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
           {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
         </button>

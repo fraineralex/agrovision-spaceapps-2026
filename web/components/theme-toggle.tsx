@@ -3,6 +3,8 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import { Button } from "@/components/ui/button";
 
 const key = "agrovision:theme";
@@ -14,8 +16,9 @@ const subscribe = (listener: () => void) => {
 };
 
 export function ThemeToggle() {
+  const text = messages[useLocale()].common;
   const sun = useSyncExternalStore(subscribe, snapshot, () => false);
-  return <Button type="button" variant="outline" className="theme-toggle" aria-label="Modo sol" aria-pressed={sun} onClick={() => {
+  return <Button type="button" variant="outline" className="theme-toggle" aria-label={text.sunlightMode} aria-pressed={sun} onClick={() => {
     const theme = sun ? "dark" : "sun";
     document.documentElement.dataset.theme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", sun ? "#0b120d" : "#f6f8f4");
@@ -23,6 +26,6 @@ export function ThemeToggle() {
     window.dispatchEvent(new Event(event));
   }}>
     {sun ? <Moon aria-hidden="true" data-icon="inline-start" /> : <Sun aria-hidden="true" data-icon="inline-start" />}
-    <span>Modo sol</span>
+    <span>{text.sunlightMode}</span>
   </Button>;
 }

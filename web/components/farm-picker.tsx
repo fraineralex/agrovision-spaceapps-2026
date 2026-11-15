@@ -1,6 +1,9 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — map to pick one or more cells/parcels, draw a polygon or drag a box; responsive layout & unified Lucide SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { useLocale } from "@/lib/i18n/client";
+import { mapMessages } from "@/lib/i18n/map-messages";
+import { localizeMapControls, mapLibreStrings } from "@/lib/i18n/map-controls";
 import { FieldMapCard } from "@/components/field-ui";
 import { Check, MousePointerClick, Pencil, RotateCcw, SquareDashed, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +20,10 @@ const empty: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: 
 const ringOf = (g?: GeoJSON.Geometry | null): Ring | null => !g ? null : g.type === "Polygon" ? g.coordinates[0] as Ring : g.type === "MultiPolygon" ? g.coordinates[0][0] as Ring : null;
 
 export function FarmPicker({ center, pieces, onChange }: { center: Location; pieces: Piece[]; onChange: (p: Piece[]) => void }) {
+  const locale = useLocale();
+  const text = mapMessages[locale];
+  const localeRef = useRef(locale);
+  useEffect(() => { localeRef.current = locale; }, [locale]);
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const piecesRef = useRef(pieces);
@@ -25,7 +32,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
   const modeRef = useRef<Mode>("tap");
   const [mode, setModeState] = useState<Mode>("tap");
   const [draft, setDraft] = useState<[number, number][]>([]);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<"offlinePicker" | "pickerUnavailable" | "">("");
   const [showFields, setShowFields] = useState(false);
   const [ready, setReady] = useState(false);
   const setMode = (m: Mode) => { modeRef.current = m; setModeState(m); setDraft([]); const mp = map.current; if (mp) { if (m === "box") mp.dragPan.disable(); else mp.dragPan.enable(); } };
@@ -35,11 +42,11 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     void import("maplibre-gl").then(mod => {
       if (disposed || !box.current) return;
       mod.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, maxZoom: 19, attributionControl: { compact: true },
+      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, maxZoom: 19, locale: mapLibreStrings(localeRef.current), attributionControl: { compact: true },
         style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION } }, layers: [{ id: "bg", type: "background", paint: { "background-color": "#3b4a35" } }, { id: "imagery", type: "raster", source: "imagery" }] } });
       map.current = m;
       (window as unknown as { __farmPicker?: MapLibreMap }).__farmPicker = m;
-      m.on("error", () => setStatus("Sin internet no se ve la foto satelital, pero puedes marcar la cuadrícula."));
+      m.on("error", () => setStatus("offlinePicker"));
       m.on("load", () => {
         m.addSource("place-labels", { type: "raster", tiles: ESRI_LABEL_TILES, tileSize: 256, maxzoom: 19 });
         m.addLayer({ id: "place-labels", type: "raster", source: "place-labels" });
@@ -80,10 +87,11 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
       const endBox = (lng: number, lat: number) => { if (!start) return; const cells = cellsInBox(start, [lng, lat]); start = null; (m.getSource("draft") as GeoJSONSource | undefined)?.setData(empty); if (cells.length) changeRef.current(addPieces(piecesRef.current, cells)); };
       m.on("mousedown", e => startBox(e.lngLat.lng, e.lngLat.lat)); m.on("mousemove", e => moveBox(e.lngLat.lng, e.lngLat.lat)); m.on("mouseup", e => endBox(e.lngLat.lng, e.lngLat.lat));
       m.on("touchstart", e => { if (modeRef.current === "box") { e.preventDefault(); startBox(e.lngLat.lng, e.lngLat.lat); } }); m.on("touchmove", e => moveBox(e.lngLat.lng, e.lngLat.lat)); m.on("touchend", e => endBox(e.lngLat.lng, e.lngLat.lat));
-    }).catch(() => setStatus("No se pudo abrir el mapa. Puedes seguir sin marcar la finca."));
+    }).catch(() => setStatus("pickerUnavailable"));
     return () => { disposed = true; map.current?.remove(); map.current = null; };
   }, [center.longitude, center.latitude]);
 
+  useEffect(() => { if (ready && box.current) localizeMapControls(box.current, locale); }, [ready, locale]);
   useEffect(() => { (map.current?.getSource("sel") as GeoJSONSource | undefined)?.setData(piecesToGeoJSON(pieces)); }, [pieces]);
   useEffect(() => {
     const pts: GeoJSON.Feature[] = draft.map(p => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: p } }));
@@ -106,48 +114,50 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
   };
   return <div className="picker">
     <div className="picker-toolbar">
-      <div className="picker-modes" role="group" aria-label="Cómo marcar la finca">
-        <button type="button" aria-pressed={mode === "tap"} className={mode === "tap" ? "chip on" : "chip"} onClick={() => setMode("tap")}><MousePointerClick size={16} aria-hidden="true" /> Tocar cuadros</button>
-        <button type="button" aria-pressed={mode === "box"} className={mode === "box" ? "chip on" : "chip"} onClick={() => setMode("box")}><SquareDashed size={16} aria-hidden="true" /> Arrastrar</button>
-        <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}><Pencil size={16} aria-hidden="true" /> Dibujar</button>
+      <div className="picker-modes" role="group" aria-label={text.pickerModes}>
+        <button type="button" aria-pressed={mode === "tap"} className={mode === "tap" ? "chip on" : "chip"} onClick={() => setMode("tap")}><MousePointerClick size={16} aria-hidden="true" /> {text.tap}</button>
+        <button type="button" aria-pressed={mode === "box"} className={mode === "box" ? "chip on" : "chip"} onClick={() => setMode("box")}><SquareDashed size={16} aria-hidden="true" /> {text.box}</button>
+        <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}><Pencil size={16} aria-hidden="true" /> {text.draw}</button>
       </div>
-      <p className="picker-help">{mode === "tap" ? "Toca para marcar o quitar un cuadro." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
-      <details className="picker-instructions"><summary>¿Cómo marco mi finca?</summary><p className="note">Toca los cuadros de tu finca, marca un rectángulo o dibuja el borde. Los cuadros miden 50 × 50 m (unas 4 tareas). Las imágenes Esri requieren internet.</p></details>
+      <p className="picker-help">{mode === "tap" ? text.tapHelp : mode === "box" ? text.boxHelp : text.drawHelp}</p>
+      <details className="picker-instructions"><summary>{text.instructions}</summary><p className="note">{text.instructionsText}</p></details>
     </div>
     <FieldMapCard>
       <div ref={box} className="picker-map" data-testid="farm-picker-map" />
       <div className="picker-map-actions">
-        <button type="button" className="chip" disabled={!ready} aria-pressed={showFields} onClick={toggleFields}>Ver fincas de San Juan</button>
-        <button type="button" className="chip" disabled={!ready} aria-label="Acercar mapa" onClick={() => map.current?.zoomIn()}>+</button>
-        <button type="button" className="chip" disabled={!ready} aria-label="Alejar mapa" onClick={() => map.current?.zoomOut()}>−</button>
+        <button type="button" className="chip" disabled={!ready} aria-pressed={showFields} onClick={toggleFields}>{text.seeSanJuan}</button>
+        <button type="button" className="chip" disabled={!ready} aria-label={text.zoomIn} onClick={() => map.current?.zoomIn()}>+</button>
+        <button type="button" className="chip" disabled={!ready} aria-label={text.zoomOut} onClick={() => map.current?.zoomOut()}>−</button>
       </div>
-      {showFields && <p className="note picker-outlines-note">Contornos aproximados por satélite, no catastrales.</p>}
-      <p className="note picker-scale-note">Los contornos amarillos son candidatos aproximados, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m². {fieldMeta.attribution}</p>
+      {showFields && <p className="note picker-outlines-note">{text.outlines}</p>}
+      <p className="note picker-scale-note">{text.scale} {text.attribution}</p>
     </FieldMapCard>
     <div className="picker-status">
       {mode === "draw" && <div className="picker-draw">
-        <span>{draft.length} puntos</span>
-        <button type="button" className="chip" disabled={!draft.length} onClick={() => setDraft(d => d.slice(0, -1))}><RotateCcw size={15} aria-hidden="true" /> Deshacer punto</button>
-        <button type="button" className="chip on" disabled={draft.length < 3} onClick={closeShape}><Check size={15} aria-hidden="true" /> Cerrar figura</button>
+        <span>{text.points.replace("{count}", String(draft.length))}</span>
+        <button type="button" className="chip" disabled={!draft.length} onClick={() => setDraft(d => d.slice(0, -1))}><RotateCcw size={15} aria-hidden="true" /> {text.undoPoint}</button>
+        <button type="button" className="chip on" disabled={draft.length < 3} onClick={closeShape}><Check size={15} aria-hidden="true" /> {text.closeShape}</button>
       </div>}
-      {status && <p role="status" className="note">{status}</p>}
-      <div className="picker-total" aria-live="polite"><strong>{pieces.length ? `Marcado: ${areaLabel(total)}` : "Aún no has marcado nada"}</strong>
-        {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>Borrar todo</button>}</div>
+      {status && <p role="status" className="note">{text[status]}</p>}
+      <div className="picker-total" aria-live="polite"><strong>{pieces.length ? text.marked.replace("{area}", areaLabel(total, locale)) : text.nothing}</strong>
+        {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>{text.clearAll}</button>}</div>
       {pieces.length > 0 && (() => {
         const cellPieces = pieces.filter(x => x.kind === "cell");
         const otherPieces = pieces.filter(x => x.kind !== "cell");
         const cellsArea = cellPieces.reduce((sum, x) => sum + ringAreaM2(x.ring), 0);
+        const cellsLabel = cellPieces.length === 1 ? text.cell : (locale === "en" ? `${cellPieces.length} cells` : `${cellPieces.length} cuadros`);
+        const removeCellsLabel = cellPieces.length === 1 ? text.remove : (locale === "en" ? "Remove cells" : "Quitar cuadros");
         return <ul className="picker-pieces">
           {cellPieces.length > 0 && (
             <li key="cells">
-              <span>{cellPieces.length === 1 ? `Cuadro: ${areaLabel(cellsArea)}` : `${cellPieces.length} cuadros: ${areaLabel(cellsArea)}`}</span>
-              <button type="button" aria-label={cellPieces.length === 1 ? "Quitar" : "Quitar cuadros"} className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.kind !== "cell"))}><X size={14} aria-hidden="true" /></button>
+              <span>{cellsLabel}: {areaLabel(cellsArea, locale)}</span>
+              <button type="button" aria-label={removeCellsLabel} className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.kind !== "cell"))}><X size={14} aria-hidden="true" /></button>
             </li>
           )}
           {otherPieces.map(p => (
             <li key={p.id}>
-              <span>{p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}</span>
-              <button type="button" aria-label="Quitar" className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}><X size={14} aria-hidden="true" /></button>
+              <span>{p.kind === "field" ? text.field : p.kind === "drawn" ? text.drawn : text.parcel}: {areaLabel(ringAreaM2(p.ring), locale)}</span>
+              <button type="button" aria-label={text.remove} className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}><X size={14} aria-hidden="true" /></button>
             </li>
           ))}
         </ul>;

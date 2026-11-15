@@ -175,6 +175,10 @@ La organización del reto permite el uso de herramientas de inteligencia artific
   - **Modo Supervisor:** barra técnica superior, puntajes `0–5`, ciclo FAO-56 en días y `Kc·d` y reglas FAO abiertas.
   - **Supervisor técnico adicional:** taxonomía de plagas, chip de modelo climático NOAA/NASA, referencia MA 2019, `ProfitCard`, exportación GeoJSON y serie NDVI.
   - **Voz:** panel de escritura expandido restringido a la pestaña `Ayuda`, manteniendo el botón flotante y el cajón lateral entre pestañas.
+- **Integración RAG, voz limpia e i18n ES/EN (`Antigravity` + `Codex`):**
+  - Enrutamiento localizable `/es` y `/en` con selector de idioma sincronizado y diccionarios completos sin alterar el diseño dominante.
+  - Recuperación documental RAG con citas en el chat de voz/texto y limpieza de formato Markdown en respuestas habladas (`plainVoiceText`).
+  - *Archivos:* `web/app/[locale]/{layout,page,fuentes/page}.tsx`, `web/lib/i18n/*`, `web/lib/{rag,voice-context,local-voice-model}.ts`, `web/components/*`, `web/app/workspace.css`.
 
 ---
 
@@ -195,6 +199,6 @@ La organización del reto permite el uso de herramientas de inteligencia artific
 ### Verificación técnica registrada
 
 - Comprobación estática: `tsc --noEmit` y `eslint .` sin errores.
-- Pruebas automatizadas: suite unitaria (`48/48` pruebas en TypeScript).
+- Pruebas automatizadas: suite unitaria (`68/68` pruebas en TypeScript) y compilación de producción Next.js (`npm run build`).
 - Validación visual e interactiva en navegador: detector de desbordamiento y recorridos completos sobre temas claro/oscuro en escritorio, tablet y móvil.
 - Pendiente: validación agronómica en campo y revisión final completa por el equipo AgroVision.
