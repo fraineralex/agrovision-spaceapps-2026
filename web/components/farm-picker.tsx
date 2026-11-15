@@ -30,7 +30,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     void import("maplibre-gl").then(mod => {
       if (disposed || !box.current) return;
       mod.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, attributionControl: { compact: true },
+      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, maxZoom: 19, attributionControl: { compact: true },
         style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION } }, layers: [{ id: "bg", type: "background", paint: { "background-color": "#3b4a35" } }, { id: "imagery", type: "raster", source: "imagery" }] } });
       map.current = m;
       (window as unknown as { __farmPicker?: MapLibreMap }).__farmPicker = m;
