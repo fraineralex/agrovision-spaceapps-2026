@@ -6,7 +6,7 @@ self.addEventListener("install", (event) => {
     const response = await fetch("/data/manifest.json");
     const manifest = await response.json();
     const assetList = await (await fetch("/offline-assets.json")).json();
-    await cache.addAll([...assetList, "/", "/data/manifest.json", ...manifest.files.map((file) => `/data/${file}`)]);
+    await cache.addAll([...assetList, "/en", "/es", "/data/manifest.json", ...manifest.files.map((file) => `/data/${file}`)]);
     await self.skipWaiting();
   })());
 });
@@ -35,7 +35,7 @@ self.addEventListener("fetch", (event) => {
       if (response.ok) await cache.put(event.request, response.clone());
       return response;
     } catch {
-      return (await cache.match(event.request)) || (event.request.mode === "navigate" ? await cache.match("/") : undefined) || Response.error();
+      return (await cache.match(event.request)) || (event.request.mode === "navigate" ? await cache.match(url.pathname.startsWith("/es") ? "/es" : "/en") : undefined) || Response.error();
     }
   })());
 });

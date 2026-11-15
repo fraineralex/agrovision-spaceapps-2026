@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import dynamic from "next/dynamic";
+import { LanguageSelector } from "@/components/language-selector";
 import { FarmIcon } from "@/components/farm-icon";
 import { CustomSelect } from "@/components/custom-select";
 import { allCrops, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
@@ -106,7 +107,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             {Array.from({ length: STEPS }, (_, i) => <i key={i} className={i === step ? "on current" : i < step ? "on" : ""} />)}
           </span>
         </div>
-        <button type="button" className="ob-link" onClick={onSkip}>{text.skip}</button>
+        <div className="ob-top-actions"><LanguageSelector /><button type="button" className="ob-link" onClick={onSkip}>{text.skip}</button></div>
       </div>
 
       <div className="ob-body" ref={body}>

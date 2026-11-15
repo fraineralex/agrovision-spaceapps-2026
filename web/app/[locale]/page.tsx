@@ -7,6 +7,7 @@ import { FarmIcon } from "@/components/farm-icon";
 import { VoiceDock } from "@/components/voice-dock";
 import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
+import { useLocale } from "@/lib/i18n/client";
 import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
@@ -110,6 +111,7 @@ function downloadFarmBoundary(farm: Farm) {
 }
 
 export default function Home() {
+  const locale = useLocale();
   const [mode, setMode] = useState<ViewMode>("farmer");
   const supervisor = mode === "supervisor";
   const changeMode = (value: ViewMode) => {
@@ -482,7 +484,7 @@ export default function Home() {
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>
         <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
-        <a href="/fuentes">Fuentes y versión de datos</a>
+        <a href={`/${locale}/fuentes`}>Fuentes y versión de datos</a>
         <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a>
       </footer>
     </main>

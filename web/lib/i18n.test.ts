@@ -27,3 +27,16 @@ test("locale preferences fall back to English and have speech and formatting tag
   assert.equal(localeTag("en"), "en-US");
   assert.equal(localeTag("es"), "es-DO");
 });
+
+import { browserLocale, localizedPath } from "./i18n/locale";
+test("browser preference respects language weights and supported languages", () => {
+  assert.equal(browserLocale("es-DO,es;q=0.9,en;q=0.8"), "es");
+  assert.equal(browserLocale("es;q=0.2,en-US;q=0.9"), "en");
+  assert.equal(browserLocale("es;q=0,en;q=0.1"), "en");
+  assert.equal(browserLocale("fr,es;q=0.5"), "es");
+  assert.equal(browserLocale(null), "en");
+});
+test("locale paths retain the current page", () => {
+  assert.equal(localizedPath("/en", "es"), "/es");
+  assert.equal(localizedPath("/es/fuentes", "en"), "/en/fuentes");
+});
