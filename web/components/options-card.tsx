@@ -67,7 +67,7 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops, h
                 const c = lightFor(a.scores[id]);
                 return (
                   <li key={id} className={`pill ${c}`} title={a.words[id]}>
-                    <span className="pill-label"><i className="pill-dot" aria-hidden="true" />{label}</span>
+                    <span className="pill-label"><FarmIcon name={id} size={14} />{label}</span>
                     <small className="pill-val">{word[c]}</small>
                   </li>
                 );

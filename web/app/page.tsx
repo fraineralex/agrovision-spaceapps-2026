@@ -255,7 +255,7 @@ export default function Home() {
             </section>
           ) : (
             <section id="siembra" aria-label="Recomendación y plan de siembra">
-              <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+              <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
                 <OptionsCard
                   province={farmProvince}
@@ -265,7 +265,7 @@ export default function Home() {
                   crops={crops}
                   headerSlot={activeFarm ? <>
                     <div className="panel-head-row siembra-plan-head">
-                      <h2 className="panel-title">🌱 Tu plan de siembra</h2>
+                      <h2 className="panel-title"><Sprout aria-hidden="true" className="panel-icon" /> Tu plan de siembra</h2>
                     </div>
                     <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
                   </> : undefined}

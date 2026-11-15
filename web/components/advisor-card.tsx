@@ -21,7 +21,7 @@ const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rai
 
 type Props = {
   province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[];
-  onEdit: () => void; onTop?: (crop: CropId) => void;
+  onEdit: () => void; onTop?: (crop: CropId) => void; onSowMonth?: (month: number) => void;
 };
 
 function MiniScoreRing({ score, light }: { score: number | null; light: string }) {
@@ -93,8 +93,18 @@ export function AdvisorCard(p: Props) {
   const redCount = advice.filter(a => lightFor(a.overall) === "red").length;
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
-      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
-      <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
+      <span className="profile-loc"><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
+      <div className="profile-actions">
+        {p.onSowMonth && (
+          <label className="inline-month-pick">
+            <span>Mes</span>
+            <select aria-label="Mes evaluado" value={p.sowMonth} onChange={e => p.onSowMonth?.(Number(e.target.value))}>
+              {monthNames.map((m, idx) => <option key={m} value={idx + 1}>{m}</option>)}
+            </select>
+          </label>
+        )}
+        <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
+      </div>
     </div>
     <HeroRecommendation tone={"tone-" + light} actions={<>
       <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={18} /> Oír resumen</button>
