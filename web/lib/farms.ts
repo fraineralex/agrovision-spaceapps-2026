@@ -8,6 +8,7 @@ export const TAREA_M2 = 628.86;
 export type Ring = [number, number][]; // [lon, lat], closed or open
 export type Piece = { id: string; kind: "cell" | "field" | "parcel" | "drawn"; ring: Ring };
 export type IrrigationDate = { date: string; mode: "own" | "assigned" };
+import type { SoilTexture } from "@/lib/soil";
 export type Farm = {
   id: string; name: string; province: string; location: Location; pieces: Piece[];
   previous: PreviousCrop; irrigation: Irrigation; crops: CropId[]; sowMonth: number; priority: Priority;
@@ -15,6 +16,7 @@ export type Farm = {
   waterTurn?: string; // Legacy assigned turn, kept for existing farms.
   irrigationDate?: IrrigationDate;
   declaredTareas?: number;
+  soilTexture?: SoilTexture; // Declared by the farmer; optional.
   placeName?: string;
 };
 
