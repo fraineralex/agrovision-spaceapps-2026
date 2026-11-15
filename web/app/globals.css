@@ -2551,3 +2551,7 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
   margin-block: 14px; background: var(--card); color: var(--muted);
   border: 1px solid var(--border); border-radius: var(--radius-panel);
 }
+.ob-footer .ob-credit {
+  position: static; margin-inline-end: auto; color: var(--muted); background: none; padding-inline: 0;
+}
+@media (max-width: 720px) { .ob-footer:has(> .ob-credit:only-child) { display: none; } }

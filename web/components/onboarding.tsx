@@ -187,14 +187,14 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
         </div>
       </div>}
       </div>
-      {step > 0 && <footer className="ob-footer">
-        {step === 1 ? (initial.id ? <>
+      <footer className="ob-footer">
+        <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan · Paisaje rural (CC0)</span>
+        {step > 0 && (step === 1 ? (initial.id ? <>
           <button type="button" className="ob-primary" onClick={finish}>Guardar cambios</button>
           <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>
         </> : <button type="button" className="ob-primary" onClick={next}>{pieces.length ? `Listo: ${areaLabel(piecesAreaM2(pieces))}` : showMap ? "Listo · seguir sin marcar" : "Seguir sin marcar"}</button>)
-          : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> Listo, ver mi recomendación</button>}
-      </footer>}
+          : <button type="button" className="ob-primary" disabled={!location || !crops.length} onClick={finish}><Check aria-hidden="true" /> Listo, ver mi recomendación</button>)}
+      </footer>
     </div>
-    <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan · Paisaje rural (CC0)</span>
   </dialog>;
 }
