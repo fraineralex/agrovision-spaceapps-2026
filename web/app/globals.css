@@ -2751,7 +2751,7 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: 14px;
-  max-width: 1080px;
+  max-width: none;
   margin: 16px auto 0;
   width: 100%;
 }
@@ -3698,7 +3698,7 @@ body {
 }
 
 /* Planting: align recommendation, comparisons and plan in one reading column. */
-#siembra { width: 100%; max-width: 1080px; margin-inline: auto; }
+#siembra { width: 100%; max-width: none; margin-inline: 0; }
 #siembra > .advisor { margin-bottom: 0; }
 .siembra-stack { justify-items: stretch; gap: 20px; margin-top: 20px; }
 .siembra-plan-card { width: 100%; }
@@ -3731,3 +3731,88 @@ body {
 .soil-list li.lv-good i{background:#2e8b47}.soil-list li.lv-bad i{background:#c0392b}.soil-list li.lv-ok i{background:#d99a00}
 .soil-reasons li{line-height:1.45}
 .soil-now h3{flex-wrap:nowrap;align-items:flex-start}.soil-now h3 svg{flex-shrink:0;margin-top:3px}
+
+/* Keep every planting comparison at the same full width. */
+#siembra .crop-list, #siembra .options .option-list { grid-template-columns: minmax(0, 1fr) !important; }
+#siembra .crop-row, #siembra .option.option-row-card { grid-column: auto; }
+#siembra .crop-row { padding: 14px 16px; }
+#siembra .crop-row .crop-medallion.sm { width: 44px; height: 44px; }
+#siembra .crop-row .crop-medallion svg { width: 23px; height: 23px; }
+@media (min-width: 721px) { #siembra .crop-illustration { width: clamp(90px, 10vw, 130px); height: auto; } #siembra .crop-illustration svg { width: 72%; } }
+
+@media (min-width: 721px) { #siembra .crop-illustration { width: clamp(110px, 11vw, 150px); height: clamp(110px, 11vw, 150px); } #siembra .crop-illustration svg { width: 76%; height: 76%; } }
+
+/* Compare crops in equally sized cards, using available horizontal space. */
+#siembra .crop-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)) !important; gap: 12px; align-items: stretch; }
+#siembra .crop-row { padding: 18px; gap: 12px; }
+#siembra .crop-row:last-child:nth-child(odd) { grid-column: auto; }
+#siembra .crop-row-title strong { font-size: 1rem; }
+#siembra .crop-row .pillar-chip { font-size: .8rem; padding: 5px 8px; }
+#siembra .crop-row-alert > summary { font-size: .875rem; min-height: 36px; }
+#siembra .mini-score-ring { width: 42px; height: 42px; }
+#siembra .mini-score-ring svg { width: 42px; height: 42px; }
+#siembra .mini-score-ring small { font-size: 12px; }
+
+/* Shared layout for planting comparison cards. */
+#siembra :is(.crop-list, .options .option-list) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)) !important; gap: 12px; align-items: stretch; }
+#siembra :is(.crop-row, .option.option-row-card) { grid-column: auto; min-width: 0; padding: 18px; border-radius: 16px; }
+#siembra .option.option-row-card:last-child:nth-child(odd) { grid-column: auto; }
+#siembra .option-top-bar { flex-wrap: wrap; }
+#siembra .option-crop-card { min-width: 0; max-width: 100%; }
+
+/* Planting workspace: readable cards and consistent spacing. */
+#siembra { width: min(100%, 1240px); margin-inline: auto; }
+#siembra :is(.crop-list, .options .option-list) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)) !important; gap: 16px; }
+#siembra :is(.crop-row, .option.option-row-card) { padding: 20px; gap: 12px; }
+#siembra .option-goal, #siembra .crop-row-title strong { font-size: 1.08rem; }
+#siembra .option-goal-sub, #siembra .option-crop-copy small, #siembra .pill { font-size: .9rem; }
+#siembra .option-crop-card { flex-wrap: wrap; }
+#siembra .planting-review { width: 100%; margin: 0; padding: 18px 22px; border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--card); }
+#siembra .planting-review > summary { font-size: 1.1rem; font-weight: 800; }
+#siembra .planting-review > p, #siembra .planting-review li { line-height: 1.55; }
+
+/* Crop comparisons: clear identity, rating, indicators and alerts. */
+#siembra .crop-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)) !important; gap: 16px; }
+#siembra .crop-row { padding: 22px; gap: 16px; }
+#siembra .crop-row-head { gap: 12px; margin: 0; }
+#siembra .crop-row .crop-medallion.sm { width: 52px; height: 52px; }
+#siembra .crop-row .crop-medallion svg { width: 28px; height: 28px; }
+#siembra .crop-row-title strong { font-size: 1.2rem; }
+#siembra .crop-row-rating { display: flex; align-items: center; gap: 14px; }
+#siembra .crop-row-rating .crop-row-meter { flex: 1; height: 7px; }
+#siembra .crop-row .pillar-row { gap: 8px; }
+#siembra .crop-row .pillar-chip { font-size: .875rem; padding: 7px 10px; }
+#siembra .crop-row-alert { margin-top: auto; border-top: 1px solid var(--border); padding-top: 8px; }
+#siembra .crop-row-alert > summary { font-size: .95rem; min-height: 44px; }
+#siembra .crop-row .src-button.icon-only { width: 44px; min-height: 44px; }
+@media (max-width: 480px) { #siembra .crop-row { padding: 16px; } #siembra .crop-row-rating { gap: 8px; } }
+
+/* Clean, crisp light-theme shadows without dark halos */
+:root,
+:root[data-theme="sun"] {
+  --shade: rgba(15, 38, 24, 0.05);
+  --panel-shadow: 0 2px 10px rgba(15, 38, 24, 0.04);
+}
+body {
+  background: var(--background);
+}
+.heading-row {
+  box-shadow: 0 4px 14px rgba(15, 38, 24, 0.10);
+}
+.card,
+.advisor,
+.siembra-unified-card,
+.voice-compact {
+  box-shadow: 0 1px 3px rgba(15, 38, 24, 0.04), 0 4px 12px rgba(15, 38, 24, 0.03);
+}
+.heading-farms-bar .farm-switcher,
+.wnav-bar,
+.kpi-card {
+  box-shadow: 0 1px 3px rgba(15, 38, 24, 0.04);
+}
+.wnav-tab.is-active {
+  box-shadow: 0 2px 8px rgba(20, 83, 45, 0.14);
+}
+.voice-live-drawer {
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+}

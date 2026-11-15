@@ -324,6 +324,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **2026-11-15 — Antigravity / Gemini (Google):** mejora visual de la sección `Ayuda` (`web/app/page.tsx`, `web/app/globals.css`), montaje inmediato del botón flotante de voz en todas las secciones (`web/components/voice-dock.tsx`, `web/components/voice-session.module.css`) y chat desplegable en vivo `.voice-live-drawer` que se abre y adapta automáticamente cuando el usuario o la IA hablan (`web/components/voice-assistant.tsx`). Revisión por Frainer: pendiente.
 
+- **2026-11-15 — Antigravity / Gemini (Google):** suavizado y limpieza de sombras en el tema claro (`--panel-shadow`, `.heading-row`, `.card`, `.wnav-bar`, `.wnav-tab.is-active` y fondo limpio en `body`) en `web/app/globals.css` para evitar halos oscuros debajo del banner superior y entre tarjetas. Revisión por Frainer: pendiente.
+
 - **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
@@ -367,3 +369,23 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes (consultadas el 15-11-2026):** FAO, Agricultura de conservación: diversificación de especies (https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/); FAO (2016), Las legumbres y la biodiversidad; FAO, Irrigation Water Management Training Manual 1, cap. 2 (https://www.fao.org/4/r4082e/r4082e03.htm).
 - **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
 - **Revisión por Frainer:** pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** anchura uniforme en comparaciones de Siembra y mayor tamaño de ilustraciones de cultivo (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección del ancho de toda la sección Siembra para alinearla con la navegación y aumento de la ilustración principal (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** distribución adaptable en columnas iguales para comparar cultivos y aumento de tamaño de sus elementos (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección del ancho de Otras opciones y reutilización de la rejilla y dimensiones de tarjetas de comparación (`web/app/globals.css`, `web/components/options-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** integración de cambios de main en la rama de trabajo, resolución de conflictos de Siembra y voz, y restauración de cambios locales (`web/app/page.tsx`, `web/app/globals.css`, `web/components/{onboarding,options-card,voice-assistant}.tsx`, `AI_USAGE.md`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** restauración del diseño previo de tarjetas de Siembra con estrellas, accesibilidad, acentos verdes y funcionalidad de suelo integrada (`web/components/advisor-card.tsx`, `web/components/options-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** ajuste de anchura y legibilidad de Siembra y traslado del bloque de revisión al final (`web/app/page.tsx`, `web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** retirada del texto explicativo de estrellas en Siembra (`web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reorganización y aumento de legibilidad de tarjetas de comparación de cultivos (`web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección de estrellas y barra duplicadas en tarjetas de cultivos (`web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
