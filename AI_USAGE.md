@@ -216,3 +216,16 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Auditoría de flujos de finca, mapa y voz
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** priorizar el guardado de la ficha, conservar el lugar elegido al buscar, limpiar datos de una parcela anterior, facilitar acceso a diagnósticos y mostrar errores de voz junto al orbe. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{onboarding.tsx,voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+## 2026-11-14 — Auditoría de mapa para cinco provincias
+- **Herramienta:** Codex (OpenAI). **Propósito:** dejar clara la cobertura automática parcial de San Juan, conservar selección manual en otras provincias y documentar por separado fondo, detecciones y pipeline.
+- **Archivos:** `web/lib/map/fields.ts`, `web/components/{farm-picker,map}.tsx`, `web/tests/demo.spec.ts`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`.
+- **Fuentes:** metadatos del GeoJSON local de San Juan; documentación y términos Esri enlazados en `docs/12_field_boundaries_method.md`.
+- **Límites:** disponibilidad/resolución de tiles no comprobada sistemáticamente por provincia; no hay detecciones verificadas en Azua, La Vega, Monte Cristi, Santiago ni Valverde. Revisión por Frainer y autorización para redistribuir derivados pendientes.
+
+## 2026-11-14 — Verificación del selector provincial
+
+- Codex (OpenAI) corrigió el límite de zoom del selector y adaptó la prueba al flujo de alta de finca. Archivos: `web/components/farm-picker.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias, build con Webpack y las cinco pruebas dirigidas en Chrome con WebGL por software. Las pruebas bloquearon las solicitudes externas. Revisión por Frainer pendiente.
+
+## 2026-11-14 — Resolución de integración
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** conservar ambos registros de uso de IA al integrar los cambios de mapa provincial con la rama de fincas y voz. **Archivos:** `AI_USAGE.md`. **Revisión por Frainer:** pendiente.

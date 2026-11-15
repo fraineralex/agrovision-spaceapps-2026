@@ -88,6 +88,28 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  expect(errors).toEqual([]);
 });
 
+for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde"]) {
+ test(`farm picker zooms and supports manual field drawing in ${province}`, async ({ page }) => {
+  await page.route("https://**", r => r.abort());
+  await page.goto("/");
+  await page.getByRole("button", { name: "Agregar mi finca", exact: true }).click();
+  const ob = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+  await ob.getByRole("button", { name: province, exact: true }).click();
+  await ob.getByRole("button", { name: "Marcar la finca en el mapa (opcional)" }).click();
+  const map = page.getByTestId("farm-picker-map");
+  await expect(map).toHaveAttribute("data-ready", "true", { timeout: 20000 });
+  await expect(ob.getByRole("status").filter({ hasText: `${province} no hay contornos automáticos verificados` })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getZoom(): number; getMaxZoom(): number } }).__farmPicker.getZoom())).toBeGreaterThanOrEqual(15);
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getMaxZoom(): number } }).__farmPicker.getMaxZoom())).toBe(19);
+  await ob.getByRole("button", { name: /Dibujar/ }).click();
+  await map.scrollIntoViewIfNeeded();
+  const bb = (await map.boundingBox())!;
+  for (const [dx, dy] of [[80, 60], [170, 60], [170, 130]]) await page.mouse.click(bb.x + dx, bb.y + dy);
+  await ob.getByRole("button", { name: /Cerrar figura/ }).click();
+  await expect(page.locator(".picker-pieces")).toContainText("Figura dibujada");
+ });
+}
+
 test("desktop shows weekly conditions and two columns for planting and sales",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
