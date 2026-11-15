@@ -482,12 +482,7 @@ h1 { color: var(--monte); }
 
 /* Compact voice controls. AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
 .voice-compact { color:var(--tinta); }
-.voice-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-.voice-controls button { min-height:48px; display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border:0; border-radius:999px; font-weight:800; }
-.voice-start { background:var(--monte); color:#fff; }
-.voice-end { background:#9a311f; color:#fff; }
-.voice-controls [role=status] { display:inline-flex; align-items:center; gap:6px; font-size:15px; color:#3d5543; }
-.voice-controls svg, .voice-alternatives svg { width:19px; height:19px; }
+.voice-alternatives svg { width:19px; height:19px; }
 .voice-alternatives { display:flex; gap:16px; align-items:start; flex-wrap:wrap; }
 .voice-alternatives details[open] { flex:1 1 100%; }
 .voice-compact .voice-form { margin:0 0 8px; }

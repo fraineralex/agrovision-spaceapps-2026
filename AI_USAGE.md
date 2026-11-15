@@ -195,3 +195,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** crear una vista de voz con orbe de estado, subtítulos, silencio y cierre. **Archivos:** `web/components/voice-assistant.tsx`, `web/components/voice-session.module.css` y `web/tests/demo.spec.ts`.
 - **Referencia visual:** demo y documentación públicas de [Voice Mode de HextaUI](https://hextaui.com/es/blocks/voice-mode). Implementación original con CSS, diálogo nativo e iconos Lucide. No se importó código del registro privado. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Orbe flotante de voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** reemplazar el diálogo de voz por un control circular fijo que permite usar la página durante la conversación. **Referencia:** captura compartida por Frainer. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.

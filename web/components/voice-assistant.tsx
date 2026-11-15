@@ -1,7 +1,7 @@
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { AudioLines, Captions, Keyboard, Mic, MicOff, PhoneOff, Volume2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AudioLines, Keyboard, Mic, MicOff, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
@@ -14,20 +14,19 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [captions, setCaptions] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const sessionTitle = useId();
+  const [sessionSelection, setSessionSelection] = useState<VoiceSelection>();
+  const sessionContext = sessionSelection ?? selection;
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
   const generation = useRef(0);
   const starting = useRef(false);
   const captureStarted = useRef(false);
   const [requesting, setRequesting] = useState(false);
-  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(selection).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [selection]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(selection), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [selection]);
+  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
+  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
-      const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
+      const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
     },
     onError: () => { stopVoice("Se cortó la voz. Intenta de nuevo o escribe."); },
@@ -56,7 +55,8 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     setNotice("");
     setMuted(false);
     setRequesting(true);
-    dialog.current?.showModal();
+    // Keep the session on its starting farm and month while the page remains interactive.
+    setSessionSelection(selection);
     starting.current = true;
     const attempt = ++generation.current;
     try {
@@ -69,7 +69,6 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } catch (error) {
       if (attempt !== generation.current) return;
       releaseMedia();
-      dialog.current?.close();
       const name = error instanceof Error ? error.name : "";
       setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
     } finally {
@@ -82,7 +81,6 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     setRequesting(false);
     realtime.disconnect();
     releaseMedia();
-    dialog.current?.close();
     window.speechSynthesis?.cancel();
     setNotice(message);
   }
@@ -134,36 +132,15 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
   const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
-  const orbState = realtime.isPlaying ? "speaking" : muted ? "muted" : realtime.isCapturing ? "listening" : active ? "connecting" : "idle";
-  const voiceState = realtime.isPlaying ? "Hablando…" : muted ? "Micrófono silenciado" : realtime.isCapturing ? "Escuchando…" : active ? "Conectando…" : "Sesión terminada";
-  const latestCaption = realtime.messages.at(-1)?.parts.flatMap(part => part.type === "text" ? [part.text] : []).join(" ").trim();
+  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : muted ? "muted" : realtime.isCapturing ? "listening" : "connecting";
+  const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…", muted: "Micrófono silenciado" }[orbState];
   const hangUp = () => stopVoice("Micrófono apagado.");
   return <section className="voice-compact" aria-label="Asistente de voz">
-    <div className="voice-controls">
-      <button type="button" className="voice-start" aria-haspopup="dialog" onClick={startVoice}>
-        <AudioLines aria-hidden="true"/> Hablar
-      </button>
-      <span role="status">{notice || "Voz de IA"}</span>
-    </div>
-    <dialog ref={dialog} className={session.dialog} aria-labelledby={sessionTitle} onCancel={event => { event.preventDefault(); hangUp(); }}>
-      <div className={session.session}>
-        <div className={session.header}>
-          <h3 id={sessionTitle} className={session.title}>Voz de AgroVision</h3>
-          <button type="button" className={session.control} aria-label="Subtítulos" aria-pressed={captions} title="Subtítulos" onClick={() => setCaptions(value => !value)}><Captions aria-hidden="true"/></button>
-        </div>
-        <div className={session.center}>
-          <div className={session.orb} data-state={orbState} aria-hidden="true"/>
-          <p className={session.status} role="status">{voiceState}</p>
-        </div>
-        {captions && <div className={session.captions} role="region" aria-label="Subtítulos de voz">{latestCaption || "Los subtítulos aparecerán aquí."}</div>}
-        <div className={session.actions}>
-          <button type="button" className={session.control} aria-label="Silenciar micrófono" aria-pressed={muted} disabled={!realtime.isCapturing} onClick={toggleMute}>
-            {muted ? <MicOff aria-hidden="true"/> : <Mic aria-hidden="true"/>} Silenciar
-          </button>
-          <button type="button" className={`${session.control} ${session.hangup}`} onClick={hangUp}><PhoneOff aria-hidden="true"/> Colgar</button>
-        </div>
-      </div>
-    </dialog>
+    <button type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
+      onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
+      {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
+    </button>
+    <p className={notice ? "note" : "sr-only"} role="status">{voiceStatus}</p>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
@@ -171,6 +148,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     <div className="voice-alternatives">
       <details className="visual-details"><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
       {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
+      {realtime.isCapturing && <button type="button" className="link-button" aria-pressed={muted} onClick={toggleMute}>{muted ? <MicOff aria-hidden="true"/> : <Mic aria-hidden="true"/>} Silenciar micrófono</button>}
     </div>
     <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
   </section>;

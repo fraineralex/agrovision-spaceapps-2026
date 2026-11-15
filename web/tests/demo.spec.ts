@@ -195,7 +195,7 @@ test("missing realtime credentials release microphone and preserve text input",a
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
 });
 
-test("voice view shows accessible controls and closes during a pending connection", async ({page}) => {
+test("the voice orb stays centered while the grower scrolls and uses the page", async ({page}) => {
  await page.setViewportSize({width:360,height:780});
  await page.addInitScript(() => {
    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
@@ -203,14 +203,20 @@ test("voice view shows accessible controls and closes during a pending connectio
  await page.goto("/");
  const start = page.getByRole("button", {name:"Hablar",exact:true});
  await start.click();
- const voice = page.getByRole("dialog", {name:"Voz de AgroVision"});
+ const voice = page.getByRole("region", {name:"Asistente de voz"});
+ const stop = voice.getByRole("button", {name:"Colgar",exact:true});
  await expect(voice.getByRole("status")).toHaveText("Conectando…");
- await expect(voice.getByRole("button", {name:"Silenciar micrófono"})).toBeDisabled();
- await voice.getByRole("button", {name:"Subtítulos"}).click();
- await expect(voice.getByRole("region", {name:"Subtítulos de voz"})).toBeVisible();
+ await expect(page.getByRole("dialog")).toHaveCount(0);
+ const before = (await stop.boundingBox())!;
+ expect(before.x + before.width / 2).toBeCloseTo(180, 0);
+ expect(780 - before.y - before.height).toBeLessThan(24);
+ await page.getByRole("link", {name:"Venta",exact:true}).click();
+ await page.getByLabel("Gasto total (RD$)").fill("12000");
+ expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+ expect(await stop.boundingBox()).toEqual(before);
  expect(await axeSerious(page)).toEqual([]);
  await page.screenshot({path:"test-results/voice-mobile.png"});
- await page.keyboard.press("Escape");
- await expect(voice).toBeHidden();
+ await stop.click();
+ await expect(voice.getByRole("status")).toHaveText("Micrófono apagado.");
  await expect(start).toBeFocused();
 });
