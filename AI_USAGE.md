@@ -501,3 +501,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: tradujo el nombre predeterminado de finca y tipos de localidad sin cambiar nombres introducidos por el usuario en `web/components/onboarding.tsx` y mensajes. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió pruebas de paridad para textos y categorías geográficas en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió prueba de navegación y cambio de idioma entre venta, mapa, clima y ayuda en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+
+- **2026-11-15 — Codex (OpenAI):** integró `origin/main` en la rama de internacionalización, adaptó las explicaciones de rotación y plagas y localizó errores de clima, lluvia y configuración de voz. Archivos: `web/lib/i18n/{advice,api-messages}.ts`, `web/app/api/{rain,climate,voice/setup}/route.ts`, `web/app/[locale]/page.tsx`, `web/components/{rain-card,voice-assistant}.tsx`. Revisión por Frainer pendiente.

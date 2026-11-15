@@ -106,9 +106,17 @@ export function localizedWhyThisCrop(a: CropAdvice, all: CropAdvice[], previous:
   const negatives = { water: "needs a lot of water", climate: "there is drought in your area", pests: "may maintain pests from the previous crop", market: "is harvested when prices are usually low" };
   const list = new Intl.ListFormat(localeTag(locale));
   const result = good.length ? [`${name} scores well because it ${list.format(good.map(p => positives[p]))}.`] : [`${name} does not stand out in any one area, but it does not score poorly in the comparison either.`];
+  if (a.soil.level === "good") result.push("For the soil: changing crop families can help maintain soil health. Ask your technician about your soil.");
+  if (a.soil.level === "bad") result.push("Soil caution: repeatedly planting the same crop family can deplete similar nutrients and carry pests and diseases forward.");
   if (bad.length) result.push(`Its drawbacks: ${list.format(bad.map(p => negatives[p]))}.`);
   if (a.scores.market !== null && !good.includes("market") && !bad.includes("market")) result.push("The harvest price is average: neither very good nor very bad.");
-  if (a.scores.pests === null) result.push("We have no pest data for this crop change, so it does not count for or against it.");
+  if (a.pestState === "different") result.push(`Pests: ${name} and your previous crop do not share their main pests according to Dominican guides, so the change helps interrupt them.${a.watch.length ? ` Watch for ${new Intl.ListFormat(localeTag(locale)).format(a.watch.slice(0, 2).map(p => pestLabel(p, locale).toLowerCase()))} in ${name}.` : ""}`);
+  else if (a.pestState === "listed" && a.watch.length) result.push(`Pests: watch for ${new Intl.ListFormat(localeTag(locale)).format(a.watch.slice(0, 2).map(p => pestLabel(p, locale).toLowerCase()))} in ${name}. Tell us what you planted before to compare.`);
+  else if (a.pestState === "unknown") result.push(`Pests: the guides we use do not list pests for ${name}. Ask your technician.`);
+  const gaps = ["we have not measured your soil (a soil test is needed)", "the price is wholesale in Santo Domingo, not what you receive at the farm"];
+  if (a.pestState === "unknown") gaps.unshift(`the guides do not list pests for ${name}`);
+  if (a.pestState === "different" || a.pestState === "listed") gaps.unshift("the guides list only major pests; others may occur in your area");
+  result.push(`What we do not know: ${gaps.join("; ")}.`);
   const top = recommendedCrop(all);
   if (top?.crop === a.crop) {
     const next = all.find(x => x.viable && x.crop !== a.crop && x.overall !== null);

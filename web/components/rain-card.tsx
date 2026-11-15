@@ -24,7 +24,7 @@ export function useRain(location: Location | null) {
     try { saved = JSON.parse(localStorage.getItem(key) ?? "null"); } catch { saved = null; }
     const cached = saved?.days?.length ? currentRain(saved) : null;
     const t = setTimeout(() => { if (cached) setData({ key, forecast: cached, cached: true, loadedAt: Date.now() }); }, 0);
-    fetch(`/api/rain?longitude=${location.longitude}&latitude=${location.latitude}`, { signal: ctrl.signal })
+    fetch(`/api/rain?longitude=${location.longitude}&latitude=${location.latitude}&locale=${locale}`, { signal: ctrl.signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error(String(r.status))))
       .then((f: RainForecast) => {
         if (ctrl.signal.aborted) return;
@@ -36,7 +36,7 @@ export function useRain(location: Location | null) {
       .catch(() => { if (!ctrl.signal.aborted && !cached) setFailed(key); });
     const tick = setInterval(() => setClock(Date.now()), 60_000);
     return () => { clearTimeout(t); clearInterval(tick); ctrl.abort(); };
-  }, [key, location]);
+  }, [key, location, locale]);
   const forecast = data?.key === key && data.forecast ? currentRain(data.forecast) : null;
   const error = key && (failed === key || (data?.key === key && !forecast)) ? text.unavailable : "";
   const cached = data?.key === key && data.cached;

@@ -209,13 +209,13 @@ export default function Home() {
       try {
         let data:ClimateContext;
         try { const saved = localStorage.getItem(`power:${locationKey}`); if (!saved) throw new Error(); data = JSON.parse(saved); }
-        catch { const cachePath = `power/${locationKey}.json`; const bundled = manifest.files.includes(cachePath) ? await fetch(`/data/${cachePath}`,{signal:controller.signal}) : null; if (bundled?.ok) data = await bundled.json(); else { const response = await fetch(`/api/climate?longitude=${location.longitude}&latitude=${location.latitude}`,{signal:controller.signal}); if (!response.ok) throw new Error(); data = await response.json(); } }
+        catch { const cachePath = `power/${locationKey}.json`; const bundled = manifest.files.includes(cachePath) ? await fetch(`/data/${cachePath}`,{signal:controller.signal}) : null; if (bundled?.ok) data = await bundled.json(); else { const response = await fetch(`/api/climate?longitude=${location.longitude}&latitude=${location.latitude}&locale=${locale}`,{signal:controller.signal}); if (!response.ok) throw new Error(); data = await response.json(); } }
         if (controller.signal.aborted) return;
         setContext({key:locationKey,data});setClimateStatus("");try {localStorage.setItem(`power:${locationKey}`,JSON.stringify(data));} catch { /* Storage is optional. */ }
       } catch {if (!controller.signal.aborted) setClimateStatus("climateUnavailable");}
     };
     void load();return () => controller.abort();
-  },[locationKey,location.longitude,location.latitude,selectedParcel,chosen]);
+  },[locationKey,location.longitude,location.latitude,selectedParcel,chosen,locale]);
 
   const needsCaseClimate = selectedParcel !== "location";
   useEffect(() => {

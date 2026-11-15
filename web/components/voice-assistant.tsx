@@ -57,7 +57,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const [requesting, setRequesting] = useState(false);
   const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
   const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext, "call", locale), voice: REALTIME_VOICE, outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: locale }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext, locale]);
-  const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
+  const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}&locale=${locale}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
