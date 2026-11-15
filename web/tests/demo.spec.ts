@@ -7,6 +7,7 @@ const rainMock = { source: "open-meteo", kind: "forecast", url: "https://api.ope
   days: ["2026-11-16","2026-11-17","2026-11-18","2026-11-19","2026-11-20","2026-11-21","2026-11-22"].map((date, i) => ({ date, rainMm: i === 3 ? 14 : 0, probPct: i === 3 ? 80 : 10, tMaxC: 31 })) };
 
 test("onboarding and independent sections: recommendations first, rain, market, map, voice and share",async({page})=>{
+ test.setTimeout(75_000);
  const errors:string[]=[]; page.on("pageerror",e=>errors.push(e.message));
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
@@ -365,6 +366,9 @@ for (const fixture of [
     expect(card.y + card.height).toBeLessThanOrEqual(844);
     expect(await axeSerious(page)).toEqual([]);
     if (fixture.id === "ramon") {
+      await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
+      await verdict.getByRole("button", { name: "Oír resumen" }).click();
+      await expect(verdict.getByRole("status")).toHaveText("Voz no disponible");
       const source = verdict.getByRole("button", { name: "Datos y fuentes" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });

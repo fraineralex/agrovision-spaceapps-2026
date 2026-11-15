@@ -254,3 +254,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 · OpenAI** — Ajustes del onboarding, mapa y selección de cultivos en `web/components/onboarding.tsx`, `web/components/farm-picker.tsx`, `web/lib/advisor.ts` y `web/app/globals.css`. Revisión por Frainer pendiente.
 - **2026-11-15 · OpenAI** — Auditoría y filtrado de precios, revisión de rotación y escenarios históricos según riego en `scripts/market/`, `web/public/data/market-insights.json`, `web/lib/advisor.ts`, `web/lib/profit.ts` y fichas de Siembra y Venta. Revisión por Frainer pendiente.
 - **2026-11-15 · OpenAI** — Calculadora guiada y área declarada, evidencia NASA, fuentes accesibles, caché de clima y estado de voz en `web/app/`, `web/components/`, `web/lib/farms.ts` y `web/lib/rain.ts`; pruebas de regresión en `web/tests/` y `web/lib/`. Revisión por Frainer pendiente.
+
+- **2026-11-15 · OpenAI** — Lectura accesible compartida en `web/lib/use-read-aloud.ts`, Siembra y Preguntar, con prueba del mensaje sin voz. Revisión por Frainer pendiente.

@@ -1,6 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
+import { useReadAloud } from "@/lib/use-read-aloud";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
@@ -77,7 +78,9 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     captureStarted.current = false;
   }
   useEffect(() => () => { generation.current++; abort.current?.abort(); releaseMedia(); window.speechSynthesis?.cancel(); }, []);
+  const summary = useReadAloud();
   function interrupt() {
+    summary.stop();
     abort.current?.abort(); window.speechSynthesis?.cancel();
     setBusy(false);
   }
@@ -117,15 +120,6 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     window.speechSynthesis?.cancel();
     setNotice(message);
     setVoiceError(failed);
-  }
-  function speak(text: string) {
-    if (!window.speechSynthesis) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-DO";
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(item => item.lang === utterance.lang) ?? voices.find(item => item.lang.startsWith(utterance.lang.slice(0, 2)));
-    if (voice) utterance.voice = voice;
-    window.speechSynthesis.speak(utterance);
   }
   async function send(text: string) {
     if (!text.trim()) return;
@@ -171,7 +165,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     <div hidden={active}>
     <div className="voice-bar-head">
       <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
-      <span>Toca el botón flotante de micrófono en la esquina o consulta por escrito</span>
+      <span>Toca Hablar o consulta por escrito</span>
     </div>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
@@ -179,7 +173,8 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     </div></details>}
     <div className="voice-alternatives">
       <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
-      {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
+      {!active && <button type="button" className="link-button" onClick={() => { interrupt(); summary.read(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
+      {summary.reading && <div><p role="status">{summary.reading.status}</p><p>{summary.reading.text}</p>{summary.reading.status === "Leyendo resumen…" && <button type="button" className="link-button" onClick={summary.stop}>Detener lectura</button>}</div>}
       <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
     </div>
     </div>

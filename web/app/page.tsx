@@ -397,13 +397,13 @@ export default function Home() {
           <section className="card panel voice-guide-card" aria-labelledby="voice-guide-title">
             <div className="panel-head-row">
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
-              <HelpTip label="Pregúntale a AgroVision" text="Puedes hablar con el botón flotante verde de la esquina en cualquier momento, o usar Escribir y Oír resumen aquí mismo." />
+              <HelpTip label="Pregúntale a AgroVision" text="Usa Hablar en el asistente, Escribir u Oír resumen." />
             </div>
             <p className="panel-intro">Elige cómo prefieres consultar los datos de tu finca: hablando en vivo, leyendo tu pregunta o escuchando el resumen en voz alta.</p>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
                 <strong>1. Hablar por micrófono</strong>
-                <p>Toca el botón circular verde de la esquina inferior derecha para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
+                <p>Toca Hablar en el asistente para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
               </div>
               <div className="voice-guide-item">
                 <strong>2. Consultar por escrito</strong>
