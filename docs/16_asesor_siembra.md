@@ -87,3 +87,11 @@ Una coincidencia de taxón con evidencia local, o la repetición del cultivo, de
 Estas reglas comparan asociaciones documentadas; la ficha no mide incidencia ni actividad por provincia o mes. El puntaje es una regla del prototipo, pendiente de revisión agronómica.
 
 El asesor, la lectura en voz y las rotaciones de ejemplo muestran precauciones para cada transición concreta. Si hay un hospedero compartido, indican revisar el historial del cultivo anterior; también destacan una plaga del cultivo siguiente. Las referencias externas se presentan como pendientes de confirmación.
+
+## Ajustes del flujo del agricultor (2026-11-15)
+
+El asesor muestra primero una rotación de ciclo conocido y aparta repeticiones, incluidas habichuela roja y negra. Su puntaje compara opciones. La aptitud de una parcela exige confirmar agua, suelo e historial en campo. El precio bajo en el año histórico se presenta como estacionalidad; la superficie sembrada se describe por separado. La tarjeta muestra contexto de NASA POWER/MERRA-2 (2016–2025, grilla regional de unos 50 km); el componente de sequía del puntaje sigue usando FAO GIEWS.
+
+Venta prefiere el área declarada y después la marcada. El escenario usa fichas de 2019 con sistema de riego identificado, ajustadas por IPC general, y una ventana de 12 meses de precios mayoristas. La ficha de habichuela roja de San Juan incluye rubros editables. Para otros cultivos, los rubros se completan con datos del productor cuando falta desglose verificado. La calculadora mantiene disponible el ingreso manual para secano y para arroz en cáscara. El descuento sobre mayorista se toma de lo declarado en el formulario.
+
+Asistencia de OpenAI, 2026-11-15. Revisión por Frainer pendiente.

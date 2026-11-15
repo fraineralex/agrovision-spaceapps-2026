@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
@@ -320,14 +321,14 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     <div hidden={active}>
     <div className="voice-bar-head">
       <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
-      <span>Toca el botón flotante de micrófono en la esquina o consulta por escrito</span>
+      <span>Toca Hablar o consulta por escrito</span>
     </div>
     {dictatedAnswer && (busy || lastAnswer) && <div className="voice-compact-log" role="region" aria-label="Respuesta a tu pregunta" aria-live="polite">
       <p><strong>Tú:</strong> {messages.at(-2)?.content}</p>
       <p><strong>AgroVision:</strong> {lastAnswer || "Pensando…"}</p>
       {!busy && lastAnswer && <button type="button" className="link-button" onClick={() => speak(lastAnswer)}><Volume2 aria-hidden="true"/> Oír respuesta</button>}
     </div>}
-    {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
+    {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
     </div></details>}

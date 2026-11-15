@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — advisor regression tests. Frainer review pending. */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -73,4 +74,11 @@ test("precautions follow the actual transition and include surveillance for the 
   assert.match(pestPrecautions("unknown", "tomate")[0], /En tomate, vigila mosca blanca/);
   assert.match(pestPrecautions("name", "yautia")[0], /por confirmar localmente/);
   assert.deepEqual(pestPrecautions("tomate", "unknown"), []);
+});
+
+test("rotates away from potato and skips crops without data", () => {
+  const ranked = adviseNextCrop({ province: "La Vega", irrigation: "rainfed", previous: "papa", sowMonth: 11, priority: "balanced", crops: ["papa", "cebolla", "cebolla", "ajo"] });
+  assert.deepEqual(ranked.map(row => row.crop), ["cebolla", "papa"]);
+  assert.ok(ranked[1].repeats);
+  assert.match(ranked[1].warnings.join(" "), /Repetir/);
 });

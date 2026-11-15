@@ -240,13 +240,22 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI) / Antigravity (Google). **Propósito:** conservar ambos registros de uso de IA al integrar los cambios de mapa provincial, fincas, modos Agricultor/Supervisor y voz con la interfaz de pestañas independientes y gráficos interactivos. **Archivos:** `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
 
-## 2026-11-15 — Auditoría visual por secciones y balance de diseño
+## 2026-11-15 — Auditoría visual por secciones y rediseño estructural de la interfaz
 
-- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** auditoría visual completa sección por sección (estado inicial, onboarding pasos 1–3, cabecera y barra de fincas, y las 5 pestañas `Siembra`, `Lluvia`, `Venta`, `Mapa y clima` y `Preguntar` en escritorio y móvil) para corregir alineaciones, esquinas y proporción de columnas tras la integración:
-  - reorganización de cabecera en fila superior balanceada (`Agricultor | Supervisor` + herramientas de supervisor) y barra horizontal independiente para `FarmSwitcher`;
-  - balance a dos columnas tanto en modo `Agricultor` como `Supervisor` en `Siembra`, `Venta` y `Mapa y clima` (manteniendo mapa satelital abierto al entrar a `Mapa y clima` y expandiendo la tercera tarjeta de `Sequía y lluvia` al ancho completo de la fila inferior);
-  - tarjeta estructurada para la barra inferior `Asistente rápido de voz y texto`, guía visual de 3 pasos con apertura automática del formulario escrito en la pestaña `Preguntar`, y posicionamiento del botón flotante de micrófono en la esquina inferior derecha cuando está inactivo para no tapar contenido centrado.
-- **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench.tsx,voice-assistant.tsx,voice-session.module.css,fao-giews.module.css}`, `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
+- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** auditoría visual completa sección por sección (estado inicial, onboarding pasos 1–3, cabecera y barra de fincas, y las 5 pestañas `Siembra`, `Lluvia`, `Venta`, `Mapa y clima` y `Preguntar` en escritorio y móvil) y rediseño estructural y visual de los paneles:
+  - banner principal en verde bosque profundo (`.heading-row`) con tipografía blanca de alto contraste, insignia lima (`.eyebrow`) y controles en cristal oscuro, acompañado por una barra horizontal flotante de fincas (`.heading-farms-bar`);
+  - navegación de secciones tipo dock de cristal (`backdrop-filter: blur(16px)`), tarjetas con elevación suave (`border-radius: 24px`) y medallones de icono esmeralda (`.panel-icon`);
+  - reestructuración de `Plan y recomendación`: eliminación de cajas anidadas redundantes, barra de controles de plan guardado en una sola fila horizontal compacta, tarjeta hero unificada (`.verdict-hero-top`) que integra el medallón del cultivo, etiqueta `OPCIÓN PARA CONSIDERAR`, rotación previa y anillo radial de puntaje, cuadrícula de telemetría 2×2 (`.pillar-bars`) con chips de icono coloreados por pilar (`.pbar-icon-chip`), pastillas de estado y textos descriptivos completos sin truncamiento, y barra de acciones en pastillas modernas (`Escuchar`, `Datos y fuentes`, `Qué revisar`);
+  - cabecera de distribución de puntajes (`.crops-dist-pills` y barra segmentada `.crops-dist-bar`) sobre la cuadrícula Bento de 2 columnas de `Todos los cultivos` con mini anillos circulares SVG (`.mini-score-ring`) y barras proporcionales;
+  - reestructuración de `Otras opciones`: cabeceras con insignias de icono coloreadas por meta (`.option-icon-badge`), fila horizontal sin saltos para el cultivo y su mes de cosecha (`.option-crop-row`), cuadrícula 2×2 de pastillas horizontales para los 4 pilares (`.option-pillars .pill`) y botones tipo pastilla para `Datos y fuentes`;
+  - cápsulas de lluvia con gradiente líquido cielo-azul, barras de espectro térmico/hídrico en clima normal, y barra inferior de voz con margen lateral dedicado para el orbe flotante en la esquina inferior derecha.
+- **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card.tsx,options-card.tsx,farm-workbench.tsx,voice-assistant.tsx,voice-session.module.css,fao-giews.module.css}`, `web/tests/demo.spec.ts`, `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
+
+- **2026-11-15 · OpenAI** — Ajustes del onboarding, mapa y selección de cultivos en `web/components/onboarding.tsx`, `web/components/farm-picker.tsx`, `web/lib/advisor.ts` y `web/app/globals.css`. Revisión por Frainer pendiente.
+- **2026-11-15 · OpenAI** — Auditoría y filtrado de precios, revisión de rotación y escenarios históricos según riego en `scripts/market/`, `web/public/data/market-insights.json`, `web/lib/advisor.ts`, `web/lib/profit.ts` y fichas de Siembra y Venta. Revisión por Frainer pendiente.
+- **2026-11-15 · OpenAI** — Calculadora guiada y área declarada, evidencia NASA, fuentes accesibles, caché de clima y estado de voz en `web/app/`, `web/components/`, `web/lib/farms.ts` y `web/lib/rain.ts`; pruebas de regresión en `web/tests/` y `web/lib/`. Revisión por Frainer pendiente.
+
+- **2026-11-15 · OpenAI** — Lectura accesible compartida en `web/lib/use-read-aloud.ts`, Siembra y Preguntar, con prueba del mensaje sin voz. Revisión por Frainer pendiente.
 
 ## 2026-11-15 — Controles del resumen y respaldo de voz
 

@@ -1,6 +1,7 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — 7-day rain and drought alert in plain words. Frainer review pending. See AI_USAGE.md. */
 export type RainDay = { date: string; rainMm: number; probPct: number | null; tMaxC: number | null };
-export type RainForecast = { source: "open-meteo" | "nasa-power"; kind: "forecast" | "recent"; url: string; fetchedAt: string; days: RainDay[] };
+export type RainForecast = { source: "open-meteo" | "nasa-power"; kind: "forecast" | "recent"; url: string; model?: "gfs_global"; fetchedAt: string; days: RainDay[] };
 const DAYS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 const santoDomingoDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santo_Domingo", year: "numeric", month: "2-digit", day: "2-digit" });
 export const localDate = (date = new Date()) => santoDomingoDate.format(date);
@@ -23,6 +24,11 @@ export function rainAlert(f: RainForecast): { sentence: string; level: "rain" | 
   }
   if (total < 5) return { sentence: `Poca lluvia prevista${hot ? " y días calurosos" : ""}: unos ${Math.round(total)} mm en ${f.days.length} días.`, level: "dry" };
   return { sentence: `El pronóstico suma unos ${Math.round(total)} mm en ${f.days.length} días.`, level: "normal" };
+}
+
+export function isFreshForecast(forecast: RainForecast, now: number) {
+  const age = now - Date.parse(forecast.fetchedAt);
+  return forecast.kind === "forecast" && age >= 0 && age <= 12 * 3600000;
 }
 
 export function currentRain(forecast: RainForecast, today = localDate()): RainForecast | null {

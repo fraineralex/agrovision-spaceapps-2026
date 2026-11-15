@@ -1,12 +1,15 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14; SVG crop icons, radial gauge, pillar bars & animated timeline by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { AlertTriangle, CalendarDays, Info, MapPin, Sprout, TriangleAlert, Wheat } from "lucide-react";
+import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, previousCropName, lightFor, monthNames, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
 import { SourcesSheet } from "@/components/sources-sheet";
-import type { Irrigation } from "@/lib/data";
+import { climate, type Irrigation } from "@/lib/data";
+import { useReadAloud } from "@/lib/use-read-aloud";
+import { profitFor } from "@/lib/profit";
 
 const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
   { id: "water", label: "Agua", icon: "water" }, { id: "climate", label: "Sequía", icon: "climate" },
@@ -15,43 +18,26 @@ const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
 const lightWord: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
 const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rainfed: "sin riego", unconfirmed: "riego sin confirmar" };
 
-function ScoreDial({ score, light }: { score: number; light: string }) {
-  const pct = Math.max(0, Math.min(1, score / 5));
-  const r = 24, c = 2 * Math.PI * r;
-  return (
-    <div className={`score-dial light-${light}`} role="img" aria-label={`Puntaje ${score.toFixed(1).replace(".", ",")} de 5: ${lightWord[light]}`}>
-      <svg width="62" height="62" viewBox="0 0 62 62" aria-hidden="true">
-        <circle className="dial-track" cx="31" cy="31" r={r} />
-        <circle
-          className={`dial-arc ${light}`}
-          cx="31"
-          cy="31"
-          r={r}
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - pct)}
-        />
-      </svg>
-      <span className="dial-val">{score.toFixed(1).replace(".", ",")}</span>
-    </div>
-  );
-}
-
 function PillarBars({ a }: { a: CropAdvice }) {
   return (
     <div className="pillar-bars" aria-label="Indicadores por pilar">
       {pillarInfo.map(pi => {
         const s = a.scores[pi.id];
         const c = lightFor(s);
-        const pct = s === null ? 0 : Math.max(18, Math.min(100, Math.round((s / 5) * 100)));
+        const pct = s === null ? 14 : Math.max(20, Math.min(100, Math.round((s / 5) * 100)));
         return (
-          <div key={pi.id} className={`pbar-item ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-            <div className="pbar-top">
-              <span className="pbar-label"><FarmIcon name={pi.icon} size={14} /> {pi.label}</span>
-              <span className="pbar-word">{a.words[pi.id]}</span>
+          <div key={pi.id} className={`pbar-item ${c} pillar-${pi.id}`} title={`${pi.label}: ${a.words[pi.id]}`}>
+            <div className="pbar-head-row">
+              <span className="pbar-label">
+                <span className={`pbar-icon-chip tone-${pi.id}`} aria-hidden="true"><FarmIcon name={pi.icon} size={14} /></span>
+                <span>{pi.label}</span>
+              </span>
+              <span className={`pbar-status-pill ${c}`}>{lightWord[c]}</span>
             </div>
             <div className="pbar-track" aria-hidden="true">
               <span className={`pbar-fill ${c}`} style={{ width: `${pct}%` }} />
             </div>
+            <span className="pbar-word">{a.words[pi.id]}</span>
           </div>
         );
       })}
@@ -64,31 +50,68 @@ type Props = {
   onEdit: () => void; onTop?: (crop: CropId) => void;
 };
 
+function MiniScoreRing({ score, light }: { score: number | null; light: string }) {
+  const pct = score === null ? 0.15 : Math.max(0.12, Math.min(1, score / 5));
+  const r = 14, c = 2 * Math.PI * r;
+  return (
+    <span className={`mini-score-ring light-${light}`} aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 34 34">
+        <circle className="dial-track" cx="17" cy="17" r={r} strokeWidth="3.5" />
+        <circle
+          className={`dial-arc ${light}`}
+          cx="17"
+          cy="17"
+          r={r}
+          strokeWidth="3.5"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - pct)}
+        />
+      </svg>
+      <small>{score !== null ? score.toFixed(1).replace(".", ",") : "—"}</small>
+    </span>
+  );
+}
+
 function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources: () => void }) {
+  const rowLight = lightFor(a.overall);
+  const pct = a.overall === null ? 12 : Math.max(15, Math.min(100, Math.round((a.overall / 5) * 100)));
   return <li className={top ? "crop-row top" : "crop-row"}>
     <div className="crop-row-head">
-      <span className="crop-medallion" aria-hidden="true"><FarmIcon name={a.crop} size={20} /></span>
-      <strong>{a.name}</strong>{top && a.overall !== null && <span className="badge">Recomendado</span>}{!a.viable && <span className="badge gray">No sin riego</span>}
+      <MiniScoreRing score={a.overall} light={rowLight} />
+      <span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span>
+      <div className="crop-row-title">
+        <strong>{a.name}</strong>
+        <div className="crop-row-meter" aria-hidden="true">
+          <span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+      {top && a.overall !== null && <span className="badge">Recomendado</span>}
+      {!a.viable && <span className="badge gray">Sin riego</span>}
+      <button type="button" className="src-button icon-only" onClick={onSources} aria-label={`Datos y fuentes de ${a.name}`} title="Datos y fuentes">
+        <Info aria-hidden="true" size={16} />
+      </button>
     </div>
     <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-      <FarmIcon name={pi.icon} size={16} /><span>{pi.label}: {lightWord[c]}</span></span>; })}</div>
-    {a.pestPrecautions.map(note => <p key={note} className="warning"><AlertTriangle aria-hidden="true" size={16} /><span>{note}</span></p>)}
-    <button type="button" className="src-button small" onClick={onSources}><Info aria-hidden="true" size={18} /> Datos y fuentes</button>
+      <FarmIcon name={pi.icon} size={13} /><span>{pi.label}</span></span>; })}</div>
+    {(a.pestPrecautions.length > 0 || a.repeats) && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precauciones</summary>{a.repeats && <p className="warning">Repetir {a.name.toLowerCase()} puede mantener plagas.</p>}{a.pestPrecautions.map(note => <p key={note} className="warning"><span>{note}</span></p>)}</details>}
   </li>;
 }
 
 export function AdvisorCard(p: Props) {
   const [sources, setSources] = useState<CropAdvice | null>(null);
   const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
-  const top = advice[0];
+  const top = recommendedCrop(advice);
+  const repeat = advice.find(item => item.repeats);
+  const historical = top ? profitFor(top.crop, 1, p.irrigation) : null;
+  const loss = historical && !("unavailable" in historical) && historical.profit.mid < 0;
+  const now = new Date();
+  const sowYear = now.getFullYear() + Number(p.sowMonth <= now.getMonth());
+  const harvestYear = top ? sowYear + Math.floor((p.sowMonth - 1 + Math.round(top.cycleDays / 30)) / 12) : sowYear;
   const sentence = adviceSentence(top, p.previous);
+  const reason = top?.scores.pests === 5 ? "IDIAF respalda rotar habichuela con maíz." : top?.words.water + " en la comparación.";
   const notes = [...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])];
-  const speak = () => {
-    try {
-      const u = new SpeechSynthesisUtterance(`${sentence} ${notes.join(" ")} Revisa siempre con tu técnico.`);
-      u.lang = "es-DO"; speechSynthesis.cancel(); speechSynthesis.speak(u);
-    } catch { /* Speech is optional. */ }
-  };
+  const summary = [sentence, ...notes, "Confirma el agua disponible con tu técnico."].join(" ");
+  const { reading, read, stop } = useReadAloud();
   const light = lightFor(top?.overall ?? null);
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
@@ -96,11 +119,10 @@ export function AdvisorCard(p: Props) {
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
     <div className="advisor-head">
-      <h3>Opción para considerar</h3>
+      <h3>Mejor puntaje entre tus opciones</h3>
       {top && top.overall !== null && (
         <div className="advisor-score-wrap">
-          <ScoreDial score={top.overall} light={light} />
-          <span className={`advisor-score light-${light}`}>{top.overall.toFixed(1).replace(".", ",")} / 5 · {lightWord[light]}</span>
+          <span className={`advisor-score light-${light}`}>{lightWord[light]}</span>
         </div>
       )}
     </div>
@@ -114,21 +136,28 @@ export function AdvisorCard(p: Props) {
             {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}
           </div>
         </div>
-        <PillarBars a={top} />
+        <p className="advisor-reason">{reason}</p>
+        <p className="advisor-risk"><strong>Qué revisar</strong> · {notes[0]?.split(". ")[0] ?? "Agua disponible para completar el ciclo."}</p>
+        {repeat && <p className="advisor-risk">Repetir {repeat.name.toLowerCase()} puede mantener plagas.</p>}
+        {loss && <p className="advisor-risk">El último precio mayorista da pérdida en el escenario histórico.</p>}
         {top.harvestMonth > 0 && <div className="crop-timeline">
-          <div><Sprout aria-hidden="true"/><span><small>Siembra evaluada</small><strong>{monthNames[p.sowMonth - 1]}</strong></span></div>
-          <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} · ~{Math.round(top.cycleDays / 30)} m</strong></span></div>
+          <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong></span></div>
         </div>}
-      </> : <p className="verdict-text">{sentence}</p>}
+        <p className="advisor-next"><strong>Antes de sembrar</strong> · Confirma el agua y el suelo con tu técnico.</p>
+      </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
       <div className="verdict-actions">
-        <button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={20} /> Escuchar</button>
+        <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={20} /> Oír resumen</button>
         {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={19} /> Datos y fuentes</button>}
       </div>
-      {notes.length > 0 && <details className="visual-details crop-alerts"><summary><TriangleAlert aria-hidden="true"/> Qué revisar ({notes.length})</summary><ul>{notes.map(w => <li key={w}>{w}</li>)}</ul></details>}
+      {reading && <><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</>}
+    </div>
+    <p className="note advisor-nasa">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía del puntaje: FAO GIEWS. <a href={climate.source.url}>Ver dato NASA</a></p>
+    {top && <details className="compare-fold"><summary>Agua, sequía, plagas y precio</summary><PillarBars a={top}/>{notes.length > 1 && <ul>{notes.slice(1).map(note => <li key={note}>{note}</li>)}</ul>}</details>}
+    <div hidden>
     </div>
 
-    <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</summary>
-      <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
+    <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({p.crops.length})</summary>
+      <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop}>{cropNames[crop]} · sin datos todavía</li>)}</ul>
     </details>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}

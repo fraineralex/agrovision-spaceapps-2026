@@ -1,12 +1,13 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex (OpenAI), 2026-11-14; corner FAB placement when idle by Antigravity (Gemini), 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 .error {
-  position: fixed;
+  position: relative;
   z-index: 40;
   right: 20px;
   bottom: calc(84px + env(safe-area-inset-bottom));
   width: max-content;
   max-width: min(310px, 90vw);
-  margin: 0;
+  margin: 0 0 0 auto;
   padding: 9px 12px;
   border-radius: 10px;
   background: #263957;
@@ -16,7 +17,7 @@
   pointer-events: none;
 }
 .orb {
-  position: fixed;
+  position: relative;
   z-index: 40;
   bottom: calc(18px + env(safe-area-inset-bottom));
   right: 20px;
@@ -24,6 +25,7 @@
   place-items: center;
   width: 56px;
   height: 56px;
+  margin-inline-start: auto;
   padding: 0;
   border: 2px solid #1f5132;
   border-radius: 50%;

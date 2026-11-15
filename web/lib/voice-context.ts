@@ -1,11 +1,13 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
 import { faoProvince, faoScoreRule } from "@/lib/fao-giews";
 import { locationSchema, provinceAt } from "@/lib/geography";
+import { historicCost } from "./profit";
 import { z } from "zod";
 import { getComparison, ndvi } from "@/lib/data";
 import { getFarmerComparison } from "./farmer-comparison";
 import { explanationInput } from "@/lib/explanation";
-import { adviseNextCrop, adviceSentence, cropNames, marketFor, marketLimits, monthNames, previousCrops, unitWord, type CropId } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropNames, marketFor, marketLimits, monthNames, previousCrops, recommendedCrop, unitWord, type CropId } from "@/lib/advisor";
 import { pestLimit } from "./pests";
 export const voiceSelection = explanationInput.extend({ priority: z.union([explanationInput.shape.priority, z.literal("balanced")]), parcelId: z.enum(["demo-01", "demo-02", "demo-03", "location"]), location: locationSchema.optional(), previousCrop: z.enum([...previousCrops, "otro", "unknown"] as const).optional(), crops: z.string().max(300).optional(), farmName: z.string().max(60).optional(), farmArea: z.string().max(60).optional(), rainAlert: z.string().max(240).optional(), profitRange: z.string().max(240).optional(), oversupply: z.string().max(240).optional() }).strict().refine(value => value.parcelId !== "location" || Boolean(value.location), "Ubicación requerida");
 export type VoiceSelection = z.infer<typeof voiceSelection>;
@@ -29,15 +31,16 @@ export function adviceMetrics(input: VoiceSelection) {
   const province = input.location ? provinceAt(input.location) : undefined;
   const previous = input.previousCrop ?? "unknown";
   const ranked = adviseNextCrop({ province, irrigation: input.irrigation, previous, sowMonth: input.month, priority: input.priority, crops: input.crops ? input.crops.split(",") as CropId[] : undefined });
-  const market = (Object.keys(cropNames) as CropId[]).filter(c => !input.crops || input.crops.split(",").includes(c) || c === ranked[0]?.crop).map(crop => { const m = marketFor(crop); return { crop: cropNames[crop], unit: m?.unit, latest: m?.latest, yearAgo: m?.yearAgo,
-    bestSellMonths_twoSeparateMonths: m?.bestSellMonths?.map(x => monthNames[x - 1]), lowestPriceMonths_twoSeparateMonths: m?.worstSellMonths?.map(x => monthNames[x - 1]), outlook: m?.outlook, nationalSowing: m?.sowing, productionCost2019: m?.cost2019 }; });
-  return { farm: { name: input.farmName ?? "not named", area: input.farmArea ?? "not drawn on the map" }, rainAlert7days: input.rainAlert ?? "not available", profitRangeApprox: input.profitRange ?? "not available", oversupplyWarning: input.oversupply ?? "none", province: province ?? "not chosen", sowMonth: monthNames[input.month - 1], previousCrop: previous, recommendation: adviceSentence(ranked[0], previous),
+  const top = recommendedCrop(ranked);
+  const market = (Object.keys(cropNames) as CropId[]).filter(c => !input.crops || input.crops.split(",").includes(c) || c === top?.crop).map(crop => { const m = marketFor(crop); return { crop: cropNames[crop], unit: m?.unit, latest: m?.latest, yearAgo: m?.yearAgo,
+    bestSellMonths_twoSeparateMonths: m?.bestSellMonths?.map(x => monthNames[x - 1]), lowestPriceMonths_twoSeparateMonths: m?.worstSellMonths?.map(x => monthNames[x - 1]), outlook: m?.outlook, nationalSowing: m?.sowing, productionCost2019: historicCost(crop, input.irrigation)?.cost }; });
+  return { farm: { name: input.farmName ?? "not named", area: input.farmArea ?? "not drawn on the map" }, rainAlert7days: input.rainAlert ?? "not available", profitRangeApprox: input.profitRange ?? "not available", oversupplyWarning: input.oversupply ?? "none", province: province ?? "not chosen", sowMonth: monthNames[input.month - 1], previousCrop: previous, recommendedCrop: top?.name, recommendation: adviceSentence(top, previous),
     ranking: ranked.map(r => ({ crop: r.name, overall: r.overall, plainWords: r.words, warnings: [...r.warnings, ...r.pestPrecautions], pestPrecautions: r.pestPrecautions, harvestMonth: monthNames[r.harvestMonth - 1] })),
     market, marketLimits, pestLimit, pestHelp: "For symptoms, ask the farmer to describe leaves (color, spots, where they start), stems and pods, and to take a photo to a local extension technician or IDIAF; never name a pesticide or dose." };
 }
 export function localAdviceText(input: VoiceSelection) {
   const a = adviceMetrics(input);
-  const top = a.ranking[0];
+  const top = a.ranking.find(row => row.crop === a.recommendedCrop);
   const m = a.market.find(x => x.crop === top?.crop);
   const price = m?.latest ? ` En Santo Domingo, al por mayor, estaba a ${Math.round(m.latest.price)} pesos ${unitWord(m.unit)}${m.bestSellMonths_twoSeparateMonths?.length ? `; suele venderse mejor en ${m.bestSellMonths_twoSeparateMonths.join(" y ")}` : ""}.` : "";
   return `${a.recommendation}${top?.warnings.length ? " " + top.warnings.join(" ") : ""}${price} Es una guía: revísalo con tu técnico.`;

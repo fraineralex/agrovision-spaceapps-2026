@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex/OpenAI, 2026-11-14; restructured for the farmer audit by Claude (Anthropic), 2026-11-14; Bento dashboard & KPI telemetry strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -19,9 +20,10 @@ import { useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
 import { FieldWeek, PlantingPlan, WorkbenchNav, type SectionTab } from "@/components/farm-workbench";
 import { HelpTip } from "@/components/help-tip";
+import { GuidedSale } from "@/components/guided-sale";
 import { SaleBudget } from "@/components/sale-budget";
 import { ShareButton, type ShareSummary } from "@/components/share-button";
-import { adviceSentence, oversupplyFor } from "@/lib/advisor";
+import { adviceSentence, oversupplyFor, recommendedCrop } from "@/lib/advisor";
 import { climate, scoreDefinitions, type Priority, type Irrigation } from "@/lib/data";
 import { nationalCenter, provinces, provinceAt, isInCountry, type Location } from "@/lib/geography";
 import { getFarmerComparison, pillarColor } from "@/lib/farmer-comparison";
@@ -30,6 +32,7 @@ import { droughtSignal, faoProvince } from "@/lib/fao-giews";
 import type { ClimateContext } from "@/lib/location-climate";
 import type { VoiceSelection } from "@/lib/voice-context";
 import { fieldMeta, type FieldInfo } from "@/lib/map/fields";
+import manifest from "@/public/data/manifest.json";
 import parcels from "@/public/data/demo-parcels.json";
 import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
@@ -122,9 +125,9 @@ export default function Home() {
   },[onLocation]);
   const onField = useCallback((f:FieldInfo) => {onLocation({longitude:f.center[0],latitude:f.center[1]});setField(f);},[onLocation]);
   const useGps = () => {
-    if (!("geolocation" in navigator)) { setGpsStatus("Tu teléfono no permite ubicación."); return; }
+    if (!("geolocation" in navigator)) { setGpsStatus("Tu teléfono no permite ubicación. Escribe tu comunidad o provincia."); return; }
     setGpsStatus("Buscando tu ubicación…");
-    navigator.geolocation.getCurrentPosition(pos => { const point = { longitude: pos.coords.longitude, latitude: pos.coords.latitude }; if (isInCountry(point)) { onLocation(point); setGpsStatus(""); } else setGpsStatus("Tu ubicación no está en República Dominicana."); }, () => setGpsStatus("No se pudo obtener tu ubicación. Elige tu provincia."), { timeout: 10000 });
+    navigator.geolocation.getCurrentPosition(pos => { const point = { longitude: pos.coords.longitude, latitude: pos.coords.latitude }; if (isInCountry(point)) { onLocation(point); setGpsStatus(""); } else setGpsStatus("Tu ubicación no está en República Dominicana. Escribe tu comunidad o provincia."); }, () => setGpsStatus("No se pudo obtener tu ubicación. Escribe tu comunidad o provincia."), { timeout: 10000 });
   };
   useEffect(() => {
     if (selectedParcel !== "location" || !chosen) return;
@@ -134,7 +137,7 @@ export default function Home() {
       try {
         let data:ClimateContext;
         try { const saved = localStorage.getItem(`power:${locationKey}`); if (!saved) throw new Error(); data = JSON.parse(saved); }
-        catch { const bundled = await fetch(`/data/power/${locationKey}.json`,{signal:controller.signal}); if (bundled.ok) data = await bundled.json(); else { const response = await fetch(`/api/climate?longitude=${location.longitude}&latitude=${location.latitude}`,{signal:controller.signal}); if (!response.ok) throw new Error(); data = await response.json(); } }
+        catch { const cachePath = `power/${locationKey}.json`; const bundled = manifest.files.includes(cachePath) ? await fetch(`/data/${cachePath}`,{signal:controller.signal}) : null; if (bundled?.ok) data = await bundled.json(); else { const response = await fetch(`/api/climate?longitude=${location.longitude}&latitude=${location.latitude}`,{signal:controller.signal}); if (!response.ok) throw new Error(); data = await response.json(); } }
         if (controller.signal.aborted) return;
         setContext({key:locationKey,data});setClimateStatus("");try {localStorage.setItem(`power:${locationKey}`,JSON.stringify(data));} catch { /* Storage is optional. */ }
       } catch {if (!controller.signal.aborted) setClimateStatus("Clima no disponible aquí. Prueba una provincia o vuelve a conectar.");}
@@ -150,10 +153,10 @@ export default function Home() {
   const selectedContext = context?.key === locationKey ? context.data : null;
   const ordered = useMemo(() => getFarmerComparison(sanJuan,selectedContext,priority),[sanJuan,selectedContext,priority]);
   const ranked = useMemo(() => adviseNextCrop({ province: farmProvince, irrigation, previous, sowMonth: month, priority: BALANCED, crops }), [farmProvince, irrigation, previous, month, crops]);
-  const topAdvice = ranked[0];
+  const topAdvice = recommendedCrop(ranked);
   const topCrop = topAdvice?.crop ?? "habichuela_roja";
   const farmAreaM2 = activeFarm ? piecesAreaM2(activeFarm.pieces) : 0;
-  const farmTareas = farmAreaM2 ? m2ToTareas(farmAreaM2) : null;
+  const farmTareas = activeFarm?.declaredTareas ?? (farmAreaM2 ? m2ToTareas(farmAreaM2) : null);
   const rain = useRain(chosen ? (activeFarm?.location ?? location) : null);
   const glut = topAdvice && topAdvice.harvestMonth ? oversupplyFor(topCrop, topAdvice.harvestMonth) : null;
   const rainSentence = rain.cached ? undefined : rain.alert?.sentence;
@@ -177,7 +180,7 @@ export default function Home() {
       </div>
       <OfflineStatus/>
     </header>
-    <main id="contenido" className="workspace" tabIndex={-1}>
+    <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
       <div className="heading-row">
         <div className="heading-copy">
           <span className="eyebrow">Guía agronómica y satelital · RD</span>
@@ -242,10 +245,12 @@ export default function Home() {
           ) : (
             <div className="home-grid">
               <div className="col-main">
-                <Fold id="siembra" icon="🌱" title="Plan y recomendación" help="Aquí ves el cultivo más recomendable según tu tierra, agua y cultivo anterior, y puedes guardar tu plan del mes.">
-                  {activeFarm && <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>}
+                <section id="siembra" aria-label="Recomendación y plan de siembra">
                   <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-                </Fold>
+                  {activeFarm && <Fold icon="🌱" title="Tu plan de siembra">
+                    <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                  </Fold>}
+                </section>
               </div>
               <div className="col-side">
                 <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
@@ -266,10 +271,12 @@ export default function Home() {
         <div id="panel-venta" role="tabpanel" aria-labelledby="tab-venta" className="tab-stage">
           <div className="home-grid">
             <div className="col-main">
-              <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder.">
-                <SaleBudget key={activeFarm?.id ?? "new"}/>
+              <Fold id="cuanto-me-deja" icon="💵" title="¿Cuánto me deja?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder.">
+                <a className="workbench-button" href="#precio-y-mercado">Ver precios del mercado</a>
+                <GuidedSale key={activeFarm?.id ?? "new"} initialCrop={activeFarm?.plan?.crop ?? (crops.find(crop => crop === previous) ?? saleCrop)} farmTareas={farmTareas} initialIrrigation={irrigation} areaSource={activeFarm?.declaredTareas ? "declarada" : farmAreaM2 ? "del mapa" : undefined}/>
+                <details className="visual-details"><summary>Ya tengo mis gastos y cosecha</summary><SaleBudget key={activeFarm?.id ?? "new"}/></details>
                 {supervisor && <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
-                  <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas}/>
+                  <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas} irrigation={irrigation}/>
                 </details>}
               </Fold>
             </div>
@@ -390,13 +397,13 @@ export default function Home() {
           <section className="card panel voice-guide-card" aria-labelledby="voice-guide-title">
             <div className="panel-head-row">
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
-              <HelpTip label="Pregúntale a AgroVision" text="Puedes hablar con el botón flotante verde de la esquina en cualquier momento, o usar Escribir y Oír resumen aquí mismo." />
+              <HelpTip label="Pregúntale a AgroVision" text="Usa Hablar en el asistente, Escribir u Oír resumen." />
             </div>
             <p className="panel-intro">Elige cómo prefieres consultar los datos de tu finca: hablando en vivo, leyendo tu pregunta o escuchando el resumen en voz alta.</p>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
                 <strong>1. Hablar por micrófono</strong>
-                <p>Toca el botón circular verde de la esquina inferior derecha para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
+                <p>Toca Hablar en el asistente para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
               </div>
               <div className="voice-guide-item">
                 <strong>2. Consultar por escrito</strong>
@@ -416,7 +423,7 @@ export default function Home() {
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>
         <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
-        <a href="/data/manifest.json">Fuentes y versión de datos</a>
+        <a href="/fuentes">Fuentes y versión de datos</a>
         <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a>
       </footer>
     </main>

@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
@@ -77,7 +78,7 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
     setDate("");
     setStatus("Fecha borrada.");
   };
-  const forecast = rain.forecast?.kind === "forecast" && !rain.cached ? rain.forecast : null;
+  const forecast = rain.fresh && rain.forecast && !rain.cached ? rain.forecast : null;
   const rainDay = forecast?.days.find(day => day.date === saved?.date);
   const weekRainMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((sum, d) => sum + d.rainMm, 0)) : null;
   return <section id="lluvia-esta-semana" className="field-week" aria-labelledby="week-title">

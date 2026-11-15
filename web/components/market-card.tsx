@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — farmer market card; animated price area chart & 12-month seasonal strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { AlertTriangle } from "lucide-react";
@@ -76,7 +77,9 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
     {latest ? <>
       <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
       {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
+      {m.priceQuality && <p className="note">Calidad limitada: se excluyeron {m.priceQuality.excluded.length} registros extremos. {m.priceQuality.rule}</p>}
       <Sparkline values={(m.recent ?? []).map(r => r.price)} periods={(m.recent ?? []).map(r => r.period)} />
+      {Boolean(m.recent?.length) && <details className="visual-details"><summary>Ver precios mensuales en tabla</summary><table><caption>Precios mayoristas en Santo Domingo ({m.unit})</caption><thead><tr><th scope="col">Mes</th><th scope="col">Precio promedio</th></tr></thead><tbody>{m.recent?.map(row => <tr key={row.period}><th scope="row">{row.period}</th><td>{row.price.toLocaleString("es-DO")}</td></tr>)}</tbody></table></details>}
       {(bestSet.size > 0 || worstSet.size > 0) && (
         <div className="season-cal" aria-label="Calendario estacional de venta (12 meses)">
           <div className="season-cal-head">
@@ -114,7 +117,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
         {latest && <p>Precio mayorista promedio del mes en Santo Domingo. <a href={marketSources.prices}>Ministerio de Agricultura, {marketSources.pricesPeriod}</a>.</p>}
         {outlook && <p>El rango muestra cuánto ha variado el precio en esta época en años anteriores. No es una garantía.</p>}
         {m?.sowing && m.sowing.tareasLast12 && <p>Siembra nacional: {m.sowing.tareasLast12.toLocaleString("es-DO")} tareas en los 12 meses hasta {periodWord(m.sowing.windowEnd!)}, frente a {m.sowing.medianPrev12?.toLocaleString("es-DO")} (mediana de años anteriores). <a href={marketSources.sowing}>Consolidado de siembra, Ministerio de Agricultura</a>.</p>}
-        {cost && <p>Costo de producir una tarea en 2019 ({cost.area}): {money(cost.costPerTarea)}; cosecha típica {cost.yield} {cost.yieldUnit} por tarea. <a href={`${cost.source}#page=${cost.pdfPage}`}>Costos de Producción 2019, pág. {cost.pdfPage}</a>. No se calcula ganancia: los costos son de 2019 y el precio es mayorista, no lo que te pagan en finca.</p>}
+        {cost && <p>Costo de producir una tarea en 2019 ({cost.area}): {money(cost.costPerTarea)}; cosecha típica {cost.yield} {cost.yieldUnit} por tarea. <a href={`${cost.source}#page=${cost.pdfPage}`}>Costos de Producción 2019, pág. {cost.pdfPage}</a>.</p>}
         <ul>{marketLimits.map(l => <li key={l}>{l}</li>)}</ul>
       </div>
     </details>
