@@ -1,7 +1,11 @@
 /* AI: Codex/OpenAI, 2026-11-14; wording simplified by Claude (Anthropic), 2026-11-14. Frainer review pending. */
 "use client";
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
+
 export function OfflineStatus() {
+  const text = messages[useLocale()].common;
   const [ready, setReady] = useState(false);
   const [online, setOnline] = useState(true);
   useEffect(() => {
@@ -16,5 +20,5 @@ export function OfflineStatus() {
     return () => { window.removeEventListener("online", update); window.removeEventListener("offline", update); };
   }, []);
   if (online && !ready) return null;
-  return <span aria-live="polite" className="offline-pill"><i className="status-dot" />{online ? "Lista para usar sin internet" : "Sin internet: usando datos guardados"}</span>;
+  return <span aria-live="polite" className="offline-pill"><i className="status-dot" />{online ? text.offlineReady : text.offlineUsing}</span>;
 }

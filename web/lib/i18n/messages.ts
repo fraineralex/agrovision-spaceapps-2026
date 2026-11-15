@@ -2,6 +2,7 @@
 /** Stable identifiers keep presentation translations separate from crop scoring. */
 export const messages = {
   en: {
+    common: { sunlightMode: "Sunlight mode", offlineReady: "Ready to use offline", offlineUsing: "Offline: using saved data", myFarms: "My farms", chooseFarm: "Choose a farm", addFarm: "Add farm", unmapped: "not marked on the map", edit: "Edit", confirmDelete: "Yes, delete", no: "No", delete: "Delete" },
     crops: {
       ajo: "Garlic", habichuela_roja: "Red beans", habichuela_negra: "Black beans",
       maiz: "Maize", arroz: "Rice", batata: "Sweet potato", yuca: "Cassava",
@@ -12,6 +13,7 @@ export const messages = {
     },
   },
   es: {
+    common: { sunlightMode: "Modo sol", offlineReady: "Lista para usar sin internet", offlineUsing: "Sin internet: usando datos guardados", myFarms: "Mis fincas", chooseFarm: "Elige una finca", addFarm: "Agregar finca", unmapped: "sin marcar en el mapa", edit: "Editar", confirmDelete: "Sí, borrar", no: "No", delete: "Borrar" },
     crops: {
       ajo: "Ajo", habichuela_roja: "Habichuela roja", habichuela_negra: "Habichuela negra",
       maiz: "Maíz", arroz: "Arroz", batata: "Batata", yuca: "Yuca",

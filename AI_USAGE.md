@@ -439,3 +439,6 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex gpt-6.1-terra (OpenAI):** inició la internacionalización con un diccionario de nombres de cultivos y una prueba de paridad y cobertura del catálogo en `web/lib/i18n/messages.ts` y `web/lib/i18n.test.ts`. No está integrado en la interfaz; la traducción completa sigue pendiente. Revisión por Frainer pendiente.
 
 - 2026-11-15, OpenAI GPT-6: añadió utilidades para resolver la preferencia de idioma y etiquetas de formato y voz, con pruebas. Archivos: `web/lib/i18n/locale.ts`, `web/lib/i18n.test.ts`. La integración de la interfaz y las traducciones sigue pendiente; revisión por Frainer pendiente.
+
+- 2026-11-15, OpenAI GPT-6: añadió un almacén reactivo de idioma con persistencia local y sincronización entre pestañas en `web/lib/i18n/client.ts`. Integración y revisión por Frainer pendientes.
+- 2026-11-15, OpenAI GPT-6: tradujo controles comunes, estado sin conexión y selector de fincas en `web/lib/i18n/messages.ts` y `web/components/{offline,theme-toggle,farm-switcher}.tsx`. Integración completa y revisión por Frainer pendientes.
