@@ -8,6 +8,7 @@ import { VoiceDock } from "@/components/voice-dock";
 import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
 import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
@@ -112,6 +113,8 @@ function downloadFarmBoundary(farm: Farm) {
 
 export default function Home() {
   const locale = useLocale();
+  const text = messages[locale].home;
+  const onboardingText = messages[locale].onboarding;
   const [mode, setMode] = useState<ViewMode>("farmer");
   const supervisor = mode === "supervisor";
   const changeMode = (value: ViewMode) => {
@@ -131,7 +134,7 @@ export default function Home() {
   const [climateStatus,setClimateStatus] = useState("");
   const [caseClimate,setCaseClimate] = useState<typeof import("@/lib/data").climate | null>(null);
   const [provinceSearch,setProvinceSearch] = useState("");
-  const [gpsStatus,setGpsStatus] = useState("");
+  const [gpsStatus,setGpsStatus] = useState<"gpsUnsupported" | "gpsSearching" | "gpsOutside" | "gpsError" | null>(null);
   const [mapOpen,setMapOpen] = useState(true);
   const [mapPlace,setMapPlace] = useState("");
   const [crops,setCrops] = useState<CropId[]>(defaultCrops);
@@ -181,9 +184,9 @@ export default function Home() {
   },[onLocation]);
   const onField = useCallback((f:FieldInfo) => {onLocation({longitude:f.center[0],latitude:f.center[1]});setField(f);},[onLocation]);
   const useGps = () => {
-    if (!("geolocation" in navigator)) { setGpsStatus("Tu teléfono no permite ubicación. Escribe tu comunidad o provincia."); return; }
-    setGpsStatus("Buscando tu ubicación…");
-    navigator.geolocation.getCurrentPosition(pos => { const point = { longitude: pos.coords.longitude, latitude: pos.coords.latitude }; if (isInCountry(point)) { onLocation(point); setGpsStatus(""); } else setGpsStatus("Tu ubicación no está en República Dominicana. Escribe tu comunidad o provincia."); }, () => setGpsStatus("No se pudo obtener tu ubicación. Escribe tu comunidad o provincia."), { timeout: 10000 });
+    if (!("geolocation" in navigator)) { setGpsStatus("gpsUnsupported"); return; }
+    setGpsStatus("gpsSearching");
+    navigator.geolocation.getCurrentPosition(pos => { const point = { longitude: pos.coords.longitude, latitude: pos.coords.latitude }; if (isInCountry(point)) { onLocation(point); setGpsStatus(null); } else setGpsStatus("gpsOutside"); }, () => setGpsStatus("gpsError"), { timeout: 10000 });
   };
   useEffect(() => {
     if (selectedParcel !== "location" || !chosen) return;
@@ -232,14 +235,14 @@ export default function Home() {
   const drought = province ? droughtSignal(faoProvince(province)) : null;
   const weekRainMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((s, d) => s + d.rainMm, 0)) : null;
   return <>
-    <a className="skip-link" href="#contenido">Saltar al contenido</a>
+    <a className="skip-link" href="#contenido">{text.skip}</a>
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
     <header className="topbar" role="banner">
       <div className="brand">
         <span className="brand-mark"><FarmIcon name="soil" size={22}/></span>
         <span className="brand-text">
           <span>AgroVision</span>
-          <small className="brand-sub">NASA · FAO · Agricultura RD</small>
+          <small className="brand-sub">{text.brand}</small>
         </span>
       </div>
       <div className="header-actions"><OfflineStatus/><LanguageSelector/><ThemeToggle/></div>
@@ -247,18 +250,25 @@ export default function Home() {
     <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
       <div className="heading-row">
         <div className="heading-copy">
-          <h1>{activeTab === "lluvia" ? "Lluvia" : activeTab === "venta" ? "Venta" : activeTab === "mapa" ? "Fincas" : activeTab === "preguntar" ? "Ayuda" : activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
+          <h1>{activeTab === "lluvia" ? text.rain : activeTab === "venta" ? text.sale : activeTab === "mapa" ? text.farms : activeTab === "preguntar" ? text.help : activeFarm ? activeFarm.name : supervisor ? text.supervision : text.question}</h1>
         </div>
         <div className="heading-controls">
           <div className="heading-toolbar">
-            <div className="mode-switch" role="group" aria-label="Modo de uso">
-              <button type="button" aria-pressed={!supervisor} onClick={() => changeMode("farmer")}><Sprout aria-hidden="true"/> Agricultor</button>
-              <button type="button" aria-pressed={supervisor} onClick={() => changeMode("supervisor")}><ClipboardList aria-hidden="true"/> Supervisor</button>
+            <div className="mode-switch" role="group" aria-label={text.mode}>
+              <button type="button" aria-pressed={!supervisor} onClick={() => changeMode("farmer")}><Sprout aria-hidden="true"/> {text.farmer}</button>
+              <button type="button" aria-pressed={supervisor} onClick={() => changeMode("supervisor")}><ClipboardList aria-hidden="true"/> {text.supervisor}</button>
             </div>
             {farms.length === 0 && (
-              <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca</button>
+              <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>{text.addFarm}</button>
             )}
           </div>
+          {supervisor && (
+            <nav className="supervisor-tools" aria-label={text.supervisorTools}>
+              <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>{text.parcels}</a>
+              <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>{text.climateMarket}</a>
+              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => openReport("rotaciones"), 30); }}>{text.rotations}</a>
+            </nav>
+          )}
         </div>
       </div>
 
@@ -275,10 +285,10 @@ export default function Home() {
           {!chosen ? (
             <section className="card panel quick-zone-card" aria-labelledby="quick-zone-title">
               <div className="panel-head-row">
-                <h2 id="quick-zone-title" className="panel-title"><MapPin aria-hidden="true" className="panel-icon"/> Elige tu zona para ver recomendaciones</h2>
-                <HelpTip label="Elegir tu zona" text="Toca tu provincia o agrega tu finca para ver qué cultivos convienen hoy según agua, sequía, plagas y precio." />
+                <h2 id="quick-zone-title" className="panel-title"><MapPin aria-hidden="true" className="panel-icon"/> {text.chooseZone}</h2>
+                <HelpTip label={text.chooseZone} text={text.chooseZoneHelp} />
               </div>
-              <p className="panel-intro">Con un toque ves qué cultivo conviene sembrar primero en tu provincia. También puedes registrar tu finca paso a paso.</p>
+              <p className="panel-intro">{text.zoneIntro}</p>
               <div className="quick-zone-grid">
                 {provinces.filter(p => ["San Juan", "Santiago", "La Vega", "Azua", "Monte Cristi", "Valverde"].includes(p.name)).map(p => (
                   <button key={p.name} type="button" className="ob-choice" onClick={() => onLocation({ longitude: p.longitude, latitude: p.latitude })}>
@@ -288,18 +298,18 @@ export default function Home() {
                 ))}
               </div>
               <div className="quick-zone-actions">
-                <div className="quick-zone-select ag-select-field"><span className="ag-select-label">Otras provincias</span>
-                  <CustomSelect ariaLabel="Elige tu provincia" placeholder="Selecciona una provincia" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(item => item.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} />
+                <div className="quick-zone-select ag-select-field"><span className="ag-select-label">{text.otherProvinces}</span>
+                  <CustomSelect ariaLabel={text.chooseProvince} placeholder={text.selectProvince} value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(item => item.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} />
 
 
                 </div>
 
-                <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
+                <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> {text.useLocation}</button>
               </div>
-              {gpsStatus && <p role="status">{gpsStatus}</p>}
+              {gpsStatus && <p role="status">{onboardingText[gpsStatus]}</p>}
             </section>
           ) : (
-            <section id="siembra" aria-label="Recomendación y plan de siembra">
+            <section id="siembra" aria-label={text.recommendationPlan}>
               <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
                 {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
@@ -368,7 +378,7 @@ export default function Home() {
                     {placesUnavailable && <p role="status">Catálogo temporalmente no disponible. Puedes escoger una provincia.</p>}
                     {provinceSearch.trim().length >= 2 && !places.length && !placesLoading && !placesUnavailable && <p role="status">No encontramos ese lugar.</p>}
                     <div className="ag-select-field"><span className="ag-select-label">O escoge de la lista</span><CustomSelect ariaLabel="Provincia" placeholder="Selecciona" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(p => p.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} /></div>
-                    {gpsStatus && <p role="status">{gpsStatus}</p>}
+                    {gpsStatus && <p role="status">{onboardingText[gpsStatus]}</p>}
                   </div>
                   {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField} advanced={supervisor}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
                   {supervisor && activeFarm && <div className="parcel-export">
@@ -482,10 +492,10 @@ export default function Home() {
       <VoiceDock selection={selection} openWrite={activeTab === "preguntar"}/>
 
       <footer className="provenance about">
-        <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>
-        <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
-        <a href={`/${locale}/fuentes`}>Fuentes y versión de datos</a>
-        <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a>
+        <p><strong>{text.about}</strong> {text.aboutText}</p>
+        <p><strong>{text.data}</strong> {text.dataText}</p>
+        <a href={`/${locale}/fuentes`}>{text.sources}</a>
+        <a href="https://www.geonames.org/export/">{text.places}</a>
       </footer>
     </main>
   </>;

@@ -4,6 +4,8 @@
 
 import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Mic, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import { HelpTip } from "@/components/help-tip";
 import { CustomSelect } from "@/components/custom-select";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
@@ -23,15 +25,16 @@ export function BottomNav({
   onSelectTab: (tab: SectionTab) => void;
   weekRainMm?: number | null;
 }) {
+  const text = messages[useLocale()].navigation;
   const tabs: { id: SectionTab; label: string; Icon: typeof Sprout; badge?: string }[] = [
-    { id: "siembra", label: "Siembra", Icon: Sprout },
-    { id: "lluvia", label: "Lluvia", Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
-    { id: "venta", label: "Venta", Icon: Coins },
-    { id: "mapa", label: "Fincas", Icon: MapPin },
-    { id: "preguntar", label: "Ayuda", Icon: Mic },
+    { id: "siembra", label: text.planting, Icon: Sprout },
+    { id: "lluvia", label: text.rain, Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
+    { id: "venta", label: text.sale, Icon: Coins },
+    { id: "mapa", label: text.farms, Icon: MapPin },
+    { id: "preguntar", label: text.help, Icon: Mic },
   ];
   return (
-    <div className="workbench-nav" role="tablist" aria-label="Secciones principales de tu finca">
+    <div className="workbench-nav" role="tablist" aria-label={text.sections}>
       {tabs.map(({ id, label, Icon, badge }) => {
         const selected = activeTab === id;
         return (
