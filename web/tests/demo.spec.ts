@@ -284,6 +284,11 @@ test("voice tools, location validation and honest missing-key fallback",async({r
  expect(chat.headers()["x-agrovision-mode"]).toBe("local");expect(await chat.text()).toContain("Sin conexión con IA");
  const rainChat=await request.post("/api/voice/chat",{data:{selection:{...selection,rainAlert:"Se prevén 14 mm el jueves."},messages:[{role:"user",content:"¿Va a llover?"}]}});
  expect(await rainChat.text()).toContain("Se prevén 14 mm el jueves.");
+ const alternative = await request.post("/api/voice/chat", { data: {
+  selection: { ...selection, crops: "maiz,habichuela_roja" },
+  messages: [{ role: "user", content: "Además del maíz, ¿qué otra cosa me recomiendas?" }],
+ } });
+ expect(await alternative.text()).toContain("Otra opción es habichuela roja");
  const tool=await request.post("/api/voice/tools",{data:{selection,name:"get_parcel_metrics",args:{}}});
  const data=await tool.json();expect(data.climate.temperatureC).toBe(25.43);expect(data.climateSource.period).toBe("2016–2025");expect(data.ndvi.rows).toHaveLength(0);
  expect((await request.post("/api/voice/tools",{data:{selection,name:"run_command",args:{}}})).status()).toBe(400);
