@@ -2,7 +2,7 @@
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
-import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
+import { AudioLines, ChevronDown, Keyboard, MessageCircle, Mic, Send, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
@@ -38,6 +38,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const [dictating, setDictating] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [summaryState, setSummaryState] = useState<"idle" | "playing" | "paused">("idle");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const orb = useRef<HTMLButtonElement>(null);
   const voicePanel = useRef<HTMLElement>(null);
   const generation = useRef(0);
@@ -136,6 +137,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   }
   async function startVoice() {
     if (starting.current) return;
+    setDrawerOpen(true);
     interrupt();
     setNotice("");
     setVoiceError(false);
@@ -260,6 +262,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     synthesis.speak(utterance);
   }
   function playSummary() {
+    setDrawerOpen(true);
     interrupt();
     speak(localAdviceText(selection), true);
   }
@@ -314,41 +317,133 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   }
   const active = dictating || requesting || realtime.status === "connecting" || realtime.status === "connected";
   const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : (dictating || realtime.isCapturing) ? "listening" : "connecting";
-  const voiceStatus = { idle: busy && dictatedAnswer ? "Preparando tu respuesta…" : notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
-  const lastAnswer = messages.at(-1)?.role === "assistant" ? messages.at(-1)?.content : undefined;
+  const isSpeakingOrListening = active || summaryState !== "idle" || (busy && dictatedAnswer);
+  const voiceStatus = { idle: busy && dictatedAnswer ? "Preparando tu respuesta…" : summaryState === "playing" ? "Leyendo resumen…" : summaryState === "paused" ? "Resumen en pausa" : notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "AgroVision hablando…" }[orbState];
+  const hasConversation = realtime.messages.length > 0 || messages.length > 0 || isSpeakingOrListening || Boolean(notice);
   const hangUp = () => stopVoice("Micrófono apagado.", false);
-  return <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
-    <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
-      onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
-      {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
-    </button>
-    <p className={voiceError && !active ? session.error : dictating || (busy && dictatedAnswer) ? "note" : "sr-only"} role="status">{voiceStatus}</p>
-    {dictating && <button type="button" className="link-button" onClick={() => dictation.current?.stop()}>Terminar pregunta</button>}
-    <div hidden={active}>
-    <div className="voice-bar-head">
-      <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
-      <span>Toca Hablar o consulta por escrito</span>
+  return <>
+    <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
+      <div className="voice-bar-head">
+        <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
+        <span>Toca el botón verde de hablar en cualquier sección o escribe tu consulta aquí</span>
+      </div>
+      {voiceError && !active && notice && <p className={session.error} role="status">{notice}</p>}
+      {(realtime.messages.length > 0 || messages.length > 0) && (
+        <div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
+          {realtime.messages.map(message => (
+            <div key={message.id} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
+              <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+              <p>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>
+            </div>
+          ))}
+          {messages.map((message, index) => (
+            <div key={index} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
+              <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+              <p>{message.content || "Pensando…"}</p>
+              {message.role === "assistant" && message.content && !busy && (
+                <button type="button" className="voice-inline-speak" onClick={() => speak(message.content)}><Volume2 size={14} aria-hidden="true"/> Oír</button>
+              )}
+              {message.sources && message.sources.length > 0 && (
+                <div className="rag-sources" role="list" aria-label="Fuentes consultadas">
+                  {message.sources.map(source => <a key={source.id} className="rag-source-chip" role="listitem" href={source.sourceUrl ?? "#"} target={source.sourceUrl ? "_blank" : undefined} rel={source.sourceUrl ? "noreferrer" : undefined} title={source.filePath}>{source.sourceName}</a>)}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="voice-alternatives">
+        <details className="visual-details voice-write-box" open={defaultOpenWrite ? true : undefined}>
+          <summary><Keyboard aria-hidden="true" size={16}/> Escribir</summary>
+          <form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}>
+            <input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
+            <button disabled={busy || !draft.trim()}><Send size={15} aria-hidden="true"/> Enviar</button>
+          </form>
+        </details>
+        <div className="voice-action-row">
+          <button type="button" className="voice-action-pill" onClick={active ? hangUp : startVoice}>
+            {active ? <Square size={15} aria-hidden="true"/> : <Mic size={15} aria-hidden="true"/>}
+            {active ? "Colgar voz" : "Hablar ahora"}
+          </button>
+          <button type="button" className="voice-action-pill" onClick={playSummary}><Volume2 size={15} aria-hidden="true"/> Oír resumen</button>
+          {summaryState !== "idle" && (
+            <>
+              <button type="button" className="voice-action-pill" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
+              <button type="button" className="voice-action-pill" onClick={stopSummary}>Detener</button>
+            </>
+          )}
+        </div>
+        <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
+      </div>
+    </section>
+
+    <div className="voice-floating-shell" aria-live="polite">
+      {drawerOpen && hasConversation && (
+        <aside className="voice-live-drawer" aria-label="Chat de voz en vivo">
+          <div className="voice-drawer-head">
+            <span className={`voice-drawer-status ${orbState}`}>
+              <i className="voice-status-dot" aria-hidden="true"/>
+              {voiceStatus || "Asistente AgroVision"}
+            </span>
+            <button type="button" className="voice-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Ocultar chat desplegable" title="Minimizar chat">
+              <ChevronDown size={16} aria-hidden="true"/>
+            </button>
+          </div>
+          <div className="voice-drawer-body">
+            {realtime.messages.length === 0 && messages.length === 0 && summaryState === "idle" && (
+              <p className="voice-drawer-hint">
+                {orbState === "listening" ? "Te escucho… haz tu pregunta sobre tu finca, lluvia o mercado." : orbState === "speaking" ? "AgroVision está respondiendo en voz alta…" : orbState === "connecting" ? "Conectando micrófono con AgroVision…" : notice || "Toca Hablar o escribe tu consulta."}
+              </p>
+            )}
+            {summaryState !== "idle" && realtime.messages.length === 0 && messages.length === 0 && (
+              <div className="voice-msg-bubble assistant">
+                <strong>AgroVision (resumen)</strong>
+                <p>{localAdviceText(selection)}</p>
+              </div>
+            )}
+            {realtime.messages.map(message => (
+              <div key={message.id} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
+                <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+                <p>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>
+              </div>
+            ))}
+            {messages.map((message, index) => (
+              <div key={index} className={`voice-msg-bubble ${message.role === "user" ? "user" : "assistant"}`}>
+                <strong>{message.role === "user" ? "Tú" : "AgroVision"}</strong>
+                <p>{message.content || "Pensando…"}</p>
+              </div>
+            ))}
+          </div>
+          <div className="voice-drawer-foot">
+            {dictating && <button type="button" className="voice-drawer-btn" onClick={() => dictation.current?.stop()}>Terminar pregunta</button>}
+            {active && <button type="button" className="voice-drawer-btn danger" onClick={hangUp}><Square size={13} aria-hidden="true"/> Colgar</button>}
+            {summaryState !== "idle" && (
+              <>
+                <button type="button" className="voice-drawer-btn" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
+                <button type="button" className="voice-drawer-btn danger" onClick={stopSummary}>Detener</button>
+              </>
+            )}
+            {!active && summaryState === "idle" && (
+              <form className="voice-drawer-form" onSubmit={event => { event.preventDefault(); void send(draft); }}>
+                <input aria-label="Escribir en chat desplegable" placeholder="Escribe aquí…" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/>
+                <button type="submit" disabled={busy || !draft.trim()} aria-label="Enviar"><Send size={14} aria-hidden="true"/></button>
+              </form>
+            )}
+          </div>
+        </aside>
+      )}
+      <div className="voice-fab-row">
+        {hasConversation && !drawerOpen && (
+          <button type="button" className="voice-drawer-chip" onClick={() => setDrawerOpen(true)} aria-label="Abrir chat de voz">
+            <MessageCircle size={16} aria-hidden="true"/>
+            <span>{isSpeakingOrListening ? (voiceStatus || "En vivo") : "Ver chat"}</span>
+          </button>
+        )}
+        <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
+          onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
+          {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
+        </button>
+      </div>
     </div>
-    {dictatedAnswer && (busy || lastAnswer) && <div className="voice-compact-log" role="region" aria-label="Respuesta a tu pregunta" aria-live="polite">
-      <p><strong>Tú:</strong> {messages.at(-2)?.content}</p>
-      <p><strong>AgroVision:</strong> {lastAnswer || "Pensando…"}</p>
-      {!busy && lastAnswer && <button type="button" className="link-button" onClick={() => speak(lastAnswer)}><Volume2 aria-hidden="true"/> Oír respuesta</button>}
-    </div>}
-    {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
-      {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
-      {messages.map((message, index) => <div key={index} className="voice-msg"><p><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>{message.sources && message.sources.length > 0 && <div className="rag-sources" role="list" aria-label="Fuentes consultadas">{message.sources.map(source => <a key={source.id} className="rag-source-chip" role="listitem" href={source.sourceUrl ?? "#"} target={source.sourceUrl ? "_blank" : undefined} rel={source.sourceUrl ? "noreferrer" : undefined} title={source.filePath}>{source.sourceName}</a>)}</div>}</div>)}
-    </div></details>}
-    <div className="voice-alternatives">
-      <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
-      <button type="button" className="link-button" onClick={playSummary}><Volume2 aria-hidden="true"/> Oír resumen</button>
-      {summaryState !== "idle" && <div role="group" aria-label="Controles del resumen">
-        <p role="status">Leyendo resumen…</p>
-        <button type="button" className="link-button" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
-        <button type="button" className="link-button" onClick={stopSummary}>Detener</button>
-        <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
-      </div>}
-      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
-    </div>
-    </div>
-  </section>;
+  </>;
 }

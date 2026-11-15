@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
 import type { FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
-import { ClipboardList, CloudRain, Download, MapPin, MessageCircle, Sprout } from "lucide-react";
+import { ClipboardList, CloudRain, Download, MapPin, MessageCircle, Mic, Sprout } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, piecesToGeoJSON, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
@@ -102,11 +102,6 @@ function downloadFarmBoundary(farm: Farm) {
   link.download = `parcela-${farm.id}.geojson`;
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function openReport(id: string) {
-  const report = document.getElementById(id);
-  if (report instanceof HTMLDetailsElement) report.open = true;
 }
 
 export default function Home() {
@@ -257,13 +252,6 @@ export default function Home() {
               <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca</button>
             )}
           </div>
-          {supervisor && (
-            <nav className="supervisor-tools" aria-label="Herramientas de supervisión">
-              <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>Parcelas</a>
-              <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>Clima y mercado</a>
-              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => openReport("rotaciones"), 30); }}>Rotaciones</a>
-            </nav>
-          )}
         </div>
       </div>
 
@@ -313,13 +301,14 @@ export default function Home() {
                   previous={previous}
                   sowMonth={month}
                   crops={crops}
-                  headerSlot={activeFarm ? <>
-                    <div className="panel-head-row siembra-plan-head">
-                      <h2 className="panel-title"><Sprout aria-hidden="true" className="panel-icon" /> Tu plan de siembra</h2>
-                    </div>
-                    <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                  </> : undefined}
+
                 />
+                {activeFarm && <section className="card panel siembra-plan-card" aria-labelledby="planting-plan-title">
+                  <div className="panel-head-row siembra-plan-head">
+                    <h2 id="planting-plan-title" className="panel-title"><Sprout aria-hidden="true" className="panel-icon" /> Tu plan de siembra</h2>
+                  </div>
+                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                </section>}
                 <ShareButton summary={shareSummary}/>
               </div>
             </section>
@@ -451,24 +440,32 @@ export default function Home() {
           <section className="card panel voice-guide-card" aria-labelledby="voice-guide-title">
             <div className="panel-head-row">
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
-              <HelpTip label="Pregúntale a AgroVision" text="Usa Hablar en el asistente, Escribir u Oír resumen." />
+              <HelpTip label="Pregúntale a AgroVision" text="Usa el botón verde de hablar en la esquina, escribe tu consulta abajo o escucha el resumen de tu finca." />
             </div>
-            <p className="panel-intro">Pregunta por tu siembra, la lluvia o el precio.</p>
-            <details className="visual-details"><summary>Cómo usar voz y texto</summary>
+            <p className="panel-intro">Consulta sobre tu siembra, lluvia, sequía o precios de mercado con datos reales de tu finca.</p>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
-                <strong>Hablar</strong>
-                <p>Toca el micrófono para hacer tu pregunta.</p>
+                <span className="vg-badge" aria-hidden="true"><Mic size={16} /></span>
+                <div>
+                  <strong>Hablar en vivo</strong>
+                  <p>Toca el botón verde abajo a la derecha en cualquier sección para conversar por voz.</p>
+                </div>
               </div>
               <div className="voice-guide-item">
-                <strong>Escribir</strong>
-                <p>Prueba con «¿Qué siembro este mes?».</p>
+                <span className="vg-badge" aria-hidden="true"><MessageCircle size={16} /></span>
+                <div>
+                  <strong>Escribir consulta</strong>
+                  <p>Prueba con «¿Qué siembro este mes?» o «¿Cómo viene la lluvia esta semana?».</p>
+                </div>
               </div>
               <div className="voice-guide-item">
-                <strong>Oír resumen</strong>
-                <p>Escucha la recomendación de tu finca.</p>
+                <span className="vg-badge" aria-hidden="true"><Sprout size={16} /></span>
+                <div>
+                  <strong>Oír resumen</strong>
+                  <p>Escucha la recomendación completa de tu finca sin tener que leer todo.</p>
+                </div>
               </div>
-            </div></details>
+            </div>
           </section>
         </div>
       )}

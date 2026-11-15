@@ -318,6 +318,20 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **2026-11-15 — Antigravity / Gemini (Google):** ajuste del estado seleccionado `.ob-choice.on` en el asistente de inicio (`web/app/globals.css`) a verde bosque oscuro (`#14532d`–`#166534`) con texto e icono en blanco para dar alto contraste y visibilidad clara al pulsar opciones. Revisión por Frainer: pendiente.
 
+- **2026-11-15 — Antigravity / Gemini (Google):** mejora visual de la sección `Ayuda` (`web/app/page.tsx`, `web/app/globals.css`), montaje inmediato del botón flotante de voz en todas las secciones (`web/components/voice-dock.tsx`, `web/components/voice-session.module.css`) y chat desplegable en vivo `.voice-live-drawer` que se abre y adapta automáticamente cuando el usuario o la IA hablan (`web/components/voice-assistant.tsx`). Revisión por Frainer: pendiente.
+
 - **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — OpenAI ImageGen y Codex:** mejora asistida por IA de la fotografía CC0 de El Cercado para el fondo de registro; ajuste de visibilidad y atribución (`web/public/images/san-juan-valley-enhanced.png`, `web/app/globals.css`, `web/components/onboarding.tsx`, `web/scripts/offline-assets.mjs`, `docs/DATA_SOURCES.md`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** atenuación del fondo fotográfico del registro (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** iconos y señal de selección para riego, acceso más visible a comparación y ajuste del crédito de fondo (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reducción de la opacidad de la capa oscura del fondo de registro (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** lista de cultivos a comparar con altura limitada y desplazamiento interno accesible (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reorganización de Siembra en recomendación, comparación y plan independientes, con anchura y espaciado coherentes (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
