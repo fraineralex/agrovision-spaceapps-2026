@@ -330,3 +330,6 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes (consultadas el 15-11-2026):** FAO, Agricultura de conservación: diversificación de especies (https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/); FAO (2016), Las legumbres y la biodiversidad; FAO, Irrigation Water Management Training Manual 1, cap. 2 (https://www.fao.org/4/r4082e/r4082e03.htm).
 - **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
 - **Revisión por Frainer:** pendiente.
+
+<!-- AI: Codex (OpenAI), 2026-11-15; revisión por Frainer pendiente. -->
+- 2026-11-15: Codex (OpenAI) revisó el tono y los respaldos de texto y voz con pruebas locales de preguntas de agricultores. Archivos: `web/lib/rag.ts`, `web/lib/voice-context.ts`, `web/lib/voice-server.ts`, `web/app/api/voice/chat/route.ts`, `docs/rag_tone_eval.md`. Revisión de Frainer pendiente; no presentar las respuestas como validación agronómica.

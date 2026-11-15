@@ -62,7 +62,7 @@ Si no hay dato verificado, di: "${RAG_NO_DATA}".`;
     system: ragSystem,
     messages: input.messages,
     ...(grounded ? {} : { tools: localTools(input.selection), stopWhen: stepCountIs(4) }),
-    maxOutputTokens: 240,
+    maxOutputTokens: 1024,
     maxRetries: 0,
     abortSignal: AbortSignal.any([request.signal, AbortSignal.timeout(25_000)]),
   });
@@ -74,8 +74,7 @@ Si no hay dato verificado, di: "${RAG_NO_DATA}".`;
       // A transient text-provider error must not turn a grounded question into HTTP 500.
     }
     if (!text.trim()) {
-      const names = ragSources(rag.chunks).map(s => s.sourceName).join("; ");
-      text = `${RAG_NO_DATA} La respuesta automática no estuvo disponible; revisa las fuentes recuperadas con un técnico.\n\nFuente: ${names}.`;
+      text = RAG_NO_DATA;
     }
     return new Response(text, { headers });
   }

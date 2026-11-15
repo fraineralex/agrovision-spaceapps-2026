@@ -2,7 +2,7 @@
 import { loadClimate } from "@/lib/location-climate";
 import { tool } from "ai";
 import { parcelMetrics, rotationMetrics, toolArguments, type VoiceSelection } from "@/lib/voice-context";
-import { ragSources, retrieveRag } from "@/lib/rag";
+import { formatRagContext, ragSources, retrieveRag } from "@/lib/rag";
 import { z } from "zod";
 // Best-effort per-instance abuse limit; Gateway key budgets remain the global cap.
 const requests = new Map<string, { count: number; until: number }>();
@@ -49,7 +49,7 @@ export async function searchGuides(query: string) {
     return { chunks: [], sources: [], message: result.message, grounded: false };
   }
   return {
-    chunks: result.chunks.map(c => ({ id: c.id, title: c.title, sourceName: c.sourceName, sourceUrl: c.sourceUrl, filePath: c.filePath, text: c.text, score: c.score })),
+    context: formatRagContext(result.chunks),
     sources: ragSources(result.chunks),
     grounded: true,
   };
