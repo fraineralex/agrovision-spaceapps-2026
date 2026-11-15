@@ -1,0 +1,723 @@
+{
+  "2": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo una recomendación calculada para sembrar después de habichuela. Los datos que tengo se basan en que el cultivo anterior fue arroz y la siembra es en noviembre, y en ese caso la recomendación es maíz. Si me dices en qué mes siembras y en qué provincia estás, puedo revisar la opción con esos datos. Para una decisión segura, consulta también con un técnico."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo pronósticos del clima para esta semana, así que no puedo decirte si va a llover. Lo que sí tengo son datos históricos del Valle de San Juan, pero no son una predicción. Para saber qué pasará en tu finca, revisa el pronóstico del Inespre o de Onamet y consulta a tu técnico."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No puedo calcular cuánto ganarías, porque no tengo datos de cuánto maíz se cosecha por tarea ni de tus costos de siembra y riego. Lo que sí tengo es un precio de referencia: en Santo Domingo, al por mayor, el maíz estaba a RD$19 la libra, y suele venderse mejor en abril y mayo. Para estimar la producción y la ganancia, consulta a un técnico agrícola de tu zona."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No puedo recomendarte un producto ni una dosis sin saber qué insecto es, porque cada plaga se controla de forma distinta. ¿Me puedes contar qué ves en la planta: si las hojas tienen huecos, manchas o se secan, si las vainas están picadas, y de qué color son los bichitos? Con eso, un técnico agrícola de tu zona podrá identificarlo y decirte qué hacer."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos para responder eso con seguridad, porque la papa no está entre las opciones que evalué para tu finca. Lo que sí sé es que sembrar el mismo cultivo seguido suele desgastar el suelo y acumular plagas. Antes de decidir, consulta con un técnico agrícola de tu zona, que podrá revisar la papa y tu historial de siembra."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Le recomiendo sembrar maíz después del arroz, porque necesita menos agua que los otros cultivos que evalué. Desde que nazca la planta, revise si hay gusano cogollero y consulte a su técnico si ve daño. Como no me dijo la provincia, esta recomendación es general; si me indica dónde está su finca, puedo ajustarla."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo información en las guías que tengo para confirmar que el suelo descanse con el guandul. La guía del CEDAF sobre este cultivo habla de variedades y épocas de siembra, pero no de la recuperación del terreno. Como el guandul no está entre las opciones que evalué para tu finca, tampoco tengo datos de la aplicación sobre eso, así que te recomiendo preguntarle a tu técnico antes de decidir."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "El arroz se cultiva sobre todo en zonas bajas con agua de riego disponible, según el CEDAF. En nuestra comparación para el Valle de San Juan aparece como un cultivo que pide poca agua, pero no tengo una cantidad exacta en litros o milímetros. Para saber cuánta agua necesita tu parcela, consulta a tu técnico, porque depende del suelo, la variedad y el clima de tu finca."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un precio de venta para la habichuela en esta consulta, así que no quiero darte una cifra que no sea segura. El precio de 19 pesos la libra que aparece en la recomendación es del maíz, no de la habichuela. Para saber cómo se vende la habichuela, puedes revisar los precios mayoristas del Ministerio de Agricultura o preguntarle a tu técnico o al mercado de tu zona."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lo siento, eso puede tener varias causas. ¿Qué cultivo es, y las hojas amarillas son las más viejas de abajo o las nuevas de arriba? Si me cuentas si ves manchas, bichos o si el suelo está muy mojado o seco, puedo orientarte mejor. Mientras tanto, lo más seguro es que un técnico agrícola de tu zona revise las plantas en persona."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia de la aplicación vienen de la NASA: uno de los productos es GPM IMERG, que mide la lluvia por satélite cada 30 minutos, y otro es NASA POWER, con lluvia diaria. Ojo: IMERG tiene solo unos 25 años de historia y POWER es un reanálisis, así que su lluvia en el trópico es débil. Para decidir la siembra, conviene confirmar con los registros de tu zona y tu técnico."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Entre las opciones que evalué, las que piden poca agua son maíz, ají, habichuelas roja y negra, yuca, auyama, batata y tomate. Evita plátano y guineo, porque piden mucha agua. Si quieres una alternativa al maíz, la yuca es buena opción, y según la aplicación se cosecha en junio. El arroz aparece como de poca agua, pero la guía CEDAF dice que se produce sobre todo con riego, así que no lo recomendaría sin riego. Confirma la elección con tu técnico."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según CEDAF, la ficha que tengo sobre habichuela no trae fechas de siembra verificadas, así que no puedo darte un mes exacto con seguridad. En la simulación que hicimos para noviembre, la habichuela roja y la negra aparecen con cosecha en febrero y piden poca agua. Para decidir el mes, consulta con un técnico de tu zona, porque depende de la variedad y de las condiciones de tu finca."
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Si la tierra se seca, el maíz sufre, sobre todo en la etapa de floración y llenado del grano. La recomendación de maíz después de arroz pide menos agua que otros cultivos de la lista, pero eso no evita el riego cuando hace falta. Yo no tengo medidas de humedad de tu parcela, así que te sugiero revisar la tierra con tu técnico y decidir el riego con él."
+    }
+  ],
+  "3": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos para decirte con seguridad qué sembrar después de habichuela, porque mi cálculo para tu finca usó arroz como cultivo anterior. En general, conviene elegir un cultivo que no comparta las plagas de la habichuela, y tu técnico puede revisar eso según tu parcela. Si me dices que la habichuela fue tu cultivo anterior, puedo ayudarte a pensar la pregunta, aunque la decisión final debe confirmarla un técnico."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un pronóstico para esta semana en los datos que tengo a la mano. Lo que sí tengo son datos históricos de lluvia del Valle de San Juan, pero no sirven para saber qué pasará en los próximos días. Para eso, consulte un pronóstico actualizado del servicio meteorológico o pregunte a su técnico agrícola."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos de rendimiento por tarea ni de costos, así que no puedo calcular cuánto ganaría con diez tareas. Lo que sí tengo es un precio mayorista histórico de referencia en Santo Domingo, de 19 pesos la libra, que suele mejorar en abril y mayo. Para estimar una ganancia real, habla con tu técnico agrícola sobre cuánto produce una tarea en tu zona y cuánto te cuesta sembrarla."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué es, necesito que me digas cómo se ven. ¿Son pequeñitos y blancos que salen volando cuando tocas la planta, o hay hojas con manchas, agujeros o algo pegajoso? Con esa información puedes llevar una muestra a tu técnico, que es quien mejor puede decirte qué hacer."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos en la aplicación sobre papa, así que no puedo confirmarte si conviene repetirla. Según Best4Soil, en general conviene alternar cultivos que no comparten plagas ni enfermedades, y repetir el mismo cultivo seguido suele ir en contra de eso. Para tu finca, consulta a tu técnico antes de decidir."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para noviembre, después de arroz, le recomiendo sembrar maíz, porque pide menos agua que los otros cultivos que evaluamos. Revise las plantas desde que nazcan, sobre todo por el gusano cogollero, y si ve daño, consulte con su técnico. Si me dice en qué provincia está, puedo afinar la recomendación."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo ese dato verificado. Las guías de CEDAF que encontré hablan de cuándo sembrar guandul, pero no dicen si deja descansar la tierra. Además, sembrar en noviembre no aparece en esas guías, y el guandul no está entre las opciones evaluadas para tu parcela. Consulta a tu técnico agrícola o a IDIAF."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según la guía del CEDAF, el arroz en República Dominicana se cultiva sobre todo en zonas bajas con agua de riego disponible, pero no tengo una cifra exacta de cuánta agua necesita. En la app, el arroz aparece como de poca agua solo en comparación con otros cultivos de la lista. Para saber cuánto regar en tu finca, consulta con tu técnico agrícola, que puede ajustarlo a tu suelo y a tu sistema de riego."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un precio para la habichuela en los datos de la aplicación, así que no puedo decirte a cuánto la vas a vender. El precio de 19 pesos la libra en Santo Domingo al por mayor corresponde al maíz, y fue un dato histórico. Para la habichuela, consulta con tu técnico o revisa los precios mayoristas que publica el Ministerio de Agricultura en su portal de transparencia."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Sentir que las hojas se ponen amarillas preocupa, y con los datos que tengo no puedo saber la causa. Para orientarte, dime en qué cultivo lo ves, desde cuándo pasa y si empieza en las hojas viejas o en las nuevas. Mientras tanto, lo mejor es que un técnico agrícola revise las plantas en tu finca."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia vienen de satélites de la NASA, concretamente del sistema GPM IMERG, que mide la lluvia cada 30 minutos. Cada celda cubre un área de unos 10 km, así que son una referencia de la zona y no una medida exacta de tu parcela. La plataforma NASA POWER también usa esta misma fuente para la precipitación."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Sin riego, puedes considerar cultivos que piden poca agua, como el maíz, que es la recomendación en pantalla. Si prefieres otra opción, la yuca también pide poca agua en la evaluación. Los plátanos y guineos necesitan mucha agua, así que no los recomendaría sin riego. Antes de decidir, conviene revisar con tu técnico la disponibilidad de agua de tu finca."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según el IDIAF, para la habichuela la siembra de noviembre encaja bien, porque la guía recomienda hacerla del 5 de noviembre al 15 de diciembre para reducir el riesgo de mosaico dorado. En nuestros datos, la habichuela roja se cosecha en febrero y pide poca agua, aunque no tenemos datos de plagas para ese cambio. Revisa las plantas desde el inicio y consulta a tu técnico si notas algún síntoma raro."
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "El maíz pide menos agua que otros cultivos de tu lista, pero aun así necesita humedad constante, sobre todo al inicio. No tengo medidas de la humedad de tu parcela, así que no puedo decirte si tu tierra está seca hoy. Te recomiendo revisar el suelo metiendo un dedo unos centímetros y consultar con tu técnico cómo regar si ves que se seca."
+    }
+  ],
+  "4": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo, la recomendación en pantalla se calculó tomando arroz como cultivo anterior, así que no puedo usarla para tu caso con habichuela. Si cambias el cultivo anterior a habichuela en la aplicación, podrás ver nuevas opciones. Para decidir, lo mejor es también consultar a tu técnico, porque él conoce tu finca."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lo siento, no tengo pronósticos del tiempo para esta semana. Los datos que tengo son históricos y del punto del valle, no una predicción. Para saber si lloverá, consulta a un técnico o revisa un servicio meteorológico oficial de tu zona."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos de rendimiento ni de costos de producción, así que no puedo calcular cuánto ganaría con diez tareas. La aplicación sí muestra un precio de referencia al por mayor para el maíz, pero sin saber cuánto produce su terreno no se puede convertir en ganancia. Para estimarlo, consulte con su técnico agrícola cuánto espera cosechar por tarea y cuánto le costarían semilla, fertilizante y mano de obra."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Siento que tenga problemas con sus habichuelas. Sin ver las plantas no puedo saber qué plaga es, así que necesito conocer los síntomas: ¿las hojas tienen manchas, se ven amarillas o rizadas, hay telarañas, o ve insectos blancos que vuelan al mover la planta? Mientras tanto, lo más seguro es que un técnico revise el cultivo para recomendarle el control adecuado."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos sobre papa en esta aplicación, así que no puedo decirte si conviene repetirla en la misma parcela. La guía de Best4Soil recomienda alternar cultivos para cortar plagas y enfermedades que pueden quedar en el suelo, pero no habla de la papa en particular. Lo más seguro es consultar con un técnico agrícola antes de decidir."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para noviembre, después de arroz, le recomiendo **maíz**. Pide menos agua que los otros cultivos evaluados y se cosecharía alrededor de marzo. Vigile el gusano cogollero desde la siembra y consulte a su técnico si ve daño en las plantas."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos en la información que tengo para confirmar si la tierra descansa con guandul, y el guandul no está entre las opciones que evalué para tu finca. Lo mejor es que lo consultes con un técnico de tu zona, que podrá revisar tu suelo y tu situación. Mientras tanto, la recomendación calculada para ti sigue siendo maíz después de arroz."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según la guía del CEDAF, el arroz en la República Dominicana se cultiva sobre todo en zonas bajas con disponibilidad de agua de riego, pero no tengo una cantidad exacta en los datos que manejo. Lo que necesita depende del suelo, del clima y del manejo de tu parcela, así que lo mejor es consultar a tu técnico agrícola para calcular el riego de tu finca."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un precio de la habichuela para su situación. El dato que sí tengo es del maíz, que es la recomendación en pantalla: según los datos de mercado de la aplicación, al por mayor en Santo Domingo estaba a 19 pesos la libra. Para saber cuánto pagan hoy por la habichuela, consulte con su técnico o en el mercado local."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lo siento, eso puede tener varias causas, y sin saber qué cultivo es ni cómo se ven las hojas no puedo decir cuál es. ¿Me cuenta en qué cultivo está viendo el problema y si el amarillo empieza en las hojas viejas o en las nuevas? También ayuda saber si hay manchas, bichitos o si el suelo está muy mojado o muy seco. Si quiere una revisión en el campo, consulte a un técnico agrícola cercano."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia vienen de satélites de la NASA, del sistema GPM IMERG, que estima la lluvia cada 30 minutos en celdas de unos 10 km. Representan un área amplia, no una medición exacta de tu parcela. Son datos históricos, no un pronóstico del tiempo."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos de esta consulta no puedo darte una recomendación para un terreno sin riego, porque el análisis no contempla esa condición. Las etiquetas de agua de la aplicación son solo relativas, así que no sirven para confirmar qué se puede sembrar sin riego. Te recomiendo consultar a un técnico agrícola de tu zona, que pueda revisar la lluvia, el suelo y el agua disponible en tu finca."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según el IDIAF, para ayudar a prevenir el mosaico dorado amarillo se recomienda sembrar habichuela entre el 5 de noviembre y el 15 de diciembre, así que noviembre está dentro de esa ventana. Con una siembra en noviembre, nuestros datos indican cosecha en febrero para la habichuela roja y la negra. Conviene confirmar la fecha con tu técnico según tu zona."
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Si la tierra se seca, conviene revisarla usted mismo antes de regar: meta un palo o la mano unos 10 a 15 centímetros y vea si está húmeda o polvorienta. Los datos de humedad del suelo por satélite son regionales y no le dicen con precisión cómo está su parcela. Para decidir cuándo y cuánto regar, consulte con su técnico."
+    }
+  ],
+  "5": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Veo que en la aplicación marcaste arroz como cultivo anterior, así que no puedo darte una recomendación para después de habichuela con los datos actuales. Si cambias el cultivo anterior a habichuela, la aplicación te mostrará las opciones que corresponden a esa situación. Mientras tanto, según Best4Soil, conviene alternar con cultivos que no compartan las mismas plagas o enfermedades, y tu técnico puede confirmarte la mejor opción para tu parcela."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un pronóstico para esta semana. Los datos que tengo son históricos del Valle de San Juan y no sirven para predecir la lluvia de los próximos días. Para eso, consulte un servicio meteorológico oficial o pregunte a su técnico agrícola."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos de ganancias para diez tareas de maíz, así que no puedo darte una cifra. Lo más seguro es consultar con un técnico agrícola de tu zona, que podrá calcular costos y precio de venta según tu finca."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué son, necesito ver mejor el problema. ¿Qué notas en la planta: hojas comidas, manchas, telarañas, o bichitos en las hojas, tallos o vainas? Con esos detalles puedo orientarte mejor, y mientras tanto lo más seguro es que un técnico agrícola revise el cultivo antes de aplicar cualquier producto. En la app no tengo datos de plagas para la habichuela en tu caso."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos sobre papa en esta aplicación, así que no puedo confirmar si conviene repetirla. Según Best4Soil, en general es mejor alternar con cultivos que no compartan las plagas o enfermedades del cultivo anterior, porque repetir el mismo cultivo puede favorecer que se acumulen. Antes de sembrar, consulta con un técnico agrícola de tu zona para revisar tu parcela."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Le recomiendo sembrar maíz después del arroz. Entre los cultivos que evaluamos, pide menos agua que los demás de su lista, y la cosecha sería hacia marzo. Vigile el gusano cogollero desde que nazcan las plantas y, si ve daño, consulte a su técnico. Si me dice en qué provincia está, puedo afinar la recomendación."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según la información que tengo, no puedo confirmar si el guandul deja descansar la tierra. La guía de CEDAF sobre guandul habla de variedades y épocas de siembra, pero no de ese punto. Además, el guandul no está entre las opciones que evalué para tu finca, así que mejor consulta a un técnico antes de decidir."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo una cantidad exacta de agua para el arroz. La guía del CEDAF trata el riego, pero en lo que tengo no aparece un volumen específico, y la etiqueta de la app solo es una comparación relativa. Lo más seguro es que tu técnico calcule la cantidad para tu finca, según el suelo, el clima y el sistema de riego que uses."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no sé a cuánto se vende la habichuela. El precio que tengo, 19 pesos la libra al por mayor en Santo Domingo, corresponde al maíz, que es la recomendación para su siembra de noviembre. Para la habichuela, puede revisar los precios al por mayor del Ministerio de Agricultura o preguntarle a su técnico o a los comp"
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Siento que se te estén poniendo amarillas las hojas. Para orientarte mejor, dime en qué cultivo lo ves, cuándo empezó y si aparecen manchas, puntos o bichos en las plantas. Mientras tanto, si el problema avanza, lo más seguro es que lo revise un técnico agrícola en tu zona."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "La lluvia viene de datos de satélite de la NASA (GPM IMERG), que miden la precipitación cada 30 minutos. Cada dato representa un área de unos 10 km, así que no es una medición exacta de tu parcela. Son datos históricos, no un pronóstico del tiempo."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos suficientes para recomendarle un cultivo sin riego. Las opciones que evalué toman en cuenta el agua de forma relativa y no contemplan una finca sin riego, así que no quiero darle una lista que no aplique a su caso. Un técnico agrícola de su zona podrá decirle qué se da bien con la lluvia donde usted está. Si me dice en qué provincia está, puedo ayudarle a pensar mejor las preguntas que le conviene hacerle."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según el IDIAF, para reducir el mosaico dorado amarillo en la habichuela conviene sembrar entre el 5 de noviembre y el 15 de diciembre, así que noviembre encaja con es"
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no puedo decirle qué tan seca se pondría la tierra en su finca, porque no sé en qué provincia está ni cómo es su suelo. Lo mejor es que un técnico revise la humedad de su terreno y le diga cuándo conviene regar. Si me dice la provincia, puedo buscar lo que tenga para esa zona."
+    }
+  ],
+  "6": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Las recomendaciones que tengo en pantalla están calculadas con arroz como cultivo anterior, así que no sirven para saber qué sembrar después de habichuela. Si cambias el cultivo anterior a habichuela en la aplicación, podrás ver las opciones para esa situación. Para una decisión segura, consulta también con un técnico de tu zona."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un pronóstico de lluvia para esta semana. Los datos que tengo son históricos del Valle de San Juan y no sirven para predecir el clima de los próximos días. Para saber si lloverá, consulte el pronóstico oficial de su zona o pregunte a su técnico agrícola."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no puedo calcular cuánto ganará con diez tareas de maíz. No tengo un estimado de rendimiento ni de ingresos para su finca. Le recomiendo consultar a un técnico agrícola para que le ayude con esa cuenta, que depende de su terreno y de sus costos."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué insecto es, dime cómo se ven las plantas: si tienen hojas amarillas, rizadas o manchadas, si hay telarañas o puntitos blancos, y dónde están los bichitos (en el envés de las hojas, en las flores o en las vainas). Con esa información, lo mejor es que un técnico agrícola lo revise antes de echar cualquier producto, para usar el correcto y en la dosis indicada. Si me describes lo que ves, te ayudo a explicárselo."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos en la aplicación sobre la papa, así que no puedo confirmarte si conviene repetirla en la misma parcela. Según Best4Soil, lo recomendable es alternar cultivos que hospedan las mismas plagas o enfermedades con otros que no lo hacen, y dejar una pausa suficiente. Para decidirlo en tu finca, consulta con un técnico que conozca el historial de tu parcela."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para noviembre, después de arroz, la app recomienda sembrar maíz, porque pide menos agua que los otros cultivos evaluados. Como todavía no eligió provincia, este resultado es general, así que puede seleccionarla en la app para ajustarlo. Desde la siembra, revise el cultivo por si aparece gusano cogollero, y consulte a su técnico si ve daño."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo información en mis guías sobre si el guandul deja descansar la tierra, así que no quiero darte una respuesta sin fundamento. Además, el guandul no está entre las opciones evaluadas para tu finca, y la recomendación que te aparece es maíz después de arroz. Lo mejor es que lo consultes con un técnico antes de decidir."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo una cantidad exacta de agua para el arroz. La guía del CEDAF explica que el arroz en República Dominicana se cultiva sobre todo en zonas bajas con agua de riego disponible, y trae un capítulo sobre riego, pero no encontré en lo que tengo una cifra concreta. Para saber cuánta agua necesitas en tu terreno, consulta esa guía y a tu técnico agrícola."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo precios de habichuela para tu situación, así que no puedo decirte a cuánto la vas a vender. El único precio que tengo es del maíz, la opción que te recomiendo: según el Ministerio de Agricultura, al por mayor en Santo Domingo estaba a 19 pesos la libra, pero es un dato pasado, no de hoy. Para el precio actual de la habichuela, consulta con tu técnico o con los compradores de tu zona."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lamento que sus plantas estén así. Las hojas amarillas pueden tener varias causas, como riego, nutrientes o alguna plaga, así que necesito saber más. ¿Qué cultivo es, desde cuándo nota el color y empieza en las hojas viejas o en las nuevas? Mientras tanto, un técnico agrícola de su zona puede revisar las plantas en el campo y darle un diagnóstico seguro."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia vienen de satélites de la NASA, en particular del sistema GPM IMERG, que mide la lluvia cada 30 minutos desde el año 2000. Cada dato representa un área de unos 10 km, no la lluvia exacta de tu parcela. Por eso sirven para ver tendencias de la zona, pero conviene confirmarlas con tu técnico o con tus propias observaciones."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no puedo decirte qué sembrar sin riego, porque la recomendación en pantalla no considera esa situación. Lo mejor es que consultes a un técnico agrícola de tu zona para elegir un cultivo que se adapte a tu finca."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para habichuela, el IDIAF recomienda sembrar entre el 5 de noviembre y el 15 de diciembre, porque ayuda a reducir el mosaico dorado, una enfermedad que transmite la mos"
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué hacer si la tierra se seca en tu finca, necesito que hable con un técnico, porque depende de tu suelo y de cómo riegas. Los datos de humedad que tengo son de escala regional y no miden tu parcela. Un técnico puede revisar la humedad directamente y decirte cuándo conviene regar."
+    }
+  ],
+  "7": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Mi recomendación se calculó con arroz como cultivo anterior, así que no sirve para decidir qué sembrar después de habichuela. Puedes cambiar el cultivo anterior en la aplicación a habichuela para ver nuevas opciones. Según Best4Soil, conviene alternar cultivos que no compartan las mismas plagas o enfermedades, y tu técnico puede confirmar cuál le conviene a tu parcela."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo un pronóstico para esta semana. Los datos que manejo son históricos del Valle de San Juan y no incluyen pronósticos del tiempo. Para saber si va a llover, lo mejor es consultar el pronóstico oficial de su zona o preguntar a su técnico agrícola."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos para calcular sus ganancias con diez tareas de maíz, así que no le puedo dar una cifra. Lo que sí le puedo decir es que el precio mayorista de referencia en Santo Domingo estaba en 19 pesos la libra, y que el maíz suele venderse mejor en abril y mayo. Para estimar cuánto le dejaría la siembra, lo mejor es consultarlo con su técnico agrícola."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué les pasa a tus habichuelas, necesito ver mejor el problema. ¿Qué ves exactamente: insectos blancos que salen volando, huecos en las hojas, puntos o manchas, o daño en las vainas? Con esa información, lo mejor es que lo revise un técnico en tu zona antes de echar cualquier producto."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos de la aplicación sobre la papa, así que no puedo confirmar si conviene sembrarla después de papa. La guía de Best4Soil recomienda alternar cultivos que no compartan las mismas plagas o enfermedades, para que estas no se acumulen en el suelo. Consulta con tu técnico antes de decidir."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con noviembre y arroz como cultivo anterior, la app recomienda **maíz**. Pide menos agua que los otros cultivos evaluados y la cosecha sería hacia marzo. Todavía no tengo su provincia, así que si me la dice puedo ajustar la recomendación. Revise las plantas desde el establecimiento por si aparece gusano cogollero, y consulte a su técnico si ve daño."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Las guías del CEDAF sobre guandul hablan de variedades y fechas de siembra, pero no dicen si el cultivo deja descansar la tierra, así que no quiero darte una respuesta sin respaldo. El guandul tampoco está entre las opciones que evalué para tu finca, por lo que no puedo compararlo con la recomendación de maíz. Consulta con un técnico agrícola antes de decidir."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Según CEDAF, el arroz en República Dominicana se cultiva sobre todo en zonas bajas con disponibilidad de agua de riego, y su guía trata el riego, pero no tengo una cifra de cuánta agua necesita. La etiqueta de \"poca agua\" que aparece en la app no es una medida de cantidad, así que no la uses para calcularlo. Lo mejor es que tu técnico te indique la cantidad según tu variedad, tu suelo y tu sistema de riego."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no puedo decirte a cuánto se vendería la habichuela, porque no tengo un precio para ese cultivo en esta selección. Lo que sí tengo es la referencia del maíz, que en Santo Domingo, al por mayor, estaba a 19 pesos la libra y suele venderse mejor en abril y mayo. Para el precio actual de la habichuela, consulta a tu técnico o en el mercado de tu zona."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lo siento, eso puede tener varias causas, como falta de nutrientes, exceso o falta de agua, o alguna plaga, y no puedo saber cuál es solo con esta información. ¿Me dices qué cultivo es, si el amarillo empezó en las hojas viejas o en las nuevas, y si ves manchas, bichos o daño? Con eso podrás hablar mejor con tu técnico agrícola, que es quien debe revisar la planta en el campo."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia vienen de satélites de la NASA. Según Equipo AgroVision, la fuente principal es GPM IMERG, que estima la lluvia cada 30 minutos con celdas de unos 10 km, así que representa áreas y no la lluvia exacta de su parcela. La serie diaria de NASA POWER también incluye lluvia, pero es menos precisa en el trópico y se basa en una malla mucho más gruesa. Para decisiones de siembra, conviene confirmarlo con su técnico."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo datos que me permitan decir qué sembrar sin riego. Las opciones que te mostré no toman en cuenta si tu finca tiene agua de riego, así que no las uses como recomendación para tu caso. Lo mejor es consultar con un técnico agrícola de tu zona, que podrá indicarte qué cultivos se adaptan a tu terreno y a tus lluvias."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Noviembre es buen mes para esta siembra. La guía del IDIAF sobre el mosaico dorado amarillo, una enfermedad que transmite la mosca blanca, recomienda sembrar del 5 de noviembre al 15 de diciembre. En la aplicación"
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Si la tierra se seca, conviene revisar el riego, pero la app no mide la humedad de su parcela exacta. El dato de humedad por satélite es general y sirve solo como referencia. Para saber cuándo regar, revise la tierra con la mano a unos centímetros de profundidad y consulte a su técnico."
+    }
+  ],
+  "8": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Ahora mismo mi análisis está hecho con arroz como cultivo anterior, así que no puedo darte una recomendación válida para después de habichuela. Te sugiero cambiar el cultivo anterior en la aplicación para que el cálculo se haga con esa situación. También puedes consultar a tu técnico, que conoce tu suelo y tu finca."
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "status": 200,
+      "mode": "data",
+      "answer": "En el histórico nacional, los meses con más siembra de papa son marzo, mayo y junio. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego."
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Esta semana no tengo un pronóstico de lluvia. Los datos que manejo son históricos (NASA POWER, 2016 a 2025) para el Valle de San Juan, no pronósticos. Para saber qué pasará esta semana, lo mejor es consultar a tu técnico o un servicio de pronóstico del clima."
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo ese dato verificado. Las guías que consulté no traen rendimiento, costo ni precio de mercado para el maíz, así que no puedo calcular cuánto ganarías con diez tareas. Para estimarlo, pide a tu técnico agrícola o a IDIAF los rendimientos y precios actuales del maíz en tu zona."
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para saber qué bichitos son, necesito que me cuentes qué síntomas ves: si las hojas tienen agujeros, manchas o se ven pegajosas, si hay insectos debajo de las hojas y en qué etapa está la planta. Con esa información, lo mejor es que lo revises con un técnico agrícola, que puede identificar la plaga en el campo y decirte qué hacer sin arriesgarte a usar un producto que no corresponda."
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos que tengo no puedo darle una respuesta segura para sembrar papa después de papa. Mi recomendación está calculada para arroz como cultivo anterior, así que no aplica a esta situación. Según la guía de Best4Soil, repetir un mismo cultivo puede favorecer plagas y enfermedades, por lo que le conviene consultar a un técnico antes de decidir."
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Para esta parcela de demostración, AgroVision recomienda el **maíz** después del arroz, porque pide menos agua que los otros cultivos evaluados. La cosecha estimada es en marzo. Vigile el gusano cogollero desde la siembra y consulte a su técnico si ve daño en las plantas. Como no eligió provincia, esta recomendación es general; si me dice su provincia, puedo ayudarle a revisarla."
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo información en los datos de la aplicación para saber si el guandul deja descansar la tierra, así que no quiero darle una respuesta sin fundamento. Para su parcela, lo que sí tengo es la recomendación de maíz después de arroz. Le sugiero consultar con un técnico agrícola antes de decidir si siembra guandul."
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo una cifra exacta de agua para el arroz en los datos que manejo. Según CEDAF, el arroz dominicano se cultiva sobre todo en zonas bajas con agua de riego disponible, y su guía de arroz trata el tema del riego. Como esa guía es de 2010, lo mejor es confirmar la cantidad con tu técnico para tu parcela."
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Con los datos de la app no puedo decirle a cómo venderá la habichuela, porque no tengo un precio para esa variedad en su parcela. Lo único que tengo es el precio del maíz al por mayor en Santo Domingo, que estaba a 19 pesos la libra, y ese corresponde a la recomendación que aparece en pantalla. Para conocer el precio actual de la habichuela en su zona, consulte con su técnico."
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Lo siento, eso preocupa. Para orientarte mejor, dime en qué cultivo lo ves y si el amarillo empezó en las hojas de abajo o en todas las plantas. También ayuda saber si hay manchas, insectos o plantas que crecen menos. Con esos detalles, lo mejor es que un técnico agrícola revise la parcela en persona."
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Los datos de lluvia de esta parcela demo vienen de NASA POWER, un reanálisis histórico regional basado en MERRA-2, con registros de 2016 a 2025. No son un pronóstico ni provienen de GPM IMERG, y representan la zona en general, no una medición exacta de tu parcela."
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Las opciones que veo en la app están calculadas con riego seleccionado, así que no puedo usarlas como recomendación si no tienes riego. Puedes cambiar la opción de riego en la aplicación para ver qué cultivos se evalúan en tu situación. Si quieres estar seguro antes de sembrar, un técnico agrícola de tu zona podrá orientarte."
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "No tengo ese dato verificado. Consulta a tu técnico agrícola o a IDIAF."
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "status": 200,
+      "mode": "ai",
+      "answer": "Como tu parcela tiene riego, el paso más importante es regar a tiempo cuando la tierra empiece a secarse. Puedes revisar la humedad metiendo un poco los dedos en el suelo, a la profundidad de la raíz. Si notas que la planta se marchita o que la tierra se seca muy rápido, consulta a tu técnico para ajustar el riego."
+    }
+  ],
+  "voice_instruction_text": [
+    {
+      "question": "¿Qué siembro después de habichuela?",
+      "answer": "Después de habichuela, la opción que mejor encaja en lo que tengo es **maíz**. Como la habichuela es leguminosa, deja nitrógeno en la tierra, y según reglas generales de la FAO eso ayuda al cultivo siguiente. Esa es una regla general, no una medición de su finca, así que una prueba de suelo le diría cuánto nitrógeno queda de verdad.\n\nAdemás, según el IDIAF, cambiar de habichuela a maíz ayuda a cortar la continuidad de algunas enfermedades e insectos de la habichuela. Aun así, en el maíz vigile el gusano cogollero, revise las plantas desde la siembra y consulte a su técnico si ve daño. Si quiere, le cuento de otra alternativa después de habichuela.",
+      "steps": 2
+    },
+    {
+      "question": "¿Cuándo puedo sembrar papa en Constanza?",
+      "answer": "Mire, con lo que tengo no puedo darle una fecha segura para sembrar papa en Constanza. La guía que consulté trata de arroz y guandul, no de papa, y no tengo un calendario de Constanza. Lo que sí tengo es que, a nivel nacional, las siembras de papa suelen ser más altas en marzo, mayo y junio, pero eso no es lo mismo que lo que conviene en Constanza por su altura y clima. Le recomiendo preguntarle a un técnico de la zona o al IDIAF, que le pueden decir la época exacta según la variedad y el lugar.",
+      "steps": 2
+    },
+    {
+      "question": "¿Va a llover esta semana?",
+      "answer": "Para esta semana no tengo el pronóstico de lluvia, así que no le puedo decir si va a llover. Los datos que tengo son promedios de varios años y de una zona amplia, no son un pronóstico. Para saberlo, revise el pronóstico del servicio meteorológico nacional o pregúntele a su técnico.",
+      "steps": 1
+    },
+    {
+      "question": "¿Cuánto voy a ganar con diez tareas de maíz?",
+      "answer": "Mire, con los datos que tengo no le puedo decir cuánto va a ganar, pero sí le puedo dar una referencia. Un promedio nacional de riego sugiere unas ciento dieciocho libras por tarea, y a unos diecinueve pesos la libra en el mayorista de Santo Domingo, diez tareas darían unos veintidós mil seiscientos pesos de venta. El costo de referencia de 2019 da unos veintisiete mil quinientos pesos para esas diez tareas, pero no está ajustado por inflación, así que eso no es ganancia. Lo mejor es que lleve sus propios números de costos y de rendimiento a su técnico o al extensionista.",
+      "steps": 2
+    },
+    {
+      "question": "Tengo bichitos en la habichuela, ¿qué les echo?",
+      "answer": "Mire, para decirle qué hacer necesito saber qué está viendo. ¿Los bichitos están en las hojas, en los tallos o en las vainas? Descríbame si las hojas tienen manchas, color raro o dónde empieza el daño. Lo mejor es tomarle una foto a la planta y llevarla a su técnico o a un extensionista del IDIAF, que le dirán exactamente qué es y cómo manejarlo. Yo no le voy a recomendar un producto ni una dosis.",
+      "steps": 2
+    },
+    {
+      "question": "¿Puedo poner papa después de papa?",
+      "answer": "Mire, según las guías que tengo, no es buena idea repetir el mismo cultivo seguido en el mismo terreno. Sembrar siempre lo mismo deja que las plagas y enfermedades se queden en la tierra de una siembra a la otra. Pero no tengo una regla específica para papa en su parcela, así que consulte con su técnico o con el IDIAF antes de decidir. ¿Quiere que le busque alguna alternativa para esta parcela?",
+      "steps": 2
+    },
+    {
+      "question": "Oiga, ¿qué me recomienda sembrar ahora?",
+      "answer": "Mire, el maíz es lo que mejor le sale para su caso: pide poca agua y en marzo el precio suele estar algo más alto que lo normal, aunque eso es un promedio de los mayoristas de Santo Domingo y no una garantía. Pero ojo, como antes sembró arroz, las dos son granos y eso cansa la tierra. Según la regla general de la FAO, una leguminosa como la habichuela deja nitrógeno en la tierra, aunque eso no es una medición de su finca. En el maíz, vigile el gusano cogollero y consulte a su técnico si ve daño.",
+      "steps": 2
+    },
+    {
+      "question": "¿La tierra descansa si pongo guandul?",
+      "answer": "Sí, en general sí. Según la regla general de la FAO, el guandul es una leguminosa: sus raíces toman nitrógeno del aire con bacterias y lo dejan en la tierra, lo que ayuda a que el suelo no se canse tanto. Eso es una regla general, no una medición de su finca, así que una prueba de suelo le diría mejor cuánto nitrógeno le queda. Antes de sembrar guandul, revise con su técnico si hubo nematodos agalladores en la habichuela roja, porque ese problema puede afectar al guandul.",
+      "steps": 2
+    },
+    {
+      "question": "¿Cuánta agua necesita el arroz?",
+      "answer": "¡Buena pregunta! Lamentablemente no tengo una cantidad exacta de agua para el arroz. La guía del CEDAF sobre el cultivo habla del riego en general, pero no da cifras por hectárea ni por etapa. Lo mejor es que lo consulte con su técnico o con un extensionista del IDIAF, que le pueden decir cuánta agua necesita según su tierra y su sistema de riego.",
+      "steps": 2
+    },
+    {
+      "question": "¿A cómo voy a vender la habichuela?",
+      "answer": "Mire, en octubre la habichuela roja estaba a unos sesenta pesos la libra en los mayoristas de Santo Domingo, y la negra a unos cuarenta y cinco. Son precios de referencia de Santo Domingo, no lo que le pagarían en la finca, así que conviene preguntar también a los compradores de su zona. ¿Cuál de las dos tiene sembrada? Así le digo en qué meses suele estar mejor el precio.",
+      "steps": 1
+    },
+    {
+      "question": "Se me están poniendo amarillas las hojas, ¿qué hago?",
+      "answer": "Lamento que se le estén poniendo amarillas las hojas, eso preocupa. Las guías que tengo no explican las causas de ese síntoma, así que no quiero adivinar. ¿Me dice qué cultivo es? Y, si puede, descríbame dónde empieza el amarillo: si son las hojas de abajo o las de arriba, y si las venas siguen verdes o todo se pone amarillo. Mientras tanto, saque una foto de varias hojas y de la planta completa, y llévelas a su técnico o al extensionista del IDIAF para que lo vean en la finca.",
+      "steps": 2
+    },
+    {
+      "question": "¿De dónde salen esos datos de lluvia?",
+      "answer": "Esos datos vienen de NASA POWER, un modelo de reanálisis meteorológico con información de los años 2016 a 2025. No son mediciones de su parcela: cada punto cubre una cuadrícula regional de unos cincuenta kilómetros. Para saber lo que cae exactamente en su finca, lo mejor es preguntarle a su técnico o a la estación más cercana.",
+      "steps": 1
+    },
+    {
+      "question": "¿Qué puedo sembrar si no tengo riego?",
+      "answer": "Mire, la finca que tengo registrada está marcada como con riego, así que los resultados que le he dado no sirven para una finca sin riego. Las guías que encontré tampoco dicen qué cultivos se pueden sembrar sin agua de riego en su zona. Lo mejor es preguntarle a su técnico o a un extensionista del IDIAF, que le pueden decir qué aguanta mejor con la lluvia de San Juan. Si me dice que su tierra no tiene riego, puedo revisar de nuevo las opciones con ese dato.",
+      "steps": 2
+    },
+    {
+      "question": "Quiero sembrar abichuela, ¿en qué mes?",
+      "answer": "¡Qué bueno que va a sembrar! Según el IDIAF, para habichuela la época que recomiendan es del 5 de noviembre al 15 de diciembre, porque así se reduce el riesgo del mosaico dorado, que lo transmite la mosca blanca. Como la finca está en San Juan, consulte con su técnico o con el extensionista si esas fechas le sirven para su zona y su variedad.",
+      "steps": 2
+    },
+    {
+      "question": "¿Y si se me seca la tierra?",
+      "answer": "Mire, es buena pregunta. Esta semana la lluvia en San Juan va por encima de lo normal, y en los registros de 1984 a 2025 los años con sequía fuerte han sido pocos, como uno de cada catorce. Eso no es un pronóstico, pero sí da algo de tranquilidad. Como usted tiene riego, asegúrese de que funcione bien antes de la siembra, pero no tengo una guía verificada sobre cómo manejar el agua en maíz durante una sequía. Para eso, pregúntele a su técnico o a un extensionista del IDIAF.",
+      "steps": 2
+    }
+  ]
+}
