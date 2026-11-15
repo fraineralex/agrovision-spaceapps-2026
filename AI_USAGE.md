@@ -299,3 +299,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Antigravity / Gemini (Google):** ajuste de escala tipográfica, espaciado y proporción de columnas en la sección `Siembra` (`.recommendation-hero`, `.metric-tiles`, `.score-figure`, `.crop-illustration` y `.card.advisor`) en `web/app/globals.css`. Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Antigravity / Gemini (Google):** reestructuración de `Otras opciones` (`web/components/options-card.tsx` y `web/app/globals.css`) a formato de filas horizontales con tarjeta compacta de cultivo, 4 pilares en línea y barra de alertas, conservando los tokens de color del tema actual. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** unificación vertical de `Tu plan de siembra` y `Otras opciones` en `#siembra` (`web/app/page.tsx` y `web/app/globals.css`) y alineación horizontal de `.option-top-bar` (`flex-wrap: nowrap` en `>= 640px`) para mantener la tarjeta del cultivo arriba a la derecha. Revisión por Frainer: pendiente.

@@ -256,16 +256,12 @@ export default function Home() {
           ) : (
             <section id="siembra" aria-label="Recomendación y plan de siembra">
               <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
-              <div className="home-grid">
-                <div className="col-main">
-                  {activeFarm && <Fold icon="🌱" title="Tu plan de siembra">
-                    <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                  </Fold>}
-                </div>
-                <div className="col-side">
-                  <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
-                  <ShareButton summary={shareSummary}/>
-                </div>
+              <div className="siembra-stack">
+                {activeFarm && <Fold icon="🌱" title="Tu plan de siembra">
+                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                </Fold>}
+                <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
+                <ShareButton summary={shareSummary}/>
               </div>
             </section>
           )}
