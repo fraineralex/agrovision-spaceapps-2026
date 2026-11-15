@@ -297,3 +297,14 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex (gpt-6-luna):** incorporó extractos/referencias atribuidas de guías agrícolas dominicanas CEDAF (arroz, guandul, habichuela, plátano y yuca), añadió preguntas de evaluación para la nueva evidencia y amplió el registro del corpus RAG. Archivos: `data/rag-corpus/cedaf-*.md`, `web/lib/rag-corpus.ts`, `web/data/rag-index.json`, `docs/rag_eval.md`, `AI_USAGE.md`. Fuentes: [CEDAF, guía de arroz](https://intranet.cedaf.org.do/digital/arroz_cedaf.pdf), [CEDAF, guía de guandul](https://intranet.cedaf.org.do/digital/guandul.pdf), [CEDAF, ficha de habichuela](https://intranet.cedaf.org.do/publicaciones/guias/detalle.asp?Codigo=CU02), [CEDAF, guía de plátano](https://intranet.cedaf.org.do/publicaciones/guias/download/platano.pdf), [CEDAF, guía de yuca](https://www.cedaf.org.do/wp-content/uploads/2022/08/Yuca.pdf), [catálogo técnico CEDAF](https://www.cedaf.org.do/guias-tecnicas/). La guía de arroz declara permiso de reproducción con atribución; para las demás se guardan extractos breves o fichas, no PDFs completos. Revisión por Frainer: pendiente.
 
 - 2026-11-15, OpenAI GPT-6: integró la narración en español con Coral, usando OpenAI GPT Realtime Mini vía Vercel AI Gateway, comprobación de transcripción y respaldo local. Archivos: `web/app/api/voice/summary/route.ts`, `web/lib/{summary-audio,use-read-aloud,voice-context}.ts`, `web/components/{advisor-card,voice-assistant}.tsx`, `web/tests/demo.spec.ts` y `README.md`. Revisión por Frainer pendiente.
+## 2026-11-15 — Lenguaje sencillo, estrellas y “¿Por qué este cultivo?”
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez tras la auditoría de valor para el agricultor.
+- **Cambios:**
+  - estrellas (1 a 5) en lugar del puntaje decimal, con una línea que explica qué comparan;
+  - indicadores con frases del campo (“Pide poca agua”, “Sin sequía”, “Menos plagas”, “Precio normal”) en lugar de “Bien / Regular / Sin dato”;
+  - el botón “Datos y fuentes” ahora es “¿Por qué este cultivo?” y abre primero una explicación corta (por qué este y no otro) y luego el detalle con las fuentes;
+  - sequía y lluvia de la FAO en palabras (“Menos de 1% del área con sequía”, “Más del doble de lo normal”) y una línea que aclara que no es el mismo periodo que la lluvia de la semana;
+  - se quitaron los campos de maquinaria y pesticidas: eran apuntes que no cambiaban la recomendación.
+- **Archivos:** `web/lib/{advisor,advisor.test,fao-giews,farms}.ts`, `web/components/{advisor-card,options-card,sources-sheet,field-ui,fao-giews,farm-workbench,farm-switcher,onboarding}.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`.
+- **Datos:** no hay números nuevos. La explicación se arma con la misma comparación (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura). Si falta el dato de plagas de un cultivo, el texto lo dice y no lo compara.
+- **Revisión por Frainer:** pendiente.
