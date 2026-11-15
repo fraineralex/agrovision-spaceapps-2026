@@ -87,7 +87,7 @@ Si la conversación en tiempo real no está disponible, el dictado en navegadore
 Para usar [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B-GGUF) en Windows, descarga el archivo GGUF del modelo y el binario de [llama.cpp](https://github.com/ggml-org/llama.cpp/releases). Ejecuta el servidor en PowerShell:
 
 ```powershell
-.\llama-server.exe --model .\Qwen3-1.7B-Q8_0.gguf --alias agrovision-voice --host 127.0.0.1 --port 11435 --ctx-size 8192
+.\llama-server.exe --model .\Qwen3-1.7B-Q8_0.gguf --alias agrovision-voice --host 127.0.0.1 --port 11435 --ctx-size 8192 --reasoning off
 ```
 
 En un servidor de producción autohospedado, establece `AGROVISION_LOCAL_VOICE=1` si llama.cpp corre en la misma máquina. En ausencia de ambos proveedores, la app responde por temas con datos locales y lo indica en la respuesta.

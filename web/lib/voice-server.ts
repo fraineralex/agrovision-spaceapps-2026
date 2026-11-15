@@ -6,7 +6,12 @@ import { parcelMetrics, rotationMetrics, toolArguments, type VoiceSelection } fr
 const requests = new Map<string, { count: number; until: number }>();
 export function guard(request: Request): Response | null {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return Response.json({ error: "Same-origin requests only" }, { status: 403 });
+  const url = new URL(request.url);
+  // Next dev can build request.url with localhost even when Chrome opened 127.0.0.1.
+  const host = request.headers.get("host");
+  if (origin && origin !== url.origin && (!host || origin !== `${url.protocol}//${host}`)) {
+    return Response.json({ error: "Same-origin requests only" }, { status: 403 });
+  }
   const now = Date.now();
   for (const [key, value] of requests) if (value.until < now) requests.delete(key);
   const id = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";

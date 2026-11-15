@@ -21,14 +21,18 @@ export async function askLocalVoiceModel(
     mes: advice.sowMonth,
     riego: selection.irrigation,
     cultivoAnterior: advice.previousCrop,
-    opciones: advice.ranking.filter(crop => crop.overall !== null).map(crop => ({
-      cultivo: crop.crop,
-      cosecha: crop.harvestMonth,
-      agua: crop.plainWords.water,
-      clima: crop.plainWords.climate,
-      plagas: crop.pestPrecautions.slice(0, 1),
-      precio: crop.plainWords.market,
-    })),
+    recomendado: advice.recommendedCrop,
+    opciones: advice.ranking.filter(crop => crop.overall !== null).map(crop => {
+      const market = advice.market.find(item => item.crop === crop.crop);
+      return {
+        cultivo: crop.crop,
+        cosecha: crop.harvestMonth,
+        agua: crop.plainWords.water,
+        clima: crop.plainWords.climate,
+        plagas: crop.pestPrecautions.slice(0, 1),
+        ultimaReferenciaMayorista: market?.latest && { ...market.latest, unidad: market.unit },
+      };
+    }),
     lluvia: selection.rainAlert,
     ganancia: selection.profitRange,
   };
@@ -41,13 +45,13 @@ export async function askLocalVoiceModel(
       body: JSON.stringify({
         model: "agrovision-voice",
         stream: false,
-        temperature: 0.2,
+        temperature: 0,
         max_tokens: 180,
         chat_template_kwargs: { enable_thinking: false },
         messages: [
           {
             role: "system",
-            content: `Eres AgroVision. Contesta la última pregunta en español sencillo en una o dos frases. Usa el historial para entender referencias como «esa» u «otra». Si te piden una alternativa, omite el cultivo que mencionaron y elige otra opción de la lista. Da un motivo de los datos. Usa solamente las opciones de la finca y no inventes cifras, resultados ni diagnósticos. Los precios son históricos, al por mayor. Si falta el dato, dilo. Evidencia de la finca: ${JSON.stringify(evidence)}`,
+            content: `Eres AgroVision. Contesta la última pregunta en español sencillo en una o dos frases. Usa el historial para entender «esa» u «otra». Si te piden una alternativa, elige solo un cultivo distinto del mencionado y da un motivo de su ficha. Si piden cuándo se cosecha, identifica el cultivo de la conversación y copia el mes exacto de su campo cosecha como una estimación. No calcules otro mes. Usa únicamente los datos de la finca. Los precios son históricos, al por mayor. Si falta el dato, dilo. Datos en JSON: ${JSON.stringify(evidence)}`,
           },
           ...messages.map(message => ({ ...message, content: message.content.slice(0, 1200) })),
         ],
