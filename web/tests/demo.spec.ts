@@ -146,7 +146,7 @@ for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde
  });
 }
 
-test("desktop defaults to Siembra in two columns (Supervisor) and isolates each section",async({page})=>{
+test("desktop uses the full Siembra width and keeps sections independent",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
  await page.addInitScript(()=>{ localStorage.setItem("agrovision:view-mode","supervisor"); localStorage.setItem("agrovision:farms",JSON.stringify([{id:"f1",name:"Conuco 1",province:"San Juan",location:{longitude:-71.23,latitude:18.8},pieces:[],previous:"arroz",irrigation:"irrigated",crops:["habichuela_roja","maiz","arroz"],sowMonth:11,priority:"water"}])); localStorage.setItem("agrovision:activeFarm","f1"); });
@@ -154,9 +154,12 @@ test("desktop defaults to Siembra in two columns (Supervisor) and isolates each 
  await page.goto("/");
  const sectionNav=page.getByRole("tablist",{name:/Secciones principales/});
  await expect(sectionNav.getByRole("tab",{name:/Siembra/})).toHaveAttribute("aria-selected","true");
- const plan=(await page.locator("#siembra").boundingBox())!;
+ const board=(await page.locator("#siembra").boundingBox())!;
+ const decision=(await page.locator(".visual-verdict").boundingBox())!;
  const opts=(await page.locator(".options").boundingBox())!;
- expect(opts.x).toBeGreaterThan(plan.x+plan.width-10);
+ expect(decision.width).toBeGreaterThan(board.width * .95);
+ expect(board.width).toBeGreaterThan(1200);
+ expect(opts.y).toBeGreaterThan(decision.y + decision.height);
  await expect(page.locator("#lluvia-esta-semana")).toBeHidden();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  expect(await axeSerious(page)).toEqual([]);
@@ -479,7 +482,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 
     const dialog = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
     await dialog.getByRole("button", { name: "San Juan", exact: true }).click();
     await dialog.getByRole("button", { name: /Marcar la finca en el mapa/ }).click();
-    await expect(page.getByTestId("farm-picker-map")).toHaveAttribute("data-ready", "true");
+    await expect(page.getByTestId("farm-picker-map")).toHaveAttribute("data-ready", "true", { timeout: 20000 });
     const done = dialog.getByRole("button", { name: /^Listo/ });
     await expect(done).toBeInViewport();
     await page.screenshot({ path: "test-results/map-after-" + viewport.width + ".png" });

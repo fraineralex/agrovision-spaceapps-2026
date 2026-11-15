@@ -127,34 +127,39 @@ export function AdvisorCard(p: Props) {
       )}
     </div>
 
-    <div className={`verdict visual-verdict ${light}`}>
+    <div className={`verdict visual-verdict ${light}${top ? " has-decision" : ""}`}>
       {top && top.overall !== null ? <>
-        <div className="crop-feature">
-          <span className="verdict-crop-badge" aria-hidden="true"><FarmIcon name={top.crop} size={26} /></span>
-          <div>
-            <p className="verdict-text">{top.name}</p>
-            {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}
+        <div className="decision-overview">
+          <div className="crop-feature">
+            <span className="verdict-crop-badge" aria-hidden="true"><FarmIcon name={top.crop} size={26} /></span>
+            <div>
+              <p className="verdict-text">{top.name}</p>
+              {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}
+            </div>
+          </div>
+          <p className="advisor-reason">{reason}</p>
+          <div className="crop-timeline">
+            <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong></span></div>
           </div>
         </div>
-        <p className="advisor-reason">{reason}</p>
-        <p className="advisor-risk"><strong>Qué revisar</strong> · {notes[0]?.split(". ")[0] ?? "Agua disponible para completar el ciclo."}</p>
-        {repeat && <p className="advisor-risk">Repetir {repeat.name.toLowerCase()} puede mantener plagas.</p>}
-        {loss && <p className="advisor-risk">El último precio mayorista da pérdida en el escenario histórico.</p>}
-        {top.harvestMonth > 0 && <div className="crop-timeline">
-          <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong></span></div>
-        </div>}
-        <p className="advisor-next"><strong>Antes de sembrar</strong> · Confirma el agua y el suelo con tu técnico.</p>
+        <div className="decision-check">
+          <h4>Antes de sembrar</h4>
+          <p className="advisor-next">Revisa agua y suelo con tu técnico.</p>
+          <ul className="decision-risks">
+            {loss && <li><strong>Pérdida</strong> al último precio mayorista.</li>}
+            {notes[0] && <li>{notes[0].split(". ")[0]}</li>}
+            {repeat && <li>Riesgo de plagas si repites {repeat.name.toLowerCase()}.</li>}
+          </ul>
+        </div>
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
       <div className="verdict-actions">
         <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={20} /> Oír resumen</button>
         {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={19} /> Datos y fuentes</button>}
       </div>
-      {reading && <><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</>}
+      {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
     </div>
     <p className="note advisor-nasa">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía del puntaje: FAO GIEWS. <a href={climate.source.url}>Ver dato NASA</a></p>
     {top && <details className="compare-fold"><summary>Agua, sequía, plagas y precio</summary><PillarBars a={top}/>{notes.length > 1 && <ul>{notes.slice(1).map(note => <li key={note}>{note}</li>)}</ul>}</details>}
-    <div hidden>
-    </div>
 
     <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({p.crops.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop}>{cropNames[crop]} · sin datos todavía</li>)}</ul>
