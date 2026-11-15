@@ -93,3 +93,15 @@ test("localized why explanations preserve comparison branches", () => {
     assert.equal(localizedWhyThisCrop(item, advice, "habichuela_roja", "en").length, whyThisCrop(item, advice, "habichuela_roja").length);
   }
 });
+
+import { sourceMessages, pestSourceLabels } from "./i18n/source-messages";
+import { pestSources } from "./pests";
+test("source-panel dictionaries have matching keys, interpolation fields and links", () => {
+  assert.deepEqual(leafKeys(sourceMessages.en), leafKeys(sourceMessages.es));
+  for (const key of Object.keys(sourceMessages.en) as Array<keyof typeof sourceMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(sourceMessages.en[key]), placeholders(sourceMessages.es[key]), key);
+  }
+  assert.equal(pestSourceLabels.en.length, pestSources.length);
+  assert.deepEqual([...pestSourceLabels.es], pestSources.map(([label]) => label));
+});

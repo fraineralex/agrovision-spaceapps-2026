@@ -4065,3 +4065,5 @@ body {
 .language-selector { color: inherit; background: transparent; border: 1px solid currentColor; border-radius: var(--radius-control); min-height: 40px; padding: 0 6px; font: inherit; }
 
 .ob-top-actions { display: flex; align-items: center; gap: 4px; }
+
+.src-head-actions { display: flex; align-items: center; gap: 4px; }

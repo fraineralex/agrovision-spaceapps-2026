@@ -467,3 +467,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: añadió una prueba de navegador que compara el cultivo recomendado al cambiar entre idiomas en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: tradujo la explicación comparativa de cultivos mediante una función de presentación sin alterar la clasificación en `web/lib/i18n/advice.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: agregó una comprobación de equivalencia de ramas para explicaciones de cultivos en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
+
+- 2026-11-15, OpenAI GPT-6: tradujo el panel de explicación y fuentes de las recomendaciones, conservando datos, enlaces y límites; añadió formato local de fechas y números. Archivos: `web/components/sources-sheet.tsx` y `web/lib/i18n/source-messages.ts`. Fuentes y traducciones requieren revisión por Frainer.
+- 2026-11-15, OpenAI GPT-6: verificó paridad de claves, parámetros y atribuciones del panel de fuentes en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: habilitó el selector dentro del diálogo de fuentes y ajustó su navegación de teclado en `web/components/sources-sheet.tsx` y `web/app/globals.css`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: agregó una prueba de navegador del cambio de idioma y la conservación de enlaces en el panel de fuentes en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.

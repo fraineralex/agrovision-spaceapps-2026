@@ -90,3 +90,22 @@ test("recommendation crop and labels switch without changing the selection", asy
   await page.getByLabel("Language").selectOption("es");
   await expect(advisor.locator(".recommendation-heading h2")).toHaveText(spanish);
 });
+
+test("recommendation sources switch language while retaining the same evidence links", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  await page.getByRole("button", { name: "¿Por qué este cultivo?" }).click();
+  const dialog = page.getByRole("dialog", { name: /De dónde sale la recomendación/ });
+  await expect(dialog.getByRole("heading", { name: /El detalle y las fuentes/ })).toBeVisible();
+  const linksBefore = await dialog.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort());
+  await dialog.getByLabel("Idioma").selectOption("en");
+  const english = page.getByRole("dialog", { name: /Where the recommendation/ });
+  await expect(english.getByRole("heading", { name: "Details and sources" })).toBeVisible();
+  await expect(english.getByRole("heading", { name: /^Water:/ })).toBeVisible();
+  await expect(english.getByRole("heading", { name: /^Drought:/ })).toBeVisible();
+  await expect(english.getByRole("heading", { name: /^Pests:/ })).toBeVisible();
+  await expect(english.getByRole("heading", { name: /^Price:/ })).toBeVisible();
+  expect(await english.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(linksBefore);
+  await english.getByLabel("Language").selectOption("es");
+  await expect(page.getByRole("dialog", { name: /De dónde sale la recomendación/ }).getByRole("heading", { name: "El detalle y las fuentes" })).toBeVisible();
+});
