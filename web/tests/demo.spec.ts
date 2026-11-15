@@ -82,6 +82,31 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  expect(errors).toEqual([]);
 });
 
+test("farm picker zooms and supports manual field drawing in the five requested provinces", async ({ page }) => {
+ await page.route("https://**", r => r.abort());
+ await page.goto("/");
+ const ob = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+ const provinces = ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde"];
+ for (let i = 0; i < provinces.length; i++) {
+  if (i > 0) {
+   await ob.getByRole("button", { name: "← Atrás" }).click();
+   await ob.getByRole("button", { name: "← Atrás" }).click();
+   await ob.getByRole("button", { name: provinces[i], exact: true }).click();
+  } else await ob.getByRole("button", { name: provinces[i], exact: true }).click();
+  const map = page.getByTestId("farm-picker-map");
+  await expect(map).toHaveAttribute("data-ready", "true", { timeout: 20000 });
+  await expect(ob.getByRole("status").filter({ hasText: `${provinces[i]} no hay contornos automáticos verificados` })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getZoom(): number; getMaxZoom(): number } }).__farmPicker.getZoom())).toBeGreaterThanOrEqual(15);
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getMaxZoom(): number } }).__farmPicker.getMaxZoom())).toBe(19);
+  await ob.getByRole("button", { name: /Dibujar/ }).click();
+  const bb = (await map.boundingBox())!;
+  for (const [dx, dy] of [[80, 60], [170, 60], [170, 130]]) await page.mouse.click(bb.x + dx, bb.y + dy);
+  await ob.getByRole("button", { name: /Cerrar figura/ }).click();
+  await expect(page.locator(".picker-pieces")).toContainText("Figura dibujada");
+  if (i < provinces.length - 1) await ob.getByRole("button", { name: /Listo: / }).click();
+ }
+});
+
 test("desktop shows weekly conditions and two columns for planting and sales",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));

@@ -83,6 +83,33 @@ de exportación offline tiene condiciones propias. Los rásteres crudos no se
 versionan; el PNG solicitado es una vista de revisión con atribución. Derechos
 de publicación del material derivado: revisión del equipo pendiente.
 
+## Auditoría de cobertura para cinco provincias
+
+El artefacto publicado contiene 383 candidatos sobre solo 10 de 42 ventanas
+planificadas, dentro del recorte [-71.29, 18.76, -71.22, 18.83] de San Juan.
+No equivale a cobertura del Valle completo. Para Azua, La Vega, Monte Cristi,
+Santiago y Valverde no hay adquisiciones ni detecciones verificadas en este
+pipeline. La interfaz conserva selección manual (cuadrícula, rectángulo o dibujo)
+y no extrapola polígonos de San Juan.
+
+| Provincia | Fondo Esri World Imagery | Polígonos automáticos | Selección manual |
+|---|---|---|---|
+| Azua | Servicio global; teselas, resolución y fecha no comprobadas en toda la provincia | Sin datos; no verificado | Cuadrícula de 50 m, rectángulo y polígono dibujado |
+| La Vega | Servicio global; teselas, resolución y fecha no comprobadas en toda la provincia | Sin datos; no verificado | Cuadrícula de 50 m, rectángulo y polígono dibujado |
+| Monte Cristi | Servicio global; teselas, resolución y fecha no comprobadas en toda la provincia | Sin datos; no verificado | Cuadrícula de 50 m, rectángulo y polígono dibujado |
+| Santiago | Servicio global; teselas, resolución y fecha no comprobadas en toda la provincia | Sin datos; no verificado | Cuadrícula de 50 m, rectángulo y polígono dibujado |
+| Valverde | Servicio global; teselas, resolución y fecha no comprobadas en toda la provincia | Sin datos; no verificado | Cuadrícula de 50 m, rectángulo y polígono dibujado |
+| San Juan | Servicio global; fecha/resolución por lote no verificadas | 383 candidatos, 10/42 ventanas; sin validación de campo | Las mismas tres opciones |
+
+Que el servicio permita solicitar tiles no demuestra imágenes de alta resolución
+para cada lote. El zoom máximo del mapa es 19, sin garantía de resolución uniforme.
+La app usa tiles en vivo con atribución y no agrega mosaicos al repositorio.
+No se verificó autorización para redistribuir mosaicos ni derivados. Revisar
+[atribución de basemaps](https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040),
+[resumen de términos Esri](https://content.esri.com/arcgisonline/docs/tou_summary.pdf)
+y [términos del servicio](https://www.esri.com/en-us/legal/terms/web-site-service)
+antes de redistribuir contenido.
+
 ## Autoría
 
 Codex (OpenAI) asistió investigación, scripts, análisis y documentación el
