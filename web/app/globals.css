@@ -1192,6 +1192,10 @@ h1 { color: var(--monte); }
 .voice-compact .voice-form button { min-height: 46px; padding: 8px 18px; }
 .voice-compact-log { max-height: 180px; overflow: auto; }
 .voice-compact-log p { overflow-wrap: anywhere; }
+.voice-msg { margin-bottom: 8px; }
+.rag-sources { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 0; }
+.rag-source-chip { display:inline-block; font-size:12px; padding:4px 10px; border-radius:999px; background:#e8f2e4; color:#1d4b33; border:1px solid #c5d9be; text-decoration:none; }
+.rag-source-chip[href="#"] { pointer-events:none; }
 @media (max-width: 640px) {
   .brand-status { white-space: nowrap; font-size: 12px; padding: 5px 10px; }
   .heading-farms-bar .farm-tabs .farm-tab { padding: 6px 12px; font-size: 14px; min-height: 42px; }
