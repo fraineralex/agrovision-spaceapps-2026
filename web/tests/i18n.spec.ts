@@ -72,3 +72,21 @@ test("dictation follows the selected language after switching", async ({ page })
   await page.getByRole("button", { name: "Hablar", exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as unknown as { recognitionLanguage: string }).recognitionLanguage)).toBe("es-DO");
 });
+
+test("recommendation crop and labels switch without changing the selection", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  const advisor = page.locator(".advisor");
+  await expect(advisor.getByText("Te conviene sembrar")).toBeVisible();
+  const cropIcon = advisor.locator(".recommendation-heading .crop-illustration");
+  await expect(cropIcon).toBeVisible();
+  const spanish = await advisor.locator(".recommendation-heading h2").innerText();
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(advisor.getByText("Consider planting")).toBeVisible();
+  const english = await advisor.locator(".recommendation-heading h2").innerText();
+  const pairs: Record<string, string> = { "Habichuela roja": "Red beans", "Habichuela negra": "Black beans", "Maíz": "Maize", "Arroz": "Rice", "Batata": "Sweet potato", "Yuca": "Cassava", "Plátano": "Plantain", "Guineo": "Banana", "Tomate": "Tomato", "Ají": "Pepper", "Auyama": "Squash" };
+  expect(english).toBe(pairs[spanish]);
+  await page.getByLabel("Language").selectOption("es");
+  await expect(advisor.locator(".recommendation-heading h2")).toHaveText(spanish);
+});
