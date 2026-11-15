@@ -127,3 +127,19 @@ test("rain forecast labels and dates switch without changing the measurements", 
   await page.getByLabel("Language").selectOption("es");
   await expect(page.locator(".rain-summary-pill")).toContainText("Posible lluvia");
 });
+
+test("provincial drought card retains sources and measurements when changing language", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  await page.getByRole("tab", { name: "Fincas" }).click();
+  const spanish = page.getByRole("region", { name: "Sequía provincial FAO" });
+  await expect(spanish).toBeVisible();
+  await spanish.getByText(/¿De dónde salen estos datos\?/).click();
+  const links = await spanish.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort());
+  const rings = await spanish.locator(".mini-ring-arc").evaluateAll(items => items.map(item => item.getAttribute("stroke-dashoffset")));
+  await page.getByLabel("Idioma").selectOption("en");
+  const english = page.getByRole("region", { name: "FAO provincial drought" });
+  await expect(english.getByRole("heading", { name: "Drought alert" })).toBeVisible();
+  expect(await english.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
+  expect(await english.locator(".mini-ring-arc").evaluateAll(items => items.map(item => item.getAttribute("stroke-dashoffset")))).toEqual(rings);
+});

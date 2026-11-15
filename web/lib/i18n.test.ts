@@ -119,3 +119,12 @@ test("weather dictionaries and date formats follow the language", () => {
   assert.equal(localizedShortDate("2026-11-16", "en"), "11/16");
   assert.equal(localizedShortDate("2026-11-16", "es"), "16/11");
 });
+
+import { droughtMessages } from "./i18n/drought-messages";
+test("drought dictionaries have matching keys and interpolation fields", () => {
+  assert.deepEqual(leafKeys(droughtMessages.en), leafKeys(droughtMessages.es));
+  for (const key of Object.keys(droughtMessages.en) as Array<keyof typeof droughtMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(droughtMessages.en[key]), placeholders(droughtMessages.es[key]), key);
+  }
+});
