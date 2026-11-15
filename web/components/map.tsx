@@ -57,7 +57,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
         instance.addLayer({ id:"province-fill",type:"fill",source:"provinces",paint:{"fill-color":"#9cae6b","fill-opacity":["interpolate",["linear"],["zoom"],7,.06,11,0]} });
         instance.addLayer({ id:"province-lines",type:"line",source:"provinces",paint:{"line-color":"#eef5d5","line-width":1.5} });
         instance.addSource("point", {type:"geojson",data:{type:"FeatureCollection",features:[]}});
-        instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#fff3a2","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
+        instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#DDFF86","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
         instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels","fields-fill"].filter(l=>instance.getLayer(l))}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("Selecciona un punto terrestre de República Dominicana."); });
         instance.addSource("parcels", { type: "geojson", promoteId: "parcelId", data: parcels as GeoJSON.FeatureCollection });
         instance.addLayer({ id: "parcels", type: "fill", source: "parcels", minzoom: 11, paint: { "fill-color": parcelFillColor(), "fill-opacity": 0.18 } });
@@ -82,6 +82,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
     const instance = map.current;
     if (!instance || !mapReady) return;
     instance.setPaintProperty("outlines", "line-width", ["case", ["==", ["get", "parcelId"], selected], 4, 1.8]);
+    instance.setPaintProperty("outlines", "line-color", ["case", ["==", ["get", "parcelId"], selected], "#DDFF86", parcelFillColor()]);
     instance.setPaintProperty("parcels", "fill-opacity", ["case", ["==", ["get", "parcelId"], selected], 0.45, 0.18]);
     const source = instance.getSource("point") as import("maplibre-gl").GeoJSONSource;
     source.setData({type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"Point",coordinates:[location.longitude,location.latitude]}}]});

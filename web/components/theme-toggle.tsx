@@ -18,6 +18,7 @@ export function ThemeToggle() {
   return <Button type="button" variant="outline" className="theme-toggle" aria-label="Modo sol" aria-pressed={sun} onClick={() => {
     const theme = sun ? "dark" : "sun";
     document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", sun ? "#0B120D" : "#EDEDCE");
     try { localStorage.setItem(key, theme); } catch { /* Storage is optional. */ }
     window.dispatchEvent(new Event(event));
   }}>

@@ -100,11 +100,11 @@ export function GuidedSale({ initialCrop, farmTareas, initialIrrigation, areaSou
       <dl className="sale-metrics">
         <div><dt>Gasto total</dt><dd>{useEstimate ? rounded(totalCost) : rd(totalCost)}</dd></div>
         <div><dt>Venta</dt><dd>{prices.length ? range(saleLow, saleHigh) : "Sin datos"}</dd></div>
-        <div><dt>Te queda</dt><dd>{prices.length ? range(saleLow - totalCost, saleHigh - totalCost) : "Sin datos"}</dd></div>
+        <div className={prices.length && saleHigh < totalCost ? "sale-loss" : undefined}><dt>Te queda</dt><dd>{prices.length ? range(saleLow - totalCost, saleHigh - totalCost) : "Sin datos"}</dd></div>
       </dl>
       <strong>Vende a mínimo {rd(breakEven)} por quintal para no perder</strong>
       {comparisonPrice !== undefined && maxPrice > 0 && <div className="break-even-chart">
-        <span>{offer === "" ? "Precio del escenario medio" : "Tu oferta"}: {rounded(comparisonPrice)}/qq</span>
+        <span>{offer === "" ? "Precio del escenario medio" : "Tu oferta"}: {rd(comparisonPrice)}/qq</span>
         <div className="break-even-track" aria-hidden="true">
           <i style={{ width: (comparisonPrice / maxPrice) * 100 + "%" }} />
           <b style={{ insetInlineStart: "min(calc(100% - 2px), " + (breakEven / maxPrice) * 100 + "%)" }} />

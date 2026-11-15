@@ -16,14 +16,14 @@ export function MetricTile({ label, value, detail, icon, children, tone }: {
 }
 
 export function WaterGauge({ value }: { value: number | null }) {
-  return <span className="water-gauge" aria-hidden="true">
+  return <span className="water-tank" aria-hidden="true">
     {value !== null && <span style={{ height: `${Math.max(0, Math.min(5, value)) * 20}%` }} />}
   </span>;
 }
 
 export function ScoreRing({ score, label }: { score: number; label: string }) {
   const offset = 100 - Math.max(0, Math.min(5, score)) * 20;
-  return <div className="score-figure" aria-label={`${label}: ${score.toFixed(1).replace(".", ",")} de 5 puntos`}>
+  return <div className="score-figure" role="img" aria-label={`${label}: ${score.toFixed(1).replace(".", ",")} de 5 puntos`}>
     <svg aria-hidden="true" viewBox="0 0 88 88" width="88" height="88">
       <circle cx="44" cy="44" r="38" />
       <circle cx="44" cy="44" r="38" pathLength="100" strokeDasharray="100" strokeDashoffset={offset} />
@@ -52,4 +52,8 @@ export function HeroRecommendation({ children, actions, tone }: { children: Reac
     <CardContent className="p-0 recommendation-content">{children}</CardContent>
     <CardFooter className="p-0 verdict-actions">{actions}</CardFooter>
   </Card>;
+}
+
+export function FieldMapCard({ children }: { children: ReactNode }) {
+  return <section className="picker-stage" aria-label="Mapa para marcar la finca">{children}</section>;
 }

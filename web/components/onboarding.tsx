@@ -12,7 +12,7 @@ import { areaLabel, centroid, newFarmId, piecesAreaM2, type Farm, type Piece } f
 import type { Irrigation, Priority } from "@/lib/data";
 
 export type FarmProfile = Farm;
-const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <p role="status">Cargando mapa…</p> });
+const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <div className="picker-map map-loading" role="status">Cargando mapa…</div> });
 const STEPS = 3;
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" className={on ? "ob-choice on" : "ob-choice"} aria-pressed={on} onClick={onClick}>{children}</button>;

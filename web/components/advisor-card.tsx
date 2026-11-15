@@ -117,7 +117,7 @@ export function AdvisorCard(p: Props) {
         <RiskPill>{loss ? "Posible pérdida al precio mayorista" : notes[0]?.split(". ")[0] || "Confirma el agua y suelo"}</RiskPill>
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
     </HeroRecommendation>
-    {top && <div className="metric-tiles" aria-label="Indicadores por pilar">
+    {top && <div className="metric-tiles" role="group" aria-label="Indicadores por pilar">
       {pillarInfo.map(({ id, label, icon }) => <MetricTile key={id} label={label}
         icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id}
         value={lightWord[lightFor(top.scores[id])]} detail={top.words[id]}>

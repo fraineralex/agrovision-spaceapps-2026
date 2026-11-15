@@ -2,7 +2,7 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
-import { CalendarDays, CloudRain, Coins, Droplets, MapPin, MessageCircle, Sprout, Sun, ThermometerSun } from "lucide-react";
+import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Mic, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { HelpTip } from "@/components/help-tip";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
@@ -27,7 +27,7 @@ export function BottomNav({
     { id: "lluvia", label: "Lluvia", Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
     { id: "venta", label: "Venta", Icon: Coins },
     { id: "mapa", label: "Fincas", Icon: MapPin },
-    { id: "preguntar", label: "Ayuda", Icon: MessageCircle },
+    { id: "preguntar", label: "Ayuda", Icon: Mic },
   ];
   return (
     <div className="workbench-nav" role="tablist" aria-label="Secciones principales de tu finca">
@@ -101,8 +101,8 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
           <HelpTip label="Lluvia de la semana" text="Mira la lluvia esperada de los próximos 7 días. Toca cualquier día para ver el detalle y anota aquí tu próxima fecha de riego." />
         </div>
       </div>
-      <div className="week-telemetry" aria-label="Indicadores rápidos de la semana">
-        {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> {weekRainMm} mm / 7 días</span>}
+      <div className="week-telemetry" role="group" aria-label="Indicadores rápidos de la semana">
+        {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> <strong>{weekRainMm} mm</strong> <small>/ 7 días</small></span>}
         {droughtLabel && <span className="wt-chip drought"><Sun size={15} aria-hidden="true"/> {droughtLabel}</span>}
         {tempC != null && <span className="wt-chip temp"><ThermometerSun size={15} aria-hidden="true"/> {Math.round(tempC)} °C normal</span>}
       </div>

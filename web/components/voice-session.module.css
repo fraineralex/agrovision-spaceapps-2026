@@ -55,7 +55,7 @@
   pointer-events: none;
 }
 
-.orb:not([data-state="idle"]) svg { width: 14px; height: 14px; fill: currentColor; opacity: 0; }
+.orb:not([data-state="idle"]) svg { width: 20px; height: 20px; fill: currentColor; opacity: 1; z-index: 1; }
 .orb:hover svg, .orb:focus-visible svg { opacity: 1; }
 .orb:not([data-state="idle"])::before {
   content: "";

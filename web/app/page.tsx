@@ -38,7 +38,7 @@ import parcels from "@/public/data/demo-parcels.json";
 import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced";
-const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <p role="status">Cargando mapa…</p> });
+const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <div className="map-placeholder"><div className="map-wrap map-loading" role="status">Cargando mapa…</div><div className="map-placeholder-tail" aria-hidden="true" /></div> });
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 const modeKey = "agrovision:view-mode";
 type ViewMode = "farmer" | "supervisor";
@@ -399,21 +399,22 @@ export default function Home() {
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
               <HelpTip label="Pregúntale a AgroVision" text="Usa Hablar en el asistente, Escribir u Oír resumen." />
             </div>
-            <p className="panel-intro">Elige cómo prefieres consultar los datos de tu finca: hablando en vivo, leyendo tu pregunta o escuchando el resumen en voz alta.</p>
+            <p className="panel-intro">Pregunta por tu siembra, la lluvia o el precio.</p>
+            <details className="visual-details"><summary>Cómo usar voz y texto</summary>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
-                <strong>1. Hablar por micrófono</strong>
-                <p>Toca Hablar en el asistente para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
+                <strong>Hablar</strong>
+                <p>Toca el micrófono para hacer tu pregunta.</p>
               </div>
               <div className="voice-guide-item">
-                <strong>2. Consultar por escrito</strong>
-                <p>Escribe tu pregunta en el recuadro de abajo (por ejemplo: <em>“¿Qué me conviene sembrar este mes?”</em>) y recibe respuesta al instante.</p>
+                <strong>Escribir</strong>
+                <p>Prueba con «¿Qué siembro este mes?».</p>
               </div>
               <div className="voice-guide-item">
-                <strong>3. Escuchar en voz alta</strong>
-                <p>Toca <strong>Oír resumen</strong> abajo para que el teléfono o computadora te lea la recomendación sin tener que leer la pantalla.</p>
+                <strong>Oír resumen</strong>
+                <p>Escucha la recomendación de tu finca.</p>
               </div>
-            </div>
+            </div></details>
           </section>
         </div>
       )}
