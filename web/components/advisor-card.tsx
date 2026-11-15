@@ -60,7 +60,7 @@ export function AdvisorCard(p: Props) {
   const sowYear = now.getFullYear() + Number(p.sowMonth <= now.getMonth());
   const harvestYear = top ? sowYear + Math.floor((p.sowMonth - 1 + Math.round(top.cycleDays / 30)) / 12) : sowYear;
   const sentence = adviceSentence(top, p.previous);
-  const reason = top?.scores.pests === 5 ? "El IDIAF recomienda maíz tras habichuela." : (top?.scores.water ?? 0) >= 3.34 ? "Pide menos agua que tus otros cultivos." : "El que mejor sale en tu lista.";
+  const reason = top?.soil.level === "good" ? `Para tu tierra: ${top.soil.title.toLowerCase()}.` : top?.scores.pests === 5 ? "El IDIAF recomienda maíz tras habichuela." : (top?.scores.water ?? 0) >= 3.34 ? "Pide menos agua que tus otros cultivos." : "El que mejor sale en tu lista.";
   const notes = [...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])];
   const summary = [sentence, ...notes, "Confirma el agua disponible con tu técnico."].join(" ");
   const { reading, read, stop } = useReadAloud();

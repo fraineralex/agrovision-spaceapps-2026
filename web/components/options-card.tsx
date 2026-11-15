@@ -2,7 +2,7 @@
 /* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useMemo, useState } from "react";
-import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
+import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, Sprout, type LucideIcon } from "lucide-react";
 import { FarmIcon } from "@/components/farm-icon";
 import { HelpTip } from "@/components/help-tip";
 import { Stars } from "@/components/field-ui";
@@ -10,10 +10,10 @@ import { fiveOptions, lightFor, monthNames, pillarTitle, type CropAdvice, type C
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
 
-const goalIcon: Record<OptionKey, LucideIcon> = { water: Droplets, market: Coins, pests: Bug, climate: CloudSun, keep: RotateCcw };
+const goalIcon: Record<OptionKey, LucideIcon> = { water: Droplets, market: Coins, pests: Bug, climate: CloudSun, keep: RotateCcw, other: Sprout };
 const pillars: { id: Pillar; label: string; Icon: LucideIcon }[] = [{ id: "water", label: "Agua", Icon: Droplets }, { id: "climate", label: "Sequía", Icon: CloudSun }, { id: "pests", label: "Plagas", Icon: Bug }, { id: "market", label: "Precio", Icon: Coins }];
 const word: Record<string, string> = { green: "Conviene", amber: "Puede servir", red: "No conviene", gray: "Falta información" };
-const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Precio histórico", pests: "Plagas", climate: "Sequía", keep: "Seguir igual" };
+const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Precio histórico", pests: "Plagas", climate: "Sequía", other: "Otra opción", keep: "Seguir igual" };
 
 export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
   const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
@@ -26,13 +26,13 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
       <HelpTip label="Otras opciones" text="Compara el mejor cultivo según lo que más te importe hoy: ahorrar agua, cuidar el precio, evitar plagas, resistir sequía o seguir igual." />
     </div>
     <ol className="option-list">
-      {grouped.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
+      {grouped.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = a && o.key === "keep" && a.soil.level === "bad" ? "amber" : lightFor((a && (o.key === "keep" || o.key === "other" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
         <div className="option-head">
           <span className={`option-icon-badge tone-${o.key}`} aria-hidden="true">
             <Icon className="option-icon" />
           </span>
           <span className="option-goal" title={o.goal}>{a ? options.filter(option => option.advice?.crop === a.crop).map(option => goalLabel[option.key]).join(" · ") : goalLabel[o.key]}</span>
-          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{o.key === "keep" ? word[light] : pillarTitle(o.key as Pillar, a.scores[o.key as Pillar])}</span>}
+          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{o.key === "keep" && a.soil.level === "bad" ? "Cansa la tierra" : o.key === "keep" || o.key === "other" ? word[light] : pillarTitle(o.key as Pillar, a.scores[o.key as Pillar])}</span>}
         </div>
         {a ? <>
           <div className="option-crop-row">

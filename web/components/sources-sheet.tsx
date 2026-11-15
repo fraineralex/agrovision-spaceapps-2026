@@ -1,7 +1,8 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — plain-language "where does this come from" panel per recommendation. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { Bug, Coins, Droplets, FileText, Sun } from "lucide-react";
+import { Bug, Coins, Droplets, FileText, Leaf, Sun } from "lucide-react";
+import { soilSources } from "@/lib/soil";
 import { useEffect, useRef } from "react";
 import { previousCropName, FAO56_URL, marketFor, marketSources, monthNames, starsFor, unitWord, whyThisCrop, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
 import { Stars } from "@/components/field-ui";
@@ -69,6 +70,12 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
       </section>
       <h3 className="src-detail-title">El detalle y las fuentes</h3>
       <p className="src-intro">Cada punto para <strong>{advice.name.toLowerCase()}</strong> en <strong>{province ?? "todo el país"}</strong>, sembrando en <strong>{monthNames[sowMonth - 1]}</strong>{prevName ? <>, después de <strong>{prevName}</strong></> : null}, con su fuente para que la revises tú o tu técnico.</p>
+
+      <Block icon={<Leaf />} title="Suelo" verdict={advice.soil.title} links={advice.soil.sources.map(k => [soilSources[k].label, soilSources[k].url] as [string, string])}>
+        <p>{advice.soil.text}</p>
+        <p>Rotar es sobre todo para cuidar la tierra: cada cultivo busca los nutrientes en una capa distinta, las leguminosas dejan nitrógeno y las raíces y el rastrojo variados forman materia orgánica.</p>
+        <p className="src-limit">Es una regla general de la FAO, no una medición de tu finca. Para saber cómo está tu tierra hace falta un análisis de suelo. Esta parte no cambia las estrellas.</p>
+      </Block>
 
       <Block icon={<Droplets />} title="Agua" verdict={advice.words.water} links={[["FAO-56, tablas 11 y 12 (1998)", FAO56_URL]]}>
         <p>Usamos el manual de riego de la FAO (Naciones Unidas), que dice cuánta agua pide cada cultivo en cada etapa. Para {advice.name.toLowerCase()} usamos la fila “{advice.faoRow}”.</p>
