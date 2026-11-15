@@ -39,6 +39,11 @@ export const corpusDocs: CorpusDoc[] = [
   doc("farmer-pillars", "Rotaciones San Juan", "AgroVision / NASA POWER", "web/public/data/farmer-pillars.json"),
   doc("ndvi-series", "Muestra Landsat NDVI", "USGS/NASA Landsat", "web/public/data/ndvi-series.json", "https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-reflectance"),
   doc("cedaf-crop-guides", "Guías CEDAF de arroz y guandul: siembra, variedades y cosecha", "CEDAF", "data/rag-corpus/cedaf-crop-guides-excerpts.md", "https://www.cedaf.org.do/guias-tecnicas/"),
-  doc("cedaf-bean-guide", "CEDAF Cultivo de Habichuela: variedades, preparación de suelo, riego y cosecha", "CEDAF", "data/rag-corpus/cedaf-bean-guide.md", "https://intranet.cedaf.org.do/publicaciones/guias/detalle.asp?Codigo=CU02"),
   doc("cedaf-plantain-cassava", "CEDAF guías técnicas de plátano y yuca", "CEDAF", "data/rag-corpus/cedaf-plantain-cassava.md", "https://www.cedaf.org.do/guias-tecnicas/"),
+  doc("idiaf-bean-compendium", "Compendio IDIAF: manejo integrado de habichuela en República Dominicana", "IDIAF", "data/rag-corpus/idiaf-habichuela-compendio.txt", "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf"),
+  doc("nasa-data-guides", "NASA para agricultores: POWER, IMERG, SMAP, GIBS y Landsat", "NASA Earthdata / POWER / GPM / USGS", "data/rag-corpus/nasa-earth-data-guides.md", "https://power.larc.nasa.gov/docs/tutorials/data-access-viewer/quick-start/"),
+  doc("rotation-best4soil", "Rotación de cultivos: información práctica", "Best4Soil — Houben et al.", "data/rag-corpus/best4soil.md", "https://orgprints.org/id/eprint/43540/7/ES_ROTACIO%CC%81N%20DE%20CULTIVOS_%20INFORMACIO%CC%81N%20PR%C3%81CTICA.pdf"),
+  doc("rotation-ekonekazaritza", "Rotaciones y asociaciones de cultivos", "Ekonekazaritza — Sauca Ibiricu y Urabayen Aróstegui", "data/rag-corpus/ekone.md", "https://agricultura.gencat.cat/web/.content/03-agricultura/pae/publicacions-material-referencia/produccions-agricoles/hortalisses/rotacions_cultius_horticoles.pdf"),
+  doc("rotation-uchile", "Rotación de cultivos", "Universidad de Chile — Silva, Vergara y Acevedo", "data/rag-corpus/uchile.md", "https://bibliotecadigital.ciren.cl/bitstream/20.500.13082/31852/1/Boletin_INIA_385.pdf"),
+  doc("rotation-sekhar", "Crop rotation and intercropping techniques", "Sekhar et al. / ND Global Publication House", "data/rag-corpus/sekhar.md", "https://doi.org/10.5281/zenodo.11051201"),
 ];
