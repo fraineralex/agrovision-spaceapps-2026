@@ -42,6 +42,33 @@ Corrida real contra instancia local iniciada desde el build actual en `http://lo
 
 La evaluación se ejecutó contra instancia en `http://localhost:3467`, con el índice de 62 fragmentos (google/gemini-embedding-2). Hubo fallos HTTP 500 intermitentes y fallback que reproduce una cabecera en preguntas de habichuela; no se cuentan como respuestas grounded. La recuperación en las preguntas de fechas del guandul y referencias de plátano/yuca sí incluyó el nuevo documento CEDAF.
 
+## Preguntas de esta ronda: IDIAF y datos NASA (2026-11-15)
+
+Consultas corridas por `web/scripts/rag-eval-local.ts` contra el servidor local con el índice nuevo y AI Gateway. Grounding clasificado según la respuesta visible y las fuentes del header; la revisión de Frainer queda pendiente.
+
+| Pregunta | Resultado | Fuente esperada |
+|---|---|---|
+| ¿Cuánta semilla por tarea y qué distancia entre hileras recomienda el IDIAF para habichuela? | Retrieval: grounded; tras registrar la ficha de prácticas, aparece primera (score 0.779) | Compendio IDIAF, 2013 |
+| ¿Qué prácticas de manejo de enfermedades y plagas describe el compendio IDIAF de habichuela? | Retrieval: grounded (fragmentos MIP IDIAF en top 3) | Compendio IDIAF, 2013 |
+| ¿Qué manejo del mosaico dorado describe el compendio y de qué año es la guía? | Retrieval: débil; top 3 no incluye un fragmento IDIAF útil | Compendio IDIAF, 2013 |
+| ¿Qué mide IMERG y qué unidad debo revisar antes de leer la lluvia? | Retrieval: grounded (NASA en top 3) | NASA GPM IMERG / NASA POWER |
+| ¿SMAP me dice la humedad de mi parcela y de qué tamaño es aproximadamente el píxel? | Retrieval: grounded (NASA en top 3) | NASA POWER fuentes hidrológicas / SMAP |
+| ¿Qué significa una imagen de Landsat o GIBS para mi cultivo y cuáles son sus límites? | Retrieval: parcial; NASA aparece pero el chunk superior es SMAP, no sección Landsat/GIBS | NASA Landsat / NASA Earthdata GIBS |
+| ¿Cuándo siembro habichuela en San Juan? | Retrieval: parcial; IDIAF aparece en top 3 pero el primer resultado trata guandul | Compendio IDIAF y contexto piloto |
+| ¿Qué dice la NASA de la lluvia en mi zona? | Retrieval: grounded (NASA guía aparece primero) | NASA POWER / IMERG y límites documentados |
+
+El compendio IDIAF se redistribuye con el permiso impreso en su página legal (“puede ser reproducido […] siempre y cuando no se altere su contenido”), con cita bibliográfica en el TXT extraído y vínculo al PDF original. El PDF se conserva en `data/rag-corpus/`.
+
+La ruta de voz de esta rama produjo respuestas vacías/intermitentes sin headers de fuentes en 11 consultas; no se califican esas salidas como grounding del modelo. La recuperación directa mediante `retrieveRag` se ejecutó contra AI Gateway y se reporta arriba, pero las pruebas de respuesta de extremo a extremo siguen pendientes. Se detectó que la conversión lineal del PDF deja pies de figuras dentro del texto; el índice también incluye un extracto de prácticas cuidadosamente atribuido y advierte que son recomendaciones de 2013. La ficha IDIAF de prácticas quedó registrada en `corpusDocs` en el commit correctivo posterior al primer preview.
+
+## Fuentes útiles que quedan pendientes
+
+- Guías IDIAF/CEDAF con contenido agronómico verificable para papa, tomate, ajo, cebolla, zanahoria, batata, maíz y plátano: variedades, semilla/espaciamiento, fertilización, MIP vigente y poscosecha.
+- Fuentes vigentes de crédito Banco Agrícola, programas FEDA y seguro agropecuario ADESA.
+- ONAMET/INDRHI: preparación ante huracanes y sequía, alertas e irrigación.
+- Costos recientes por tarea y series oficiales de siembra/cosecha y estacionalidad.
+- Revisar con Frainer el grounding de calendario/MIP IDIAF y NASA GIBS/Landsat; arreglar retrieval semántico de las secciones del compendio y evaluación de la respuesta de voz.
+
 
 
 ## Almacenamiento vectorial en Turso
@@ -71,3 +98,17 @@ Se ejecutaron las seis preguntas del script de evaluación contra dos instancias
 | ¿Cuánto cuesta sembrar una tarea de arroz? | Guías CEDAF de arroz y guandul; Mercado y costos 2019; Resumen del equipo |
 | ¿Qué le echo al tizón de la papa? | CEDAF Cultivo de Habichuela; CEDAF guías técnicas de plátano y yuca; Guías CEDAF de arroz y guandul; Resumen del equipo |
 | ¿De dónde sacan los precios? | Asesor de siembra y mercado; Mercado y costos 2019; Precios mayoristas MA; Resumen del equipo |
+
+## Preguntas nuevas: rotaciones y asociaciones de cultivos (2026-11-15)
+
+Se ejecutaron cinco preguntas para comprobar principios generales, leguminosas, pausas entre hospedadores, distinción entre rotación y asociación y límites al trasladar recomendaciones extranjeras. La recuperación y las respuestas se probaron con el índice JSON de 130 fragmentos en un build local (`http://localhost:3467`), AI Gateway habilitado y Turso desactivado para comprobar el fallback local. Revisión agronómica por Frainer pendiente.
+
+| Pregunta | Fuentes esperadas | Resultado |
+|---|---|---|
+| ¿Qué beneficios puede aportar alternar familias botánicas y raíces de distinta profundidad en una rotación? | Best4Soil, Ekonekazaritza, Universidad de Chile y Sekhar fueron los cuatro primeros resultados (0.70–0.74). La respuesta cayó al respaldo “sin dato” porque el proveedor no produjo texto. | Recuperación pertinente; respuesta generada incompleta. |
+| ¿Qué papel pueden tener las leguminosas en una rotación y qué condiciones hacen incierto el aporte al cultivo siguiente? | Universidad de Chile, Ekonekazaritza, Best4Soil y Sekhar (0.65–0.70). Respaldo “sin dato” por respuesta automática no disponible. | Recuperación pertinente; respuesta generada incompleta. |
+| ¿Cómo ayuda alternar cultivos hospedadores y no hospedadores, y puedo aplicar a San Juan los intervalos europeos de Best4Soil? | Best4Soil primero (0.74), seguido de Universidad de Chile y Ekonekazaritza. Respaldo “sin dato” por respuesta automática no disponible. | Recuperación pertinente; no ofrece respuesta sobre transferencia de intervalos. |
+| ¿Cuál es la diferencia entre rotación y asociación de cultivos? | Ekonekazaritza primero (0.71) y Sekhar segundo (0.69). La respuesta distinguió sucesión temporal de cultivo simultáneo y mencionó diseños y necesidades de planificación. | Grounded y sustantiva en esta corrida. |
+| ¿Qué debo revisar antes de probar una asociación de cereal y leguminosa en una finca tropical pequeña? | Sekhar y Ekonekazaritza primero, además de CEDAF y Best4Soil (0.63–0.68). La respuesta usó el respaldo “sin dato” pese al contexto recuperado. | Recuperación pertinente; respuesta generada incompleta. |
+
+La carga a Turso (`npm run rag:upload`) y un reintento diagnóstico de esta sesión fallaron con `fetch failed`. Una lectura posterior encontró 151 filas y los cuatro IDs `rotation-*`, pero ese total no coincide con el índice JSON local (130). Hubo carga concurrente en la base compartida, así que la presencia de los cuatro IDs no se atribuye a esta invocación ni confirma paridad de versiones. Esta evaluación mide el fallback JSON. Una pregunta obtuvo respuesta sustantiva; en tres el proveedor no produjo texto y el endpoint devolvió su respaldo; en otra, el modelo dijo no tener el dato pese a recuperar contexto pertinente. La recuperación funcionó, pero la generación fue irregular.

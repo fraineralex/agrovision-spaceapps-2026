@@ -13,6 +13,30 @@ function roundVector(v: number[], digits = 5) {
 
 function readBody(doc: (typeof corpusDocs)[number]): string {
   const raw = fs.readFileSync(doc.absolutePath, "utf8");
+  if (doc.id === "idiaf-bean-compendium") {
+    // pdftotext preserves figure pages and captions that dominate retrieval.
+    // Index authored crop guidance while retaining the full, licensed PDF/TXT in the corpus.
+    const body = raw
+      .replace(/\f/g, "\n")
+      .replace(/^\s*COMPENDIO PARA EL MANEJO INTEGRADO[^\n]*\n/gm, "");
+    const contents = body.indexOf("CONTENIDO");
+    const contentEnd = body.indexOf("LISTA DE FIGURAS", contents);
+    const intro = body.indexOf("INTRODUCCIÓN", contentEnd);
+    const management = body.indexOf("6.- PRÁCTICAS DE MANEJO", intro);
+    const bibliography = body.indexOf("BIBLIOGRAFIA", management);
+    const sections = [
+      [intro, body.indexOf("3.- RESEÑA DEL MEJORAMIENTO", intro)],
+      [body.indexOf("5.- VARIEDADES DE HABICHUELAS LIBERADAS", intro), management],
+      [management, bibliography],
+    ];
+    return sections
+      .filter(([start, end]) => start >= 0 && end > start)
+      .map(([start, end]) => body.slice(start, end))
+      .join("\n\n")
+      .replace(/^\s*Figura\s+\d+\.[^\n]*(?:\n(?!\s*$)[^\n]*)?/gm, "")
+      .replace(/\n\s*\d{1,3}\s*\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n");
+  }
   if (doc.filePath.endsWith(".json")) {
     const data = JSON.parse(raw) as Record<string, unknown>;
     if (doc.id === "market-insights") {
