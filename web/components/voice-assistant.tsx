@@ -8,7 +8,7 @@ import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
-export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
+export function VoiceAssistant({ selection, defaultOpenWrite = false }: { selection: VoiceSelection; defaultOpenWrite?: boolean }) {
   const [notice, setNotice] = useState("");
   const [voiceError, setVoiceError] = useState(false);
   const [draft, setDraft] = useState("");
@@ -168,15 +168,19 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     </button>
     <p className={voiceError && !active ? session.error : "sr-only"} role="status">{voiceStatus}</p>
     <div hidden={active}>
+    <div className="voice-bar-head">
+      <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
+      <span>Toca el botón flotante de micrófono en la esquina o consulta por escrito</span>
+    </div>
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
     </div></details>}
     <div className="voice-alternatives">
-      <details className="visual-details"><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
+      <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
       {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
+      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
     </div>
-    <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
     </div>
   </section>;
 }

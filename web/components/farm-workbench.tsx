@@ -154,8 +154,10 @@ export function PlantingPlan({ farm, sowMonth, onMonth, onSave }: {
     <form className="workbench-form" onSubmit={save}>
       <label>Mes para comparar<select value={sowMonth} onChange={event => { onMonth(Number(event.target.value)); setStatus(""); }}>{monthNames.map((month, index) => <option value={index + 1} key={month}>{month}</option>)}</select></label>
       <label>Cultivo para tu plan<select value={crop} onChange={event => { setCrop(event.target.value as CropId | ""); setStatus(""); }}><option value="">Elige un cultivo</option>{options.map(id => <option value={id} key={id}>{cropNames[id]}</option>)}</select></label>
-      <button type="submit" disabled={!crop || (farm.plan?.crop === crop && farm.plan.sowMonth === sowMonth)}>Guardar plan</button>
-      {farm.plan && <button type="button" className="link-button" onClick={() => setStatus(onSave(undefined) ? "Plan borrado." : "Este navegador no pudo borrar el plan.")}>Borrar plan</button>}
+      <div className="plan-form-actions">
+        <button type="submit" disabled={!crop || (farm.plan?.crop === crop && farm.plan.sowMonth === sowMonth)}>Guardar plan</button>
+        {farm.plan && <button type="button" className="link-button" onClick={() => setStatus(onSave(undefined) ? "Plan borrado." : "Este navegador no pudo borrar el plan.")}>Borrar plan</button>}
+      </div>
     </form>
     <p role="status" className="note">{status}</p>
   </div>;

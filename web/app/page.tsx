@@ -73,7 +73,7 @@ export default function Home() {
   const [climateStatus,setClimateStatus] = useState("");
   const [provinceSearch,setProvinceSearch] = useState("");
   const [gpsStatus,setGpsStatus] = useState("");
-  const [mapOpen,setMapOpen] = useState(false);
+  const [mapOpen,setMapOpen] = useState(true);
   const [mapPlace,setMapPlace] = useState("");
   const [crops,setCrops] = useState<CropId[]>(defaultCrops);
   const [onboarding,setOnboarding] = useState(false);
@@ -184,24 +184,29 @@ export default function Home() {
           <h1>{activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
         </div>
         <div className="heading-controls">
-          <div className="mode-switch" role="group" aria-label="Modo de uso">
-            <button type="button" aria-pressed={!supervisor} onClick={() => changeMode("farmer")}><Sprout aria-hidden="true"/> Agricultor</button>
-            <button type="button" aria-pressed={supervisor} onClick={() => changeMode("supervisor")}><ClipboardList aria-hidden="true"/> Supervisor</button>
+          <div className="heading-toolbar">
+            <div className="mode-switch" role="group" aria-label="Modo de uso">
+              <button type="button" aria-pressed={!supervisor} onClick={() => changeMode("farmer")}><Sprout aria-hidden="true"/> Agricultor</button>
+              <button type="button" aria-pressed={supervisor} onClick={() => changeMode("supervisor")}><ClipboardList aria-hidden="true"/> Supervisor</button>
+            </div>
+            {farms.length === 0 && (
+              <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca</button>
+            )}
           </div>
-          {farms.length > 0 ? (
-            <div className="heading-farms"><FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/></div>
-          ) : (
-            <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca</button>
+          {supervisor && (
+            <nav className="supervisor-tools" aria-label="Herramientas de supervisión">
+              <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>Parcelas</a>
+              <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>Clima y mercado</a>
+              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => openReport("rotaciones"), 30); }}>Rotaciones</a>
+            </nav>
           )}
         </div>
       </div>
 
-      {supervisor && (
-        <nav className="supervisor-tools" aria-label="Herramientas de supervisión">
-          <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>Parcelas</a>
-          <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>Clima y mercado</a>
-          <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => openReport("rotaciones"), 30); }}>Rotaciones</a>
-        </nav>
+      {farms.length > 0 && (
+        <div className="heading-farms-bar">
+          <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>
+        </div>
       )}
 
       <WorkbenchNav activeTab={activeTab} onSelectTab={setActiveTab} weekRainMm={weekRainMm}/>
@@ -231,12 +236,11 @@ export default function Home() {
                   </select>
                 </label>
                 <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
-                <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>Agregar mi finca (3 pasos)</button>
               </div>
               {gpsStatus && <p role="status">{gpsStatus}</p>}
             </section>
           ) : (
-            <div className={supervisor ? "home-grid" : "home-grid single-col"}>
+            <div className="home-grid">
               <div className="col-main">
                 <Fold id="siembra" icon="🌱" title="Plan y recomendación" help="Aquí ves el cultivo más recomendable según tu tierra, agua y cultivo anterior, y puedes guardar tu plan del mes.">
                   {activeFarm && <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>}
@@ -244,7 +248,7 @@ export default function Home() {
                 </Fold>
               </div>
               <div className="col-side">
-                {supervisor && <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>}
+                <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>
                 <ShareButton summary={shareSummary}/>
               </div>
             </div>
@@ -260,7 +264,7 @@ export default function Home() {
 
       {activeTab === "venta" && (
         <div id="panel-venta" role="tabpanel" aria-labelledby="tab-venta" className="tab-stage">
-          <div className={supervisor ? "home-grid" : "home-grid single-col"}>
+          <div className="home-grid">
             <div className="col-main">
               <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder.">
                 <SaleBudget key={activeFarm?.id ?? "new"}/>
@@ -269,20 +273,18 @@ export default function Home() {
                 </details>}
               </Fold>
             </div>
-            {supervisor && (
-              <div className="col-side">
-                <Fold id="precio-y-mercado" icon="💰" title="Precio y mercado" help="Muestra los precios mayoristas publicados por el Ministerio de Agricultura y en qué meses suele pagarse mejor cada cultivo.">
-                  <MarketCard key={saleCrop} initialCrop={saleCrop}/>
-                </Fold>
-              </div>
-            )}
+            <div className="col-side">
+              <Fold id="precio-y-mercado" icon="💰" title="Precio y mercado" help="Muestra los precios mayoristas publicados por el Ministerio de Agricultura y en qué meses suele pagarse mejor cada cultivo.">
+                <MarketCard key={saleCrop} initialCrop={saleCrop}/>
+              </Fold>
+            </div>
           </div>
         </div>
       )}
 
       {activeTab === "mapa" && (
         <div id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa" className="tab-stage">
-          <div className={supervisor ? "home-grid" : "home-grid single-col"}>
+          <div className="home-grid">
             <div className="col-main">
               <Fold id="tu-finca-en-el-mapa" icon="🗺️" title="Tu finca en el mapa" help="Busca un lugar de RD o mira tu finca por satélite para revisar contornos y verdor." teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
                 <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place" role="status">{[mapPlace, province].filter(Boolean).join(" · ") || "Sin elegir"}</span></div>
@@ -318,53 +320,51 @@ export default function Home() {
                 </section>
               </Fold>
             </div>
-            {supervisor && (
-              <div className="col-side">
-                {province ? (
-                  <Fold id="sequia-y-lluvia" icon="☀️" title="Sequía y lluvia" help="Te muestra si la provincia ha tenido señal reciente o histórica de sequía según datos satelitales de la FAO." teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>
-                ) : (
-                  <section className="card panel"><p className="note">Elige tu provincia en el mapa para ver el reporte provincial de sequía y clima normal.</p></section>
-                )}
+            <div className="col-side">
+              {province ? (
+                <Fold id="sequia-y-lluvia" icon="☀️" title="Sequía y lluvia" help="Te muestra si la provincia ha tenido señal reciente o histórica de sequía según datos satelitales de la FAO." teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>
+              ) : (
+                <section className="card panel"><p className="note">Elige tu provincia en el mapa para ver el reporte provincial de sequía y clima normal.</p></section>
+              )}
 
-                {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} help="Muestra el promedio de temperatura, lluvia y humedad de los últimos 10 años en tu zona." teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
-                  {selectedClimate ? <>
-                    <div className="climate-meters">
-                      <div className="cmeter-card">
-                        <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
-                        <strong className="cmeter-val">{selectedClimate.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C` : "—"}</strong>
-                        <div className="cmeter-track" aria-hidden="true">
-                          <span className="cmeter-fill temp" style={{ width: `${selectedClimate.temperatureC != null ? Math.max(12, Math.min(100, Math.round(((selectedClimate.temperatureC - 14) / 24) * 100))) : 0}%` }} />
-                        </div>
-                        <small className="cmeter-sub">Rango 14–38 °C · NASA POWER</small>
+              {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} help="Muestra el promedio de temperatura, lluvia y humedad de los últimos 10 años en tu zona." teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
+                {selectedClimate ? <>
+                  <div className="climate-meters">
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
+                      <strong className="cmeter-val">{selectedClimate.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C` : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill temp" style={{ width: `${selectedClimate.temperatureC != null ? Math.max(12, Math.min(100, Math.round(((selectedClimate.temperatureC - 14) / 24) * 100))) : 0}%` }} />
                       </div>
-                      <div className="cmeter-card">
-                        <div className="cmeter-head"><FarmIcon name="water" size={20} /><span>Lluvia mensual</span></div>
-                        <strong className="cmeter-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</strong>
-                        <div className="cmeter-track" aria-hidden="true">
-                          <span className="cmeter-fill rain" style={{ width: `${selectedClimate.precipitationMmDay != null ? Math.max(8, Math.min(100, Math.round((selectedClimate.precipitationMmDay * 30 / 220) * 100))) : 0}%` }} />
-                        </div>
-                        <small className="cmeter-sub">{selectedClimate.precipitationMmDay != null ? `~${Math.round(selectedClimate.precipitationMmDay * 30)} mm al mes` : "Sin dato"}</small>
-                      </div>
-                      <div className="cmeter-card">
-                        <div className="cmeter-head"><CloudRain size={18} aria-hidden="true" /><span>Humedad relativa</span></div>
-                        <strong className="cmeter-val">{selectedClimate.relativeHumidityPct != null ? `${Math.round(selectedClimate.relativeHumidityPct)}%` : "—"}</strong>
-                        <div className="cmeter-track" aria-hidden="true">
-                          <span className="cmeter-fill hum" style={{ width: `${selectedClimate.relativeHumidityPct != null ? Math.max(8, Math.min(100, Math.round(selectedClimate.relativeHumidityPct))) : 0}%` }} />
-                        </div>
-                        <small className="cmeter-sub">Promedio histórico del mes</small>
-                      </div>
+                      <small className="cmeter-sub">Rango 14–38 °C · NASA POWER</small>
                     </div>
-                    <details className="sources-fold">
-                      <summary>Fuentes y límites ({source?.period ?? "2016–2025"} · NASA POWER)</summary>
-                      <div className="sources-box">
-                        <p>Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
-                        <p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p>
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><FarmIcon name="water" size={20} /><span>Lluvia mensual</span></div>
+                      <strong className="cmeter-val">{selectedClimate.precipitationMmDay != null ? rainWord(selectedClimate.precipitationMmDay) : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill rain" style={{ width: `${selectedClimate.precipitationMmDay != null ? Math.max(8, Math.min(100, Math.round((selectedClimate.precipitationMmDay * 30 / 220) * 100))) : 0}%` }} />
                       </div>
-                    </details>
-                  </> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
-                </section></Fold>}
-              </div>
-            )}
+                      <small className="cmeter-sub">{selectedClimate.precipitationMmDay != null ? `~${Math.round(selectedClimate.precipitationMmDay * 30)} mm al mes` : "Sin dato"}</small>
+                    </div>
+                    <div className="cmeter-card">
+                      <div className="cmeter-head"><CloudRain size={18} aria-hidden="true" /><span>Humedad relativa</span></div>
+                      <strong className="cmeter-val">{selectedClimate.relativeHumidityPct != null ? `${Math.round(selectedClimate.relativeHumidityPct)}%` : "—"}</strong>
+                      <div className="cmeter-track" aria-hidden="true">
+                        <span className="cmeter-fill hum" style={{ width: `${selectedClimate.relativeHumidityPct != null ? Math.max(8, Math.min(100, Math.round(selectedClimate.relativeHumidityPct))) : 0}%` }} />
+                      </div>
+                      <small className="cmeter-sub">Promedio histórico del mes</small>
+                    </div>
+                  </div>
+                  <details className="sources-fold">
+                    <summary>Fuentes y límites ({source?.period ?? "2016–2025"} · NASA POWER)</summary>
+                    <div className="sources-box">
+                      <p>Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
+                      <p><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p>
+                    </div>
+                  </details>
+                </> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
+              </section></Fold>}
+            </div>
           </div>
           {supervisor && <details id="rotaciones" className="card landscape-details"><summary>Rotaciones de ejemplo y modelo de riego (San Juan)</summary>
             <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
@@ -390,14 +390,28 @@ export default function Home() {
           <section className="card panel voice-guide-card" aria-labelledby="voice-guide-title">
             <div className="panel-head-row">
               <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
-              <HelpTip label="Pregúntale a AgroVision" text="Puedes hablar con el botón flotante azul de abajo en cualquier momento, o usar Escribir y Oír resumen aquí mismo." />
+              <HelpTip label="Pregúntale a AgroVision" text="Puedes hablar con el botón flotante verde de la esquina en cualquier momento, o usar Escribir y Oír resumen aquí mismo." />
             </div>
-            <p className="panel-intro">Toca el botón flotante azul de abajo para hablar como en una llamada mientras navegas cualquier pestaña, o usa las opciones de abajo para escribir o escuchar el resumen de tu finca.</p>
+            <p className="panel-intro">Elige cómo prefieres consultar los datos de tu finca: hablando en vivo, leyendo tu pregunta o escuchando el resumen en voz alta.</p>
+            <div className="voice-guide-grid">
+              <div className="voice-guide-item">
+                <strong>1. Hablar por micrófono</strong>
+                <p>Toca el botón circular verde de la esquina inferior derecha para conversar como en una llamada sobre qué sembrar, lluvia o precios.</p>
+              </div>
+              <div className="voice-guide-item">
+                <strong>2. Consultar por escrito</strong>
+                <p>Escribe tu pregunta en el recuadro de abajo (por ejemplo: <em>“¿Qué me conviene sembrar este mes?”</em>) y recibe respuesta al instante.</p>
+              </div>
+              <div className="voice-guide-item">
+                <strong>3. Escuchar en voz alta</strong>
+                <p>Toca <strong>Oír resumen</strong> abajo para que el teléfono o computadora te lea la recomendación sin tener que leer la pantalla.</p>
+              </div>
+            </div>
           </section>
         </div>
       )}
 
-      <VoiceAssistant selection={selection}/>
+      <VoiceAssistant selection={selection} defaultOpenWrite={activeTab === "preguntar"}/>
 
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>

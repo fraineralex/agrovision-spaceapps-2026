@@ -239,3 +239,11 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Resolución de integración
 
 - **Herramienta:** Codex (OpenAI) / Antigravity (Google). **Propósito:** conservar ambos registros de uso de IA al integrar los cambios de mapa provincial, fincas, modos Agricultor/Supervisor y voz con la interfaz de pestañas independientes y gráficos interactivos. **Archivos:** `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-15 — Auditoría visual por secciones y balance de diseño
+
+- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** auditoría visual completa sección por sección (estado inicial, onboarding pasos 1–3, cabecera y barra de fincas, y las 5 pestañas `Siembra`, `Lluvia`, `Venta`, `Mapa y clima` y `Preguntar` en escritorio y móvil) para corregir alineaciones, esquinas y proporción de columnas tras la integración:
+  - reorganización de cabecera en fila superior balanceada (`Agricultor | Supervisor` + herramientas de supervisor) y barra horizontal independiente para `FarmSwitcher`;
+  - balance a dos columnas tanto en modo `Agricultor` como `Supervisor` en `Siembra`, `Venta` y `Mapa y clima` (manteniendo mapa satelital abierto al entrar a `Mapa y clima` y expandiendo la tercera tarjeta de `Sequía y lluvia` al ancho completo de la fila inferior);
+  - tarjeta estructurada para la barra inferior `Asistente rápido de voz y texto`, guía visual de 3 pasos con apertura automática del formulario escrito en la pestaña `Preguntar`, y posicionamiento del botón flotante de micrófono en la esquina inferior derecha cuando está inactivo para no tapar contenido centrado.
+- **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench.tsx,voice-assistant.tsx,voice-session.module.css,fao-giews.module.css}`, `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
