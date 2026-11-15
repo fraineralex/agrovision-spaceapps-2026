@@ -41,12 +41,12 @@ export function SoilCard(p: { province?: string; irrigation: Irrigation; previou
     </>}
     <h3 className="soil-sub">¿Por qué rotar es bueno para la tierra?</h3>
     <ul className="soil-reasons">{rotationReasons.map(r => <li key={r.title}><strong>{r.title}.</strong> {r.text}</li>)}</ul>
-    <div className="sources-box"><h3>¿De dónde sale esto?</h3>
+    <details className="sources-box soil-sources"><summary>¿De dónde sale esto?</summary>
       <p><a href={soilSources.rotation.url}>{soilSources.rotation.label}</a>.</p>
       <p><a href={soilSources.legumes.url}>{soilSources.legumes.label}</a>.</p>
       <p><a href={soilSources.color.url}>{soilSources.color.label}</a> (qué indica el color).</p>
       <p><a href={soilSources.texture.url}>{soilSources.texture.label}</a> (cuánta agua guarda cada tipo de tierra).</p>
       <p>Son reglas generales de la FAO, no una medición de tu finca. No sabemos cuánto nitrógeno ni cuánta materia orgánica tiene tu tierra: para eso hace falta un análisis de suelo. Las estrellas no cambian por esta parte.</p>
-    </div>
+    </details>
   </div>;
 }

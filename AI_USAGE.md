@@ -298,6 +298,54 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - Pulido de escritorio: el crédito de la foto pasó al pie del diálogo para no tapar la acción. Archivos: `web/components/onboarding.tsx`, `web/app/globals.css`. OpenAI GPT-6, 2026-11-15; revisión por Frainer pendiente.
 - **2026-11-15 — Codex (gpt-6-luna):** incorporó extractos/referencias atribuidas de guías agrícolas dominicanas CEDAF (arroz, guandul, habichuela, plátano y yuca), añadió preguntas de evaluación para la nueva evidencia y amplió el registro del corpus RAG. Archivos: `data/rag-corpus/cedaf-*.md`, `web/lib/rag-corpus.ts`, `web/data/rag-index.json`, `docs/rag_eval.md`, `AI_USAGE.md`. Fuentes: [CEDAF, guía de arroz](https://intranet.cedaf.org.do/digital/arroz_cedaf.pdf), [CEDAF, guía de guandul](https://intranet.cedaf.org.do/digital/guandul.pdf), [CEDAF, ficha de habichuela](https://intranet.cedaf.org.do/publicaciones/guias/detalle.asp?Codigo=CU02), [CEDAF, guía de plátano](https://intranet.cedaf.org.do/publicaciones/guias/download/platano.pdf), [CEDAF, guía de yuca](https://www.cedaf.org.do/wp-content/uploads/2022/08/Yuca.pdf), [catálogo técnico CEDAF](https://www.cedaf.org.do/guias-tecnicas/). La guía de arroz declara permiso de reproducción con atribución; para las demás se guardan extractos breves o fichas, no PDFs completos. Revisión por Frainer: pendiente.
 
+- **2026-11-15 — Antigravity / Gemini (Google):** ajuste visual incremental de la sección `Todos los cultivos` en `web/components/advisor-card.tsx` y `web/app/globals.css`: cabecera con título alineado y pastillas de distribución (`Bien`, `Regular`, `Malo`), barra proporcional segmentada, insignia `Top`, conteo explícito `Precaución (n)` y colores semánticos diferenciados para los chips de pilares en tarjetas compatibles con el tema claro y `data-theme="sun"`. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** ajuste de escala tipográfica, espaciado y proporción de columnas en la sección `Siembra` (`.recommendation-hero`, `.metric-tiles`, `.score-figure`, `.crop-illustration` y `.card.advisor`) en `web/app/globals.css`. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** reestructuración de `Otras opciones` (`web/components/options-card.tsx` y `web/app/globals.css`) a formato de filas horizontales con tarjeta compacta de cultivo, 4 pilares en línea y barra de alertas, conservando los tokens de color del tema actual. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** unificación vertical de `Tu plan de siembra` y `Otras opciones` en `#siembra` (`web/app/page.tsx` y `web/app/globals.css`) y alineación horizontal de `.option-top-bar` (`flex-wrap: nowrap` en `>= 640px`) para mantener la tarjeta del cultivo arriba a la derecha. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** centralización y combinación de `Tu plan de siembra` y `Otras opciones` en una sola tarjeta unificada (`.siembra-unified-card` vía `headerSlot`) y rejilla compacta de 2 columnas en escritorio (`>= 780px`) para las metas (`Menos agua`, `Precio histórico`, `Plagas`, `Sequía`, `Seguir igual`) con 4 pilares en 2×2. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** punto 1 de mejoras en `Siembra` y estandarización visual global: selector de `Mes` en la franja superior de `AdvisorCard` (`web/components/advisor-card.tsx`), reemplazo de emoji por icono `Sprout` y restauración de `<FarmIcon>` en `Otras opciones` (`web/app/page.tsx`, `web/components/options-card.tsx`), pastillas de estado coloreadas por completo (`.pill.green/amber/red/gray`) y estilo unificado para todos los `<select>` y barras `<details>` en `web/app/globals.css`. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** restauración de la paleta clara predeterminada en blanco con gradientes verde bosque (`#f4f7f4` de fondo, tarjetas `#ffffff`, banner `.heading-row` verde profundo y pastillas semánticas claras) en `web/app/globals.css`, conservando `data-theme="sun"` sin alterar estructura ni métricas. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** extensión de la paleta blanca con gradientes verde bosque también al modo `data-theme="sun"` en `web/app/globals.css` para que el fondo blanco y los degradados verdes se vean en ambos modos claros. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Lluvia` (`web/components/rain-card.tsx` y `web/app/globals.css`) del gráfico SVG de onda de 7 días (`.rain-wave-banner`), cápsulas con relleno azul y el inspector diario Bento de 3 celdas (`.rdi-bento-grid`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Venta / Mercado` (`web/components/market-card.tsx` y `web/app/globals.css`) de la franja hero de precio (`.market-hero-strip`), mini barras verticales estacionales en los 12 meses (`.sm-bar-wrap`) y medidor comparativo de presión de siembra nacional (`.sowing-pressure-card`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Clima normal` (`web/app/page.tsx`) del climograma anual de 12 meses NASA POWER (`Climograph12M`) con barras de lluvia, línea de temperatura y botones de mes interactivos, y en `Mapa` (`web/components/map.tsx`, `web/app/globals.css`) de la tarjeta con barra espectral continua de NDVI (`.spectral-legend-card` y `.spectral-gradient-bar`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** ajuste del estado seleccionado `.ob-choice.on` en el asistente de inicio (`web/app/globals.css`) a verde bosque oscuro (`#14532d`–`#166534`) con texto e icono en blanco para dar alto contraste y visibilidad clara al pulsar opciones. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** mejora visual de la sección `Ayuda` (`web/app/page.tsx`, `web/app/globals.css`), montaje inmediato del botón flotante de voz en todas las secciones (`web/components/voice-dock.tsx`, `web/components/voice-session.module.css`) y chat desplegable en vivo `.voice-live-drawer` que se abre y adapta automáticamente cuando el usuario o la IA hablan (`web/components/voice-assistant.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** suavizado y limpieza de sombras en el tema claro (`--panel-shadow`, `.heading-row`, `.card`, `.wnav-bar`, `.wnav-tab.is-active` y fondo limpio en `body`) en `web/app/globals.css` para evitar halos oscuros debajo del banner superior y entre tarjetas. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** creación de `CustomSelect` (`web/components/custom-select.tsx`, `web/app/globals.css`) y reemplazo de los `<select>` nativos en `page.tsx`, `advisor-card.tsx`, `farm-workbench.tsx`, `guided-sale.tsx`, `market-card.tsx`, `onboarding.tsx`, `profit-card.tsx` y `sale-budget.tsx` para que todas las listas desplegables tengan el diseño propio en blanco y verde bosque de la aplicación. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** refinamiento integral de la sección `Siembra` con la guía de `Impeccable` (`web/app/planting.css`, `web/app/globals.css`, `web/app/page.tsx`): eliminación de bordes laterales gruesos (`border-left: 6px`), unificación de la jerarquía visual sin tarjetas anidadas innecesarias, uso directo de `--font-sans` (`Plus Jakarta Sans`), numerales tabulares y reordenamiento de `Tu plan de siembra` justo debajo de la recomendación principal. Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — OpenAI ImageGen y Codex:** mejora asistida por IA de la fotografía CC0 de El Cercado para el fondo de registro; ajuste de visibilidad y atribución (`web/public/images/san-juan-valley-enhanced.png`, `web/app/globals.css`, `web/components/onboarding.tsx`, `web/scripts/offline-assets.mjs`, `docs/DATA_SOURCES.md`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** atenuación del fondo fotográfico del registro (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** iconos y señal de selección para riego, acceso más visible a comparación y ajuste del crédito de fondo (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reducción de la opacidad de la capa oscura del fondo de registro (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** lista de cultivos a comparar con altura limitada y desplazamiento interno accesible (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reorganización de Siembra en recomendación, comparación y plan independientes, con anchura y espaciado coherentes (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
 - 2026-11-15, OpenAI GPT-6: integró la narración en español con Coral, usando OpenAI GPT Realtime Mini vía Vercel AI Gateway, comprobación de transcripción y respaldo local. Archivos: `web/app/api/voice/summary/route.ts`, `web/lib/{summary-audio,use-read-aloud,voice-context}.ts`, `web/components/{advisor-card,voice-assistant}.tsx`, `web/tests/demo.spec.ts` y `README.md`. Revisión por Frainer pendiente.
 ## 2026-11-15 — Lenguaje sencillo, estrellas y “¿Por qué este cultivo?”
 - **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez tras la auditoría de valor para el agricultor.
@@ -326,6 +374,52 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
 - **Revisión por Frainer:** pendiente.
 
+- **2026-11-15 — Codex / OpenAI:** anchura uniforme en comparaciones de Siembra y mayor tamaño de ilustraciones de cultivo (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección del ancho de toda la sección Siembra para alinearla con la navegación y aumento de la ilustración principal (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** distribución adaptable en columnas iguales para comparar cultivos y aumento de tamaño de sus elementos (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección del ancho de Otras opciones y reutilización de la rejilla y dimensiones de tarjetas de comparación (`web/app/globals.css`, `web/components/options-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** integración de cambios de main en la rama de trabajo, resolución de conflictos de Siembra y voz, y restauración de cambios locales (`web/app/page.tsx`, `web/app/globals.css`, `web/components/{onboarding,options-card,voice-assistant}.tsx`, `AI_USAGE.md`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** restauración del diseño previo de tarjetas de Siembra con estrellas, accesibilidad, acentos verdes y funcionalidad de suelo integrada (`web/components/advisor-card.tsx`, `web/components/options-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** ajuste de anchura y legibilidad de Siembra y traslado del bloque de revisión al final (`web/app/page.tsx`, `web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** retirada del texto explicativo de estrellas en Siembra (`web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** reorganización y aumento de legibilidad de tarjetas de comparación de cultivos (`web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección de estrellas y barra duplicadas en tarjetas de cultivos (`web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** alineación de indicadores de cultivos junto al título (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** ajuste del ancho de ficha de cultivo y legibilidad de objetivos en Otras opciones (`web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** uniformidad del fondo de tarjetas y simplificación visual de precauciones (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** corrección de superposición y estilo del selector del plan de siembra (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** refinamiento de la sección Siembra siguiendo Impeccable: espaciado, jerarquía, formularios y foco (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** revisión Impeccable de Siembra; comparación de cultivos siempre visible y ajustes de jerarquía y adaptación (`web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI, Impeccable:** revisión integral de Siembra: panel reutilizado en opciones y plan, jerarquía de recomendación, suelo legible y adaptación móvil (`web/app/page.tsx`, `web/app/globals.css`, `web/components/{fold,options-card,soil-card}.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI, Impeccable:** nueva composición de Siembra con recomendación horizontal, indicadores por fila y bloques adaptables de opciones, plan y suelo (`web/app/planting.css`, `web/app/layout.tsx`, `web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** restauración de los cuatro pilares junto a la recomendación en escritorio y alineación de controles superiores de Siembra (`web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** alineación del ancho de toda Siembra con encabezado y navegación (`web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** barra de fincas uniforme y botones de edición y borrado con iconos (`web/components/farm-switcher.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** integración de Tu plan de siembra dentro de Otras opciones (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** preparación de copia independiente de UI en el escritorio, con fixtures sintéticos y maquetas de mapas y voz; archivos de la copia documentados en su propio `AI_USAGE.md`. Revisión por Frainer: pendiente.
+
 ## 2026-11-15 — Plagas sin “sin dato” y palabras del tipo de tierra
 - **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
 - **Cambios:** el indicador de plagas usa el catálogo dominicano que ya estaba en `web/lib/pests.ts`: si el cultivo anterior y el nuevo no tienen plagas principales en común dice “Plagas distintas”; si no se sabe el cultivo anterior, dice qué plagas vigilar. La opción “Plagas” elige un cultivo con plagas distintas cuando no hay una rotación citada por el IDIAF. El tipo de tierra “Media” ahora es “Mezclada”, con una línea que explica las tres opciones.
@@ -340,3 +434,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes:** color del suelo, Soil Science Society of America (adaptado de Lynn y Pearson, 2000), consultada el 15-11-2026. Plagas: el catálogo que ya estaba en `web/lib/pests.ts`, que coincide con la hoja “Plagas a vigilar por cultivo” del equipo; no se añadieron plagas nuevas.
 - **Límites:** el color es una pista, no un análisis; no afirma cantidades de nutrientes. El tipo de plaga (insecto, ácaro, nematodo) se deduce del nombre común. Nada de esto cambia las estrellas.
 - **Revisión por Frainer:** pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** integración de `origin/main` (catálogo de plagas a vigilar y color del suelo) manteniendo predominancia visual, diseño propio y refinamientos Impeccable en toda la aplicación para subida final a `main`. Revisión por Frainer: pendiente.

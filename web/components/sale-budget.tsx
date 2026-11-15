@@ -4,6 +4,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Calculator, CircleCheck, Coins, Package, Wallet } from "lucide-react";
 import { rd } from "@/lib/profit";
+import { CustomSelect } from "@/components/custom-select";
 
 const units = ["libra", "quintal", "kilo", "unidad", "saco", "caja"] as const;
 const number = new Intl.NumberFormat("es-DO", { maximumFractionDigits: 2 });
@@ -41,7 +42,7 @@ export function SaleBudget() {
   return <div className="sale-budget">
     <form className="workbench-form" onSubmit={calculate} onChange={() => { setResult(null); setError(""); }}>
       <label><span><Wallet aria-hidden="true"/> Gasto total (RD$)</span><input name="cost" inputMode="decimal" maxLength={12} placeholder="25000" required/></label>
-      <label>Unidad de venta<select name="unit" value={unit} onChange={event => setUnit(event.target.value as typeof unit)}>{units.map(item => <option key={item}>{item}</option>)}</select></label>
+      <div className="ag-select-field"><span className="ag-select-label">Unidad de venta</span><CustomSelect name="unit" ariaLabel="Unidad de venta" value={unit} options={units.map(item => ({ value: item, label: item }))} onChange={val => setUnit(val as typeof unit)} /></div>
       <label><span><Package aria-hidden="true"/> Cantidad para vender</span><input name="quantity" inputMode="decimal" maxLength={12} placeholder="40" required/></label>
       <label><span><Coins aria-hidden="true"/> Oferta por {unit} (RD$)</span><input name="offer" inputMode="decimal" maxLength={12} placeholder="Opcional"/></label>
       <button type="submit"><Calculator aria-hidden="true"/> Calcular precio mínimo</button>

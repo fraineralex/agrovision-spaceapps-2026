@@ -2,6 +2,7 @@
 "use client";
 
 import { StepProgress } from "@/components/field-ui";
+import { CustomSelect } from "@/components/custom-select";
 import { useState } from "react";
 import { allCrops, cropNames, marketFor, marketSources, type CropId } from "@/lib/advisor";
 import type { Irrigation } from "@/lib/data";
@@ -62,19 +63,19 @@ export function GuidedSale({ initialCrop, farmTareas, initialIrrigation, areaSou
       <fieldset>
         <legend>{questions[step]}</legend>
         {step === 0 && <>
-          <label>Cultivo<select value={crop} onChange={event => { setCrop(event.target.value as CropId); setLines({}); }}>{allCrops.map(id => <option key={id} value={id}>{cropNames[id]}</option>)}</select></label>
+          <div className="ag-select-field"><span className="ag-select-label">Cultivo</span><CustomSelect ariaLabel="Cultivo" value={crop} options={allCrops.map(id => ({ value: id, label: cropNames[id] }))} onChange={val => { setCrop(val as CropId); setLines({}); }} /></div>
           <label>Tareas a sembrar<input type="number" required min=".01" max="100000" step="any" value={area} onChange={event => { setArea(event.target.value); setLines({}); }} /></label>
           {areaSource && <p className="note">Área inicial {areaSource}. Puedes ajustarla para esta venta.</p>}
         </>}
         {step === 1 && <>
           <label>Cantidad de semilla (opcional)<input type="number" min="0" step="any" value={seed} onChange={event => { setSeed(event.target.value); setLines({}); }} /></label>
-          <label>Unidad de semilla<select value={seedUnit} onChange={event => { setSeedUnit(event.target.value); setLines({}); }}><option value="quintal">Quintales de 100 libras</option><option value="libra">Libras</option><option value="saco">Sacos</option></select></label>
+          <div className="ag-select-field"><span className="ag-select-label">Unidad de semilla</span><CustomSelect ariaLabel="Unidad de semilla" value={seedUnit} options={[{ value: "quintal", label: "Quintales de 100 libras" }, { value: "libra", label: "Libras" }, { value: "saco", label: "Sacos" }]} onChange={val => { setSeedUnit(val); setLines({}); }} /></div>
           {Number(seed) > 0 && seedUnit === "saco" && <label>Libras por saco<input type="number" min=".01" step="any" required value={sackWeight} onChange={event => { setSackWeight(event.target.value); setLines({}); }} /></label>}
           <p className="note">La semilla ayuda a estimar su costo. La cosecha se calcula aparte.</p>
         </>}
-        {step === 2 && <label>Sistema de la finca<select value={irrigation} onChange={event => { setIrrigation(event.target.value as Irrigation); setLines({}); }}><option value="unconfirmed">Sin confirmar</option><option value="irrigated">Con riego</option><option value="rainfed">Secano (de lluvia)</option></select></label>}
+        {step === 2 && <div className="ag-select-field"><span className="ag-select-label">Sistema de la finca</span><CustomSelect ariaLabel="Sistema de la finca" value={irrigation} options={[{ value: "unconfirmed", label: "Sin confirmar" }, { value: "irrigated", label: "Con riego" }, { value: "rainfed", label: "Secano (de lluvia)" }]} onChange={val => { setIrrigation(val as Irrigation); setLines({}); }} /></div>}
         {step === 3 && <>
-          <label>Cómo quieres indicar el gasto<select value={useEstimate ? "estimate" : "known"} onChange={event => setUseEstimate(event.target.value === "estimate")}><option value="known">Sé mi gasto total</option><option value="estimate">Necesito una referencia o poner gastos por separado</option></select></label>
+          <div className="ag-select-field"><span className="ag-select-label">Cómo quieres indicar el gasto</span><CustomSelect ariaLabel="Cómo quieres indicar el gasto" value={useEstimate ? "estimate" : "known"} options={[{ value: "known", label: "Sé mi gasto total" }, { value: "estimate", label: "Necesito una referencia o poner gastos por separado" }]} onChange={val => setUseEstimate(val === "estimate")} /></div>
           {!useEstimate ? <label>Gasto total (RD$)<input type="number" required min=".01" step="any" value={cost} onChange={event => setCost(event.target.value)} /></label> : <>
             {costReference ? <p className="note">{costReference.area} · 2019 · {rounded(estimatedCost / tareas)} por tarea, ajustados con el <a href={CPI.url}>IPC de enero 2026</a>. <a href={costReference.source}>Ficha de Agricultura</a>.</p> : <p className="note">{irrigation === "rainfed" ? "No hay datos de secano." : "Sin datos suficientes del sistema."}</p>}
             {!hasBreakdown && <p className="note">Sin desglose comprobado. Si llenas los rubros, su suma reemplaza el total de referencia.</p>}
