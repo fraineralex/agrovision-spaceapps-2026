@@ -3205,3 +3205,116 @@ body {
   font-weight: 850;
   color: var(--foreground);
 }
+
+/* Venta / Mercado: franja hero, barras estacionales 12 meses y medidor de presion de siembra */
+.market-hero-strip {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--elevated) 0%, var(--card) 100%);
+  margin-bottom: 12px;
+}
+.market-chart-box {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin-bottom: 12px;
+}
+.market-chart-meta > span:first-child {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  font-weight: 800;
+  font-size: 0.8125rem;
+}
+.season-cal {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin: 12px 0;
+}
+.season-months > li .sm-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 2px;
+  min-height: 54px;
+}
+.sm-bar-wrap {
+  width: 6px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(15, 38, 24, 0.1);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.sm-bar-fill {
+  display: block;
+  width: 100%;
+  border-radius: 999px;
+  background: #64748b;
+}
+.season-months > li.best .sm-bar-fill { background: #16a34a; }
+.season-months > li.worst .sm-bar-fill { background: #d97706; }
+.season-months > li .sm-btn.on .sm-bar-wrap { background: rgba(255, 255, 255, 0.25); }
+.season-months > li.best .sm-btn.on .sm-bar-fill { background: #ffffff; }
+.sowing-pressure-card {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin: 10px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sp-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sp-head strong {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--foreground);
+}
+.sp-head span {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+.sp-meters {
+  display: grid;
+  gap: 6px;
+}
+.sp-meter-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.sp-meter-row small {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+.sp-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--muted-surface);
+  overflow: hidden;
+}
+.sp-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.sp-fill.current { background: #14532d; }
+.sp-fill.median { background: #64748b; }

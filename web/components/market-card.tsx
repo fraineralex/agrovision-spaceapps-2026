@@ -75,8 +75,10 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
     <div className="section-row"><h3>Precio del cultivo</h3>
       <div className="select-with-icon"><FarmIcon name={crop} size={20} /><select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></div>
     {latest ? <>
-      <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
-      {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
+      <div className="market-hero-strip">
+        <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
+        {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
+      </div>
       {m.priceQuality && <p className="note">Calidad limitada: se excluyeron {m.priceQuality.excluded.length} registros extremos. {m.priceQuality.rule}</p>}
       <Sparkline values={(m.recent ?? []).map(r => r.price)} periods={(m.recent ?? []).map(r => r.period)} />
       {Boolean(m.recent?.length) && <details className="visual-details"><summary>Ver precios mensuales en tabla</summary><table><caption>Precios mayoristas en Santo Domingo ({m.unit})</caption><thead><tr><th scope="col">Mes</th><th scope="col">Precio promedio</th></tr></thead><tbody>{m.recent?.map(row => <tr key={row.period}><th scope="row">{row.period}</th><td>{row.price.toLocaleString("es-DO")}</td></tr>)}</tbody></table></details>}
@@ -91,8 +93,13 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
               const mm = idx + 1;
               const cls = bestSet.has(mm) ? "best" : worstSet.has(mm) ? "worst" : "mid";
               const isPicked = activeMonth === mm;
+              const idxVal = m?.seasonalIndex?.[String(mm)] ?? 100;
+              const barPct = Math.max(25, Math.min(100, Math.round(((idxVal - 65) / 60) * 100)));
               return <li key={mm} className={cls}>
-                <button type="button" className={isPicked ? "sm-btn on" : "sm-btn"} aria-pressed={isPicked} title={`${monthNames[idx]}: ${cls === "best" ? "mejor época histórica" : cls === "worst" ? "precio histórico más bajo" : "precio intermedio"}`} onClick={() => setPickedMonth(mm)}>{lbl}</button>
+                <button type="button" className={isPicked ? "sm-btn on" : "sm-btn"} aria-pressed={isPicked} title={`${monthNames[idx]}: ${cls === "best" ? "mejor época histórica" : cls === "worst" ? "precio histórico más bajo" : "precio intermedio"}`} onClick={() => setPickedMonth(mm)}>
+                  <span className="sm-bar-wrap" aria-hidden="true"><span className="sm-bar-fill" style={{ height: `${barPct}%` }} /></span>
+                  <span>{lbl}</span>
+                </button>
               </li>;
             })}
           </ol>
@@ -103,6 +110,29 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
           </p>}
         </div>
       )}
+      {m?.sowing?.tareasLast12 && m?.sowing?.medianPrev12 && (() => {
+        const maxT = Math.max(m.sowing.tareasLast12, m.sowing.medianPrev12, 1);
+        const curPct = Math.max(8, Math.round((m.sowing.tareasLast12 / maxT) * 100));
+        const medPct = Math.max(8, Math.round((m.sowing.medianPrev12 / maxT) * 100));
+        return (
+          <div className="sowing-pressure-card">
+            <div className="sp-head">
+              <strong>Presión de siembra nacional (12 meses)</strong>
+              <span>{m.sowing.tareasLast12.toLocaleString("es-DO")} vs. {m.sowing.medianPrev12.toLocaleString("es-DO")} tareas normales</span>
+            </div>
+            <div className="sp-meters">
+              <div className="sp-meter-row">
+                <small>Actual</small>
+                <span className="sp-track" aria-hidden="true"><span className="sp-fill current" style={{ width: `${curPct}%` }} /></span>
+              </div>
+              <div className="sp-meter-row">
+                <small>Mediana</small>
+                <span className="sp-track" aria-hidden="true"><span className="sp-fill median" style={{ width: `${medPct}%` }} /></span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       <ul className="market-facts">
         {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Meses con precios históricos más altos:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
         {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Precio más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}

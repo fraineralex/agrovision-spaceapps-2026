@@ -311,3 +311,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Antigravity / Gemini (Google):** extensión de la paleta blanca con gradientes verde bosque también al modo `data-theme="sun"` en `web/app/globals.css` para que el fondo blanco y los degradados verdes se vean en ambos modos claros. Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Lluvia` (`web/components/rain-card.tsx` y `web/app/globals.css`) del gráfico SVG de onda de 7 días (`.rain-wave-banner`), cápsulas con relleno azul y el inspector diario Bento de 3 celdas (`.rdi-bento-grid`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** restauración en `Venta / Mercado` (`web/components/market-card.tsx` y `web/app/globals.css`) de la franja hero de precio (`.market-hero-strip`), mini barras verticales estacionales en los 12 meses (`.sm-bar-wrap`) y medidor comparativo de presión de siembra nacional (`.sowing-pressure-card`). Revisión por Frainer: pendiente.
