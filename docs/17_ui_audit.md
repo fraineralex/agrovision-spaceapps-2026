@@ -1,3 +1,5 @@
+> Registro histórico de decisiones y hallazgos. Para diseño visual vigente, seguir [DESIGN.md](../DESIGN.md). Los límites de evidencia y necesidades de producto aquí documentados se conservan.
+
 # 17 · Auditoría de UI, UX y accesibilidad (14-11-2026)
 
 Hecha con Claude (Anthropic) y las skills `frontend-design`, `web-design-guidelines` y `shadcn`. Capturas con Playwright a 360×800 (Android barato) y 1280×800 (escritorio):

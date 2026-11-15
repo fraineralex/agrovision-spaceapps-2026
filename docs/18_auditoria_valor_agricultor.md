@@ -1,3 +1,5 @@
+> Registro histórico de decisiones y hallazgos. Para diseño visual vigente, seguir [DESIGN.md](../DESIGN.md). Los límites de evidencia y necesidades de producto aquí documentados se conservan.
+
 # Auditoría de utilidad para el productor dominicano
 
 <!-- Asistencia material: Codex (OpenAI), 2026-11-14; revisión por Frainer pendiente. -->

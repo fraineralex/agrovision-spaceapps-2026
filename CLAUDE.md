@@ -24,7 +24,7 @@
 ## Desarrollo y colaboración
 
 - Hacer muchos commits pequeños, uno por cambio lógico. Todos los mensajes de commit deben estar en inglés y seguir Conventional Commits (por ejemplo, `docs: add technical implementation plan`).
-- Todo el texto visible en la interfaz de usuario (UI) debe estar en inglés. La documentación del repositorio puede seguir en español.
+- La UI usa español dominicano de forma consistente, según la dirección vigente autorizada por Frainer en `DESIGN.md`. Preservar nombres oficiales de fuentes y nombres científicos. La documentación puede seguir en español.
 - Seguir `docs/10_plan_tecnico.md` para implementar y revisar el producto.
 - Crear ramas `feature/<nombre-corto>`, `fix/<nombre-corto>` o `docs/<nombre-corto>` desde `main`; no trabajar directamente en `main` salvo operación final de integración autorizada.
 - Abrir PRs pequeños hacia `main`, con propósito, archivos, fuentes y pasos concretos de revisión. No incluir secretos ni datos privados.
@@ -33,3 +33,8 @@
 ## Fecha límite
 
 - Envío Space Apps: domingo 15 de noviembre de 2026, 11:59 PM AST según la sede Santo Domingo. Confirmar zona/hora en el portal y respetar cualquier indicación activa del formulario. La guía oficial de envío 2026 y varios límites específicos están marcados “sin verificar” en `docs/00_reglas_envio_y_evaluacion.md`.
+
+## Dirección visual vigente
+
+- Seguir `DESIGN.md` para criterios visuales. Auditorías anteriores son registro histórico, no instrucciones que compitan con esa guía.
+- La implementación de Siembra se concentra en `web/app/planting.css` y sus componentes compartidos; evitar estilos de excepción por componente.
