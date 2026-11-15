@@ -437,3 +437,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **2026-11-15 — Antigravity / Gemini (Google):** integración de `origin/main` (catálogo de plagas a vigilar y color del suelo) manteniendo predominancia visual, diseño propio y refinamientos Impeccable en toda la aplicación para subida final a `main`. Revisión por Frainer: pendiente.
 - **2026-11-15 — Codex gpt-6.1-terra (OpenAI):** inició la internacionalización con un diccionario de nombres de cultivos y una prueba de paridad y cobertura del catálogo en `web/lib/i18n/messages.ts` y `web/lib/i18n.test.ts`. No está integrado en la interfaz; la traducción completa sigue pendiente. Revisión por Frainer pendiente.
+
+- 2026-11-15, OpenAI GPT-6: añadió utilidades para resolver la preferencia de idioma y etiquetas de formato y voz, con pruebas. Archivos: `web/lib/i18n/locale.ts`, `web/lib/i18n.test.ts`. La integración de la interfaz y las traducciones sigue pendiente; revisión por Frainer pendiente.
