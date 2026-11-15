@@ -16,8 +16,6 @@ export type Farm = {
   irrigationDate?: IrrigationDate;
   declaredTareas?: number;
   placeName?: string;
-  machinery?: string;
-  pesticides?: string;
 };
 
 const R = 6378137;
