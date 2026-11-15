@@ -60,7 +60,22 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     }, () => setGps("No se pudo obtener tu ubicación. Escribe tu comunidad o provincia."), { timeout: 10000 });
   };
   const { places, loading, unavailable } = usePlaceSearch(search, 8);
-  const finish = () => location && onDone({ id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces, province, declaredTareas: Number(declaredTareas) > 0 && Number(declaredTareas) <= 100000 ? Number(declaredTareas) : undefined, location: centroid(pieces) ?? location, previous, irrigation, crops, sowMonth, priority, plan: initial.plan, waterTurn: initial.waterTurn, irrigationDate: initial.irrigationDate, placeName, machinery: machinery.trim() || undefined, pesticides: pesticides.trim() || undefined });
+  const finish = () => {
+    if (!location) return;
+    const markedCenter = centroid(pieces);
+    const farmProvince = (markedCenter && provinceAt(markedCenter)) || province;
+    const area = Number(declaredTareas);
+    onDone({
+      id: initial.id ?? newFarmId(), name: name.trim() || "Mi finca", pieces,
+      province: farmProvince, location: markedCenter ?? location,
+      declaredTareas: area > 0 && area <= 100000 ? area : undefined,
+      previous, irrigation, crops, sowMonth, priority,
+      plan: initial.plan, waterTurn: initial.waterTurn, irrigationDate: initial.irrigationDate,
+      placeName: farmProvince === province ? placeName : undefined,
+      machinery: machinery.trim() || undefined,
+      pesticides: pesticides.trim() || undefined,
+    });
+  };
 
   return <div className="onboarding" role="dialog" aria-modal="true" aria-label="Cuéntanos de tu finca">
     <div className="ob-backdrop" aria-hidden="true">
