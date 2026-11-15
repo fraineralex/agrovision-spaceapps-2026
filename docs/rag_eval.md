@@ -26,3 +26,18 @@ Resumen de esta corrida: 5 respuestas no vacías; 1 fallo vacío. A juicio manua
 - Calendarios y ventanas en `web/public/data/market-insights.json` (`nationalSowing`) y reglas de rotación en `web/lib/advisor.ts` / `web/lib/pests.ts` (exportados como notas verificadas, no código).
 - Guía IDIAF de habichuela citada en inventario (solo si el PDF o extracto autorizado ya está en repo).
 - Tabla de costos 2019 por cultivo en `market-insights.json` (más cultivos con unidades claras).
+## Preguntas nuevas para la ronda de guías CEDAF (2026-11-15)
+
+Corrida real contra instancia local iniciada desde el build actual en `http://localhost:3467` con AI Gateway habilitado. Clasificación manual de la respuesta y fuentes del header `X-AgroVision-Sources`; revisión por Frainer pendiente.
+
+| Pregunta | Resultado | Fuente esperada |
+|---|---|---|
+| ¿Qué cubre la guía dominicana de arroz y qué debo verificar antes de seguir sus consejos? | Grounded: enumera temas cubiertos, fecha 2010 y vigencia/localización que se debe verificar. | CEDAF (chunk 000), Inventario, Asesor |
+| ¿Qué meses recomienda la guía CEDAF para sembrar guandul Kaki o Pinto Villalba en zonas bajas? | Grounded: junio–agosto, hasta 600 m; avisa que es una fuente histórica dependiente de zona/variedad. | CEDAF (chunk 002), costos MA, Inventario |
+| ¿Cuándo se cosecha normalmente el guandul fotosensitivo según esa guía? | Grounded: floración nov–dic y cosecha ene–mar, con límite de zona/variedad. | CEDAF (chunk 002), Asesor, MA |
+| ¿Qué orientación ofrece CEDAF para sembrar el guandul UASD? | Grounded: abril al inicio de lluvias; con riego ene–mar; aconseja confirmar localmente. | CEDAF (chunk 002), Inventario, Resumen |
+| ¿Qué temas trata la guía de habichuela del CEDAF? | Sin grounding fiable: fallback reproduce cabecera extensa del corpus; no respondió los temas de la ficha. | CEDAF corpus, Inventario, Resumen |
+| ¿Puedo usar esa guía de habichuela de 1995 para elegir un plaguicida registrado hoy? | Parcial: dice que no tiene dato verificado y deriva a técnico; inventario recuperado distingue guía IDIAF 2013, no la ficha CEDAF. | CEDAF corpus, Pilares, Inventario, Asesor |
+| ¿CEDAF tiene una guía técnica de plátano y otra de yuca? | Grounded como referencia bibliográfica, aclara que no tiene instrucciones de manejo extraídas. | CEDAF catálogo, Inventario, Resumen |
+
+La evaluación se ejecutó contra instancia en `http://localhost:3467`, con el índice de 62 fragmentos (google/gemini-embedding-2). Hubo fallos HTTP 500 intermitentes y fallback que reproduce una cabecera en preguntas de habichuela; no se cuentan como respuestas grounded. La recuperación en las preguntas de fechas del guandul y referencias de plátano/yuca sí incluyó el nuevo documento CEDAF.
