@@ -282,6 +282,8 @@ test("voice tools, location validation and honest missing-key fallback",async({r
  expect(setup.status()).toBe(503);expect(JSON.stringify(await setup.json())).not.toContain("token");
  const chat=await request.post("/api/voice/chat",{data:{selection,messages:[{role:"user",content:"¿Qué sabes del agua?"}]}});
  expect(chat.headers()["x-agrovision-mode"]).toBe("local");expect(await chat.text()).toContain("Sin conexión con IA");
+ const rainChat=await request.post("/api/voice/chat",{data:{selection:{...selection,rainAlert:"Se prevén 14 mm el jueves."},messages:[{role:"user",content:"¿Va a llover?"}]}});
+ expect(await rainChat.text()).toContain("Se prevén 14 mm el jueves.");
  const tool=await request.post("/api/voice/tools",{data:{selection,name:"get_parcel_metrics",args:{}}});
  const data=await tool.json();expect(data.climate.temperatureC).toBe(25.43);expect(data.climateSource.period).toBe("2016–2025");expect(data.ndvi.rows).toHaveLength(0);
  expect((await request.post("/api/voice/tools",{data:{selection,name:"run_command",args:{}}})).status()).toBe(400);
@@ -366,8 +368,8 @@ test("the voice button sends a dictated question when realtime setup fails", asy
  await page.getByRole("button", { name: "Hablar", exact: true }).click();
  expect((await response).ok()).toBe(true);
  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
- await page.getByText("Ver conversación", { exact: true }).click();
- await expect(page.getByRole("log")).toContainText("Este es tu resumen.");
+ await expect(page.getByRole("region", { name: "Respuesta a tu pregunta" })).toContainText("Este es tu resumen.");
+ await expect(page.getByRole("button", { name: "Oír respuesta", exact: true })).toBeVisible();
  expect(setupMethods).toEqual(["HEAD"]);
  expect(errors).toEqual([]);
 });

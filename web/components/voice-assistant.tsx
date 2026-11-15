@@ -4,7 +4,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
-import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
+import { REALTIME_MODEL, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Dictation = {
@@ -13,6 +13,7 @@ type Dictation = {
   onerror: ((event: { error: string }) => void) | null;
   onend: (() => void) | null;
   start(): void;
+  stop(): void;
   abort(): void;
 };
 type DictationWindow = Window & { SpeechRecognition?: new () => Dictation; webkitSpeechRecognition?: new () => Dictation };
@@ -23,6 +24,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const [voiceError, setVoiceError] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [dictatedAnswer, setDictatedAnswer] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sessionSelection, setSessionSelection] = useState<VoiceSelection>();
   const sessionContext = sessionSelection ?? selection;
@@ -35,6 +37,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [summaryState, setSummaryState] = useState<"idle" | "playing" | "paused">("idle");
   const orb = useRef<HTMLButtonElement>(null);
+  const voicePanel = useRef<HTMLElement>(null);
   const generation = useRef(0);
   const starting = useRef(false);
   const captureStarted = useRef(false);
@@ -182,14 +185,20 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     }
     const recognition = new Recognition();
     dictation.current = recognition;
-    recognition.lang = "es-DO";
+    recognition.lang = "es-US";
+    let completed = false;
     recognition.onresult = event => {
-      if (dictation.current !== recognition) return;
+      if (dictation.current !== recognition || completed) return;
       const text = event.results[0]?.[0]?.transcript;
-      if (text?.trim()) void send(text, true);
+      if (!text?.trim()) return;
+      completed = true;
+      dictation.current = null;
+      setDictating(false);
+      void send(text, true);
     };
     recognition.onerror = event => {
       if (dictation.current !== recognition) return;
+      completed = true;
       setVoiceError(true);
       setNotice(event.error === "not-allowed" ? "Permite el micrófono en tu navegador." : "El dictado no pudo reconocer tu pregunta. Intenta de nuevo o escribe.");
     };
@@ -197,10 +206,15 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       if (dictation.current !== recognition) return;
       dictation.current = null;
       setDictating(false);
+      if (!completed) {
+        setVoiceError(true);
+        setNotice("No se detectó una pregunta. Toca Hablar e inténtalo de nuevo.");
+      }
     };
     try {
       setDictating(true);
       recognition.start();
+      voicePanel.current?.scrollIntoView({ block: "nearest" });
     } catch {
       stopVoice("El dictado no está disponible. Puedes escribir.");
     }
@@ -264,6 +278,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       catch { stopVoice("Se cortó la voz. Puedes escribir."); }
     }
     interrupt(); setBusy(true);
+    setDictatedAnswer(readAnswer);
     const conversation = [...messages.filter(message => message.content.trim()), { role: "user" as const, content: text.slice(0, 1800) }].slice(-7);
     setMessages([...conversation, { role: "assistant", content: "" }]);
     const controller = new AbortController(); abort.current = controller;
@@ -284,7 +299,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       if (readAnswer && !controller.signal.aborted) speak(answer);
     } catch {
       if (!controller.signal.aborted) {
-        const fallback = `Resumen sin conexión. ${localAdviceText(selection)}`;
+        const fallback = localVoiceAnswer(selection, text);
         setMessages([...conversation, { role: "assistant", content: fallback }]);
         if (readAnswer) speak(fallback);
       }
@@ -292,19 +307,26 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   }
   const active = dictating || requesting || realtime.status === "connecting" || realtime.status === "connected";
   const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : (dictating || realtime.isCapturing) ? "listening" : "connecting";
-  const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
+  const voiceStatus = { idle: busy && dictatedAnswer ? "Preparando tu respuesta…" : notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
+  const lastAnswer = messages.at(-1)?.role === "assistant" ? messages.at(-1)?.content : undefined;
   const hangUp = () => stopVoice("Micrófono apagado.", false);
-  return <section id="voz" className="voice-compact" aria-label="Asistente de voz">
+  return <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
     <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
       onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
       {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
     </button>
-    <p className={voiceError && !active ? session.error : "sr-only"} role="status">{voiceStatus}</p>
+    <p className={voiceError && !active ? session.error : dictating || (busy && dictatedAnswer) ? "note" : "sr-only"} role="status">{voiceStatus}</p>
+    {dictating && <button type="button" className="link-button" onClick={() => dictation.current?.stop()}>Terminar pregunta</button>}
     <div hidden={active}>
     <div className="voice-bar-head">
       <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
       <span>Toca el botón flotante de micrófono en la esquina o consulta por escrito</span>
     </div>
+    {dictatedAnswer && (busy || lastAnswer) && <div className="voice-compact-log" role="region" aria-label="Respuesta a tu pregunta" aria-live="polite">
+      <p><strong>Tú:</strong> {messages.at(-2)?.content}</p>
+      <p><strong>AgroVision:</strong> {lastAnswer || "Pensando…"}</p>
+      {!busy && lastAnswer && <button type="button" className="link-button" onClick={() => speak(lastAnswer)}><Volume2 aria-hidden="true"/> Oír respuesta</button>}
+    </div>}
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
