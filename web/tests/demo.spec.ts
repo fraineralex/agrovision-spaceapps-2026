@@ -2,6 +2,8 @@
 /* AI: Codex/OpenAI, 2026-11-14; updated for independent section tabs by Claude/Antigravity, 2026-11-14. Frainer review pending. */
 import { test,expect,type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+// Existing end-to-end scenarios assert the Spanish interface explicitly.
+test.use({ locale: "es-DO" });
 async function axeSerious(page:Page){ const r=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21a","wcag21aa","wcag22aa"]).exclude(".maplibregl-canvas").analyze(); return r.violations.filter(v=>v.impact==="serious"||v.impact==="critical").map(v=>`${v.id}: ${v.nodes.slice(0,3).map(n=>n.target.join(" ")).join(" | ")}`); }
 const rainMock = { source: "open-meteo", kind: "forecast", url: "https://api.open-meteo.com/v1/forecast", fetchedAt: "2026-11-16T12:00:00Z",
   days: ["2026-11-16","2026-11-17","2026-11-18","2026-11-19","2026-11-20","2026-11-21","2026-11-22"].map((date, i) => ({ date, rainMm: i === 3 ? 14 : 0, probPct: i === 3 ? 80 : 10, tMaxC: 31 })) };
