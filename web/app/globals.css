@@ -2415,3 +2415,52 @@ dialog.src-overlay:not([open]) { display: none; }
   .ob-card-mapping .picker-instructions summary { min-height: 34px; }
   .ob-card-mapping .picker-stage { gap: 2px; }
 }
+
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
+.workspace { max-width: none; }
+#siembra > .advisor { margin-bottom: 20px; }
+#siembra .visual-verdict.has-decision {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: clamp(12px, 2vw, 28px);
+}
+.decision-overview, .decision-check { min-width: 0; }
+#siembra .decision-overview .crop-timeline { margin-bottom: 0; }
+#siembra .decision-overview .crop-timeline > div {
+  width: fit-content;
+  background: transparent;
+  border: 0;
+  padding-inline: 0;
+}
+.decision-check {
+  border-top: 1px solid #cbded2;
+  padding-top: 10px;
+}
+.decision-check h4 { margin: 0; color: var(--monte); font-size: 1rem; }
+.decision-check .advisor-next { margin: 4px 0 0; }
+.decision-risks {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+  font-size: .9rem;
+  line-height: 1.4;
+}
+.decision-risks li::marker { color: #805b19; }
+#siembra .has-decision .verdict-actions { margin: 0; grid-column: 1 / -1; }
+.decision-reading { grid-column: 1 / -1; }
+@media (max-width: 720px) {
+  #siembra .visual-verdict.has-decision { gap: 8px; }
+  .decision-check { padding-top: 6px; }
+  .decision-risks { margin-top: 5px; gap: 3px; }
+}
+@media (min-width: 760px) {
+  #siembra .visual-verdict.has-decision {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    column-gap: clamp(24px, 5vw, 88px);
+    row-gap: 18px;
+  }
+  .decision-check { border-top: 0; border-inline-start: 1px solid #cbded2; padding: 0 0 0 clamp(18px, 3vw, 44px); }
+}

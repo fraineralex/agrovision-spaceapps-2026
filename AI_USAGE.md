@@ -256,3 +256,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 · OpenAI** — Calculadora guiada y área declarada, evidencia NASA, fuentes accesibles, caché de clima y estado de voz en `web/app/`, `web/components/`, `web/lib/farms.ts` y `web/lib/rain.ts`; pruebas de regresión en `web/tests/` y `web/lib/`. Revisión por Frainer pendiente.
 
 - **2026-11-15 · OpenAI** — Lectura accesible compartida en `web/lib/use-read-aloud.ts`, Siembra y Preguntar, con prueba del mensaje sin voz. Revisión por Frainer pendiente.
+
+- **2026-11-15 · OpenAI** — Rediseño de la tarjeta de Siembra y ampliación del área de trabajo en `web/components/advisor-card.tsx`, `web/app/page.tsx`, `web/app/globals.css` y pruebas de ancho. Revisión por Frainer pendiente.
