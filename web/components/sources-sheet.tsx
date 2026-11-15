@@ -1,7 +1,8 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — plain-language "where does this come from" panel per recommendation. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { Bug, Coins, Droplets, FileText, Sun } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { previousCropName, FAO56_URL, marketFor, marketSources, monthNames, unitWord, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
 import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
 import type { Irrigation } from "@/lib/data";
@@ -22,10 +23,24 @@ function Block({ icon, title, verdict, children, links }: { icon: React.ReactNod
 }
 
 export function SourcesSheet({ advice, all, province, previous, irrigation, sowMonth, onClose }: { advice: CropAdvice; all: CropAdvice[]; province?: string; previous: PreviousCrop; irrigation: Irrigation; sowMonth: number; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    const element = dialog.current;
+    const trigger = document.activeElement;
+    element?.showModal();
+    return () => {
+      element?.close();
+      if (trigger instanceof HTMLElement) trigger.focus();
+    };
+  }, []);
+  const keepFocus = (event: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (event.key !== "Tab") return;
+    const items = event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), a[href]");
+    const edge = event.shiftKey ? items[0] : items[items.length - 1];
+    if (document.activeElement !== edge) return;
+    event.preventDefault();
+    (event.shiftKey ? items[items.length - 1] : items[0])?.focus();
+  };
   const m = marketFor(advice.crop);
   const fao = faoProvince(province);
   const signal = droughtSignal(fao);
@@ -40,9 +55,9 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
   const sourceIds = new Set([...(pestEntry?.sources ?? []), ...(shared.length ? pestsFor(previous)?.sources ?? [] : [])]);
   const pestLinks = Array.from(sourceIds, id => pestSources[id]);
   if (advice.scores.pests === 5) pestLinks.push(["IDIAF · Compendio de habichuela (2013), págs. 88, 94 y 102", IDIAF_URL]);
-  return <div className="src-overlay" role="dialog" aria-modal="true" aria-label={`De dónde sale la recomendación de ${advice.name}`} onClick={onClose}>
+  return <dialog ref={dialog} onKeyDown={keepFocus} className="src-overlay" aria-label={`De dónde sale la recomendación de ${advice.name}`} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="src-sheet" onClick={e => e.stopPropagation()}>
-      <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" onClick={onClose}>Cerrar ✕</button></div>
+      <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" autoFocus onClick={onClose}>Cerrar ✕</button></div>
       <p className="src-intro">Así calculamos cada punto para <strong>{advice.name.toLowerCase()}</strong> en <strong>{province ?? "todo el país"}</strong>, sembrando en <strong>{monthNames[sowMonth - 1]}</strong>{prevName ? <>, después de <strong>{prevName}</strong></> : null}. Cada parte tiene su fuente para que la revises tú o tu técnico.</p>
 
       <Block icon={<Droplets />} title="Agua" verdict={advice.words.water} links={[["FAO-56, tablas 11 y 12 (1998)", FAO56_URL]]}>
@@ -91,5 +106,5 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
 
       </section>
     </div>
-  </div>;
+  </dialog>;
 }

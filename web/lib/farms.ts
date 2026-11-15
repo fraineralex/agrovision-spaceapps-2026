@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — saved farms: geometry, grid cells, area and local storage. Frainer review pending. See AI_USAGE.md. */
 import type { CropId, PreviousCrop } from "./advisor";
 import type { Irrigation, Priority } from "./data";
@@ -13,6 +14,7 @@ export type Farm = {
   plan?: { crop: CropId; sowMonth: number };
   waterTurn?: string; // Legacy assigned turn, kept for existing farms.
   irrigationDate?: IrrigationDate;
+  declaredTareas?: number;
   placeName?: string;
   machinery?: string;
   pesticides?: string;

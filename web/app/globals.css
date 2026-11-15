@@ -2329,3 +2329,79 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
+.ob-card.ob-card-wide { max-width: 1180px; }
+.ob-card-mapping .picker-stage { position: relative; }
+.ob-card-mapping .picker-map { height: clamp(340px, 64svh, 720px); }
+.picker-map-actions { position: absolute; top: 10px; right: 10px; left: 10px; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+.picker-map-actions .chip { min-height: 44px; background: #fff; color: #153421; }
+.picker-map-actions .chip[aria-pressed="true"] { background: #153421; color: #fff; }
+.picker-instructions summary { cursor: pointer; }
+@media (max-width: 720px) {
+  .onboarding:has(.ob-card-mapping) { padding-inline: 4px; }
+  .ob-card-mapping .picker-help { font-size: .82rem; }
+  .ob-card-mapping .ob-map-done { position: sticky; bottom: 0; z-index: 3; box-shadow: 0 0 0 5px var(--paper, #fff); }
+}
+
+.advisor .verdict-text { font-size: clamp(2.25rem, 6vw, 4rem); }
+.advisor-reason, .advisor-risk, .advisor-next { margin: 6px 0; }
+.advisor-nasa a, .src-links a, .source-directory a { display: inline-flex; align-items: center; min-height: 44px; }
+dialog.src-overlay { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; }
+dialog.src-overlay:not([open]) { display: none; }
+.voice-fab { position: static; width: fit-content; margin: 12px 0 12px auto; }
+
+.rain-days button .rain-day, .rain-days button small, .rain-days button strong, .rain-days button span { font-size: .875rem; }
+#precio-y-mercado { scroll-margin-top: 6rem; }
+
+.guided-sale fieldset { min-width: 0; border: 0; padding: 0; display: grid; gap: 12px; }
+.guided-sale legend { font-size: 1.25rem; font-weight: 750; margin-bottom: 12px; }
+.guided-cost-lines { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.guided-sale .budget-result dl { display: grid; gap: .5rem; }
+.guided-sale .budget-result dt { font-weight: 700; }
+
+/* Keep the first planting decision visible above the plan on phone screens. */
+.advisor .profile-line { margin-bottom: 8px; }
+.advisor .crop-timeline { grid-template-columns: minmax(0, 1fr); }
+.ob-card-mapping .ob-map-done { position: sticky; bottom: 0; z-index: 3; }
+@media (max-width: 720px) {
+  .topbar:has(+ .workspace.has-farm) { padding-block: 8px; }
+  .topbar:has(+ .workspace.has-farm) .brand-sub { display: none; }
+  .workspace.has-farm .heading-row { margin: 0 0 6px; gap: 4px; }
+  .workspace.has-farm .heading-copy { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .workspace.has-farm .heading-controls { margin: 0; padding: 0; }
+  .workspace.has-farm .heading-farms-bar .farm-switcher { padding: 6px 8px; gap: 0; }
+  .workspace.has-farm .heading-farms-bar .farm-meta { gap: 4px; }
+  .workspace.has-farm .heading-farms-bar .farm-meta .ob-link { min-height: 28px; }
+  .workspace.has-farm .workbench-nav { margin-block: 6px 8px; gap: 4px; }
+  .workspace.has-farm .wnav-tab { min-height: 40px; padding-block: 3px; }
+  .workspace.has-farm .tab-stage { margin-top: 0; }
+  #siembra .advisor { padding: 10px; }
+  #siembra .advisor .profile-line { min-height: 36px; padding: 3px 8px; margin: 0 0 4px; }
+  #siembra .advisor .profile-line button { min-height: 36px; }
+  #siembra .advisor-head { align-items: center; gap: 4px; }
+  #siembra .advisor-head h3 { margin: 0; font-size: .95rem; }
+  #siembra .verdict { padding: 8px 10px; margin: 4px 0 6px; }
+  #siembra .verdict-actions { margin-top: 4px; }
+  #siembra .verdict-actions button { min-height: 44px; }
+  #siembra .crop-feature { margin-bottom: 4px; }
+  #siembra .crop-timeline { margin: 6px 0; }
+  #siembra .crop-timeline > div { padding: 5px 8px; }
+  #siembra .advisor-nasa { font-size: .8rem; line-height: 1.3; }
+  #siembra .advisor-reason, #siembra .advisor-risk, #siembra .advisor-next { font-size: .9rem; line-height: 1.3; }
+}
+
+@media (max-width: 720px) {
+  .workspace.has-farm .heading-farms-bar { margin-bottom: 6px; }
+  .workspace.has-farm .farm-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .workspace.has-farm .farm-meta > span:first-child { flex: 1 1 130px; font-size: .8rem; }
+  .workspace.has-farm .workbench-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .workspace.has-farm .workbench-nav .wnav-tab { grid-column: auto; display: flex; flex-direction: column; white-space: normal; font-size: .72rem; line-height: 1.1; min-height: 46px; padding-inline: 2px; }
+  .workspace.has-farm .wnav-tab svg { width: 16px; height: 16px; }
+  .workspace.has-farm .wnav-badge { display: none; }
+  #siembra .advisor .crop-timeline div { border: 0; background: transparent; padding: 0; }
+  #siembra .crop-timeline span { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+  #siembra .verdict-actions { gap: 4px; }
+  #siembra .verdict-actions button { flex: 1 1 auto; width: auto; font-size: .8rem; padding-inline: 7px; }
+  #siembra .advisor-nasa a { min-height: 44px; }
+}

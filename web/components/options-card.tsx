@@ -1,3 +1,4 @@
+/* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic) and Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useMemo, useState } from "react";
@@ -15,7 +16,8 @@ const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Pre
 
 export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
   const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
-  const all = options.flatMap(option => option.advice ? [option.advice] : []);
+  const grouped = options.filter((option, index) => !option.advice || options.findIndex(candidate => candidate.advice?.crop === option.advice?.crop) === index);
+  const all = grouped.flatMap(option => option.advice ? [option.advice] : []);
   const [sources, setSources] = useState<CropAdvice | null>(null);
   return <section className="card panel options" aria-labelledby="opciones-titulo">
     <div className="panel-head-row">
@@ -23,12 +25,12 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
       <HelpTip label="Otras opciones" text="Compara el mejor cultivo según lo que más te importe hoy: ahorrar agua, cuidar el precio, evitar plagas, resistir sequía o seguir igual." />
     </div>
     <ol className="option-list">
-      {options.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
+      {grouped.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
         <div className="option-head">
           <span className={`option-icon-badge tone-${o.key}`} aria-hidden="true">
             <Icon className="option-icon" />
           </span>
-          <span className="option-goal" title={o.goal}>{goalLabel[o.key]}</span>
+          <span className="option-goal" title={o.goal}>{a ? options.filter(option => option.advice?.crop === a.crop).map(option => goalLabel[option.key]).join(" · ") : goalLabel[o.key]}</span>
           {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{word[light]}</span>}
         </div>
         {a ? <>
