@@ -6,7 +6,7 @@ import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, Sprout, type LucideIco
 import { FarmIcon } from "@/components/farm-icon";
 import { HelpTip } from "@/components/help-tip";
 import { Stars } from "@/components/field-ui";
-import { fiveOptions, lightFor, monthNames, pillarTitle, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
 
@@ -32,7 +32,7 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
             <Icon className="option-icon" />
           </span>
           <span className="option-goal" title={o.goal}>{a ? options.filter(option => option.advice?.crop === a.crop).map(option => goalLabel[option.key]).join(" · ") : goalLabel[o.key]}</span>
-          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{o.key === "keep" && a.soil.level === "bad" ? "Cansa la tierra" : o.key === "keep" || o.key === "other" ? word[light] : pillarTitle(o.key as Pillar, a.scores[o.key as Pillar])}</span>}
+          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{o.key === "keep" && a.soil.level === "bad" ? "Cansa la tierra" : o.key === "keep" || o.key === "other" ? word[light] : a.titles[o.key as Pillar]}</span>}
         </div>
         {a ? <>
           <div className="option-crop-row">
@@ -47,11 +47,11 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
           </div>
           <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>
             {pillars.map(({ id, label, Icon: P }) => {
-              const c = lightFor(a.scores[id]);
+              const c = a.lights[id];
               return (
                 <li key={id} className={`pill ${c}`} title={a.words[id]}>
                   <span className="pill-label"><P aria-hidden="true" />{label}</span>
-                  <small className="pill-val">{pillarTitle(id, a.scores[id])}</small>
+                  <small className="pill-val">{a.titles[id]}</small>
                 </li>
               );
             })}

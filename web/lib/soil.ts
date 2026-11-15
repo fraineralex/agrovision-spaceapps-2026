@@ -9,12 +9,12 @@ export const soilSources = {
 
 /** Soil texture as the farmer declares it (local soil information; not measured by AgroVision). */
 export type SoilTexture = "arenosa" | "franca" | "arcillosa";
-export const textureNames: Record<SoilTexture, string> = { arenosa: "Arenosa (suelta)", franca: "Media (franca)", arcillosa: "Arcillosa (pesada, barro)" };
+export const textureNames: Record<SoilTexture, string> = { arenosa: "Arenosa (suelta)", franca: "Mezclada (ni arena ni barro)", arcillosa: "Arcillosa (pesada, barro)" };
 /** FAO Training Manual 1, ch. 2: available water 25–100 (sand), 100–175 (loam), 175–250 (clay) mm per metre; sandy soils drain in hours, clayey in 2–3 days. */
 export function textureNote(t: SoilTexture): { title: string; text: string } {
   if (t === "arenosa") return { title: "Tu tierra guarda poca agua", text: "La tierra arenosa deja pasar el agua rápido y guarda poca. Fíjate más en los cultivos que piden poca agua y en regar o sembrar cerca de la lluvia." };
   if (t === "arcillosa") return { title: "Tu tierra guarda mucha agua", text: "La tierra arcillosa guarda mucha agua, pero tarda 2 o 3 días en escurrir. Después de aguaceros fuertes puede encharcarse: cuida el drenaje." };
-  return { title: "Tu tierra guarda agua de forma media", text: "La tierra franca guarda una cantidad media de agua y escurre bien. Sirve para la mayoría de los cultivos de tu lista." };
+  return { title: "Tu tierra guarda bien el agua sin encharcarse", text: "La tierra mezclada (ni arena ni barro) guarda una cantidad intermedia de agua y escurre bien. Sirve para la mayoría de los cultivos de tu lista." };
 }
 
 export type SoilFamily = "leguminosa" | "grano" | "raiz" | "tomate" | "auyama" | "cebolla" | "repollo" | "zanahoria" | "permanente";

@@ -5,7 +5,7 @@ import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { HeroRecommendation, MetricTile, RiskPill, SourceChip, Stars } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, pillarTitle, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
 import { SourcesSheet } from "@/components/sources-sheet";
 import { climate, type Irrigation } from "@/lib/data";
@@ -43,7 +43,7 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
         <Info aria-hidden="true" size={16} />
       </button>
     </div>
-    <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
+    <div className="pillar-row">{pillarInfo.map(pi => { const c = a.lights[pi.id]; return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
       <FarmIcon name={pi.icon} size={13} /><span>{pi.label}</span></span>; })}</div>
     {(a.pestPrecautions.length > 0 || a.repeats) && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precauciones</summary>{a.repeats && <p className="warning">Repetir {a.name.toLowerCase()} puede mantener plagas.</p>}{a.pestPrecautions.map(note => <p key={note} className="warning"><span>{note}</span></p>)}</details>}
   </li>;
@@ -96,9 +96,9 @@ export function AdvisorCard(p: Props) {
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
     </HeroRecommendation>
     {top && <div className="metric-tiles" role="group" aria-label={`Por qué ${top.name}: agua, sequía, plagas y precio`}>
-      {pillarInfo.map(({ id, label, icon }) => { const c = lightFor(top.scores[id]); return <MetricTile key={id} label={label}
+      {pillarInfo.map(({ id, label, icon }) => { const c = top.lights[id]; return <MetricTile key={id} label={label}
         icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + c}
-        value={pillarTitle(id, top.scores[id])} detail={id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.scores.pests === null && !top.sharedPests.length ? "Sin datos de este cambio" : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ")} />; })}
+        value={top.titles[id]} detail={id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.pestState === "different" ? "Según las guías de RD" : top.pestState === "listed" || top.pestState === "unknown" ? top.words.pests : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ")} />; })}
     </div>}
     {top && <p className="stars-help">Las estrellas comparan {top.name.toLowerCase()} con los otros cultivos de tu lista en 4 cosas: agua, sequía, plagas y precio. Más estrellas = te conviene más. Verde es bueno, amarillo es regular y rojo es malo.</p>}
     {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}

@@ -25,7 +25,7 @@ export function SoilCard(p: { province?: string; irrigation: Irrigation; previou
       <h3>{tex.title}</h3>
       <p>{tex.text}{p.texture === "arenosa" && light.length ? ` De tu lista, piden poca agua: ${light.slice(0, 4).join(", ")}.` : ""}</p>
       <p className="note">Tierra que nos dijiste: {textureNames[p.texture!].toLowerCase()}. Es lo que tú declaraste, no una medición.</p>
-    </div> : <p className="note">Si nos dices cómo es tu tierra (arenosa, media o barro) en “Editar”, te decimos cómo guarda el agua.</p>}
+    </div> : <p className="note">Si nos dices cómo es tu tierra (arenosa, mezclada o barro) en “Editar”, te decimos cómo guarda el agua.</p>}
     {!known && <p className="note">Dinos qué sembraste la última vez (botón “Cambiar”) para decirte cómo queda tu tierra con cada cultivo.</p>}
     {known && advice.length > 1 && <>
       <h3 className="soil-sub">Cómo queda la tierra con cada cultivo de tu lista</h3>

@@ -177,10 +177,11 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             <h3 className="ob-sub">¿Cómo es tu tierra? <small>(opcional)</small></h3>
             <div className="ob-row" role="group" aria-label="¿Cómo es tu tierra?">
               <Choice on={soilTexture === "arenosa"} onClick={() => setSoilTexture("arenosa")}>Arenosa</Choice>
-              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>Media</Choice>
+              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>Mezclada</Choice>
               <Choice on={soilTexture === "arcillosa"} onClick={() => setSoilTexture("arcillosa")}>Barro</Choice>
               <Choice on={!soilTexture} onClick={() => setSoilTexture(undefined)}>No sé</Choice>
             </div>
+            <p className="ob-hint">Arenosa: suelta, se escurre entre los dedos. Barro: se pega cuando se moja y se agrieta al secarse. Mezclada: ni arena ni barro, se desmorona fácil.</p>
             <details className="ob-more"><summary>Cambiar los cultivos que se comparan ({crops.length})</summary>
               <div className="ob-grid ob-grid-compact">{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{cropNames[c]}{c === "ajo" ? " · sin datos todavía" : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
               <label className="ob-label">Mes en que piensas sembrar<select value={sowMonth} onChange={e => setSowMonth(Number(e.target.value))}>{monthNames.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}</select></label>
