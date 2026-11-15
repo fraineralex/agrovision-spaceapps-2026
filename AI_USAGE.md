@@ -325,3 +325,10 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Fuentes (consultadas el 15-11-2026):** FAO, Agricultura de conservación: diversificación de especies (https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/); FAO (2016), Las legumbres y la biodiversidad; FAO, Irrigation Water Management Training Manual 1, cap. 2 (https://www.fao.org/4/r4082e/r4082e03.htm).
 - **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
 - **Revisión por Frainer:** pendiente.
+
+## 2026-11-15 — Plagas sin “sin dato” y palabras del tipo de tierra
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:** el indicador de plagas usa el catálogo dominicano que ya estaba en `web/lib/pests.ts`: si el cultivo anterior y el nuevo no tienen plagas principales en común dice “Plagas distintas”; si no se sabe el cultivo anterior, dice qué plagas vigilar. La opción “Plagas” elige un cultivo con plagas distintas cuando no hay una rotación citada por el IDIAF. El tipo de tierra “Media” ahora es “Mezclada”, con una línea que explica las tres opciones.
+- **Archivos:** `web/lib/{advisor,advisor.test,soil}.ts`, `web/components/{advisor-card,options-card,sources-sheet,onboarding,soil-card}.tsx`, `web/tests/demo.spec.ts`.
+- **Límites:** “Plagas distintas” no cambia las estrellas. El catálogo lista solo las plagas principales de cada cultivo (1 a 4), así que puede haber otras en la zona; la app lo dice.
+- **Revisión por Frainer:** pendiente.
