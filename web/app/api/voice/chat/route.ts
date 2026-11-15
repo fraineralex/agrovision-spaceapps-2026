@@ -67,11 +67,15 @@ Si no hay dato verificado, di: "${RAG_NO_DATA}".`;
     abortSignal: AbortSignal.any([request.signal, AbortSignal.timeout(25_000)]),
   });
   if (grounded) {
-    let text = await result.text;
+    let text = "";
+    try {
+      text = await result.text;
+    } catch {
+      // A transient text-provider error must not turn a grounded question into HTTP 500.
+    }
     if (!text.trim()) {
-      const hint = rag.chunks[0]?.text.replace(/\s+/g, " ").slice(0, 280);
       const names = ragSources(rag.chunks).map(s => s.sourceName).join("; ");
-      text = `${hint ? `${hint}… ` : "No pude generar una respuesta a partir de las guías recuperadas."} Consulta las fuentes antes de tomar una decisión.\n\nFuente: ${names}.`;
+      text = `${RAG_NO_DATA} La respuesta automática no estuvo disponible; revisa las fuentes recuperadas con un técnico.\n\nFuente: ${names}.`;
     }
     return new Response(text, { headers });
   }

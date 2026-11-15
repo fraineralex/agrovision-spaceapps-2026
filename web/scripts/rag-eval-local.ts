@@ -16,6 +16,17 @@ const questions = [
   "¿Cuánto cuesta sembrar una tarea de arroz?",
   "¿Qué le echo al tizón de la papa?",
   "¿De dónde sacan los precios?",
+  "¿Cuánta semilla por tarea y qué distancia entre hileras recomienda el IDIAF para habichuela?",
+  "¿Qué prácticas de manejo de enfermedades y plagas describe el compendio IDIAF de habichuela?",
+  "¿Qué manejo del mosaico dorado describe el compendio y de qué año es la guía?",
+  "¿Qué mide IMERG y qué unidad debo revisar antes de leer la lluvia?",
+  "¿SMAP me dice la humedad de mi parcela y de qué tamaño es aproximadamente el píxel?",
+  "¿Qué significa una imagen de Landsat o GIBS para mi cultivo y cuáles son sus límites?",
+  "¿Qué beneficios puede aportar alternar familias botánicas y raíces de distinta profundidad en una rotación?",
+  "¿Qué papel pueden tener las leguminosas en una rotación y qué condiciones hacen incierto el aporte al cultivo siguiente?",
+  "¿Cómo ayuda alternar cultivos hospedadores y no hospedadores, y puedo aplicar a San Juan los intervalos europeos de Best4Soil?",
+  "¿Cuál es la diferencia entre rotación y asociación de cultivos?",
+  "¿Qué debo revisar antes de probar una asociación de cereal y leguminosa en una finca tropical pequeña?",
 ];
 
 async function ask(question: string) {
