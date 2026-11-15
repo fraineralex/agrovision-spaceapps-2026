@@ -342,6 +342,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
       <button type="button" className="link-button" onClick={playSummary}><Volume2 aria-hidden="true"/> Oír resumen</button>
       {summaryState !== "idle" && <div role="group" aria-label="Controles del resumen">
+        <p role="status">Leyendo resumen…</p>
         <button type="button" className="link-button" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
         <button type="button" className="link-button" onClick={stopSummary}>Detener</button>
         <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
