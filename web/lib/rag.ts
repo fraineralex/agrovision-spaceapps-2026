@@ -5,6 +5,7 @@ import { embed, embedMany } from "ai";
 import { gateway } from "@ai-sdk/gateway";
 import { EMBEDDING_MODEL_FALLBACK, EMBEDDING_MODEL_PRIMARY, RAG_INDEX_PATH, RAG_MAX_QUESTION_CHARS, RAG_MIN_SCORE, RAG_TOP_K } from "./rag-config";
 import { rankChunks, type RankedChunk, type RagChunkMeta } from "./rag-chunk";
+import { createRagTursoClient, hasTursoConfig, retrieveFromTurso } from "./rag-turso";
 
 export type RagIndex = {
   schemaVersion: number;
@@ -81,6 +82,34 @@ export function retrieveFromIndex(queryVector: number[], index: RagIndex): Ranke
   return rankChunks(queryVector, index.chunks, RAG_TOP_K, RAG_MIN_SCORE);
 }
 
+export async function retrieveVector(
+  queryVector: number[],
+  index: RagIndex | null,
+  deps: {
+    configured?: () => boolean;
+    createClient?: typeof createRagTursoClient;
+    retrieve?: typeof retrieveFromTurso;
+  } = {},
+): Promise<RankedChunk[]> {
+  const configured = deps.configured ?? hasTursoConfig;
+  if (configured()) {
+    try {
+      const client = (deps.createClient ?? createRagTursoClient)();
+      try {
+        const chunks = await (deps.retrieve ?? retrieveFromTurso)(client, queryVector);
+        console.info("[rag] store=turso");
+        return chunks;
+      } finally {
+        client.close();
+      }
+    } catch {
+      // The bundled JSON index remains the offline and database-error fallback.
+    }
+  }
+  if (!index?.chunks.length) return [];
+  return retrieveFromIndex(queryVector, index);
+}
+
 export async function retrieveRag(query: string): Promise<RagRetrieveResult> {
   const q = query.trim().slice(0, RAG_MAX_QUESTION_CHARS);
   if (!q) return { ok: false, reason: "no_match", message: "Pregunta vacía." };
@@ -88,16 +117,16 @@ export async function retrieveRag(query: string): Promise<RagRetrieveResult> {
     return { ok: false, reason: "missing_key", message: "Sin clave de AI Gateway para consultar guías." };
   }
   const index = loadRagIndex();
-  if (!index?.chunks.length) {
-    return { ok: false, reason: "missing_index", message: "Índice de guías no disponible." };
-  }
   try {
-    const { vector } = await embedQuery(q);
-    const ranked = retrieveFromIndex(vector, index);
+    const { vector, model } = await embedQuery(q);
+    const ranked = await retrieveVector(vector, index);
+    if (!ranked.length && !index?.chunks.length) {
+      return { ok: false, reason: "missing_index", message: "Índice de guías no disponible." };
+    }
     if (!ranked.length) {
       return { ok: false, reason: "no_match", message: "No tengo ese dato verificado en las guías cargadas." };
     }
-    return { ok: true, chunks: ranked, model: index.embeddingModel };
+    return { ok: true, chunks: ranked, model: index?.embeddingModel ?? model };
   } catch {
     return { ok: false, reason: "error", message: "No pude consultar las guías ahora mismo." };
   }
