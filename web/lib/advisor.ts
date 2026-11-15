@@ -39,7 +39,7 @@ const FAO56: Record<ScoredCropId, { stages: [number, number, number, number] | n
 export const FAO56_URL = "https://www.fao.org/4/x0490e/x0490e0b.htm";
 
 type ScoredCropId = "habichuela_roja" | "habichuela_negra" | "maiz" | "arroz" | "batata" | "yuca" | "platano" | "guineo" | "mani" | "tomate" | "cebolla" | "aji" | "auyama" | "papa" | "pepino" | "berenjena" | "repollo" | "zanahoria" | "pina" | "cafe" | "cacao" | "aguacate";
-import { soilNote, type SoilNote } from "@/lib/soil";
+import { soilFamily, soilNote, type SoilNote } from "@/lib/soil";
 export type CropId = ScoredCropId | "ajo";
 export type PreviousCrop = CropId | PestCrop | "otro" | "unknown";
 export const cropNames: Record<string, string> = { ajo: "Ajo", habichuela_roja: "Habichuela roja", habichuela_negra: "Habichuela negra", maiz: "Maíz", arroz: "Arroz", batata: "Batata", yuca: "Yuca", platano: "Plátano", guineo: "Guineo", mani: "Maní", tomate: "Tomate", cebolla: "Cebolla", aji: "Ají", auyama: "Auyama", papa: "Papa", pepino: "Pepino", berenjena: "Berenjena", repollo: "Repollo", zanahoria: "Zanahoria", pina: "Piña", cafe: "Café", cacao: "Cacao", aguacate: "Aguacate" };
@@ -50,6 +50,29 @@ export const allCrops: CropId[] = [...scoredCrops, "ajo"];
 export const previousCrops = Array.from(new Set([...allCrops, ...Object.keys(pestCatalog) as PestCrop[]]));
 export const previousCropName = (crop: PreviousCrop) => pestsFor(crop)?.name ?? cropNames[crop] ?? "otro cultivo";
 export const defaultCrops: CropId[] = ["habichuela_roja", "habichuela_negra", "maiz", "arroz", "batata", "yuca", "platano", "guineo", "tomate", "aji", "auyama"];
+
+const poolByFamily: Record<string, CropId[]> = {
+  leguminosa: ["habichuela_roja", "maiz", "batata", "yuca"],
+  grano: ["habichuela_roja", "habichuela_negra", "batata", "auyama", "maiz"],
+  tomate: ["habichuela_negra", "cebolla", "auyama", "yuca", "repollo"],
+  raiz: ["aji", "habichuela_roja", "auyama", "yuca", "maiz"],
+  auyama: ["papa", "aji", "habichuela_negra", "batata"],
+  cebolla: ["papa", "habichuela_negra", "aji", "auyama"],
+  repollo: ["habichuela_roja", "aji", "cebolla", "batata"],
+  zanahoria: ["papa", "habichuela_negra", "aji", "auyama"],
+};
+
+/** Default candidate comparison cohort in onboarding, tailored by province and FAO soil family of the previous crop. */
+export function defaultComparisonPool(province: string, previous: PreviousCrop): CropId[] {
+  const family = soilFamily(String(previous));
+  const common: CropId[] =
+    (previous === "unknown" || previous === "otro" || previous === "arroz") && province === "Monte Cristi"
+      ? ["arroz", "habichuela_roja", "guineo", "maiz"]
+      : (previous === "unknown" || previous === "otro" || previous === "papa" || previous === "cebolla" || previous === "repollo") && province === "La Vega"
+        ? ["papa", "cebolla", "repollo", "habichuela_negra"]
+        : (family && poolByFamily[family]) || ["papa", "habichuela_roja", "maiz", "yuca"];
+  return Array.from(new Set([...allCrops.filter(crop => crop === previous), ...common]));
+}
 export const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 export const TAREAS_PER_HA = 10000 / 628.86; // 1 tarea = 628.86 m² (unidad usada en RD)
 export const toTareas = (ha: number) => Math.round(ha * TAREAS_PER_HA);
@@ -149,8 +172,17 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     };
     return { crop, repeats, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, pestState, watch, lights: { water: lightFor(water), climate: lightFor(climate), pests: pestState === "different" ? "green" : pestState === "maybe" ? "amber" : lightFor(pests), market: lightFor(marketScore) }, titles: { water: pillarTitle("water", water), climate: pillarTitle("climate", climate), pests: pestState === "different" ? "Plagas distintas" : pestState === "maybe" ? "Ojo con plagas" : pestState === "listed" ? "Plagas a vigilar" : pillarTitle("pests", pests), market: pillarTitle("market", marketScore) }, soil: soilNote(String(opts.previous), crop, previousCropName(opts.previous), cropNames[crop]), warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
+  const soilRank = (item: CropAdvice) => (item.soil.level === "good" ? 2 : item.soil.level === "bad" ? 0 : 1);
+  const pestRank = (item: CropAdvice) => (item.pestState === "rotation" ? 3 : item.pestState === "different" ? 2 : item.pestState === "listed" || item.pestState === "maybe" ? 1 : 0);
   // Permanent crops are investments, not the next rotation: list them after seasonal crops.
-  return advice.sort((a, b) => Number(b.viable) - Number(a.viable) || Number(a.repeats) - Number(b.repeats) || Number(a.cycleDays === 0) - Number(b.cycleDays === 0) || (b.overall ?? -1) - (a.overall ?? -1));
+  return advice.sort((a, b) =>
+    Number(b.viable) - Number(a.viable) ||
+    Number(a.repeats) - Number(b.repeats) ||
+    Number(a.cycleDays === 0) - Number(b.cycleDays === 0) ||
+    (b.overall ?? -1) - (a.overall ?? -1) ||
+    soilRank(b) - soilRank(a) ||
+    pestRank(b) - pestRank(a)
+  );
 }
 
 export function recommendedCrop(advice: CropAdvice[]) {

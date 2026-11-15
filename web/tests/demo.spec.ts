@@ -68,9 +68,10 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".recommendation-meta")).toContainText("Cosecha aprox.");
  // Default mode is Agricultor; Supervisor mode unlocks supervision quick bar, GeoJSON export & cost/price details.
  await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
- await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeHidden();
- await page.getByRole("button", {name:"Supervisor",exact:true}).click();
- await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeVisible();
+  await expect(page.getByRole("navigation", {name:"Barra técnica de supervisión"})).toBeHidden();
+  await page.getByRole("button", {name:"Supervisor",exact:true}).click();
+  await expect(page.getByRole("navigation", {name:"Barra técnica de supervisión"})).toBeVisible();
+  await expect(page.locator(".supervisor-tools")).toHaveCount(0);
  await page.getByRole("button",{name:/¿Para qué sirve Otras opciones/}).click();
  await expect(page.getByRole("region",{name:/Ayuda sobre Otras opciones/})).toBeVisible();
  await page.getByRole("button",{name:"Cerrar ayuda"}).click();

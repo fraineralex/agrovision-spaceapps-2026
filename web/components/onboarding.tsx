@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 import { LanguageSelector } from "@/components/language-selector";
 import { FarmIcon } from "@/components/farm-icon";
 import { CustomSelect } from "@/components/custom-select";
-import { allCrops, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { allCrops, defaultComparisonPool, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography-core";
 import { usePlaceSearch } from "@/lib/place-search";
 import { Check, ChevronDown, Droplets, CloudRain, CircleHelp, MapPin, Search } from "lucide-react";
@@ -52,8 +52,8 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [soilTexture, setSoilTexture] = useState<SoilTexture | undefined>(initial.soilTexture);
   const [soilColor, setSoilColor] = useState<SoilColor | undefined>(initial.soilColor);
   const [chosenCrops, setCrops] = useState<CropId[] | null>(initial.crops ?? null);
-  const common: CropId[] = province === "Monte Cristi" ? ["arroz", "guineo", "maiz"] : province === "La Vega" ? ["papa", "cebolla", "repollo"] : ["habichuela_roja", "maiz", "yuca"];
-  const crops = chosenCrops ?? Array.from(new Set([...allCrops.filter(crop => crop === previous), ...common]));
+  const [customCropsEdited, setCustomCropsEdited] = useState(false);
+  const crops = chosenCrops ?? defaultComparisonPool(province, previous);
   const [sowMonth, setSowMonth] = useState(initial.sowMonth ?? now);
   const [priority] = useState<Priority>(initial.priority ?? "water");
   const [pieces, setPieces] = useState<Piece[]>(initial.pieces ?? []);
@@ -181,9 +181,9 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
           <p className="ob-hint">{text.choosePrevious}</p>
         </div>
         <div className="ob-step3-layout">
-          <div className="ob-grid ob-grid-crops">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); if (chosenCrops && allCrops.some(crop => crop === c)) setCrops(Array.from(new Set([...chosenCrops, c as CropId]))); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c as CropId] ?? previousCropName(c)}{c === "ajo" ? <small>{text.noData}</small> : null}</span></Choice>)}
-            <Choice on={previous === "otro"} onClick={() => setPrevious("otro")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>{text.other}</span></Choice>
-            <Choice on={previous === "unknown"} onClick={() => setPrevious("unknown")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>{text.unknown}</span></Choice></div>
+          <div className="ob-grid ob-grid-crops">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); if (!customCropsEdited) setCrops(null); else if (chosenCrops && allCrops.some(crop => crop === c)) setCrops(Array.from(new Set([...chosenCrops, c as CropId]))); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c as CropId] ?? previousCropName(c)}{c === "ajo" ? <small>{text.noData}</small> : null}</span></Choice>)}
+            <Choice on={previous === "otro"} onClick={() => { setPrevious("otro"); if (!customCropsEdited) setCrops(null); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>{text.other}</span></Choice>
+            <Choice on={previous === "unknown"} onClick={() => { setPrevious("unknown"); if (!customCropsEdited) setCrops(null); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>{text.unknown}</span></Choice></div>
           <div className="ob-step3-side">
             <section className="ob-field-group">
               <h3 className="ob-sub">{text.irrigation}</h3>
@@ -213,7 +213,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               </div>
             </section>
             <details className="ob-more ob-compare"><summary>{text.changeCrops} ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
-              <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label={text.changeCrops}>{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c]}{c === "ajo" ? ` · ${text.noData}` : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
+              <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label={text.changeCrops}>{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => { setCustomCropsEdited(true); setCrops(on ? crops.filter(x => x !== c) : [...crops, c]); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c]}{c === "ajo" ? ` · ${text.noData}` : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
               <div className="ob-label ag-select-field"><span className="ag-select-label">{text.sowMonth}</span><CustomSelect ariaLabel={text.sowMonth} value={String(sowMonth)} options={Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: new Intl.DateTimeFormat(locale === "es" ? "es-DO" : "en-US", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(2020, i, 1))) }))} onChange={val => setSowMonth(Number(val))} /></div>
             </details>
             {!location && <p role="status">{text.missingLocation}</p>}

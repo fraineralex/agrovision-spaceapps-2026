@@ -126,3 +126,22 @@ test("pests never read as 'no data' when both crops are in the Dominican catalog
   assert.equal(unknownPrev.pestState, "listed");
   assert.match(unknownPrev.words.pests, /Vigila gusano cogollero/);
 });
+
+test("default onboarding cohorts yield distinct next-crop recommendations instead of collapsing to maize", async () => {
+  const { adviseNextCrop, defaultComparisonPool, recommendedCrop } = await import("./advisor");
+  const topFor = (previous: Parameters<typeof defaultComparisonPool>[1], province = "Distrito Nacional") =>
+    recommendedCrop(adviseNextCrop({
+      province,
+      irrigation: "unconfirmed",
+      previous,
+      sowMonth: 11,
+      priority: "water",
+      crops: defaultComparisonPool(province, previous),
+    }))?.crop;
+  const picks = new Set([topFor("habichuela_roja"), topFor("papa"), topFor("tomate"), topFor("yuca"), topFor("cebolla")]);
+  assert.ok(picks.size >= 4, `expected at least 4 distinct recommendations, got ${Array.from(picks).join(", ")}`);
+  assert.equal(topFor("habichuela_roja"), "maiz");
+  assert.notEqual(topFor("papa"), "maiz");
+  assert.notEqual(topFor("tomate"), "maiz");
+  assert.notEqual(topFor("yuca"), "maiz");
+});

@@ -287,13 +287,6 @@ export default function Home() {
               <button type="button" className="workbench-button" onClick={() => setOnboarding(true)}>{text.addFarm}</button>
             )}
           </div>
-          {supervisor && (
-            <nav className="supervisor-tools" aria-label={text.supervisorTools}>
-              <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>{text.parcels}</a>
-              <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>{text.climateMarket}</a>
-              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => { const el = document.getElementById("rotaciones") as HTMLDetailsElement | null; if (el) { el.open = true; el.scrollIntoView(); } }, 30); }}>{text.rotations}</a>
-            </nav>
-          )}
         </div>
       </div>
 
