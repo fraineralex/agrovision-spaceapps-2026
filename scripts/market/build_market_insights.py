@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# AI: OpenAI, 2026-11-15, price quality checks; Frainer review pending.
 # AI assistance: Claude (Anthropic), 2026-11-14, wrote this builder. Frainer review: pending.
 """Build farmer-facing market insights from cached official Dominican sources.
 
@@ -20,6 +21,7 @@ No number is invented: when a series is missing, the field stays null.
 import csv
 import json
 from pathlib import Path
+from math import isfinite
 from statistics import mean, median
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -80,7 +82,13 @@ RAW_SERIES = {
 WHOLESALE = ROOT / "data/raw/market_rd/wholesale.csv"
 
 
-def raw_monthly(key):
+def extreme_price(value, baseline):
+    """Flag a likely unit or entry error when it differs by more than 10×."""
+    return not isfinite(value) or value <= 0 or value > baseline * 10 or value < baseline / 10
+
+
+def raw_monthly(key, audit):
+
     import unicodedata
     def norm(x):
         return " ".join(unicodedata.normalize("NFKD", x).encode("ascii", "ignore").decode().lower().split())
@@ -88,18 +96,30 @@ def raw_monthly(key):
         return None, []
     prefix, unit, div, unit_out = RAW_SERIES[key]
     weeks = {}
-    for r in csv.reader(open(WHOLESALE, encoding="cp1252"), delimiter=";"):
-        if len(r) != 8 or not norm(r[0]).startswith(prefix) or norm(r[3]) != unit:
-            continue
-        month = MONTHS.get(norm(r[6]))
-        try:
-            price = float(r[4].strip()); year = int(r[7].strip())
-        except ValueError:
-            continue
-        if not month or price <= 0:
-            continue
-        weeks.setdefault(f"{year:04d}-{month:02d}", {})[norm(r[5])] = price / div  # one value per ordinal week
-    rows = [{"period": p, "mean": mean(w.values()), "nWeeks": len(w), "unit": unit_out} for p, w in sorted(weeks.items()) if len(w) >= 2]
+    with WHOLESALE.open(encoding="cp1252") as stream:
+        for r in csv.reader(stream, delimiter=";"):
+            if len(r) != 8 or not norm(r[0]).startswith(prefix) or norm(r[3]) != unit:
+                continue
+            month = MONTHS.get(norm(r[6]))
+            try:
+                price = float(r[4].strip()); year = int(r[7].strip())
+            except ValueError:
+                continue
+            if not month or price <= 0:
+                continue
+            weeks.setdefault(f"{year:04d}-{month:02d}", {})[norm(r[5])] = price / div  # one value per ordinal week
+    values = [value for w in weeks.values() for value in w.values() if isfinite(value) and value > 0]
+    baseline = median(values) if len(values) >= 12 else None
+    rows = []
+    for period, observations in sorted(weeks.items()):
+        accepted = []
+        for week, value in observations.items():
+            if baseline and extreme_price(value, baseline):
+                audit.append({"period": period, "week": week, "value": value if isfinite(value) else None})
+            else:
+                accepted.append(value)
+        if len(accepted) >= 2:
+            rows.append({"period": period, "mean": mean(accepted), "nWeeks": len(accepted), "unit": unit_out})
     return f"raw:{key}:{prefix}:{unit_out}", rows
 
 # Transcribed from MA "Costos Estimados de Producción de Cultivos Agrícolas 2019" (PDF page numbers).
@@ -219,10 +239,10 @@ def sowing_pressure(names):
 
 
 def main():
-    prices = json.loads(PRICES.read_text())
+    prices = json.loads(PRICES.read_text(encoding="utf-8"))
     monthly = prices["monthlyPrices"]
     out = {"schemaVersion": "1.0.0", "generatedBy": "scripts/market/build_market_insights.py",
-           "aiAssistance": "Claude (Anthropic), 2026-11-14; Frainer review pending",
+           "aiAssistance": "Claude (Anthropic), 2026-11-14; OpenAI, 2026-11-15; Frainer review pending",
            "sources": {"prices": prices["sources"][0]["url"], "pricesPeriod": f"{prices['periodStart']}–{prices['periodEnd']}",
                        "sowing": SOWING_URL, "costs": COSTS_URL},
            "limits": ["Precios mayoristas de Santo Domingo, no precio en finca.",
@@ -232,8 +252,15 @@ def main():
                       "Costos de 2019 sin ajustar por inflación."],
            "crops": {}}
     for crop, meta in CROPS.items():
-        sid, rows = raw_monthly(crop) if meta["price"].startswith("raw:") or crop in RAW_SERIES else pick_series(monthly, meta["price"])
+        audit = []
+        sid, rows = raw_monthly(crop, audit) if meta["price"].startswith("raw:") or crop in RAW_SERIES else pick_series(monthly, meta["price"])
+        if len(rows) >= 12:
+            baseline = median(row["mean"] for row in rows)
+            audit.extend({"period": row["period"], "value": row["mean"]} for row in rows if extreme_price(row["mean"], baseline))
+            rows = [row for row in rows if not extreme_price(row["mean"], baseline)]
         entry = {"label": meta["label"], "seriesId": sid, "unit": rows[-1]["unit"] if rows else None}
+        if audit:
+            entry["priceQuality"] = {"excluded": audit, "rule": "Valores fuera del rango mediana ÷ 10 a mediana × 10 de la misma serie; unidad original sin confirmar."}
         if len(rows) >= 24:
             idx = seasonal_index(rows)
             last = rows[-1]

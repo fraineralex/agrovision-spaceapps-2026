@@ -37,3 +37,7 @@ En el CSV original, agosto de 2017, primera semana ordinal: fila 4 maíz Francé
 La licencia ODbL aparece en el [catálogo datos.gov.do](https://www.datos.gov.do/dataset/info); su aplicación al archivo descargado directamente del MA queda pendiente de revisión. Se conserva atribución y origen; no se relicencian estos datos como código del proyecto. Frainer debe revisar derechos de redistribución, filas excluidas y cálculos antes del envío.
 
 Integración pendiente del equipo de UI: consumir el artefacto y, si corresponde, exportarlo al contrato `web/public/data/prices-weekly.json`. Esta tarea no modifica `web/` ni `scripts/ml/`.
+
+## Control de precios extremos (2026-11-15)
+
+El CSV mayorista conserva «Kilo» y RD$8,000 en la quinta semana de junio y primera de julio de 2025 para papa Granola de primera. Las semanas inmediatas registran RD$48–53/kg. No se pudo confirmar una unidad alternativa en el catálogo de datos abiertos. El generador descarta valores normalizados fuera de [mediana ÷ 10, mediana × 10] con al menos 12 observaciones comparables. Aplica el filtro a semanas de series leídas directamente y revisa todas las series resultantes a escala mensual antes de calcular índices, promedios y escenarios. Se requieren dos semanas válidas para conservar un mes. La regla de detección es conservadora y no acredita exactitud ni corrige el registro original. El JSON registra observaciones excluidas y la ficha muestra la limitación. Nueve semanas marcadas en cuatro series: papa (2), auyama (2), berenjena (2) y repollo (3). Revisión por Frainer pendiente.
