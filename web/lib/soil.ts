@@ -5,7 +5,19 @@ export const soilSources = {
   rotation: { label: "FAO · Agricultura de conservación: diversificación de especies y rotación", url: "https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/" },
   legumes: { label: "FAO (2016) · Las legumbres y la biodiversidad", url: "https://fao.org/fileadmin/user_upload/pulses-2016/docs/factsheets/Biodiversity_SP_PRINT.pdf" },
   texture: { label: "FAO · Manual de riego n.º 1, capítulo 2: suelo y agua", url: "https://www.fao.org/4/r4082e/r4082e03.htm" },
+  color: { label: "Soil Science Society of America · El color del suelo (adaptado de Lynn y Pearson, 2000)", url: "https://www.soils4teachers.org/files/s4t/color-of-soil-handout-with-images.pdf" },
 } as const;
+
+/** Soil colour as the farmer sees it. A clue, not a soil test. */
+export type SoilColor = "negra" | "roja" | "amarilla" | "gris" | "blanca";
+export const colorNames: Record<SoilColor, string> = { negra: "Negra u oscura", roja: "Roja", amarilla: "Amarilla", gris: "Gris", blanca: "Blanca o muy clara" };
+export function colorNote(c: SoilColor): { title: string; text: string } {
+  if (c === "negra") return { title: "Tierra oscura: suele tener materia orgánica", text: "El color oscuro suele venir del humus, que es la materia orgánica ya descompuesta. Es buena señal. Dejar el rastrojo y rotar ayuda a mantenerla." };
+  if (c === "roja") return { title: "Tierra roja: tiene hierro", text: "El rojo viene de óxidos de hierro y es común en climas calientes. El color solo no dice cuántos nutrientes tiene: rotar con leguminosas y dejar rastrojo ayuda a cuidarla." };
+  if (c === "amarilla") return { title: "Tierra amarilla: tiene hierro", text: "El amarillo viene de otro óxido de hierro, que se forma en tierras donde entra el aire. El color solo no dice cuántos nutrientes tiene." };
+  if (c === "gris") return { title: "Tierra gris: puede encharcarse", text: "El gris aparece cuando la tierra pasa mucho tiempo llena de agua. Revisa el drenaje antes de sembrar, sobre todo en época de lluvia." };
+  return { title: "Tierra blanca o muy clara", text: "El color blanco suele venir de cal, yeso o arena lavada. Pregunta a tu técnico por un análisis antes de invertir en la siembra." };
+}
 
 /** Soil texture as the farmer declares it (local soil information; not measured by AgroVision). */
 export type SoilTexture = "arenosa" | "franca" | "arcillosa";
