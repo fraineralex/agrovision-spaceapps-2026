@@ -42,6 +42,55 @@ const Onboarding = dynamic(() => import("@/components/onboarding").then(module =
 const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <div className="map-placeholder"><div className="map-wrap map-loading" role="status">Cargando mapa…</div><div className="map-placeholder-tail" aria-hidden="true" /></div> });
 const SupervisorRotations = dynamic(() => import("@/components/supervisor-rotations").then(module => module.SupervisorRotations));
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
+const CLIMO_MONTHS = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+type MonthlyPoint = { month: number; temperatureC: number | null; precipitationMmDay: number | null };
+
+function Climograph12M({ monthly, activeMonth, onMonth }: { monthly: MonthlyPoint[]; activeMonth: number; onMonth: (m: number) => void }) {
+  const byMonth = Array.from({ length: 12 }, (_, idx) => monthly.find(item => item.month === idx + 1) ?? { month: idx + 1, temperatureC: null, precipitationMmDay: null });
+  const rains = byMonth.map(m => (m.precipitationMmDay != null ? m.precipitationMmDay * 30 : 0));
+  const temps = byMonth.map(m => m.temperatureC).filter((v): v is number => v != null);
+  if (temps.length === 0 && rains.every(r => r === 0)) return null;
+  const maxRain = Math.max(10, ...rains);
+  const minTemp = temps.length ? Math.min(...temps) - 1.5 : 15;
+  const maxTemp = temps.length ? Math.max(...temps) + 1.5 : 35;
+  const tempSpan = Math.max(2, maxTemp - minTemp);
+  const pts = byMonth.map((m, i) => {
+    const x = 15 + i * 30;
+    const t = m.temperatureC;
+    const y = t != null ? 62 - ((t - minTemp) / tempSpan) * 44 : null;
+    return { month: m.month, x, y, rain: rains[i], t };
+  });
+  const linePoints = pts.filter((p): p is typeof p & { y: number } => p.y != null).map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  return (
+    <div className="climograph-box">
+      <div className="climo-head">
+        <span>Curva anual NASA POWER (Ene–Dic)</span>
+        <span className="climo-legend">
+          <span><i className="climo-dot rain" />Lluvia (mm)</span>
+          <span><i className="climo-dot temp" />Temp (°C)</span>
+        </span>
+      </div>
+      <svg className="climo-svg" viewBox="0 0 360 84" role="img" aria-label="Curva anual de lluvia y temperatura de enero a diciembre">
+        {pts.map((p) => {
+          const barH = p.rain > 0 ? Math.max(8, (p.rain / maxRain) * 60) : 4;
+          const active = p.month === activeMonth;
+          return <rect key={p.month} x={p.x - 8} y={76 - barH} width={16} height={barH} rx={4} fill={active ? "#0284c7" : "#bae6fd"} />;
+        })}
+        {linePoints && <polyline points={linePoints} fill="none" stroke="#ea580c" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />}
+        {pts.map((p) => p.y != null && (
+          <circle key={p.month} cx={p.x} cy={p.y} r={p.month === activeMonth ? 4 : 2.5} fill={p.month === activeMonth ? "#ea580c" : "#ffffff"} stroke="#ea580c" strokeWidth={1.75} />
+        ))}
+      </svg>
+      <div className="climo-months">
+        {pts.map((p, idx) => (
+          <button key={p.month} type="button" className={`climo-m-btn${p.month === activeMonth ? " active" : ""}`} onClick={() => onMonth(p.month)} aria-label={`Mes ${monthNames[p.month - 1]}`} aria-pressed={p.month === activeMonth}>
+            {CLIMO_MONTHS[idx]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 const modeKey = "agrovision:view-mode";
 type ViewMode = "farmer" | "supervisor";
 
@@ -158,7 +207,8 @@ export default function Home() {
     return () => { current = false; };
   }, [needsCaseClimate, caseClimate]);
 
-  const selectedClimate = needsCaseClimate ? caseClimate?.monthlyClimatology.find(m => m.month === month) : context?.key === locationKey ? context.data.monthly.find(m => m.month === month) : null;
+  const selectedMonthlyClimate = (needsCaseClimate ? caseClimate?.monthlyClimatology : context?.key === locationKey ? context.data.monthly : null) ?? [];
+  const selectedClimate = selectedMonthlyClimate.find(m => m.month === month) ?? null;
   const province = chosen ? provinceAt(location) : undefined;
   const farmProvince = activeFarm?.province || province;
   const sanJuan = selectedParcel !== "location" || province === "San Juan";
@@ -352,6 +402,7 @@ export default function Home() {
 
               {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} help="Muestra el promedio de temperatura, lluvia y humedad de los últimos 10 años en tu zona." teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
                 {selectedClimate ? <>
+                  <Climograph12M monthly={selectedMonthlyClimate} activeMonth={month} onMonth={setMonth} />
                   <div className="climate-meters">
                     <div className="cmeter-card">
                       <div className="cmeter-head"><FarmIcon name="climate" size={20} /><span>Temperatura media</span></div>
