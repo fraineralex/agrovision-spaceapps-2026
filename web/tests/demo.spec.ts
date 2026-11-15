@@ -343,7 +343,11 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
 test("the voice button sends a dictated question when realtime setup fails", async ({ page }) => {
  const errors: string[] = [];
  page.on("pageerror", error => errors.push(error.message));
- await page.route("**/api/voice/setup?**", route => route.fulfill({ status: 503 }));
+ const setupMethods: string[] = [];
+ await page.route(/\/api\/voice\/setup(?:\?|$)/, route => {
+  setupMethods.push(route.request().method());
+  return route.fulfill({ status: 503 });
+ });
  await page.route("**/api/voice/chat", route => {
   expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
   return route.fulfill({ body: "Este es tu resumen." });
@@ -364,6 +368,7 @@ test("the voice button sends a dictated question when realtime setup fails", asy
  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
  await page.getByText("Ver conversación", { exact: true }).click();
  await expect(page.getByRole("log")).toContainText("Este es tu resumen.");
+ expect(setupMethods).toEqual(["HEAD"]);
  expect(errors).toEqual([]);
 });
 

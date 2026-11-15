@@ -55,6 +55,12 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     if (!stream || generation.current !== attempt || connectedAttempt.current === attempt) return;
     connectedAttempt.current = attempt;
     try {
+      const availability = await fetch("/api/voice/setup", { method: "HEAD", cache: "no-store" });
+      if (generation.current !== attempt) return;
+      if (!availability.ok) {
+        fallbackToDictation();
+        return;
+      }
       await realtime.connect({ stream });
     } catch (error) {
       if (generation.current !== attempt) return;
