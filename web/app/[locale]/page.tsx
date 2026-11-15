@@ -12,6 +12,7 @@ import { messages } from "@/lib/i18n/messages";
 import { cropLabel, localizedAdviceSentence, localizedOversupply, monthLabel } from "@/lib/i18n/advice";
 import { localizedRainAlert } from "@/lib/i18n/rain";
 import { sourceMessages } from "@/lib/i18n/source-messages";
+import { mapMessages } from "@/lib/i18n/map-messages";
 import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
@@ -49,7 +50,8 @@ const GuidedSale = dynamic(() => import("@/components/guided-sale").then(module 
 const SaleBudget = dynamic(() => import("@/components/sale-budget").then(module => module.SaleBudget));
 const ShareButton = dynamic(() => import("@/components/share-button").then(module => module.ShareButton));
 const Onboarding = dynamic(() => import("@/components/onboarding").then(module => module.Onboarding));
-const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <div className="map-placeholder"><div className="map-wrap map-loading" role="status">Cargando mapa…</div><div className="map-placeholder-tail" aria-hidden="true" /></div> });
+function MapLoading() { const locale = useLocale(); return <div className="map-placeholder"><div className="map-wrap map-loading" role="status">{mapMessages[locale].loading}</div><div className="map-placeholder-tail" aria-hidden="true" /></div>; }
+const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: MapLoading });
 const SupervisorRotations = dynamic(() => import("@/components/supervisor-rotations").then(module => module.SupervisorRotations));
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 const CLIMO_MONTHS = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];

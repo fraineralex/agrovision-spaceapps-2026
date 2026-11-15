@@ -5,6 +5,7 @@ import type { SoilColor, SoilTexture } from "@/lib/soil";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
+import { mapMessages } from "@/lib/i18n/map-messages";
 import dynamic from "next/dynamic";
 import { LanguageSelector } from "@/components/language-selector";
 import { FarmIcon } from "@/components/farm-icon";
@@ -17,7 +18,8 @@ import { areaLabel, centroid, newFarmId, piecesAreaM2, type Farm, type Piece } f
 import type { Irrigation, Priority } from "@/lib/data";
 
 export type FarmProfile = Farm;
-const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: () => <div className="picker-map map-loading" role="status">Cargando mapa…</div> });
+function PickerLoading() { const locale = useLocale(); return <div className="picker-map map-loading" role="status">{mapMessages[locale].loading}</div>; }
+const FarmPicker = dynamic(() => import("@/components/farm-picker").then(module => module.FarmPicker), { loading: PickerLoading });
 const STEPS = 3;
 function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" className={on ? "ob-choice on" : "ob-choice"} aria-pressed={on} onClick={onClick}>{children}</button>;

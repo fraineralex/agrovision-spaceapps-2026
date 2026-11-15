@@ -1,6 +1,9 @@
 /* AI: Codex/OpenAI, 2026-11-14; Frainer review pending. */
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { mapMessages } from "@/lib/i18n/map-messages";
+import { localizeMapControls, mapLibreStrings } from "@/lib/i18n/map-controls";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { findParcel, parcelCollection as parcels, parcelEvidence, parcelFillColor, signalLabels, type ParcelSelection } from "@/lib/map/parcels";
 import boundaries from "@/public/data/provinces.json";
@@ -13,22 +16,27 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 type Props = { selected: string; onSelect: (id: string, parcel?: ParcelSelection) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void; advanced?: boolean };
 const layers = [
-  { id: "MODIS_Terra_NDVI_8Day", label: "NDVI", level: 9, detail: "MODIS Terra · visualización de 8 días · 250 m · NDVI sin unidad; baja confianza a escala de parcela" },
-  { id: "IMERG_Precipitation_Rate", label: "Lluvia IMERG", level: 6, detail: "GPM IMERG · visualización diaria · ~10 km · mm/h; contexto regional" },
-];
+  { id: "MODIS_Terra_NDVI_8Day", labelKey: "ndvi", level: 9, detailKey: "ndviDetail" },
+  { id: "IMERG_Precipitation_Rate", labelKey: "imerg", level: 6, detailKey: "imergDetail" },
+] as const;
+
 function tileCoordinates(tile: typeof sample.tiles[number]): [[number, number], [number, number], [number, number], [number, number]] {
   const longitude = (x: number) => x / 2 ** tile.zoom * 360 - 180;
   const latitude = (y: number) => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / 2 ** tile.zoom))) * 180 / Math.PI;
   return [[longitude(tile.x), latitude(tile.y)], [longitude(tile.x + 1), latitude(tile.y)], [longitude(tile.x + 1), latitude(tile.y + 1)], [longitude(tile.x), latitude(tile.y + 1)]];
 }
 export function MapPanel({ selected, onSelect, location, onLocation, onField, advanced = false }: Props) {
+  const locale = useLocale();
+  const text = mapMessages[locale];
+  const localeRef = useRef(locale);
+  useEffect(() => { localeRef.current = locale; }, [locale]);
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const [activeLayer, setActiveLayer] = useState("");
   const [remote, setRemote] = useState(false);
   const [opacity, setOpacity] = useState(0.4);
   const [date, setDate] = useState("2026-11-01");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<"remoteUnavailable" | "outside" | "mapUnavailable" | "">("");
   const [mapReady, setMapReady] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   useEffect(() => {
@@ -36,14 +44,14 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
     void import("maplibre-gl").then((module) => {
       if (disposed || !container.current) return;
       module.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const instance = new module.Map({ container: container.current, style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION }, labels: { type: "raster", tiles: ESRI_LABEL_TILES, tileSize: 256, maxzoom: 19, attribution: "Esri" } }, layers: [{ id: "background", type: "background", paint: { "background-color": "#e1e9e1" } }, { id: "esri-imagery", type: "raster", source: "imagery" }] }, center: [-70.2, 18.8], zoom: 7.3, maxZoom: 19, pitch: 0, locale: {"Map.Title":"Mapa","NavigationControl.ZoomIn":"Acercar","NavigationControl.ZoomOut":"Alejar","NavigationControl.ResetBearing":"Orientar al norte","AttributionControl.MapFeedback":"Comentarios del mapa","AttributionControl.ToggleAttribution":"Mostrar fuentes"}, attributionControl: {}, canvasContextAttributes: { preserveDrawingBuffer: true } });
+      const instance = new module.Map({ container: container.current, style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION }, labels: { type: "raster", tiles: ESRI_LABEL_TILES, tileSize: 256, maxzoom: 19, attribution: "Esri" } }, layers: [{ id: "background", type: "background", paint: { "background-color": "#e1e9e1" } }, { id: "esri-imagery", type: "raster", source: "imagery" }] }, center: [-70.2, 18.8], zoom: 7.3, maxZoom: 19, pitch: 0, locale: mapLibreStrings(localeRef.current), attributionControl: {}, canvasContextAttributes: { preserveDrawingBuffer: true } });
       map.current = instance;
       instance.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3,duration:0});
       instance.on("idle", () => {
         setMapLoaded(true);
         container.current?.setAttribute("data-rendered-parcels", String(instance.queryRenderedFeatures({ layers: ["parcels"] }).length));
       });
-      instance.on("error", () => setError("Imágenes remotas no disponibles. El contexto NASA guardado está disponible al alejar el mapa. Esri requiere conexión."));
+      instance.on("error", () => setError("remoteUnavailable"));
       instance.on("load", () => {
         if (disposed) return;
         for (const tile of [...sample.tiles].sort((a, b) => Number(b.id.startsWith("BlueMarble")) - Number(a.id.startsWith("BlueMarble")) || a.zoom - b.zoom)) {
@@ -58,7 +66,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
         instance.addLayer({ id:"province-lines",type:"line",source:"provinces",paint:{"line-color":"#eef5d5","line-width":1.5} });
         instance.addSource("point", {type:"geojson",data:{type:"FeatureCollection",features:[]}});
         instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#DDFF86","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
-        instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels","fields-fill"].filter(l=>instance.getLayer(l))}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("Selecciona un punto terrestre de República Dominicana."); });
+        instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels","fields-fill"].filter(l=>instance.getLayer(l))}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("outside"); });
         instance.addSource("parcels", { type: "geojson", promoteId: "parcelId", data: parcels as GeoJSON.FeatureCollection });
         instance.addLayer({ id: "parcels", type: "fill", source: "parcels", minzoom: 11, paint: { "fill-color": parcelFillColor(), "fill-opacity": 0.18 } });
         instance.addLayer({ id: "outlines", type: "line", source: "parcels", minzoom: 11, paint: { "line-color": parcelFillColor(), "line-width": 1.8 } });
@@ -84,9 +92,10 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
         instance.addControl(new module.NavigationControl({ visualizePitch: true }), "top-right");
         setMapReady(true);
       });
-    }).catch(() => setError("Mapa no disponible. Selecciona una provincia con los controles."));
+    }).catch(() => setError("mapUnavailable"));
     return () => { disposed = true; map.current?.remove(); map.current = null; };
   }, [onSelect, onLocation, onField]);
+  useEffect(() => { if (mapReady && container.current) localizeMapControls(container.current, locale); }, [mapReady, locale]);
   useEffect(() => {
     const instance = map.current;
     if (!instance || !mapReady) return;
@@ -115,18 +124,15 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
   }, [activeLayer, remote, date, opacity, mapReady, advanced]);
   const layer = layers.find((item) => item.id === activeLayer);
   return <>
-    <div className="map-wrap"><div id="map" role="region" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
-      {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Preparando mapa… Puedes seleccionar una provincia arriba.</p></div>}
+    <div className="map-wrap"><div id="map" role="region" data-loaded={mapLoaded} ref={container} aria-label={text.mapRegion} />
+      {!mapReady && <div className="map-fallback"><strong>{text.country}</strong><p>{text.preparing}</p></div>}
     </div>
-    <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>Ver fincas de San Juan</Button></div>
-    {advanced && <details className="map-caption"><summary>Más capas de la NASA</summary><div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.label}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> Ver imagen más reciente (requiere internet)</label></div></details>}
-    <p className="map-caption">Toca tu finca en el mapa. Líneas amarillas: fincas aproximadas detectadas por satélite (no catastrales). Colores: verdor de la vegetación.</p>
-    <div className="spectral-legend-card" aria-label="Verdor de parcelas">
-      <div className="spectral-gradient-bar" aria-hidden="true" />
-      <div className="pillar-legend"><span><i className="light red"/>Verdor bajo (&lt;0,3)</span><span><i className="light amber"/>Intermedio (0,3–0,5)</span><span><i className="light green"/>Alto (&ge;0,5)</span><span><i className="light gray"/>Sin datos</span></div>
-    </div>
-    {advanced && activeLayer && <label className="timeline">Opacidad NASA <input aria-label="Opacidad NASA" type="range" min="0" max="0.8" step="0.05" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/></label>}
-    {advanced && remote && <label className="timeline">Fecha de imagen <input aria-label="Fecha de imagen" type="date" min="2026-10-01" max="2026-11-10" value={date} onChange={(event) => setDate(event.target.value)} /></label>}
-    <details className="map-caption"><summary>Fuentes del mapa y estado de imágenes</summary><div aria-live="polite">{error || (remote ? `Imagen en línea solicitada: ${date}. Si falla se conserva la imagen guardada.` : "Esri World Imagery · detalle hasta zoom 19 · requiere conexión. Contexto NASA guardado · 2026-11-01 · sin conexión al alejar.")}<br />{layer?.detail ?? "Esri / Maxar / Earthstar Geographics; fechas de captura variables, sin verificar por parcela. NASA Blue Marble solo como contexto sin conexión."}<br />{layer && "Colores de visualización NASA; no se infieren valores numéricos. "}Límites generales geoBoundaries / Natural Earth (2022, dominio público), no catastrales. © NASA EOSDIS GIBS.</div></details>
+    <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>{text.wholeCountry}</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>{text.seeSanJuan}</Button></div>
+    {advanced && <details className="map-caption"><summary>{text.moreLayers}</summary><div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.labelKey === "ndvi" ? "NDVI" : text.imerg}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> {text.latest}</label></div></details>}
+    <p className="map-caption">{text.mapCaption}</p>
+    <div className="spectral-legend-card" aria-label={text.greenness}><div className="spectral-gradient-bar" aria-hidden="true" /><div className="pillar-legend"><span><i className="light red"/>{text.low}</span><span><i className="light amber"/>{text.mid}</span><span><i className="light green"/>{text.high}</span><span><i className="light gray"/>{text.unknown}</span></div></div>
+    {advanced && activeLayer && <label className="timeline">{text.opacity} <input aria-label={text.opacity} type="range" min="0" max="0.8" step="0.05" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/></label>}
+    {advanced && remote && <label className="timeline">{text.imageDate} <input aria-label={text.imageDate} type="date" min="2026-10-01" max="2026-11-10" value={date} onChange={(event) => setDate(event.target.value)} /></label>}
+    <details className="map-caption"><summary>{text.sources}</summary><div aria-live="polite">{error ? text[error] : remote ? text.onlineRequest.replace("{date}", date) : text.savedImagery}<br />{layer ? text[layer.detailKey] : text.defaultDetail}<br />{layer && <>{text.nasaColors} </>}{text.boundaries}</div></details>
   </>;
 }

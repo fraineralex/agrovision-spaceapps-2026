@@ -183,3 +183,12 @@ test("market messages and source limitations stay aligned", () => {
   assert.deepEqual([...marketMessages.es.limits], marketLimits);
   assert.equal(marketMessages.en.limits.length, marketLimits.length);
 });
+
+import { mapMessages } from "./i18n/map-messages";
+test("map labels have matching keys and fields", () => {
+  assert.deepEqual(leafKeys(mapMessages.en), leafKeys(mapMessages.es));
+  for (const key of Object.keys(mapMessages.en) as Array<keyof typeof mapMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(mapMessages.en[key]), placeholders(mapMessages.es[key]), key);
+  }
+});

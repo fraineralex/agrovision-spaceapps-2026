@@ -229,3 +229,35 @@ test("market prices, selected month and sources remain unchanged across language
   expect(await market.locator(".sources-box a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
   await expect(market.getByText("Wholesale prices in Santo Domingo, not farm-gate prices.")).toBeVisible();
 });
+
+test("farm marking map switches language without losing marked area", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/es");
+  await page.getByRole("button", { name: "Agregar mi finca", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+  await dialog.getByRole("button", { name: "San Juan", exact: true }).click();
+  await dialog.getByRole("button", { name: /Marcar la finca en el mapa/ }).click();
+  const map = dialog.getByTestId("farm-picker-map");
+  await expect(map).toHaveAttribute("data-ready", "true", { timeout: 25000 });
+  await map.locator("canvas").click({ position: { x: 90, y: 150 } });
+  await expect(dialog.locator(".picker-total")).toContainText("Marcado:");
+  const area = (await dialog.locator(".picker-total strong").innerText()).replace("Marcado: ", "");
+  await dialog.getByLabel("Idioma").selectOption("en");
+  const english = page.getByRole("dialog", { name: "Tell us about your farm" });
+  await expect(english.getByRole("button", { name: "Tap squares" })).toBeVisible();
+  await expect(english.locator(".picker-total strong")).toHaveText(`Marked: ${area}`);
+  await expect(english.getByTestId("farm-picker-map").locator("canvas")).toHaveAttribute("aria-label", "Map");
+  await expect(english.getByRole("button", { name: "Zoom in" })).toBeVisible();
+  await english.getByLabel("Language").selectOption("es");
+  await expect(dialog.locator(".picker-total strong")).toHaveText(`Marcado: ${area}`);
+});
+
+test("map navigation control labels follow the selected language", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("tab", { name: "Fincas" }).click();
+  const zoom = page.locator("#map .maplibregl-ctrl-zoom-in");
+  await expect(zoom).toHaveAttribute("aria-label", "Acercar mapa", { timeout: 25000 });
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(zoom).toHaveAttribute("aria-label", "Zoom in");
+  await expect(page.getByRole("region", { name: /Map of the Dominican Republic/ })).toBeVisible();
+});
