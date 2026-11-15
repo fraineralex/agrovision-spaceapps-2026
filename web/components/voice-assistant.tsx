@@ -1,3 +1,4 @@
+/* AI: Codex/OpenAI with Impeccable, 2026-11-15. Application composition and shared UI; Frainer review pending. See AI_USAGE.md. */
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
@@ -314,10 +315,10 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const hasConversation = realtime.messages.length > 0 || messages.length > 0 || isSpeakingOrListening || Boolean(notice);
   const hangUp = () => stopVoice("Micrófono apagado.", false);
   return <>
-    <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
+    {defaultOpenWrite && <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
       <div className="voice-bar-head">
-        <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>
-        <span>Toca el botón verde de hablar en cualquier sección o escribe tu consulta aquí</span>
+        <h2><AudioLines aria-hidden="true" size={21}/> Tu consulta</h2>
+        <span>Escribe tu pregunta o usa la voz.</span>
       </div>
       {voiceError && !active && notice && <p className={session.error} role="status">{notice}</p>}
       {(realtime.messages.length > 0 || messages.length > 0) && (
@@ -362,7 +363,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
         </div>
         <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
       </div>
-    </section>
+    </section>}
 
     <div className="voice-floating-shell" aria-live="polite">
       {drawerOpen && hasConversation && (

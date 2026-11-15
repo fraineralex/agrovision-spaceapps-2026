@@ -133,7 +133,25 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
       {status && <p role="status" className="note">{status}</p>}
       <div className="picker-total" aria-live="polite"><strong>{pieces.length ? `Marcado: ${areaLabel(total)}` : "Aún no has marcado nada"}</strong>
         {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>Borrar todo</button>}</div>
-      {pieces.length > 0 && <ul className="picker-pieces">{pieces.slice(-4).map(p => <li key={p.id}>{p.kind === "cell" ? "Cuadro" : p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}<button type="button" aria-label="Quitar" className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}><X size={16} aria-hidden="true" /></button></li>)}{pieces.length > 4 && <li>…y {pieces.length - 4} más</li>}</ul>}
+      {pieces.length > 0 && (() => {
+        const cellPieces = pieces.filter(x => x.kind === "cell");
+        const otherPieces = pieces.filter(x => x.kind !== "cell");
+        const cellsArea = cellPieces.reduce((sum, x) => sum + ringAreaM2(x.ring), 0);
+        return <ul className="picker-pieces">
+          {cellPieces.length > 0 && (
+            <li key="cells">
+              <span>{cellPieces.length === 1 ? `Cuadro: ${areaLabel(cellsArea)}` : `${cellPieces.length} cuadros: ${areaLabel(cellsArea)}`}</span>
+              <button type="button" aria-label={cellPieces.length === 1 ? "Quitar" : "Quitar cuadros"} className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.kind !== "cell"))}><X size={14} aria-hidden="true" /></button>
+            </li>
+          )}
+          {otherPieces.map(p => (
+            <li key={p.id}>
+              <span>{p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}</span>
+              <button type="button" aria-label="Quitar" className="ob-link picker-remove" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}><X size={14} aria-hidden="true" /></button>
+            </li>
+          ))}
+        </ul>;
+      })()}
     </div>
   </div>;
 }

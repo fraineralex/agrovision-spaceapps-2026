@@ -37,14 +37,15 @@ export function useRain(location: Location | null) {
   return { forecast, cached, error, fresh: Boolean(forecast && data && isFreshForecast(forecast, Math.max(data.loadedAt, clock))), loadedAt: data ? Math.max(data.loadedAt, clock) : undefined, alert: forecast ? rainAlert(forecast) : null };
 }
 
-export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
+export function RainCard({ rain, supervisor = false }: { rain: ReturnType<typeof useRain>; supervisor?: boolean }) {
   const { forecast, cached, error, alert } = rain;
   const fetched = forecast?.fetchedAt ? new Date(forecast.fetchedAt) : null;
   const ageHours = fetched ? Math.max(0, Math.floor(((rain.loadedAt ?? fetched.getTime()) - fetched.getTime()) / 3600000)) : null;
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   if (!forecast) return <p role="status">{error || "Buscando el pronóstico…"}</p>;
   const days = forecast.days;
-  const maxRain = Math.max(10, ...days.map(day => day.rainMm));
+  const peakRain = Math.max(...days.map(day => day.rainMm), 0);
+  const maxRain = peakRain > 0 ? Math.max(4, peakRain * 1.15) : 10;
   const defaultIdx = Math.max(0, days.findIndex(d => d.rainMm >= 5));
   const activeIdx = selectedIdx !== null && selectedIdx < days.length ? selectedIdx : defaultIdx;
   const activeDay = days[activeIdx];
@@ -68,6 +69,11 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
       <span className={`rain-badge-kind ${alert?.level ?? "normal"}`}>
         {forecast.kind === "forecast" ? "Pronóstico regional · 7 días" : "Estimación de días pasados"}
       </span>
+      {supervisor && (
+        <span className="rain-model-chip">
+          {forecast.source === "open-meteo" ? (forecast.model === "gfs_global" ? "NOAA GFS ~13 km · GEFS ~25 km" : "Open-Meteo") : "NASA POWER ~50 km"}
+        </span>
+      )}
       {cached && <span className="rain-cached">Copia guardada{ageHours === null ? "" : ageHours < 1 ? " · hace menos de 1 h" : " · hace " + ageHours + " h"}</span>}
       {alert?.sentence && <span className="rain-summary-pill">{alert.sentence}</span>}
     </div>
@@ -77,27 +83,26 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
           <span>Acumulado 7d: <strong>{total7dMm} mm</strong></span>
           <span>Días con lluvia (≥5 mm): <strong>{rainyDays} de {days.length}</strong></span>
         </div>
-        <svg className="rain-wave-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="rainWaveGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0284c7" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.02" />
-            </linearGradient>
-          </defs>
-          <path d={areaPath} fill="url(#rainWaveGrad)" />
-          <path d={linePath} fill="none" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <div className="rain-wave-plot">
+          <svg className="rain-wave-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="rainWaveGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0284c7" stopOpacity="0.28" />
+                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.02" />
+              </linearGradient>
+            </defs>
+            <path d={areaPath} fill="url(#rainWaveGrad)" />
+            <path d={linePath} fill="none" stroke="#0284c7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          </svg>
           {pts.map((p, idx) => (
-            <circle
+            <span
               key={days[idx].date}
-              cx={p.x}
-              cy={p.y}
-              r={idx === activeIdx ? 5 : 3.5}
-              fill={p.wet || idx === activeIdx ? "#0284c7" : "#d97706"}
-              stroke="#ffffff"
-              strokeWidth="1.5"
+              className={`rain-wave-dot${p.wet || idx === activeIdx ? " is-wet" : ""}${idx === activeIdx ? " is-active" : ""}`}
+              style={{ left: `${(p.x / w) * 100}%`, top: `${(p.y / h) * 100}%` }}
+              aria-hidden="true"
             />
           ))}
-        </svg>
+        </div>
       </div>
     )}
     <ol className="rain-days" aria-label={forecast.kind === "forecast" ? "Próximos 7 días" : "Últimos días"}>
@@ -105,14 +110,14 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
         const wet = day.rainMm >= 5;
         const mix = !wet && (day.rainMm > 0 || (day.probPct ?? 0) >= 50);
         const Icon = wet ? CloudRain : mix ? CloudSun : Sun;
-        const barPct = day.rainMm > 0 ? Math.max(10, Math.round((day.rainMm / maxRain) * 100)) : 4;
+        const barPct = day.rainMm > 0 ? Math.max(12, Math.round((day.rainMm / maxRain) * 100)) : 4;
         const isSelected = idx === activeIdx;
         return <li key={day.date} className={`${wet ? "rain-wet" : mix ? "rain-mix" : "rain-dry"}${isSelected ? " is-selected" : ""}`}>
           <button type="button" className="rain-day-btn" aria-pressed={isSelected} onClick={() => setSelectedIdx(idx)}>
             <time dateTime={day.date} className="rain-day"><abbr title={dayName(day.date)}>{dayName(day.date).slice(0, 3)}</abbr><small>{shortDate(day.date)}</small></time>
             <span className="rain-glyph-wrap" aria-hidden="true">
               <Icon className="rain-symbol" />
-              {wet && <span className="rain-drops"><i /><i /><i /></span>}
+              {(wet || (mix && day.rainMm > 0)) && <span className="rain-drops"><i /><i /><i /></span>}
             </span>
             <span className="rain-bar-track" aria-hidden="true"><span style={{ height: `${barPct}%`, animationDelay: `${idx * 45}ms` }}/></span>
             <strong className="rain-amount">{day.rainMm > 0 && day.rainMm < 1 ? "<1" : Math.round(day.rainMm)} <small>mm</small></strong>

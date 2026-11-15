@@ -5,6 +5,8 @@ import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { HeroRecommendation, MetricTile, RiskPill, SourceChip, Stars, WaterGauge } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
+import { PestOverview } from "@/components/pest-overview";
+import { PlantingPanel, CropIdentity, CropSourceButton, PlantingPillars } from "@/components/planting-ui";
 import { CustomSelect } from "@/components/custom-select";
 import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
@@ -22,29 +24,26 @@ const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rai
 
 type Props = {
   province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[];
-  onEdit: () => void; onTop?: (crop: CropId) => void; onSowMonth?: (month: number) => void;
+  supervisor?: boolean; onEdit: () => void; onTop?: (crop: CropId) => void; onSowMonth?: (month: number) => void;
 };
 
-function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources: () => void }) {
+function CropRow({ a, top, supervisor, onSources }: { a: CropAdvice; top: boolean; supervisor: boolean; onSources: () => void }) {
   const rowLight = lightFor(a.overall);
   const pct = a.overall === null ? 12 : Math.max(15, Math.min(100, Math.round((a.overall / 5) * 100)));
   const alertCount = a.pestPrecautions.length + (a.repeats ? 1 : 0);
+  const techSubtitle = supervisor ? (a.cycleDays > 0 ? `Ciclo ~${a.cycleDays} d · ${a.kcDays} Kc·d` : `Permanente · ${a.kcDays} Kc·d`) : null;
   return <li className={top ? "crop-row top" : "crop-row"}>
-    <div className="crop-row-head">
-      <span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span>
-      <div className="crop-row-title">
-        <strong>{a.name}</strong>
-      </div>
-      {top && a.overall !== null && <span className="badge top-badge">Top</span>}
-      {!a.viable && <span className="badge gray">Sin riego</span>}
-      <button type="button" className="src-button icon-only" onClick={onSources} aria-label={`Por qué ${a.name}: explicación y fuentes`} title="Explicación y fuentes">
-        <Info aria-hidden="true" size={16} />
-      </button>
+    <CropIdentity name={a.name} crop={a.crop} recommended={top && a.overall !== null} action={<CropSourceButton name={a.name} onClick={onSources}/>}>
+      {techSubtitle && <small className="crop-tech-meta">{techSubtitle}</small>}
+    </CropIdentity>
+    {!a.viable && <span className="planting-note">Sin riego</span>}
+    <div className="crop-row-rating">
+      <Stars score={a.overall} size={18} />
+      {supervisor && a.overall !== null && <strong className="rating-numeric">{a.overall.toFixed(1)}</strong>}
+      <div className="crop-row-meter" aria-hidden="true"><span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} /></div>
     </div>
-    <div className="crop-row-rating"><Stars score={a.overall} size={19} /><div className="crop-row-meter" aria-hidden="true"><span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} /></div></div>
-    <div className="pillar-row">{pillarInfo.map(pi => { const c = a.lights[pi.id]; return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-      <FarmIcon name={pi.icon} size={13} /><span>{pi.label}</span></span>; })}</div>
-    {alertCount > 0 && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precaución ({alertCount})</summary>{a.repeats && <p className="warning">Repetir {a.name.toLowerCase()} puede mantener plagas.</p>}{a.pestPrecautions.map(note => <p key={note} className="warning"><span>{note}</span></p>)}</details>}
+    <PlantingPillars advice={a} showScores={supervisor}/>
+    {alertCount > 0 && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precaución ({alertCount})</summary><PestOverview advice={a}/></details>}
   </li>;
 }
 
@@ -63,6 +62,7 @@ export function AdvisorCard(p: Props) {
   const notes = [...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])];
   const summary = [sentence, ...notes, "Confirma el agua disponible con tu técnico."].join(" ");
   const { reading, read, stop } = useReadAloud();
+  const supervisor = Boolean(p.supervisor);
   const light = lightFor(top?.overall ?? null);
   const greenCount = advice.filter(a => lightFor(a.overall) === "green").length;
   const amberCount = advice.filter(a => lightFor(a.overall) === "amber").length;
@@ -96,12 +96,13 @@ export function AdvisorCard(p: Props) {
           <span className="crop-illustration" aria-hidden="true"><FarmIcon name={top.crop} size={60} /></span>
           <div className="recommendation-score">
             <Stars score={top.overall} />
-            <span>{lightWord[light]}</span>
+            <span>{lightWord[light]}{supervisor ? ` · ${top.overall.toFixed(1)}/5` : ""}</span>
           </div>
         </div>
         <p className="advisor-reason">{reason}</p>
         <div className="recommendation-meta">
           <span><Wheat aria-hidden="true" size={17} /> <strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong><small>Cosecha aprox.</small></span>
+          {supervisor && <span className="tech-meta-pill">FAO-56: {top.cycleDays > 0 ? `${top.cycleDays} d` : "Permanente"} · {top.kcDays} Kc·d</span>}
           <SourceChip href={climate.source.url}>NASA POWER</SourceChip>
         </div>
         <RiskPill>{loss ? "Posible pérdida al precio mayorista" : notes[0]?.split(". ")[0] || "Confirma el agua y suelo"}</RiskPill>
@@ -110,33 +111,33 @@ export function AdvisorCard(p: Props) {
     {top && <div className="metric-tiles" role="group" aria-label={`Por qué ${top.name}: agua, sequía, plagas y precio`}>
       {pillarInfo.map(({ id, label, icon }) => {
         const c = top.lights[id];
+        const score = top.scores[id];
+        const baseDetail = id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.pestState === "different" ? "Según las guías de RD" : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ");
         return (
-          <MetricTile key={id} label={label}
+          <MetricTile key={id} label={supervisor && score !== null ? `${label} · ${score.toFixed(1)}/5` : label}
             icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + c}
-            value={top.titles[id]} detail={id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.pestState === "different" ? "Según las guías de RD" : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ")}>
+            value={top.titles[id]} detail={baseDetail}>
             {id === "water" && <WaterGauge value={top.scores.water} />}
           </MetricTile>
         );
       })}
     </div>}
-    {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
+    {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>Voz generada con IA</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
 
-    <section className="compare-fold crop-comparison" aria-labelledby="crop-comparison-title">
-      <div className="crop-comparison-head">
-        <h2 id="crop-comparison-title" className="compare-summary-title"><CalendarDays aria-hidden="true" /> Todos los cultivos ({p.crops.length})</h2>
-        <span className="crops-dist-pills">
+    <PlantingReview province={p.province} irrigation={p.irrigation} previous={p.previous} sowMonth={p.sowMonth} priority={p.priority} crops={p.crops} />
+
+    <PlantingPanel id="crop-comparison" title={`Todos los cultivos (${p.crops.length})`} icon={CalendarDays} className="crop-comparison" tools={<span className="crops-dist-pills">
           {greenCount > 0 && <em className="dist-pill green">{greenCount} Bien</em>}
           {amberCount > 0 && <em className="dist-pill amber">{amberCount} Regular</em>}
           {redCount > 0 && <em className="dist-pill red">{redCount} Malo</em>}
-        </span>
-      </div>
+        </span>}>
       <div className="crops-dist-bar" aria-hidden="true">
         {greenCount > 0 && <span className="dist-seg green" style={{ flex: greenCount }} />}
         {amberCount > 0 && <span className="dist-seg amber" style={{ flex: amberCount }} />}
         {redCount > 0 && <span className="dist-seg red" style={{ flex: redCount }} />}
       </div>
-      <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop}>{cropNames[crop]} · sin datos todavía</li>)}</ul>
-    </section>
+      <ul className="crop-list" data-count={p.crops.length} aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} supervisor={supervisor} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop} className="crop-row crop-row-empty"><CropIdentity name={cropNames[crop]} crop={crop}/><p className="planting-note">Sin datos todavía</p></li>)}</ul>
+    </PlantingPanel>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
 
@@ -144,7 +145,7 @@ export function AdvisorCard(p: Props) {
 }
 
 export function PlantingReview(p: Pick<Props, "province" | "irrigation" | "previous" | "sowMonth" | "priority" | "crops">) {
-  const advice = useMemo(() => adviseNextCrop(p), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
+  const advice = useMemo(() => adviseNextCrop({province:p.province,irrigation:p.irrigation,previous:p.previous,sowMonth:p.sowMonth,priority:p.priority,crops:p.crops}), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
   const top = recommendedCrop(advice);
   if (!top) return null;
   const repeat = advice.find(item => item.repeats);

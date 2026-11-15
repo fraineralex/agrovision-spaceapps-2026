@@ -7,7 +7,7 @@ import type { VoiceSelection } from "@/lib/voice-context";
 
 const Assistant = dynamic(() => import("@/components/voice-assistant").then(module => module.VoiceAssistant), {
   ssr: false,
-  loading: () => <div className="voice-loading"><Mic size={20} aria-hidden="true" /> Preparando el asistente…</div>,
+  loading: () => <div className="voice-loading" role="status"><Mic size={20} aria-hidden="true" /> Preparando el asistente…</div>,
 });
 
 export function VoiceDock({ selection, openWrite }: { selection: VoiceSelection; openWrite: boolean }) {

@@ -7,9 +7,10 @@
   margin: 0 0 0 auto;
   padding: 9px 12px;
   border-radius: 10px;
-  background: var(--muted-surface);
-  color: var(--risk);
-  font-size: 15px;
+  background: var(--status-red-bg, #fdecec);
+  color: var(--status-red-fg, #991b1b);
+  border: 1px solid var(--status-red-border, #fca5a5);
+  font-size: 0.9375rem;
   text-align: center;
   pointer-events: none;
 }
@@ -17,32 +18,32 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   margin: 0;
   padding: 0;
-  border: 1px solid #14532d;
+  border: 1px solid var(--primary-hover, #0f4223);
   border-radius: 50%;
   isolation: isolate;
-  background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+  background: linear-gradient(135deg, var(--primary, #14532d) 0%, #176135 100%);
   color: #ffffff;
-  box-shadow: 0 8px 22px rgba(20, 83, 45, 0.34);
+  box-shadow: 0 8px 20px rgba(16, 36, 24, 0.24);
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 .orb:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(20, 83, 45, 0.42);
+  box-shadow: 0 12px 24px rgba(16, 36, 24, 0.3);
 }
 
 .orb svg { position: relative; width: 22px; height: 22px; }
 .orb:not([data-state="idle"]) {
-  width: 62px;
-  height: 62px;
-  border-color: #166534;
-  background: #14532d;
+  width: 58px;
+  height: 58px;
+  border-color: var(--primary, #14532d);
+  background: var(--primary, #14532d);
   color: #ffffff;
-  box-shadow: 0 8px 26px rgba(20, 83, 45, 0.4), 0 0 0 6px rgba(22, 163, 74, 0.22);
+  box-shadow: 0 8px 24px rgba(16, 36, 24, 0.32), 0 0 0 5px rgba(21, 128, 61, 0.2);
 }
 
 .orb:not([data-state="idle"])::after {

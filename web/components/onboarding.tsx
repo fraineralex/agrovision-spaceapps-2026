@@ -1,3 +1,4 @@
+/* AI: Codex/OpenAI with Impeccable, 2026-11-15. Application composition and shared UI; Frainer review pending. See AI_USAGE.md. */
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers; centered natural backdrop & unified SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
@@ -171,12 +172,14 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             <Choice on={previous === "otro"} onClick={() => setPrevious("otro")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>Otro</span></Choice>
             <Choice on={previous === "unknown"} onClick={() => setPrevious("unknown")}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>Nada / no sé</span></Choice></div>
           <div className="ob-step3-side">
+            <section className="ob-field-group">
             <h3 className="ob-sub">¿Tienes riego?</h3>
             <div className="ob-row" role="group" aria-label="¿Tienes riego?">
               <Choice on={irrigation === "irrigated"} onClick={() => setIrrigation("irrigated")}><Droplets size={19} aria-hidden="true" /> Sí {irrigation === "irrigated" && <Check size={18} aria-hidden="true" />}</Choice>
               <Choice on={irrigation === "rainfed"} onClick={() => setIrrigation("rainfed")}><CloudRain size={19} aria-hidden="true" /> No, de lluvia {irrigation === "rainfed" && <Check size={18} aria-hidden="true" />}</Choice>
               <Choice on={irrigation === "unconfirmed"} onClick={() => setIrrigation("unconfirmed")}><CircleHelp size={19} aria-hidden="true" /> No sé {irrigation === "unconfirmed" && <Check size={18} aria-hidden="true" />}</Choice>
             </div>
+            </section><section className="ob-field-group">
             <h3 className="ob-sub">¿Cómo es tu tierra? <small>(opcional)</small></h3>
             <div className="ob-row" role="group" aria-label="¿Cómo es tu tierra?">
               <Choice on={soilTexture === "arenosa"} onClick={() => setSoilTexture("arenosa")}>Arenosa</Choice>
@@ -185,6 +188,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               <Choice on={!soilTexture} onClick={() => setSoilTexture(undefined)}>No sé</Choice>
             </div>
             <p className="ob-hint">Arenosa: suelta, se escurre entre los dedos. Barro: se pega cuando se moja y se agrieta al secarse. Mezclada: ni arena ni barro, se desmorona fácil.</p>
+            </section><section className="ob-field-group">
             <h3 className="ob-sub">¿De qué color es tu tierra? <small>(opcional)</small></h3>
             <div className="ob-row" role="group" aria-label="¿De qué color es tu tierra?">
               <Choice on={soilColor === "negra"} onClick={() => setSoilColor("negra")}>Negra</Choice>
@@ -194,6 +198,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
               <Choice on={soilColor === "blanca"} onClick={() => setSoilColor("blanca")}>Blanca</Choice>
               <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>No sé</Choice>
             </div>
+            </section>
             <details className="ob-more ob-compare"><summary>Cambiar los cultivos que se comparan ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
               <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label="Cultivos para comparar">{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{cropNames[c]}{c === "ajo" ? " · sin datos todavía" : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
               <div className="ob-label ag-select-field"><span className="ag-select-label">Mes en que piensas sembrar</span><CustomSelect ariaLabel="Mes en que piensas sembrar" value={String(sowMonth)} options={monthNames.map((m, i) => ({ value: String(i + 1), label: m }))} onChange={val => setSowMonth(Number(val))} /></div>
@@ -204,7 +209,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       </div>}
       </div>
       <footer className="ob-footer">
-        <span className="ob-credit" aria-hidden="true">El Cercado, San Juan Valley</span>
+        <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan</span>
         {step > 0 && (step === 1 ? (initial.id ? <>
           <button type="button" className="ob-primary" onClick={finish}>Guardar cambios</button>
           <button type="button" className="link-button" onClick={next}>Cambiar cultivo o riego</button>

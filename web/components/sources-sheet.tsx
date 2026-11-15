@@ -10,6 +10,7 @@ import { rainWords } from "@/components/fao-giews";
 import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
 import type { Irrigation } from "@/lib/data";
 
+import { PestOverview } from "@/components/pest-overview";
 import { pestLimit, pestSources, pestsFor } from "@/lib/pests";
 
 const IDIAF_URL = "https://intranet.cedaf.org.do/digital/IDIAF.Habichuela.Compendio.guia.pdf";
@@ -96,6 +97,8 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
       </Block>
 
       <Block icon={<Bug />} title="Plagas" verdict={advice.words.pests} links={pestLinks}>
+        <PestOverview advice={advice}/>
+        <details className="pest-evidence"><summary>Detalles y límites</summary>
         {advice.pestPrecautions.map(note => <p key={note}>{note}</p>)}
         {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p></>}
         {advice.scores.pests === 5 && <p>El IDIAF cita el maíz como opción de rotación después de habichuela para problemas específicos de ese cultivo.</p>}
@@ -105,6 +108,7 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
         {advice.pestState === "unknown" && <p>Las guías que usamos no listan las plagas de {advice.name.toLowerCase()}. Pregunta a tu técnico.</p>}
         {advice.scores.pests === null && <p>Esta parte no suma ni resta estrellas: las guías solo listan las plagas principales y puede haber otras en tu zona.</p>}
         <p className="src-limit">{pestLimit}</p>
+        </details>
 
       </Block>
 

@@ -1,0 +1,30 @@
+/* AI: Codex/OpenAI, 2026-11-15. Restored historical dark palette; Frainer review pending. */
+:root:not([data-theme="sun"]) {
+ color-scheme: dark;
+ --background:#0b120d; --legacy-action:#2c5a38; --foreground:#ededce;
+ --primary:#ddff86; --primary-foreground:#0b120d; --card:#151e17; --elevated:#1d2a20;
+ --muted-surface:#213025; --muted:#b8c6b4; --muted-foreground:#b8c6b4;
+ --border:#37483a; --input:#6c826e; --focus:#ddff86; --success:#ddff86;
+ --water:#bed5e5; --risk:#ffa4a4; --caution:#e9ca8c; --glow:#304327;
+ --focus-outer:#0b120d; --shade:rgb(0 0 0 / .28);
+ --surface-hero-green:#18281b; --surface-hero-amber:#2b2619; --surface-hero-red:#2e1b1c; --surface-tint:#1d2a20;
+ --status-green-bg:#213b28; --status-green-fg:#d5efba; --status-green-border:#41684b;
+ --status-amber-bg:#382e1c; --status-amber-fg:#e9ca8c; --status-amber-border:#75613d;
+ --status-red-bg:#3b2328; --status-red-fg:#ffa4a4; --status-red-border:#77434b;
+ --status-water-bg:#1d303b; --status-water-fg:#bed5e5; --status-water-border:#496674;
+ --status-gray-bg:#28302b; --status-gray-fg:#c4cdc0; --status-gray-border:#59685b;
+ --track-bg:#304237;
+}
+:root:not([data-theme="sun"]) body { background:var(--background); }
+:root:not([data-theme="sun"]) :is(.ag-select-trigger,.ag-select-menu,.farm-action-button) { background:var(--card); color:var(--foreground); border-color:var(--input); }
+:root:not([data-theme="sun"]) .ag-select-option { color:var(--foreground); }
+:root:not([data-theme="sun"]) :is(.ag-select-trigger:hover,.ag-select-option:hover:not(:disabled)) { background:var(--elevated); color:var(--foreground); }
+:root:not([data-theme="sun"]) .ag-select-option.is-selected { background:var(--primary); color:var(--primary-foreground); }
+:root:not([data-theme="sun"]) .ag-select-chevron { color:var(--success); }
+:root:not([data-theme="sun"]) #siembra :is(.crop-row .pillar-chip,.option-row-card .pill) { background:var(--muted-surface); color:var(--foreground); border-color:var(--border); }
+:root:not([data-theme="sun"]) #siembra :is(.crop-row .pillar-chip.green,.option-row-card .pill.green,.dist-pill.green) { background:var(--status-green-bg); color:var(--status-green-fg); }
+:root:not([data-theme="sun"]) #siembra :is(.crop-row .pillar-chip.amber,.option-row-card .pill.amber,.dist-pill.amber) { background:var(--status-amber-bg); color:var(--status-amber-fg); }
+:root:not([data-theme="sun"]) #siembra :is(.crop-row .pillar-chip.red,.option-row-card .pill.red,.dist-pill.red) { background:var(--status-red-bg); color:var(--status-red-fg); }
+:root:not([data-theme="sun"]) #siembra :is(.crop-row .pillar-chip.gray,.option-row-card .pill.gray) { background:var(--status-gray-bg); color:var(--status-gray-fg); }
+
+:root:not([data-theme="sun"]) .heading-row .mode-switch button[aria-pressed="true"] { background:var(--primary); color:var(--primary-foreground); box-shadow:none; }

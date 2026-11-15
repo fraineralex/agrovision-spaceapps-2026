@@ -1,9 +1,11 @@
+/* AI: Codex/OpenAI with Impeccable, 2026-11-15. Application composition and shared UI; Frainer review pending. See AI_USAGE.md. */
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex/OpenAI, 2026-11-14; restructured for the farmer audit by Claude (Anthropic), 2026-11-14; Bento dashboard & KPI telemetry strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
+import { PlantingPanel } from "@/components/planting-ui";
 import { VoiceDock } from "@/components/voice-dock";
 import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
@@ -11,12 +13,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
 import type { FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
-import { ClipboardList, CloudRain, Download, MapPin, MessageCircle, Mic, Sprout } from "lucide-react";
+import { Bug, Leaf, ClipboardList, CloudRain, Download, MapPin, MessageCircle, Mic, Sprout } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, piecesToGeoJSON, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
 import { FieldWeek, PlantingPlan, BottomNav, type SectionTab } from "@/components/farm-workbench";
-import { HelpTip } from "@/components/help-tip";
+import { SectionPanel } from "@/components/ui/section-panel";
 import type { ShareSummary } from "@/components/share-button";
 import { adviceSentence, oversupplyFor, recommendedCrop } from "@/lib/advisor";
 import type { Priority, Irrigation } from "@/lib/data";
@@ -32,7 +34,6 @@ import type { ParcelSelection } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced";
 const AdvisorCard = dynamic(() => import("@/components/advisor-card").then(module => module.AdvisorCard));
-const PlantingReview = dynamic(() => import("@/components/advisor-card").then(module => module.PlantingReview));
 const MarketCard = dynamic(() => import("@/components/market-card").then(module => module.MarketCard));
 const SoilCard = dynamic(() => import("@/components/soil-card").then(module => module.SoilCard));
 const PestCard = dynamic(() => import("@/components/pest-card").then(module => module.PestCard));
@@ -236,15 +237,15 @@ export default function Home() {
         <span className="brand-mark"><FarmIcon name="soil" size={22}/></span>
         <span className="brand-text">
           <span>AgroVision</span>
-          <small className="brand-sub">NASA · FAO · Agricultura RD</small>
+
         </span>
       </div>
       <div className="header-actions"><OfflineStatus/><ThemeToggle/></div>
     </header>
-    <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
+    <main id="contenido" className={activeFarm ? "workspace app-workspace has-farm" : "workspace app-workspace"} tabIndex={-1}>
       <div className="heading-row">
         <div className="heading-copy">
-          <h1>{activeTab === "lluvia" ? "Lluvia" : activeTab === "venta" ? "Venta" : activeTab === "mapa" ? "Fincas" : activeTab === "preguntar" ? "Ayuda" : activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
+          <h1>{activeTab === "lluvia" ? "Lluvia" : activeTab === "venta" ? "Venta" : activeTab === "mapa" ? "Fincas" : activeTab === "preguntar" ? "Ayuda" : activeFarm ? "Siembra" : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
         </div>
         <div className="heading-controls">
           <div className="heading-toolbar">
@@ -265,16 +266,12 @@ export default function Home() {
         </div>
       )}
 
-      <BottomNav activeTab={activeTab} onSelectTab={tab => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} weekRainMm={weekRainMm}/>
+      <BottomNav activeTab={activeTab} onSelectTab={tab => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} weekRainMm={weekRainMm}/>{supervisor && <nav className="supervisor-bar" aria-label="Herramientas de supervisión"><span className="supervisor-bar-label"><ClipboardList size={15} aria-hidden="true"/> Vista técnica · Puntajes (0–5), FAO-56, taxonomía y fuentes abiertas</span><div className="supervisor-bar-links">{activeTab === "siembra" && chosen && <><a href="#crop-comparison">Comparativa</a><a href="#rotacion-y-suelo">Suelo FAO</a><a href="#plagas-a-vigilar">Plagas IDIAF</a></>}{activeTab === "lluvia" && <a href="#rain-forecast">Modelo NOAA/NASA</a>}{activeTab === "venta" && <><a href="#cuanto-me-deja">Costos MA 2019</a><a href="#precio-y-mercado">Precios</a></>}{activeTab === "mapa" && <><a href="#tu-finca-en-el-mapa">Satélite</a><a href="#rotaciones">San Juan</a></>}<a href="/fuentes">Fuentes</a></div></nav>}
 
       {activeTab === "siembra" && (
         <div id="panel-siembra" role="tabpanel" aria-labelledby="tab-siembra" className="tab-stage" key={`siembra-${activeFarm?.id ?? "none"}`}>
           {!chosen ? (
-            <section className="card panel quick-zone-card" aria-labelledby="quick-zone-title">
-              <div className="panel-head-row">
-                <h2 id="quick-zone-title" className="panel-title"><MapPin aria-hidden="true" className="panel-icon"/> Elige tu zona para ver recomendaciones</h2>
-                <HelpTip label="Elegir tu zona" text="Toca tu provincia o agrega tu finca para ver qué cultivos convienen hoy según agua, sequía, plagas y precio." />
-              </div>
+            <SectionPanel id="quick-zone" className="quick-zone-card" icon={MapPin} title="Elige tu zona para ver recomendaciones" help="Toca tu provincia o agrega tu finca para ver qué cultivos convienen hoy según agua, sequía, plagas y precio.">
               <p className="panel-intro">Con un toque ves qué cultivo conviene sembrar primero en tu provincia. También puedes registrar tu finca paso a paso.</p>
               <div className="quick-zone-grid">
                 {provinces.filter(p => ["San Juan", "Santiago", "La Vega", "Azua", "Monte Cristi", "Valverde"].includes(p.name)).map(p => (
@@ -294,28 +291,28 @@ export default function Home() {
                 <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
               </div>
               {gpsStatus && <p role="status">{gpsStatus}</p>}
-            </section>
+            </SectionPanel>
           ) : (
             <section id="siembra" aria-label="Recomendación y plan de siembra">
-              <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
+              <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} supervisor={supervisor} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
-                {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
-                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                </Fold>}
                 <OptionsCard
                   province={farmProvince}
                   irrigation={irrigation}
                   previous={previous}
                   sowMonth={month}
-                  crops={crops} />
-                <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica por qué cambiar de cultivo cuida la tierra: nutrientes, abono natural de las leguminosas y materia orgánica.">
-                  <SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture} color={activeFarm?.soilColor}/>
-                </Fold>
-                <Fold id="plagas-a-vigilar" icon="🐛" title="Plagas a vigilar" help="Lista las plagas principales de cada cultivo de tu lista según guías dominicanas, y si se repiten con tu cultivo anterior.">
-                  <PestCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
-                </Fold>
+                  crops={crops} supervisor={supervisor}>
+                {activeFarm && <section id="planting-plan" className="siembra-plan-card" aria-labelledby="planting-plan-heading"><h3 id="planting-plan-heading">Tu plan de siembra</h3>
+                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                </section>}
+                </OptionsCard>
+                <PlantingPanel id="rotacion-y-suelo" icon={Leaf} title="Rotación y suelo" help="Explica por qué cambiar de cultivo cuida la tierra: nutrientes, abono natural de las leguminosas y materia orgánica.">
+                  <SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture} color={activeFarm?.soilColor} supervisor={supervisor}/>
+                </PlantingPanel>
+                <PlantingPanel id="plagas-a-vigilar" icon={Bug} title="Plagas a vigilar" help="Lista las plagas principales de cada cultivo de tu lista según guías dominicanas, y si se repiten con tu cultivo anterior.">
+                  <PestCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} supervisor={supervisor}/>
+                </PlantingPanel>
                 <ShareButton summary={shareSummary}/>
-                <PlantingReview province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
               </div>
             </section>
           )}
@@ -324,47 +321,41 @@ export default function Home() {
 
       {activeTab === "lluvia" && (
         <div id="panel-lluvia" role="tabpanel" aria-labelledby="tab-lluvia" className="tab-stage" key={`lluvia-${activeFarm?.id ?? "none"}`}>
-          <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought?.label} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
+          <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought?.label} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} supervisor={supervisor} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
         </div>
       )}
 
       {activeTab === "venta" && (
         <div id="panel-venta" role="tabpanel" aria-labelledby="tab-venta" className="tab-stage">
-          <div className="home-grid">
-            <div className="col-main">
-              <Fold id="cuanto-me-deja" icon="💵" title="¿Cuánto me deja?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder.">
-                <a className="workbench-button" href="#precio-y-mercado">Ver precios del mercado</a>
+          <div className="sales-workspace">
+              <Fold id="cuanto-me-deja" icon="💵" title="¿Cuánto me deja?" help="Pon lo que gastaste y cuánto esperas cosechar para saber el precio mínimo al que debes vender sin perder." tools={<a className="workbench-button" href="#precio-y-mercado">Ver precios del mercado</a>}>
                 <GuidedSale key={activeFarm?.id ?? "new"} initialCrop={activeFarm?.plan?.crop ?? (crops.find(crop => crop === previous) ?? saleCrop)} farmTareas={farmTareas} initialIrrigation={irrigation} areaSource={activeFarm?.declaredTareas ? "declarada" : farmAreaM2 ? "del mapa" : undefined}/>
-                <details className="visual-details"><summary>Ya tengo mis gastos y cosecha</summary><SaleBudget key={activeFarm?.id ?? "new"}/></details>
-                {supervisor && <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
-                  <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas} irrigation={irrigation}/>
-                </details>}
+                <div className="sales-extra-folds"><details className="visual-details"><summary>Ya tengo mis gastos y cosecha</summary><SaleBudget key={activeFarm?.id ?? "new"}/></details>{supervisor && <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary><ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas} irrigation={irrigation}/></details>}</div>
+
+
+
               </Fold>
-            </div>
-            <div className="col-side">
               <Fold id="precio-y-mercado" icon="💰" title="Precio y mercado" help="Muestra los precios mayoristas publicados por el Ministerio de Agricultura y en qué meses suele pagarse mejor cada cultivo.">
-                <MarketCard key={saleCrop} initialCrop={saleCrop}/>
+                <MarketCard key={saleCrop} initialCrop={saleCrop} supervisor={supervisor}/>
               </Fold>
-            </div>
           </div>
         </div>
       )}
 
       {activeTab === "mapa" && (
         <div id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa" className="tab-stage">
-          <div className="home-grid">
-            <div className="col-main">
+          <div className="farms-workspace">
               <Fold id="tu-finca-en-el-mapa" icon="🗺️" title="Tu finca en el mapa" help="Busca un lugar de RD o mira tu finca por satélite para revisar contornos y verdor." teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
                 <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place" role="status">{[mapPlace, province].filter(Boolean).join(" · ") || "Sin elegir"}</span></div>
                   {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
                   <div className="location-controls">
                     <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
                     <label>Busca un lugar en RD<input ref={searchRef} type="search" placeholder="Ej.: Pedro Brand" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
+                    <div className="ag-select-field"><span className="ag-select-label">O escoge de la lista</span><CustomSelect ariaLabel="Provincia" placeholder="Selecciona" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(p => p.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} /></div>
                     {places.length > 0 && <div className="search-results" role="group" aria-label="Lugares encontrados">{places.map(p => <button type="button" key={p.id} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setMapPlace(p.kind ? p.name : "");setProvinceSearch("");setMapOpen(true);searchRef.current?.focus();}}>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</button>)}</div>}
                     {placesLoading && <p role="status">Buscando lugares…</p>}
                     {placesUnavailable && <p role="status">Catálogo temporalmente no disponible. Puedes escoger una provincia.</p>}
                     {provinceSearch.trim().length >= 2 && !places.length && !placesLoading && !placesUnavailable && <p role="status">No encontramos ese lugar.</p>}
-                    <div className="ag-select-field"><span className="ag-select-label">O escoge de la lista</span><CustomSelect ariaLabel="Provincia" placeholder="Selecciona" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(p => p.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} /></div>
                     {gpsStatus && <p role="status">{gpsStatus}</p>}
                   </div>
                   {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField} advanced={supervisor}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
@@ -382,17 +373,16 @@ export default function Home() {
                         <p>Copernicus Sentinel-2 L2A / Element 84 · enero 2024–noviembre 2026 · píxel de 10 m. {detectedParcel.evidence.signalRule} {detectedParcel.evidence.limitation}</p>
                         <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.slice(-12).map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`Verdor ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
                         <p><a href={detectedParcel.evidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
-                      </>}
-                    </details>}
+                      </>}</details>}
+    
                   </article>}
                 </section>
               </Fold>
-            </div>
-            <div className="col-side">
+            <div className="farm-context">
               {province ? (
                 <Fold id="sequia-y-lluvia" icon="☀️" title="Sequía y lluvia" help="Te muestra si la provincia ha tenido señal reciente o histórica de sequía según datos satelitales de la FAO." teaser={`${province}: ${drought?.label ?? "Sin dato"}`}><FaoDroughtCard province={province}/></Fold>
               ) : (
-                <section className="card panel"><p className="note">Elige tu provincia en el mapa para ver el reporte provincial de sequía y clima normal.</p></section>
+                <p className="empty-context">Elige tu provincia en el mapa para ver el reporte provincial de sequía y clima normal.</p>
               )}
 
               {chosen && <Fold icon="🌡️" title={`Clima normal de ${monthNames[month - 1]}`} help="Muestra el promedio de temperatura, lluvia y humedad de los últimos 10 años en tu zona." teaser={selectedClimate?.temperatureC != null ? `${Math.round(selectedClimate.temperatureC)} °C de media` : "Promedio de 10 años (NASA POWER)"}><section className="card climate-card" aria-label="Clima de tu zona"><div className="section-row"><h2>Clima normal de {monthNames[month - 1]}</h2></div>
@@ -441,14 +431,12 @@ export default function Home() {
         </div>
       )}
 
+      <div className={activeTab === "preguntar" ? "help-workspace" : "assistant-workspace"}>
+      <VoiceDock selection={selection} openWrite={activeTab === "preguntar"}/>
       {activeTab === "preguntar" && (
         <div id="panel-preguntar" role="tabpanel" aria-labelledby="tab-preguntar" className="tab-stage">
-          <section className="card panel voice-guide-card" aria-labelledby="voice-guide-title">
-            <div className="panel-head-row">
-              <h2 id="voice-guide-title" className="panel-title"><MessageCircle aria-hidden="true" className="panel-icon"/> Pregúntale a AgroVision</h2>
-              <HelpTip label="Pregúntale a AgroVision" text="Usa el botón verde de hablar en la esquina, escribe tu consulta abajo o escucha el resumen de tu finca." />
-            </div>
-            <p className="panel-intro">Consulta sobre tu siembra, lluvia, sequía o precios de mercado con datos reales de tu finca.</p>
+          <SectionPanel id="voice-guide" className="voice-guide-card" icon={MessageCircle} title="Pregúntale a AgroVision" help="Usa el botón verde de hablar en la esquina, escribe tu consulta o escucha el resumen de tu finca.">
+            <p className="panel-intro">Consulta sobre siembra, lluvia, sequía o precios con los datos disponibles.</p>
             <div className="voice-guide-grid">
               <div className="voice-guide-item">
                 <span className="vg-badge" aria-hidden="true"><Mic size={16} /></span>
@@ -472,17 +460,17 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </section>
+          </SectionPanel>
         </div>
       )}
 
-      <VoiceDock selection={selection} openWrite={activeTab === "preguntar"}/>
+      </div>
 
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>
         <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
-        <a href="/fuentes">Fuentes y versión de datos</a>
-        <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a>
+        <nav aria-label="Fuentes y atribuciones"><a href="/fuentes">Fuentes y versión de datos</a>
+        <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a></nav>
       </footer>
     </main>
   </>;
