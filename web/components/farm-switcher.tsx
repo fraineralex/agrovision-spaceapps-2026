@@ -22,10 +22,5 @@ export function FarmSwitcher({ farms, activeId, onSelect, onAdd, onEdit, onDelet
           : <button type="button" className="ob-link" onClick={() => setConfirm(active.id)}>Borrar</button>}
       </span>
     </div>}
-    {active && (active.machinery || active.pesticides) && <details className="visual-details">
-      <summary>Maquinaria y pesticidas</summary>
-      {active.machinery && <p><strong>Maquinaria</strong> · {active.machinery}</p>}
-      {active.pesticides && <p><strong>Pesticidas</strong> · {active.pesticides}</p>}
-    </details>}
   </nav>;
 }

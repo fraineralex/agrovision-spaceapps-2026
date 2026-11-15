@@ -72,6 +72,12 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  const opts=page.locator(".option-list > li");
  expect(await opts.count()).toBeLessThanOrEqual(5);
  for (const g of ["Menos agua","Precio histórico","Plagas","Sequía"]) await expect(page.locator(".option-list")).toContainText(g);
+ // Soil rotation section: why rotating feeds the soil, with FAO sources and no farm measurement claim.
+ const soil=page.locator("#rotacion-y-suelo");
+ await expect(soil).toContainText("para cuidar la tierra");
+ await expect(soil).toContainText("Abono natural");
+ await expect(soil.getByRole("link",{name:/FAO/}).first()).toBeVisible();
+ await expect(soil).toContainText("no una medición de tu finca");
  await opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText("Sin datos suficientes").click();
  await expect(opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText(/Falta evidencia local/)).toBeVisible();
  await expect(opts.last()).toContainText("Arroz");
@@ -80,7 +86,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect(decodeURIComponent(href!)).toContain("Finca del río");
  expect(decodeURIComponent(href!)).toContain("Posible lluvia");
  // Sources panel still works.
- await page.locator(".recommendation-hero").getByRole("button",{name:"Datos y fuentes"}).click();
+ await page.locator(".recommendation-hero").getByRole("button",{name:"¿Por qué este cultivo?"}).click();
  await expect(page.getByRole("dialog",{name:/De dónde sale la recomendación/})).toContainText("FAO-56");
  expect(await axeSerious(page)).toEqual([]);
  await page.getByRole("button",{name:/Cerrar/}).click();
@@ -193,18 +199,14 @@ test("finds a municipality and a neighborhood, then saves and renames a farm wit
  await dialog.getByLabel("Busca un lugar en RD").fill("pedro brand");
  await dialog.getByRole("button", {name:/^Pedro Brand Municipio.*Santo Domingo$/}).click();
  await dialog.getByLabel("Nombre de esta finca").fill("La Lomita");
- await dialog.getByText("Área declarada, maquinaria y pesticidas (opcional)", {exact:true}).click();
- await dialog.getByLabel("Maquinaria disponible").fill("Tractor alquilado");
- await dialog.getByLabel("Pesticidas registrados en la finca").fill("Registro de ejemplo");
+ await expect(dialog.getByText(/maquinaria|pesticida/i)).toHaveCount(0);
  await dialog.getByRole("button", {name:"Seguir sin marcar"}).click();
  await dialog.getByRole("button", {name:/Listo, ver mi recomendación/}).click();
  await page.reload();
  await expect(page.getByRole("tab", {name:"La Lomita"})).toBeVisible();
  const farms = page.getByRole("navigation", {name:"Mis fincas"});
  await expect(farms).toContainText("Pedro Brand, Santo Domingo");
- await farms.getByText("Maquinaria y pesticidas", {exact:true}).click();
- await expect(farms.getByText(/Tractor alquilado/)).toBeVisible();
- await expect(farms.getByText(/Registro de ejemplo/)).toBeVisible();
+ await expect(farms.getByText(/maquinaria|pesticida/i)).toHaveCount(0);
  await farms.getByRole("button", {name:"Editar"}).click();
  await dialog.getByLabel("Nombre de esta finca").fill("La Lomita Norte");
  await dialog.getByRole("button", {name:"Guardar cambios"}).click();
@@ -309,6 +311,7 @@ test("voice tools, location validation and honest missing-key fallback",async({r
   messages: [{ role: "user", content: "En qué mes me conviene sembrar maíz" }],
  } });
  expect(await sowing.text()).toMatch(/histórico nacional.*abril, mayo y junio/);
+ expect(sowing.headers()["x-agrovision-mode"]).toBe("data");
  const tool=await request.post("/api/voice/tools",{data:{selection,name:"get_parcel_metrics",args:{}}});
  const data=await tool.json();expect(data.climate.temperatureC).toBe(25.43);expect(data.climateSource.period).toBe("2016–2025");expect(data.ndvi.rows).toHaveLength(0);
  expect((await request.post("/api/voice/tools",{data:{selection,name:"run_command",args:{}}})).status()).toBe(400);
@@ -362,6 +365,7 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
  await controls.getByRole("button", { name: "Pausar" }).click();
  await controls.getByRole("button", { name: "Continuar" }).click();
  await controls.getByRole("button", { name: "Reiniciar" }).click();
+ await expect(controls.getByRole("button", { name: "Pausar" })).toBeVisible();
  await controls.getByRole("button", { name: "Detener" }).click();
  await expect(controls).toBeHidden();
  const calls = await page.evaluate(() => (window as unknown as { summaryCalls: string[] }).summaryCalls);
@@ -369,13 +373,43 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
  expect(calls).toEqual(expect.arrayContaining(["pause", "resume", "cancel"]));
 });
 
-test("the voice button sends a dictated question when realtime setup fails", async ({ page }) => {
+test("summary prefers generated audio and reuses it on restart", async ({ page }) => {
+ await page.addInitScript(() => {
+   window.Audio = class {
+     play = async () => {};
+     pause = () => {};
+   } as unknown as typeof Audio;
+   Object.defineProperty(window, "speechSynthesis", { value: undefined });
+   navigator.mediaDevices.getUserMedia = async () => { throw new Error("Unexpected microphone request"); };
+ });
+ let requests = 0;
+ await page.route("**/api/voice/summary", route => {
+   requests++;
+   expect(route.request().postDataJSON()).toEqual({ text: expect.any(String) });
+   return route.fulfill({ status: 200, contentType: "audio/wav", body: Buffer.from("RIFF") });
+ });
+ await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
+ await page.getByRole("button", { name: "Oír resumen" }).click();
+ await expect(page.getByText("AI-generated voice")).toBeVisible();
+ const controls = page.getByRole("group", { name: "Controles del resumen" });
+ await controls.getByRole("button", { name: "Pausar" }).click();
+ await expect(page.getByText("Reading paused")).toBeVisible();
+ await controls.getByRole("button", { name: "Continuar" }).click();
+ await controls.getByRole("button", { name: "Reiniciar" }).click();
+ await expect(page.getByText("AI-generated voice")).toBeVisible();
+ await controls.getByRole("button", { name: "Detener" }).click();
+ await expect(controls).toBeHidden();
+ expect(requests).toBe(1);
+});
+
+test("the voice button sends a dictated question without waiting for realtime setup", async ({ page }) => {
  const errors: string[] = [];
  page.on("pageerror", error => errors.push(error.message));
  const setupMethods: string[] = [];
  await page.route(/\/api\/voice\/setup(?:\?|$)/, route => {
   setupMethods.push(route.request().method());
-  return route.fulfill({ status: 503 });
+  return route.fulfill({ status: 204 });
  });
  await page.route("**/api/voice/chat", route => {
   expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
@@ -398,13 +432,14 @@ test("the voice button sends a dictated question when realtime setup fails", asy
  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
  await expect(page.getByRole("region", { name: "Respuesta a tu pregunta" })).toContainText("Este es tu resumen.");
  await expect(page.getByRole("button", { name: "Oír respuesta", exact: true })).toBeVisible();
- expect(setupMethods).toEqual(["HEAD"]);
+ expect(setupMethods).toEqual([]);
  expect(errors).toEqual([]);
 });
 
 test("the voice button stays outside the main workspace content", async ({page}) => {
  await page.setViewportSize({width:360,height:780});
  await page.addInitScript(() => {
+   Object.assign(window, { SpeechRecognition: undefined, webkitSpeechRecognition: undefined });
    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
  });
  await page.goto("/");
@@ -454,8 +489,8 @@ for (const fixture of [
     if (fixture.id === "ramon") {
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
-      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voz no disponible");
-      const source = verdict.getByRole("button", { name: "Datos y fuentes" });
+      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voice unavailable");
+      const source = verdict.getByRole("button", { name: "¿Por qué este cultivo?" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
       const close = dialog.getByRole("button", { name: /Cerrar/ });

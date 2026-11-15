@@ -82,3 +82,33 @@ test("rotates away from potato and skips crops without data", () => {
   assert.ok(ranked[1].repeats);
   assert.match(ranked[1].warnings.join(" "), /Repetir/);
 });
+
+test("whyThisCrop explains the pick in plain words without inventing pest comparisons", async () => {
+  const { adviseNextCrop, recommendedCrop, whyThisCrop, starsFor, pillarTitle } = await import("./advisor");
+  const all = adviseNextCrop({ province: "San Juan", irrigation: "rainfed", previous: "habichuela_roja", sowMonth: 11, priority: "balanced" as never, crops: ["habichuela_roja", "maiz", "yuca"] });
+  const top = recommendedCrop(all)!;
+  const lines = whyThisCrop(top, all, "habichuela_roja");
+  assert.ok(lines.length >= 2);
+  assert.ok(lines.every(l => !/puntaje|Kc|índice/i.test(l)));
+  assert.ok(lines.some(l => l.startsWith("¿Por qué no")));
+  const next = all.find(x => x.viable && x.crop !== top.crop && x.overall !== null)!;
+  if (next.scores.pests === null) assert.ok(!lines.some(l => l.includes("menos riesgo de plagas")));
+  assert.equal(starsFor(4.4), 4); assert.equal(starsFor(null), 0); assert.equal(starsFor(0.2), 1);
+  assert.equal(pillarTitle("water", 4), "Pide poca agua"); assert.equal(pillarTitle("pests", null), "Sin dato");
+});
+
+test("options always show at least three strategies including the current crop", async () => {
+  const { fiveOptions } = await import("./advisor");
+  const opts = fiveOptions({ province: "San Juan", irrigation: "rainfed", previous: "habichuela_roja", sowMonth: 11, crops: ["habichuela_roja", "maiz", "yuca"] });
+  const crops = new Set(opts.flatMap(o => o.advice ? [o.advice.crop] : []));
+  assert.ok(crops.size >= 3, `only ${crops.size} strategies`);
+  assert.ok(opts.some(o => o.key === "keep" && o.advice?.crop === "habichuela_roja"));
+});
+test("advice carries a soil rotation note and the sentence leads with the soil", async () => {
+  const { adviseNextCrop, adviceSentence, recommendedCrop } = await import("./advisor");
+  const all = adviseNextCrop({ province: "San Juan", irrigation: "irrigated", previous: "habichuela_roja", sowMonth: 11, priority: "balanced" as never, crops: ["habichuela_roja", "maiz", "yuca"] });
+  const top = recommendedCrop(all)!;
+  assert.equal(top.soil.level, "good");
+  assert.match(adviceSentence(top, "habichuela_roja"), /abono natural/);
+  assert.equal(all.find(a => a.crop === "habichuela_roja")!.soil.level, "bad");
+});

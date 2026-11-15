@@ -5,7 +5,8 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { AudioLines, ChevronDown, Keyboard, MessageCircle, Mic, Send, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
-import { REALTIME_MODEL, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
+import { useReadAloud } from "@/lib/use-read-aloud";
+import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Dictation = {
@@ -19,8 +20,7 @@ type Dictation = {
 };
 type DictationWindow = Window & { SpeechRecognition?: new () => Dictation; webkitSpeechRecognition?: new () => Dictation };
 
-type RagSource = { id: string; title: string; sourceName: string; sourceUrl?: string; filePath: string; score?: number };
-type Message = { role: "user" | "assistant"; content: string; sources?: RagSource[] };
+type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection, defaultOpenWrite = false }: { selection: VoiceSelection; defaultOpenWrite?: boolean }) {
   const [notice, setNotice] = useState("");
   const [voiceError, setVoiceError] = useState(false);
@@ -37,8 +37,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const dictation = useRef<Dictation | null>(null);
   const [dictating, setDictating] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const [summaryState, setSummaryState] = useState<"idle" | "playing" | "paused">("idle");
+
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const summary = useReadAloud();
+  const summaryState = summary.reading?.phase === "paused" ? "paused" : summary.reading && ["loading", "playing"].includes(summary.reading.phase) ? "playing" : "idle";
+  const toggleSummaryPause = summary.togglePause;
   const orb = useRef<HTMLButtonElement>(null);
   const voicePanel = useRef<HTMLElement>(null);
   const generation = useRef(0);
@@ -46,7 +49,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const captureStarted = useRef(false);
   const [requesting, setRequesting] = useState(false);
   const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
+  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: REALTIME_VOICE, outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
@@ -141,6 +144,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     interrupt();
     setNotice("");
     setVoiceError(false);
+    const browser = window as DictationWindow;
+    if (navigator.onLine && (browser.SpeechRecognition || browser.webkitSpeechRecognition)) {
+      fallbackToDictation();
+      return;
+    }
     setRequesting(true);
     // Keep the session on its starting farm and month while the page remains interactive.
     starting.current = true;
@@ -226,9 +234,9 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   function stopSummary() {
     utteranceRef.current = null;
     window.speechSynthesis?.cancel();
-    setSummaryState("idle");
+    summary.stop();
   }
-  function speak(text: string, summary = false) {
+  function speak(text: string) {
     const synthesis = window.speechSynthesis;
     if (!synthesis) {
       setVoiceError(true);
@@ -249,7 +257,6 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     const finish = () => {
       if (utteranceRef.current !== utterance) return;
       utteranceRef.current = null;
-      setSummaryState("idle");
     };
     utterance.onend = finish;
     utterance.onerror = () => {
@@ -258,22 +265,12 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       setVoiceError(true);
       setNotice("No se pudo reproducir la voz. Intenta otra vez.");
     };
-    if (summary) setSummaryState("playing");
     synthesis.speak(utterance);
   }
   function playSummary() {
     setDrawerOpen(true);
     interrupt();
-    speak(localAdviceText(selection), true);
-  }
-  function toggleSummaryPause() {
-    if (summaryState === "paused") {
-      window.speechSynthesis.resume();
-      setSummaryState("playing");
-    } else {
-      window.speechSynthesis.pause();
-      setSummaryState("paused");
-    }
+    void summary.read(localAdviceText(selection));
   }
   async function send(text: string, readAnswer = false) {
     if (!text.trim()) return;
@@ -288,21 +285,16 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     setMessages([...conversation, { role: "assistant", content: "" }]);
     const controller = new AbortController(); abort.current = controller;
     let answer = "";
-    let sources: RagSource[] = [];
     try {
       const response = await fetch("/api/voice/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, messages: conversation }), signal: controller.signal });
       if (!response.ok || !response.body) throw new Error("Unavailable");
-      const sourcesHeader = response.headers.get("X-AgroVision-Sources");
-      if (sourcesHeader) {
-        try { sources = JSON.parse(decodeURIComponent(sourcesHeader)) as RagSource[]; } catch { sources = []; }
-      }
       const reader = response.body.getReader(); const decoder = new TextDecoder();
       while (true) {
         const { value, done } = await reader.read();
         const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
         if (controller.signal.aborted) return;
         answer += chunk;
-        setMessages([...conversation, { role: "assistant", content: answer, sources: sources.length ? sources : undefined }]);
+        setMessages([...conversation, { role: "assistant", content: answer }]);
         if (done) break;
       }
       if (!answer.trim()) throw new Error("Empty answer");
@@ -342,11 +334,6 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
               <p>{message.content || "Pensando…"}</p>
               {message.role === "assistant" && message.content && !busy && (
                 <button type="button" className="voice-inline-speak" onClick={() => speak(message.content)}><Volume2 size={14} aria-hidden="true"/> Oír</button>
-              )}
-              {message.sources && message.sources.length > 0 && (
-                <div className="rag-sources" role="list" aria-label="Fuentes consultadas">
-                  {message.sources.map(source => <a key={source.id} className="rag-source-chip" role="listitem" href={source.sourceUrl ?? "#"} target={source.sourceUrl ? "_blank" : undefined} rel={source.sourceUrl ? "noreferrer" : undefined} title={source.filePath}>{source.sourceName}</a>)}
-                </div>
               )}
             </div>
           ))}

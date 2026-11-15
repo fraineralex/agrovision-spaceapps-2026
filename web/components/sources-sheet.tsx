@@ -1,9 +1,12 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — plain-language "where does this come from" panel per recommendation. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { Bug, Coins, Droplets, FileText, Sun } from "lucide-react";
+import { Bug, Coins, Droplets, FileText, Leaf, Sun } from "lucide-react";
+import { soilSources } from "@/lib/soil";
 import { useEffect, useRef } from "react";
-import { previousCropName, FAO56_URL, marketFor, marketSources, monthNames, unitWord, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
+import { previousCropName, FAO56_URL, marketFor, marketSources, monthNames, starsFor, unitWord, whyThisCrop, type CropAdvice, type PreviousCrop } from "@/lib/advisor";
+import { Stars } from "@/components/field-ui";
+import { rainWords } from "@/components/fao-giews";
 import { droughtSignal, faoProvince, faoGiews } from "@/lib/fao-giews";
 import type { Irrigation } from "@/lib/data";
 
@@ -59,8 +62,20 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
   if (advice.scores.pests === 5) pestLinks.push(["IDIAF · Compendio de habichuela (2013), págs. 88, 94 y 102", IDIAF_URL]);
   return <dialog ref={dialog} onKeyDown={keepFocus} className="src-overlay" aria-label={`De dónde sale la recomendación de ${advice.name}`} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="src-sheet" onClick={e => e.stopPropagation()}>
-      <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" ref={close} onClick={onClose}>Cerrar ✕</button></div>
-      <p className="src-intro">Así calculamos cada punto para <strong>{advice.name.toLowerCase()}</strong> en <strong>{province ?? "todo el país"}</strong>, sembrando en <strong>{monthNames[sowMonth - 1]}</strong>{prevName ? <>, después de <strong>{prevName}</strong></> : null}. Cada parte tiene su fuente para que la revises tú o tu técnico.</p>
+      <div className="src-head"><h2>¿Por qué {advice.name.toLowerCase()}?</h2><button type="button" className="ob-link" ref={close} onClick={onClose}>Cerrar ✕</button></div>
+      <section className="src-why" aria-label={`Por qué ${advice.name}`}>
+        <div className="src-why-head"><Stars score={advice.overall} /><strong>{advice.overall === null ? "Falta información" : `${starsFor(advice.overall)} de 5 estrellas`}</strong></div>
+        {whyThisCrop(advice, all, previous).map(line => <p key={line}>{line}</p>)}
+        <p className="src-limit">Es una guía hecha con datos públicos. Antes de sembrar, confírmalo con tu técnico.</p>
+      </section>
+      <h3 className="src-detail-title">El detalle y las fuentes</h3>
+      <p className="src-intro">Cada punto para <strong>{advice.name.toLowerCase()}</strong> en <strong>{province ?? "todo el país"}</strong>, sembrando en <strong>{monthNames[sowMonth - 1]}</strong>{prevName ? <>, después de <strong>{prevName}</strong></> : null}, con su fuente para que la revises tú o tu técnico.</p>
+
+      <Block icon={<Leaf />} title="Suelo" verdict={advice.soil.title} links={advice.soil.sources.map(k => [soilSources[k].label, soilSources[k].url] as [string, string])}>
+        <p>{advice.soil.text}</p>
+        <p>Rotar es sobre todo para cuidar la tierra: cada cultivo busca los nutrientes en una capa distinta, las leguminosas dejan nitrógeno y las raíces y el rastrojo variados forman materia orgánica.</p>
+        <p className="src-limit">Es una regla general de la FAO, no una medición de tu finca. Para saber cómo está tu tierra hace falta un análisis de suelo. Esta parte no cambia las estrellas.</p>
+      </Block>
 
       <Block icon={<Droplets />} title="Agua" verdict={advice.words.water} links={[["FAO-56, tablas 11 y 12 (1998)", FAO56_URL]]}>
         <p>Usamos el manual de riego de la FAO (Naciones Unidas), que dice cuánta agua pide cada cultivo en cada etapa. Para {advice.name.toLowerCase()} usamos la fila “{advice.faoRow}”.</p>
@@ -72,9 +87,9 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
 
       <Block icon={<Sun />} title="Sequía" verdict={advice.words.climate} links={fao ? [["FAO GIEWS · República Dominicana", faoGiews.source], ...(fao.asi?.source ? [["Datos ASI (CSV)", fao.asi.source] as [string, string]] : [])] : [["FAO GIEWS", faoGiews.source]]}>
         {fao ? <>
-          <p>La FAO mira por satélite cuánta área cultivada de {province} está seca. {fao.asi ? <>Al <strong>{date(fao.asi.date)}</strong>, el {fao.asi.value < 10 ? fao.asi.value.toFixed(1).replace(".", ",") : Math.round(fao.asi.value)}% del área cultivada mostraba estrés por sequía.</> : "No hay medición reciente."} Para AgroVision eso es: <strong>{signal.label}</strong>.</p>
+          <p>La FAO mira por satélite cuánta área cultivada de {province} está seca. {fao.asi ? <>Al <strong>{date(fao.asi.date)}</strong>, {fao.asi.value < 1 ? "menos del 1%" : `el ${Math.round(fao.asi.value)}%`} del área cultivada tenía sequía.</> : "No hay medición reciente."} Para AgroVision eso es: <strong>{signal.label}</strong>.</p>
           {hist && <p>Historia: de {hist.seasons} temporadas ({hist.start}–{hist.end}), en <strong>{hist.above30}</strong> hubo sequía en más del 30% del área cultivada.</p>}
-          {fao.rain?.anomalyPct != null && <p>Lluvia en los 10 días desde el {date(fao.rain.date)}: {Math.round(Math.abs(fao.rain.anomalyPct))}% {fao.rain.anomalyPct >= 0 ? "más" : "menos"} que lo normal (estimación ECMWF publicada por la FAO).</p>}
+          {fao.rain?.anomalyPct != null && <p>Lluvia en los 10 días desde el {date(fao.rain.date)}: {rainWords(fao.rain.anomalyPct).toLowerCase()} (estimación ECMWF publicada por la FAO).</p>}
           <p>Cuando hay sequía, o ha sido frecuente, los cultivos que piden más agua salen peor.</p>
         </> : <p>Elige tu provincia para ver la sequía de tu zona.</p>}
         <p className="src-limit">Es un dato de toda la provincia (cuadros de ~1 km), no de tu finca. El semáforo es una regla de AgroVision, no una alerta oficial de la FAO.</p>
@@ -84,8 +99,8 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
         {advice.pestPrecautions.map(note => <p key={note}>{note}</p>)}
         {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p></>}
         {advice.scores.pests === 5 && <p>El IDIAF cita el maíz como opción de rotación después de habichuela para problemas específicos de ese cultivo.</p>}
-        {advice.scores.pests === 1 && <p>El puntaje baja por repetición del cultivo o por plagas en común respaldadas por referencias locales.</p>}
-        {advice.scores.pests === null && <p>Este criterio no cambia el puntaje de la combinación.</p>}
+        {advice.scores.pests === 1 && <p>Pierde estrellas porque repite el cultivo o comparte plagas con el anterior, según referencias locales.</p>}
+        {advice.scores.pests === null && <p>Como no hay datos, las plagas no suman ni restan estrellas aquí.</p>}
         <p className="src-limit">{pestLimit}</p>
 
       </Block>

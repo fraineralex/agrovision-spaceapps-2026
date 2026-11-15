@@ -103,8 +103,8 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
       </div>
       <div className="week-telemetry" role="group" aria-label="Indicadores rápidos de la semana">
         {weekRainMm !== null && <span className="wt-chip rain"><CloudRain size={15} aria-hidden="true"/> <strong>{weekRainMm} mm</strong> <small>/ 7 días</small></span>}
-        {droughtLabel && <span className="wt-chip drought"><Sun size={15} aria-hidden="true"/> {droughtLabel}</span>}
-        {tempC != null && <span className="wt-chip temp"><ThermometerSun size={15} aria-hidden="true"/> {Math.round(tempC)} °C normal</span>}
+        {droughtLabel && <span className="wt-chip drought"><Sun size={15} aria-hidden="true"/> Sequía: {droughtLabel.toLowerCase()}</span>}
+        {tempC != null && <span className="wt-chip temp"><ThermometerSun size={15} aria-hidden="true"/> {Math.round(tempC)} °C (lo normal del mes)</span>}
       </div>
     </div>
     <div className="field-week-grid">

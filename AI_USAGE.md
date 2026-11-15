@@ -13,6 +13,10 @@ La organización permite el uso de IA solo si se cita. Este registro es obligato
 
 ## Registro
 
+| 15-11-2026 | Codex (OpenAI) | Retirar Turso/JSON RAG de respuestas de voz y texto en producción, volver al prompt de voz conversacional y conservar el modelo Haiku; preparar rama separada para reactivación experimental | `web/app/api/voice/chat/route.ts`, `web/app/api/voice/tools/route.ts`, `web/components/voice-assistant.tsx`, `web/lib/voice-context.ts`, `web/lib/voice-server.ts`, `AI_USAGE.md` | Pendiente: Frainer |
+
+| 15-11-2026 | Codex (OpenAI) | Migración RAG a Turso con fallback JSON, carga idempotente, pruebas y documentación | `web/lib/rag.ts`, `web/lib/rag-turso.ts`, `web/lib/rag-turso.test.ts`, `web/scripts/upload-rag-index.ts`, `web/package.json`, `web/package-lock.json`, `docs/rag_eval.md`, `AI_USAGE.md` | Pendiente: Frainer |
+
 | Fecha | Herramienta | Para qué | Archivos afectados | Quién revisó |
 |---|---|---|---|---|
 | 14-11-2026 | Codex (OpenAI) | Análisis de recursos para el reto | `/workspace/spaceapps/analisis_recursos.md` | Frainer |
@@ -335,3 +339,31 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex / OpenAI:** lista de cultivos a comparar con altura limitada y desplazamiento interno accesible (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** reorganización de Siembra en recomendación, comparación y plan independientes, con anchura y espaciado coherentes (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- 2026-11-15, OpenAI GPT-6: integró la narración en español con Coral, usando OpenAI GPT Realtime Mini vía Vercel AI Gateway, comprobación de transcripción y respaldo local. Archivos: `web/app/api/voice/summary/route.ts`, `web/lib/{summary-audio,use-read-aloud,voice-context}.ts`, `web/components/{advisor-card,voice-assistant}.tsx`, `web/tests/demo.spec.ts` y `README.md`. Revisión por Frainer pendiente.
+## 2026-11-15 — Lenguaje sencillo, estrellas y “¿Por qué este cultivo?”
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez tras la auditoría de valor para el agricultor.
+- **Cambios:**
+  - estrellas (1 a 5) en lugar del puntaje decimal, con una línea que explica qué comparan;
+  - indicadores con frases del campo (“Pide poca agua”, “Sin sequía”, “Menos plagas”, “Precio normal”) en lugar de “Bien / Regular / Sin dato”;
+  - el botón “Datos y fuentes” ahora es “¿Por qué este cultivo?” y abre primero una explicación corta (por qué este y no otro) y luego el detalle con las fuentes;
+  - sequía y lluvia de la FAO en palabras (“Menos de 1% del área con sequía”, “Más del doble de lo normal”) y una línea que aclara que no es el mismo periodo que la lluvia de la semana;
+  - se quitaron los campos de maquinaria y pesticidas: eran apuntes que no cambiaban la recomendación.
+- **Archivos:** `web/lib/{advisor,advisor.test,fao-giews,farms}.ts`, `web/components/{advisor-card,options-card,sources-sheet,field-ui,fao-giews,farm-workbench,farm-switcher,onboarding}.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`.
+- **Datos:** no hay números nuevos. La explicación se arma con la misma comparación (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura). Si falta el dato de plagas de un cultivo, el texto lo dice y no lo compara.
+- **Revisión por Frainer:** pendiente.
+
+- 2026-11-15, Codex (OpenAI): unificó el inicio de dictado en navegadores compatibles, habilitó OIDC de Vercel y limitó la espera de búsqueda de guías. Las preguntas de meses de siembra usan el histórico del cultivo directamente. Archivos: README.md, web/app/api/voice/{chat,setup,summary}/route.ts, web/components/voice-assistant.tsx, web/lib/{local-voice-model,rag}.ts y web/tests/demo.spec.ts. Pasaron 37 pruebas, lint, TypeScript y dos pruebas dirigidas en Chrome. Revisión por Frainer pendiente.
+## 2026-11-15 — Rotación y suelo, tipo de tierra y revisión de requisitos del reto
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:**
+  - sección “Rotación y suelo” y bloque “Suelo” en “¿Por qué este cultivo?”: explican la rotación por nutrientes, nitrógeno de leguminosas y materia orgánica;
+  - la recomendación, las explicaciones y la voz hablan primero de la tierra;
+  - pregunta opcional “¿Cómo es tu tierra?” (arenosa, media, barro) con una nota sobre cómo guarda el agua;
+  - “Otras opciones” garantiza al menos tres estrategias, incluida la actual;
+  - línea “Lo que no sabemos” en cada explicación;
+  - `docs/19_requisitos_reto.md` con la revisión contra el enunciado.
+- **Archivos:** `web/lib/{soil,soil.test,advisor,advisor.test,farms,voice-context}.ts`, `web/components/{soil-card,sources-sheet,advisor-card,options-card,onboarding,fold}.tsx`, `web/app/{page.tsx,globals.css}`, `web/tests/demo.spec.ts`.
+- **Fuentes (consultadas el 15-11-2026):** FAO, Agricultura de conservación: diversificación de especies (https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/); FAO (2016), Las legumbres y la biodiversidad; FAO, Irrigation Water Management Training Manual 1, cap. 2 (https://www.fao.org/4/r4082e/r4082e03.htm).
+- **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
+- **Revisión por Frainer:** pendiente.

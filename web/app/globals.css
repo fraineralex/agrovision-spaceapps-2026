@@ -3704,3 +3704,30 @@ body {
 .siembra-plan-card { width: 100%; }
 .siembra-plan-head { margin-bottom: 16px; }
 @media (max-width: 640px) { .siembra-stack { gap: 14px; margin-top: 14px; } .option-top-bar { flex-wrap: wrap; } }
+
+/* stars replace the decimal score */
+.stars{display:inline-flex;gap:2px;align-items:center;flex-shrink:0}
+.stars .star{color:color-mix(in srgb,currentColor 30%,transparent);fill:none}
+.stars .star.on{color:#d99a00;fill:#f2b705}
+.recommendation-score{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700}
+.stars-help{margin:10px 0 4px;font-size:15px;line-height:1.45;opacity:.9}
+.metric-tile.tile-green{border-left:6px solid #2e8b47}.metric-tile.tile-amber{border-left:6px solid #d99a00}.metric-tile.tile-red{border-left:6px solid #c0392b}.metric-tile.tile-gray{border-left:6px solid #8a938a}
+.src-why{border:2px solid #2e8b47;border-radius:16px;padding:14px 16px;margin:6px 0 16px}
+.src-why p{margin:8px 0;font-size:18px;line-height:1.45}
+.src-why-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.src-detail-title{margin:8px 0 4px;font-size:18px}
+.stars-help{grid-column:1/-1}
+/* Rotación y suelo */
+.soil-lead{font-size:18px;line-height:1.45;margin:0 0 12px}
+.soil-now{border-radius:14px;padding:12px 14px;margin:10px 0;border-left:6px solid #8a938a;background:color-mix(in srgb,currentColor 6%,transparent)}
+.soil-now.lv-good{border-left-color:#2e8b47}.soil-now.lv-bad{border-left-color:#c0392b}.soil-now.lv-ok{border-left-color:#d99a00}
+.soil-now h3{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 6px;font-size:19px}
+.soil-now p{margin:4px 0;line-height:1.45}
+.soil-sub{font-size:18px;margin:16px 0 6px}
+.soil-list,.soil-reasons{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.soil-list li{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;padding:8px 10px;border-radius:10px;border:1px solid color-mix(in srgb,currentColor 18%,transparent)}
+.soil-list li span{display:inline-flex;gap:8px;align-items:center}
+.soil-list li i{width:12px;height:12px;border-radius:50%;background:#8a938a;flex-shrink:0}
+.soil-list li.lv-good i{background:#2e8b47}.soil-list li.lv-bad i{background:#c0392b}.soil-list li.lv-ok i{background:#d99a00}
+.soil-reasons li{line-height:1.45}
+.soil-now h3{flex-wrap:nowrap;align-items:flex-start}.soil-now h3 svg{flex-shrink:0;margin-top:3px}
