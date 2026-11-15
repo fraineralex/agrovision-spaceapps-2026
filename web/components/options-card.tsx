@@ -30,10 +30,15 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
           {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{word[light]}</span>}
         </div>
         {a ? <>
-          <p className="option-crop"><span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span><span>{a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</span></p>
+          <div className="option-crop-row">
+            <p className="option-crop"><span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span><span>{a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</span></p>
+            {a.overall !== null && <span className={`option-score-pill ${light}`} aria-label={`Puntaje ${a.overall.toFixed(1).replace(".", ",")}`}>{a.overall.toFixed(1).replace(".", ",")}</span>}
+          </div>
           <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>{pillars.map(({ id, label, Icon: P }) => { const c = lightFor(a.scores[id]); return <li key={id} className={`pill ${c}`} title={a.words[id]}><P aria-hidden="true" /><span>{label}<small>{word[c]}</small></span></li>; })}</ul>
-          {a.warnings.length > 0 && <details className="visual-details crop-alerts"><summary>Qué revisar ({a.warnings.length})</summary><ul>{a.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></details>}
-          <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> Datos y fuentes</button>
+          <div className="option-foot">
+            {a.warnings.length > 0 && <details className="visual-details crop-alerts"><summary>Qué revisar ({a.warnings.length})</summary><ul>{a.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></details>}
+            <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> Datos y fuentes</button>
+          </div>
         </> : <details className="visual-details"><summary>Sin datos suficientes</summary><p>{o.note}</p></details>}
       </li>; })}
     </ol>

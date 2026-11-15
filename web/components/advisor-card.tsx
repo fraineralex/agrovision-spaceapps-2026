@@ -64,16 +64,50 @@ type Props = {
   onEdit: () => void; onTop?: (crop: CropId) => void;
 };
 
+function MiniScoreRing({ score, light }: { score: number | null; light: string }) {
+  const pct = score === null ? 0.15 : Math.max(0.12, Math.min(1, score / 5));
+  const r = 14, c = 2 * Math.PI * r;
+  return (
+    <span className={`mini-score-ring light-${light}`} aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 34 34">
+        <circle className="dial-track" cx="17" cy="17" r={r} strokeWidth="3.5" />
+        <circle
+          className={`dial-arc ${light}`}
+          cx="17"
+          cy="17"
+          r={r}
+          strokeWidth="3.5"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - pct)}
+        />
+      </svg>
+      <small>{score !== null ? score.toFixed(1).replace(".", ",") : "—"}</small>
+    </span>
+  );
+}
+
 function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources: () => void }) {
+  const rowLight = lightFor(a.overall);
+  const pct = a.overall === null ? 12 : Math.max(15, Math.min(100, Math.round((a.overall / 5) * 100)));
   return <li className={top ? "crop-row top" : "crop-row"}>
     <div className="crop-row-head">
-      <span className="crop-medallion" aria-hidden="true"><FarmIcon name={a.crop} size={20} /></span>
-      <strong>{a.name}</strong>{top && a.overall !== null && <span className="badge">Recomendado</span>}{!a.viable && <span className="badge gray">No sin riego</span>}
+      <MiniScoreRing score={a.overall} light={rowLight} />
+      <span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span>
+      <div className="crop-row-title">
+        <strong>{a.name}</strong>
+        <div className="crop-row-meter" aria-hidden="true">
+          <span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+      {top && a.overall !== null && <span className="badge">Top</span>}
+      {!a.viable && <span className="badge gray">Sin riego</span>}
+      <button type="button" className="src-button icon-only" onClick={onSources} aria-label={`Datos y fuentes de ${a.name}`} title="Datos y fuentes">
+        <Info aria-hidden="true" size={16} />
+      </button>
     </div>
     <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-      <FarmIcon name={pi.icon} size={16} /><span>{pi.label}: {lightWord[c]}</span></span>; })}</div>
-    {a.pestPrecautions.map(note => <p key={note} className="warning"><AlertTriangle aria-hidden="true" size={16} /><span>{note}</span></p>)}
-    <button type="button" className="src-button small" onClick={onSources}><Info aria-hidden="true" size={18} /> Datos y fuentes</button>
+      <FarmIcon name={pi.icon} size={13} /><span>{pi.label}</span></span>; })}</div>
+    {a.pestPrecautions.length > 0 && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precaución ({a.pestPrecautions.length})</summary>{a.pestPrecautions.map(note => <p key={note} className="warning"><span>{note}</span></p>)}</details>}
   </li>;
 }
 
@@ -127,7 +161,7 @@ export function AdvisorCard(p: Props) {
       {notes.length > 0 && <details className="visual-details crop-alerts"><summary><TriangleAlert aria-hidden="true"/> Qué revisar ({notes.length})</summary><ul>{notes.map(w => <li key={w}>{w}</li>)}</ul></details>}
     </div>
 
-    <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</summary>
+    <details className="compare-fold" open><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
     </details>
 
