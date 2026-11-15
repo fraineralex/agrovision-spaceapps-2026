@@ -26,5 +26,5 @@ Actualización asistida por Codex/OpenAI, 14-11-2026; revisión de Frainer pendi
 
 ## Fotografía natural en onboarding
 
-- **Archivo:** `web/public/images/san-juan-valley.jpg` (caché local offline, incluida en `web/scripts/offline-assets.mjs`).
-- **Fuente y licencia:** Wikimedia Commons — [File:El Cercado Dominican Republic rural countryside 2.jpg](https://commons.wikimedia.org/wiki/File:El_Cercado_Dominican_Republic_rural_countryside_2.jpg), autoría `Cercadero98`, dominio público / **CC0 1.0**. Fotografía documental real de campo rural en la provincia San Juan; no generada por IA.
+- **Archivo:** `web/public/images/san-juan-valley.jpg` (original) y `web/public/images/san-juan-valley-enhanced.png` (versión mejorada con IA usada offline, incluida en `web/scripts/offline-assets.mjs`).
+- **Fuente y licencia:** Wikimedia Commons — [File:El Cercado Dominican Republic rural countryside 2.jpg](https://commons.wikimedia.org/wiki/File:El_Cercado_Dominican_Republic_rural_countryside_2.jpg), autoría `Cercadero98`, dominio público / **CC0 1.0**. La fotografía original documenta el campo rural de San Juan; la versión mostrada es una edición con IA y puede alterar detalles.

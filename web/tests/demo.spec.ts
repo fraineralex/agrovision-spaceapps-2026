@@ -95,8 +95,8 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator("#siembra")).toBeHidden();
  await expect(page.locator(".rain-wet")).toContainText("80%");
  expect(await axeSerious(page)).toEqual([]);
- // Supervisor quick link switches to Venta tab with profit calculator + market prices.
- await page.getByRole("link", {name:"Clima y mercado",exact:true}).click();
+ // Venta tab shows the profit calculator and market prices.
+ await sectionNav.getByRole("tab", {name:/Venta/}).click();
  await expect(page.locator("#lluvia-esta-semana")).toBeHidden();
  await expect(page.locator("#cuanto-me-deja")).toBeVisible();
  await expect(page.locator("#precio-y-mercado")).toBeVisible();

@@ -417,3 +417,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex / OpenAI:** barra de fincas uniforme y botones de edición y borrado con iconos (`web/components/farm-switcher.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** integración de Tu plan de siembra dentro de Otras opciones (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/planting.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** preparación de copia independiente de UI en el escritorio, con fixtures sintéticos y maquetas de mapas y voz; archivos de la copia documentados en su propio `AI_USAGE.md`. Revisión por Frainer: pendiente.

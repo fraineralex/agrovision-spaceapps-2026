@@ -1,6 +1,6 @@
 /* AI: Claude (Anthropic), 2026-11-14 — switch, add, edit and delete saved farms. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { Home, Plus } from "lucide-react";
+import { Home, Plus, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { areaLabel, piecesAreaM2, type Farm } from "@/lib/farms";
 
@@ -16,10 +16,10 @@ export function FarmSwitcher({ farms, activeId, onSelect, onAdd, onEdit, onDelet
     {active && <div className="farm-meta">
       <span>{active.placeName ? `${active.placeName}, ` : ""}{active.province} · {area ? areaLabel(area) : "sin marcar en el mapa"}</span>
       <span className="farm-actions">
-        <button type="button" className="ob-link" onClick={() => onEdit(active)}>Editar</button>
+        <button type="button" className="farm-action-button" onClick={() => onEdit(active)}><Pencil size={16} aria-hidden="true" /> Editar</button>
         {confirm === active.id
-          ? <><button type="button" className="ob-link danger" onClick={() => { onDelete(active.id); setConfirm(null); }}>Sí, borrar</button><button type="button" className="ob-link" onClick={() => setConfirm(null)}>No</button></>
-          : <button type="button" className="ob-link" onClick={() => setConfirm(active.id)}>Borrar</button>}
+          ? <><button type="button" className="farm-action-button danger" onClick={() => { onDelete(active.id); setConfirm(null); }}>Sí, borrar</button><button type="button" className="farm-action-button" onClick={() => setConfirm(null)}>No</button></>
+          : <button type="button" className="farm-action-button" onClick={() => setConfirm(active.id)}><Trash2 size={16} aria-hidden="true" /> Borrar</button>}
       </span>
     </div>}
   </nav>;

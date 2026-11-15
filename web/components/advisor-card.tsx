@@ -67,7 +67,7 @@ export function AdvisorCard(p: Props) {
   const greenCount = advice.filter(a => lightFor(a.overall) === "green").length;
   const amberCount = advice.filter(a => lightFor(a.overall) === "amber").length;
   const redCount = advice.filter(a => lightFor(a.overall) === "red").length;
-  return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
+  return <section className="card advisor planting-overview" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
       <span className="profile-loc"><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
       <div className="profile-actions">
@@ -116,22 +116,22 @@ export function AdvisorCard(p: Props) {
     </div>}
     {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
 
-    <details className="compare-fold">
-      <summary>
-        <span className="compare-summary-title"><CalendarDays aria-hidden="true" /> Todos los cultivos ({p.crops.length})</span>
+    <section className="compare-fold crop-comparison" aria-labelledby="crop-comparison-title">
+      <div className="crop-comparison-head">
+        <h2 id="crop-comparison-title" className="compare-summary-title"><CalendarDays aria-hidden="true" /> Todos los cultivos ({p.crops.length})</h2>
         <span className="crops-dist-pills">
           {greenCount > 0 && <em className="dist-pill green">{greenCount} Bien</em>}
           {amberCount > 0 && <em className="dist-pill amber">{amberCount} Regular</em>}
           {redCount > 0 && <em className="dist-pill red">{redCount} Malo</em>}
         </span>
-      </summary>
+      </div>
       <div className="crops-dist-bar" aria-hidden="true">
         {greenCount > 0 && <span className="dist-seg green" style={{ flex: greenCount }} />}
         {amberCount > 0 && <span className="dist-seg amber" style={{ flex: amberCount }} />}
         {redCount > 0 && <span className="dist-seg red" style={{ flex: redCount }} />}
       </div>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop}>{cropNames[crop]} · sin datos todavía</li>)}</ul>
-    </details>
+    </section>
 
     {sources && <SourcesSheet advice={sources} all={advice} province={p.province} previous={p.previous} irrigation={p.irrigation} sowMonth={p.sowMonth} onClose={() => setSources(null)} />}
 
