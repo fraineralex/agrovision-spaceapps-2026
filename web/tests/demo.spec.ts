@@ -362,11 +362,42 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
  await controls.getByRole("button", { name: "Pausar" }).click();
  await controls.getByRole("button", { name: "Continuar" }).click();
  await controls.getByRole("button", { name: "Reiniciar" }).click();
+ await expect(controls.getByRole("button", { name: "Pausar" })).toBeVisible();
  await controls.getByRole("button", { name: "Detener" }).click();
  await expect(controls).toBeHidden();
  const calls = await page.evaluate(() => (window as unknown as { summaryCalls: string[] }).summaryCalls);
  expect(calls.filter(call => call === "speak:Natural")).toHaveLength(2);
  expect(calls).toEqual(expect.arrayContaining(["pause", "resume", "cancel"]));
+});
+
+test("summary prefers generated audio and reuses it on restart", async ({ page }) => {
+ await page.addInitScript(() => {
+   window.Audio = class {
+     play = async () => {};
+     pause = () => {};
+   } as unknown as typeof Audio;
+   Object.defineProperty(window, "speechSynthesis", { value: undefined });
+   navigator.mediaDevices.getUserMedia = async () => { throw new Error("Unexpected microphone request"); };
+ });
+ let requests = 0;
+ await page.route("**/api/voice/summary", route => {
+   requests++;
+   expect(route.request().postDataJSON()).toEqual({ text: expect.any(String) });
+   return route.fulfill({ status: 200, contentType: "audio/wav", body: Buffer.from("RIFF") });
+ });
+ await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
+ await page.getByRole("button", { name: "Oír resumen" }).click();
+ await expect(page.getByText("AI-generated voice")).toBeVisible();
+ const controls = page.getByRole("group", { name: "Controles del resumen" });
+ await controls.getByRole("button", { name: "Pausar" }).click();
+ await expect(page.getByText("Reading paused")).toBeVisible();
+ await controls.getByRole("button", { name: "Continuar" }).click();
+ await controls.getByRole("button", { name: "Reiniciar" }).click();
+ await expect(page.getByText("AI-generated voice")).toBeVisible();
+ await controls.getByRole("button", { name: "Detener" }).click();
+ await expect(controls).toBeHidden();
+ expect(requests).toBe(1);
 });
 
 test("the voice button sends a dictated question when realtime setup fails", async ({ page }) => {
@@ -454,7 +485,7 @@ for (const fixture of [
     if (fixture.id === "ramon") {
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
-      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voz no disponible");
+      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voice unavailable");
       const source = verdict.getByRole("button", { name: "Datos y fuentes" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });

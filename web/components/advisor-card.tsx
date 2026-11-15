@@ -93,7 +93,7 @@ export function AdvisorCard(p: Props) {
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
     <HeroRecommendation tone={"tone-" + light} actions={<>
-      <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={18} /> Oír resumen</button>
+      <button type="button" className="listen" onClick={() => void read(summary)}><FarmIcon name="sound" size={18} /> Oír resumen</button>
       {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={18} /> Datos y fuentes</button>}
     </>}>
       {top && top.overall !== null ? <>
@@ -124,7 +124,7 @@ export function AdvisorCard(p: Props) {
         {id === "water" && <WaterGauge value={top.scores.water} />}
       </MetricTile>)}
     </div>}
-    {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
+    {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
     {top && <details className="compare-fold"><summary>Qué revisar antes de sembrar</summary>
       <p>Revisa agua y suelo con tu técnico.</p>
       <ul className="decision-risks">

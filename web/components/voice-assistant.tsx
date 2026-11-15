@@ -5,7 +5,8 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
-import { REALTIME_MODEL, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
+import { useReadAloud } from "@/lib/use-read-aloud";
+import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Dictation = {
@@ -37,7 +38,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const dictation = useRef<Dictation | null>(null);
   const [dictating, setDictating] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const [summaryState, setSummaryState] = useState<"idle" | "playing" | "paused">("idle");
+  const summary = useReadAloud();
   const orb = useRef<HTMLButtonElement>(null);
   const voicePanel = useRef<HTMLElement>(null);
   const generation = useRef(0);
@@ -45,7 +46,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const captureStarted = useRef(false);
   const [requesting, setRequesting] = useState(false);
   const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
+  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: REALTIME_VOICE, outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
@@ -224,9 +225,9 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   function stopSummary() {
     utteranceRef.current = null;
     window.speechSynthesis?.cancel();
-    setSummaryState("idle");
+    summary.stop();
   }
-  function speak(text: string, summary = false) {
+  function speak(text: string) {
     const synthesis = window.speechSynthesis;
     if (!synthesis) {
       setVoiceError(true);
@@ -247,7 +248,6 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     const finish = () => {
       if (utteranceRef.current !== utterance) return;
       utteranceRef.current = null;
-      setSummaryState("idle");
     };
     utterance.onend = finish;
     utterance.onerror = () => {
@@ -256,21 +256,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       setVoiceError(true);
       setNotice("No se pudo reproducir la voz. Intenta otra vez.");
     };
-    if (summary) setSummaryState("playing");
     synthesis.speak(utterance);
   }
   function playSummary() {
     interrupt();
-    speak(localAdviceText(selection), true);
-  }
-  function toggleSummaryPause() {
-    if (summaryState === "paused") {
-      window.speechSynthesis.resume();
-      setSummaryState("playing");
-    } else {
-      window.speechSynthesis.pause();
-      setSummaryState("paused");
-    }
+    void summary.read(localAdviceText(selection));
   }
   async function send(text: string, readAnswer = false) {
     if (!text.trim()) return;
@@ -341,12 +331,15 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     <div className="voice-alternatives">
       <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
       <button type="button" className="link-button" onClick={playSummary}><Volume2 aria-hidden="true"/> Oír resumen</button>
-      {summaryState !== "idle" && <div role="group" aria-label="Controles del resumen">
-        <p role="status">Leyendo resumen…</p>
-        <button type="button" className="link-button" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
-        <button type="button" className="link-button" onClick={stopSummary}>Detener</button>
-        <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
-      </div>}
+      {summary.reading && <>
+        <p role="status">{summary.reading.status}</p>
+        {summary.reading.generated && <p>AI-generated voice</p>}
+        {["loading", "playing", "paused"].includes(summary.reading.phase) && <div role="group" aria-label="Controles del resumen">
+          {summary.reading.phase !== "loading" && <button type="button" className="link-button" onClick={summary.togglePause}>{summary.reading.phase === "paused" ? "Continuar" : "Pausar"}</button>}
+          <button type="button" className="link-button" onClick={stopSummary}>Detener</button>
+          <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
+        </div>}
+      </>}
       <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
     </div>
     </div>

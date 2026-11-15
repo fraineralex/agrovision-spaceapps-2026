@@ -12,6 +12,7 @@ import { pestLimit } from "./pests";
 export const voiceSelection = explanationInput.extend({ priority: z.union([explanationInput.shape.priority, z.literal("balanced")]), parcelId: z.enum(["demo-01", "demo-02", "demo-03", "location"]), location: locationSchema.optional(), previousCrop: z.enum([...previousCrops, "otro", "unknown"] as const).optional(), crops: z.string().max(300).optional(), farmName: z.string().max(60).optional(), farmArea: z.string().max(60).optional(), rainAlert: z.string().max(240).optional(), profitRange: z.string().max(240).optional(), oversupply: z.string().max(240).optional() }).strict().refine(value => value.parcelId !== "location" || Boolean(value.location), "Ubicación requerida");
 export type VoiceSelection = z.infer<typeof voiceSelection>;
 export const REALTIME_MODEL = "openai/gpt-realtime-mini";
+export const REALTIME_VOICE = "coral";
 export { TEXT_MODEL } from "@/lib/rag-config";
 export function parcelMetrics(input: VoiceSelection) {
   const comparison = getComparison(input.month, input.location ? provinceAt(input.location) : "San Juan");
