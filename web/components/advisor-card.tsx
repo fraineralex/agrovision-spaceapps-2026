@@ -42,16 +42,20 @@ function PillarBars({ a }: { a: CropAdvice }) {
       {pillarInfo.map(pi => {
         const s = a.scores[pi.id];
         const c = lightFor(s);
-        const pct = s === null ? 0 : Math.max(18, Math.min(100, Math.round((s / 5) * 100)));
+        const pct = s === null ? 14 : Math.max(20, Math.min(100, Math.round((s / 5) * 100)));
         return (
-          <div key={pi.id} className={`pbar-item ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-            <div className="pbar-top">
-              <span className="pbar-label"><FarmIcon name={pi.icon} size={14} /> {pi.label}</span>
-              <span className="pbar-word">{a.words[pi.id]}</span>
+          <div key={pi.id} className={`pbar-item ${c} pillar-${pi.id}`} title={`${pi.label}: ${a.words[pi.id]}`}>
+            <div className="pbar-head-row">
+              <span className="pbar-label">
+                <span className={`pbar-icon-chip tone-${pi.id}`} aria-hidden="true"><FarmIcon name={pi.icon} size={14} /></span>
+                <span>{pi.label}</span>
+              </span>
+              <span className={`pbar-status-pill ${c}`}>{lightWord[c]}</span>
             </div>
             <div className="pbar-track" aria-hidden="true">
               <span className={`pbar-fill ${c}`} style={{ width: `${pct}%` }} />
             </div>
+            <span className="pbar-word">{a.words[pi.id]}</span>
           </div>
         );
       })}
@@ -124,44 +128,60 @@ export function AdvisorCard(p: Props) {
     } catch { /* Speech is optional. */ }
   };
   const light = lightFor(top?.overall ?? null);
+  const greenCount = advice.filter(a => lightFor(a.overall) === "green").length;
+  const amberCount = advice.filter(a => lightFor(a.overall) === "amber").length;
+  const otherCount = Math.max(0, advice.length - greenCount - amberCount);
+  const totalCrops = Math.max(1, advice.length);
+
   return <section className="card advisor" aria-label="Qué sembrar ahora" aria-live="polite">
     <div className="profile-line">
-      <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
+      <span><MapPin aria-hidden="true" size={16} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
-    </div>
-    <div className="advisor-head">
-      <h3>Opción para considerar</h3>
-      {top && top.overall !== null && (
-        <div className="advisor-score-wrap">
-          <ScoreDial score={top.overall} light={light} />
-          <span className={`advisor-score light-${light}`}>{top.overall.toFixed(1).replace(".", ",")} / 5 · {lightWord[light]}</span>
-        </div>
-      )}
     </div>
 
     <div className={`verdict visual-verdict ${light}`}>
       {top && top.overall !== null ? <>
-        <div className="crop-feature">
-          <span className="verdict-crop-badge" aria-hidden="true"><FarmIcon name={top.crop} size={26} /></span>
-          <div>
-            <p className="verdict-text">{top.name}</p>
-            {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}
+        <div className="verdict-hero-top">
+          <div className="crop-feature">
+            <span className="verdict-crop-badge" aria-hidden="true"><FarmIcon name={top.crop} size={28} /></span>
+            <div className="crop-feature-copy">
+              <span className="verdict-eyebrow">Opción para considerar</span>
+              <p className="verdict-text">{top.name}</p>
+              {p.previous !== "unknown" && <small className="verdict-prev-pill">Después de {previousCropName(p.previous).toLowerCase()}</small>}
+            </div>
+          </div>
+          <div className="advisor-score-wrap">
+            <ScoreDial score={top.overall} light={light} />
+            <span className={`advisor-score light-${light}`}>{top.overall.toFixed(1).replace(".", ",")} / 5 · {lightWord[light]}</span>
           </div>
         </div>
-        <PillarBars a={top} />
         {top.harvestMonth > 0 && <div className="crop-timeline">
-          <div><Sprout aria-hidden="true"/><span><small>Siembra evaluada</small><strong>{monthNames[p.sowMonth - 1]}</strong></span></div>
-          <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} · ~{Math.round(top.cycleDays / 30)} m</strong></span></div>
+          <div><Sprout aria-hidden="true" size={17}/><span><small>Siembra evaluada</small><strong>{monthNames[p.sowMonth - 1]}</strong></span></div>
+          <div><Wheat aria-hidden="true" size={17}/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} · ~{Math.round(top.cycleDays / 30)} m</strong></span></div>
         </div>}
+        <PillarBars a={top} />
       </> : <p className="verdict-text">{sentence}</p>}
       <div className="verdict-actions">
-        <button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={20} /> Escuchar</button>
-        {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={19} /> Datos y fuentes</button>}
+        <button type="button" className="listen" onClick={speak}><FarmIcon name="sound" size={18} /> Escuchar</button>
+        {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={17} /> Datos y fuentes</button>}
+        {notes.length > 0 && <details className="visual-details crop-alerts"><summary><TriangleAlert aria-hidden="true" size={16}/> Qué revisar ({notes.length})</summary><ul>{notes.map(w => <li key={w}>{w}</li>)}</ul></details>}
       </div>
-      {notes.length > 0 && <details className="visual-details crop-alerts"><summary><TriangleAlert aria-hidden="true"/> Qué revisar ({notes.length})</summary><ul>{notes.map(w => <li key={w}>{w}</li>)}</ul></details>}
     </div>
 
-    <details className="compare-fold" open><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</summary>
+    <details className="compare-fold" open>
+      <summary>
+        <span><CalendarDays aria-hidden="true"/> Todos los cultivos ({advice.length})</span>
+        <span className="crops-dist-pills" aria-hidden="true">
+          {greenCount > 0 && <i className="cd-pill green">{greenCount} Bien</i>}
+          {amberCount > 0 && <i className="cd-pill amber">{amberCount} Regular</i>}
+          {otherCount > 0 && <i className="cd-pill gray">{otherCount} Revisar</i>}
+        </span>
+      </summary>
+      <div className="crops-dist-bar" aria-hidden="true">
+        {greenCount > 0 && <span className="cd-seg green" style={{ width: `${(greenCount / totalCrops) * 100}%` }} />}
+        {amberCount > 0 && <span className="cd-seg amber" style={{ width: `${(amberCount / totalCrops) * 100}%` }} />}
+        {otherCount > 0 && <span className="cd-seg gray" style={{ width: `${(otherCount / totalCrops) * 100}%` }} />}
+      </div>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}</ul>
     </details>
 

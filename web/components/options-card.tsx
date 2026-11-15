@@ -25,16 +25,34 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
     <ol className="option-list">
       {options.map(o => { const Icon = goalIcon[o.key]; const a = o.advice; const light = lightFor((a && (o.key === "keep" ? a.overall : a.scores[o.key])) ?? null); return <li key={o.key} className={`option ${o.key === "keep" ? "keep" : ""}`}>
         <div className="option-head">
-          <Icon aria-hidden="true" className="option-icon" />
+          <span className={`option-icon-badge tone-${o.key}`} aria-hidden="true">
+            <Icon className="option-icon" />
+          </span>
           <span className="option-goal" title={o.goal}>{goalLabel[o.key]}</span>
           {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{word[light]}</span>}
         </div>
         {a ? <>
           <div className="option-crop-row">
-            <p className="option-crop"><span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span><span>{a.name}{a.harvestMonth ? <small> · cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small> · cultivo permanente</small>}</span></p>
+            <p className="option-crop">
+              <span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span>
+              <span className="option-crop-copy">
+                <strong>{a.name}</strong>
+                {a.harvestMonth ? <small>Cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small>Cultivo permanente</small>}
+              </span>
+            </p>
             {a.overall !== null && <span className={`option-score-pill ${light}`} aria-label={`Puntaje ${a.overall.toFixed(1).replace(".", ",")}`}>{a.overall.toFixed(1).replace(".", ",")}</span>}
           </div>
-          <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>{pillars.map(({ id, label, Icon: P }) => { const c = lightFor(a.scores[id]); return <li key={id} className={`pill ${c}`} title={a.words[id]}><P aria-hidden="true" /><span>{label}<small>{word[c]}</small></span></li>; })}</ul>
+          <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>
+            {pillars.map(({ id, label, Icon: P }) => {
+              const c = lightFor(a.scores[id]);
+              return (
+                <li key={id} className={`pill ${c}`} title={a.words[id]}>
+                  <span className="pill-label"><P aria-hidden="true" />{label}</span>
+                  <small className="pill-val">{word[c]}</small>
+                </li>
+              );
+            })}
+          </ul>
           <div className="option-foot">
             {a.warnings.length > 0 && <details className="visual-details crop-alerts"><summary>Qué revisar ({a.warnings.length})</summary><ul>{a.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></details>}
             <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> Datos y fuentes</button>
