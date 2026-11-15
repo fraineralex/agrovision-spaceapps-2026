@@ -1,8 +1,8 @@
-/* AI: Codex/OpenAI, 2026-11-14; balanced 2-column odd child span by Antigravity (Gemini), 2026-11-15. Frainer review pending. */
-.grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: .85rem; margin-top: .75rem; }
-.item { padding: .85rem 1rem; background: var(--elevated); border: 1px solid var(--border); border-radius: 12px; }
-.item:last-child:nth-child(odd) { grid-column: 1 / -1; }
-.item h3 { margin: 0 0 .5rem; font-size: .95rem; display: flex; align-items: center; gap: .35rem; color: var(--foreground); }
-.item p { margin: .45rem 0; }
-.status { display: flex; align-items: center; gap: .5rem; font-size: 1.2rem; }
-.note { font-size: .84rem; color: var(--muted); }
+/* AI: Codex/OpenAI with Impeccable, 2026-11-15. Application composition and shared UI; Frainer review pending. See AI_USAGE.md. */
+/* AI: Codex/OpenAI, 2026-11-14; balanced grid & flattened hierarchy: Antigravity (Gemini), 2026-11-15. Frainer review pending. */
+.grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; margin-top: 0.5rem; }
+.item { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.75rem 0.95rem; background: var(--elevated); border: 1px solid var(--border); border-radius: 12px; }
+.item h3 { margin: 0; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; color: var(--foreground); }
+.item p { margin: 0; font-size: 0.88rem; line-height: 1.42; }
+.status { display: flex; align-items: center; gap: 0.45rem; font-size: 1.05rem; font-weight: 700; color: var(--foreground); }
+.note { font-size: 0.83rem; color: var(--muted-foreground); line-height: 1.4; }

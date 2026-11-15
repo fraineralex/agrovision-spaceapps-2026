@@ -66,13 +66,14 @@ export function BottomNav({
   );
 }
 
-export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText, onIrrigationDate, onAdd, onLocation }: {
+export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText, supervisor = false, onIrrigationDate, onAdd, onLocation }: {
   farm: Farm | null;
   province?: string;
   rain: ReturnType<typeof useRain>;
   droughtLabel?: string;
   tempC?: number | null;
   areaText?: string;
+  supervisor?: boolean;
   onIrrigationDate: (entry?: IrrigationDate) => boolean;
   onAdd: () => void;
   onLocation: (point: Location) => void;
@@ -116,13 +117,16 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
             if (point) onLocation({ longitude: point.longitude, latitude: point.latitude });
           }} />
         </div>}
-        {(province || farm) && <RainCard rain={rain}/>}
+        {(province || farm) && <RainCard rain={rain} supervisor={supervisor}/>}
       </div>
       <div className="field-week-side">
         {farm?.irrigation !== "rainfed" || saved ? <div className="week-turn">
-          <div className="subhead-help">
-            <h3><Droplets aria-hidden="true"/> Próximo riego</h3>
-            <HelpTip label="Próximo riego" text="Elige si tú decides el día de riego o si te dan turno de canal, y guarda la fecha para cruzarla con la lluvia." />
+          <div className="week-turn-head">
+            <div className="subhead-help subhead-inline">
+              <h3><Droplets aria-hidden="true"/> Próximo riego</h3>
+              <HelpTip label="Próximo riego" text="Elige si tú decides el día de riego o si te dan turno de canal, y guarda la fecha para cruzarla con la lluvia." />
+            </div>
+            <a className="indomet-link" href="https://indomet.gob.do/pronostico/">Avisos de INDOMET →</a>
           </div>
           {farm ? <>
             {saved && <p className="turn-summary"><time dateTime={saved.date}>{shortDate(saved.date)}</time><strong>{saved.mode === "assigned" ? "Turno asignado" : "Fecha elegida"}</strong><span>{saved.date < localDate() ? "Fecha pasada" : rainDay ? `${rainDay.rainMm} mm${rainDay.probPct !== null ? ` · ${rainDay.probPct}% de lluvia` : " previstos"}` : "Sin pronóstico actualizado"}</span></p>}
@@ -142,8 +146,7 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
             {mode === "assigned" && <p className="week-note">Confirma los cambios con quien te asigna el turno.</p>}
             <p role="status" className="week-note">{status}</p>
           </> : <div className="week-turn-empty"><p className="week-note">Registra tu finca para guardar tu fecha de riego y ver si llueve ese día.</p><button type="button" className="workbench-button" onClick={onAdd}>Registrar finca para guardar riego</button></div>}
-        </div> : <p className="week-note">Cultivo de lluvia</p>}
-        <a className="indomet-link" href="https://indomet.gob.do/pronostico/">Avisos de INDOMET →</a>
+        </div> : <div className="week-turn-head"><p className="week-note">Cultivo de lluvia</p><a className="indomet-link" href="https://indomet.gob.do/pronostico/">Avisos de INDOMET →</a></div>}
       </div>
     </div>
   </section>;

@@ -1,918 +1,311 @@
-/* AI: Codex / OpenAI with Impeccable, 2026-11-15; Impeccable Operate refinement by Antigravity (Gemini), 2026-11-15. Frainer review pending. */
-/* Planting has one layout owner; these rules are scoped to #siembra. */
-
-::selection {
-  background: #dcfce7;
-  color: #0f2419;
-}
-
+/* AI: Codex/OpenAI & Antigravity with Impeccable, 2026-11-15. Frainer review pending.
+ * Visual owner of Siembra. Criteria: /DESIGN.md. No local color palettes. */
 #siembra {
-  width: 100%;
-  max-width: none;
-  margin: 0;
+  --planting-gap: 14px;
+  --planting-inset: 16px;
+  --planting-radius: 16px;
+  width: 100%; max-width: none; margin: 0; color: var(--foreground);
 }
-
-/* Flatten outer wrapper so individual panels never read as nested card-in-card containers */
+#siembra *, #siembra *::before, #siembra *::after { box-sizing: border-box; }
+#siembra :is(section,div,li,form) { min-width: 0; }
+#siembra :is(p,li,small) { overflow-wrap: break-word; }
+#siembra :is(button,summary) { touch-action: manipulation; }
 #siembra .planting-overview.card {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
+  display: grid; grid-template-columns: minmax(0,1.28fr) minmax(0,1fr);
+  gap: 0 20px; padding: 0; margin: 0; background: transparent; border: 0; box-shadow: none;
 }
-
-#siembra .planting-overview > * {
-  width: 100%;
-  min-width: 0;
-}
-
-/* Context & control toolbar */
+#siembra .planting-overview > :not(.recommendation-hero,.metric-tiles) { grid-column: 1 / -1; }
 #siembra .profile-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-  margin: 0;
-  padding: 12px 18px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--card);
-  box-shadow: none;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 18px;
+  padding: 0 0 10px; margin: 0; background: transparent; border: 0; border-radius: 0;
 }
-
-#siembra .profile-loc {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--foreground);
-  line-height: 1.4;
-}
-
-#siembra .profile-loc svg {
-  color: var(--success);
-  flex-shrink: 0;
-}
-
-#siembra .profile-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-#siembra .inline-month-pick {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-#siembra .profile-actions .ob-link {
-  min-height: 40px;
-  border-radius: 999px;
-  padding: 6px 16px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  border: 1px solid var(--input);
-  background: var(--card);
-  color: var(--foreground);
-  transition: background 150ms ease, border-color 150ms ease;
-}
-
-#siembra .profile-actions .ob-link:hover {
-  background: var(--muted-surface);
-  border-color: var(--success);
-}
-
-/* Primary recommendation hero (single border elevation, clear typographic hierarchy) */
+#siembra .profile-loc, #siembra .profile-actions, #siembra .inline-month-pick { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+#siembra .inline-month-pick { flex-wrap:nowrap; }
+#siembra .profile-actions { align-items:flex-end; }
+#siembra .profile-loc { color:var(--foreground); font-size:1rem; font-weight:600; line-height:1.45; }
+#siembra .profile-loc svg { color:var(--success); }
+#siembra .inline-month-pick > span { font-size:.9rem; color:var(--muted); }
+#siembra .profile-actions .ob-link { min-height:44px; padding:9px 14px; border:1px solid var(--input); border-radius:10px; color:var(--foreground); background:var(--card); text-decoration:none; font-weight:700; }
 #siembra .recommendation-hero {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 26px 28px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: none;
-}
-
-#siembra .recommendation-hero.tone-green {
-  border-color: rgba(21, 128, 61, 0.25);
-  background: linear-gradient(160deg, #f4fbf6 0%, #ffffff 48%);
-}
-
-#siembra .recommendation-hero.tone-amber {
-  border-color: rgba(161, 98, 7, 0.25);
-  background: linear-gradient(160deg, #fffcf3 0%, #ffffff 48%);
-}
-
-#siembra .recommendation-hero.tone-red {
-  border-color: rgba(185, 28, 28, 0.25);
-  background: linear-gradient(160deg, #fef6f6 0%, #ffffff 48%);
-}
-
-#siembra .recommendation-content {
-  min-width: 0;
-}
-
-#siembra .recommendation-heading {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 6px 20px;
-  align-items: center;
-}
-
-#siembra .recommendation-heading .crop-illustration {
-  position: static;
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  width: 88px;
-  height: 88px;
-  opacity: 1;
-  border-radius: 18px;
-  background: var(--muted-surface);
-  border: 1px solid rgba(20, 83, 45, 0.14);
-}
-
-#siembra .crop-illustration svg {
-  width: 56px;
-  height: 56px;
-}
-
-#siembra .recommendation-heading > div:first-child {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-#siembra .recommendation-caption {
-  display: none;
-}
-
-#siembra .recommendation-heading h2 {
-  margin: 0;
-  font-size: clamp(2rem, 3.2vw, 2.65rem);
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.028em;
-  color: var(--foreground);
-}
-
-#siembra .previous-crop {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-#siembra .recommendation-score {
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-#siembra .recommendation-score > span:last-child {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--muted-surface);
-  color: var(--primary);
-  font-size: 0.85rem;
-  font-weight: 800;
-}
-
-#siembra .advisor-reason {
-  margin: 18px 0 14px;
-  max-width: 62ch;
-  font-size: 1.0625rem;
-  font-weight: 500;
-  line-height: 1.55;
-  color: var(--foreground);
-}
-
-#siembra .recommendation-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 18px;
-  margin: 0 0 14px;
-  font-variant-numeric: tabular-nums;
-}
-
-#siembra .recommendation-meta > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.95rem;
-  color: var(--foreground);
-}
-
-#siembra .recommendation-meta > span small {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-#siembra .risk-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 12px;
-  border-radius: 10px;
-  background: #fef3c7;
-  color: #854d0e;
-  border: 1px solid rgba(161, 98, 7, 0.22);
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-
-#siembra .recommendation-hero .verdict-actions {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-#siembra .recommendation-hero .verdict-actions button {
-  min-height: 44px;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 0.925rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
-}
-
-#siembra .recommendation-hero .verdict-actions .listen {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border: 1px solid var(--primary);
-}
-
-#siembra .recommendation-hero .verdict-actions .listen:hover {
-  background: #166534;
-}
-
-#siembra .recommendation-hero .verdict-actions .src-button {
-  background: var(--card);
-  color: var(--foreground);
-  border: 1px solid var(--input);
-}
-
-#siembra .recommendation-hero .verdict-actions .src-button:hover {
-  background: var(--muted-surface);
-  border-color: var(--success);
-}
-
-/* 4-pillar summary tiles (no 6px side-tab border, crisp surface tinting) */
-#siembra .metric-tiles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0;
-}
-
-#siembra .metric-tile {
-  position: relative;
-  min-height: 152px;
-  padding: 18px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-content: start;
-  gap: 6px;
-  box-shadow: none;
-  font-variant-numeric: tabular-nums;
-}
-
-#siembra .metric-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-#siembra .metric-tile strong {
-  font-size: 1.25rem;
-  font-weight: 800;
-  line-height: 1.2;
-  color: var(--foreground);
-}
-
-#siembra .metric-tile small {
-  display: block;
-  overflow: visible;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--muted);
-}
-
-#siembra .metric-water {
-  padding-right: 36px;
-}
-
-/* Desktop paired overview layout: Recommendation left, 2x2 Pillars right */
-@media (min-width: 1001px) {
-  #siembra .planting-overview.card {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    align-items: stretch;
-    gap: 18px;
-  }
-
-  #siembra .planting-overview > :not(.recommendation-hero, .metric-tiles) {
-    grid-column: 1 / -1;
-  }
-
-  #siembra .recommendation-hero {
-    grid-column: 1;
-  }
-
-  #siembra .metric-tiles {
-    grid-column: 2;
-    align-self: stretch;
-  }
-}
-
-/* Crop comparison section */
-#siembra .crop-comparison {
-  margin: 4px 0 0;
-  padding: 22px 24px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--card);
-  box-shadow: none;
-}
-
-#siembra .crop-comparison-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
-  margin-bottom: 14px;
-}
-
-#siembra .crop-comparison-head h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--foreground);
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-
-#siembra .crop-comparison-head h2 svg {
-  width: 20px;
-  height: 20px;
-  color: var(--success);
-}
-
-#siembra .crop-comparison .crop-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 14px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-  align-items: stretch;
-}
-
-#siembra .crop-row {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: none;
-  transition: border-color 150ms ease, background 150ms ease;
-}
-
-#siembra .crop-row.top {
-  background: #f8fcf9;
-  border-color: rgba(21, 128, 61, 0.34);
-  box-shadow: none;
-}
-
-#siembra .crop-row:hover {
-  border-color: rgba(21, 128, 61, 0.42);
-}
-
-#siembra .crop-row-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-}
-
-#siembra .crop-row .crop-medallion.sm {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-}
-
-#siembra .crop-row-title {
-  flex: 1;
-  min-width: 0;
-  line-height: 1.3;
-}
-
-#siembra .crop-row-title strong {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--foreground);
-  white-space: normal;
-}
-
-#siembra .crop-row .src-button.icon-only {
-  width: 38px;
-  min-height: 38px;
-  border-radius: 10px;
-}
-
-#siembra .crop-row-rating {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#siembra .crop-row-rating .crop-row-meter {
-  flex: 1;
-  height: 6px;
-}
-
-#siembra .crop-row .pillar-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-#siembra .crop-row .pillar-chip {
-  justify-content: center;
-  font-size: 0.84rem;
-  font-weight: 700;
-  padding: 6px 8px;
-  border-radius: 10px;
-}
-
-#siembra .crop-row-alert {
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
-}
-
-#siembra .crop-row-alert > summary {
-  font-size: 0.875rem;
-  min-height: 36px;
-}
-
-#siembra .crop-row-alert .warning {
-  background: transparent;
-  border: 0;
-  padding: 4px 0 8px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.45;
-}
-
-/* Lower stack: Planting Plan, Other Options, Soil Rotation, Actions */
-#siembra .siembra-stack {
-  display: grid;
-  width: 100%;
-  max-width: none;
-  gap: 20px;
-  margin: 20px 0 0;
-}
-
-#siembra .siembra-stack > * {
-  min-width: 0;
-}
-
-#siembra .siembra-stack > .panel {
-  margin: 0;
-  padding: 24px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: none;
-}
-
-#siembra .panel-head-row {
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-#siembra .panel-title {
-  margin: 0;
-  font-size: 1.25rem;
-  line-height: 1.3;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--foreground);
-}
-
-/* Plan de siembra: clean 3-column workbench toolbar */
-#siembra .siembra-plan-card {
-  position: relative;
-  overflow: visible;
-}
-
-#siembra .siembra-plan-card:has(.ag-select[data-open="true"]) {
-  z-index: 30;
-}
-
-#siembra .planting-plan {
-  margin: 0;
-}
-
-#siembra .saved-plan {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 14px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #dcfce7;
-  color: #14532d;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-#siembra .planting-plan .workbench-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: end;
-}
-
-#siembra .plan-form-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-#siembra .ag-select-trigger {
-  min-height: 46px;
-}
-
-#siembra .plan-form-actions button[type="submit"] {
-  min-height: 46px;
-  padding-inline: 20px;
-  border-radius: 12px;
-  font-weight: 700;
-}
-
-/* Otras opciones: flattened sub-surface for crop badge, crisp 2x2 pillars */
-#siembra .options-subtitle {
-  margin: 0 0 16px;
-  font-size: 0.95rem;
-  color: var(--muted);
-  line-height: 1.45;
-}
-
-#siembra .options .option-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  align-items: stretch;
-}
-
-#siembra .option.option-row-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px;
-  border-radius: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: none;
-  min-width: 0;
-}
-
-#siembra .option-top-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-}
-
-#siembra .option-goal-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-#siembra .option-goal {
-  font-size: 1.0625rem;
-  font-weight: 800;
-  line-height: 1.35;
-  color: var(--foreground);
-}
-
-#siembra .option-goal-sub {
-  display: block;
-  margin-top: 2px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: var(--muted);
-}
-
-#siembra .option-crop-card {
-  width: 100%;
-  max-width: none;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--elevated);
-  border: 1px solid rgba(20, 83, 45, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-sizing: border-box;
-}
-
-#siembra .option-crop-copy {
-  flex: 1 1 100px;
-  min-width: 0;
-}
-
-#siembra .option-crop-copy strong {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--foreground);
-}
-
-#siembra .option-crop-copy small {
-  display: block;
-  white-space: normal;
-  color: var(--muted);
-}
-
-#siembra .option-crop-card .src-button {
-  margin-inline-start: auto;
-}
-
-#siembra .option-row-card .option-pillars {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-#siembra .option-row-card .option-pillars .pill {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-}
-
-/* Rotación y suelo */
-#siembra .soil {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px 20px;
-}
-
-#siembra .soil > * {
-  min-width: 0;
-  margin-block: 0;
-}
-
-#siembra .soil-lead,
-#siembra .soil-sub,
-#siembra .soil-list,
-#siembra .soil-reasons,
-#siembra .soil-sources {
-  grid-column: 1 / -1;
-}
-
-#siembra .soil-lead {
-  max-width: 68ch;
-  font-size: 1rem;
-  line-height: 1.58;
-  color: var(--foreground);
-}
-
-#siembra .soil-sub {
-  padding-top: 8px;
-  font-size: 1.08rem;
-  font-weight: 800;
-  color: var(--foreground);
-}
-
-#siembra .soil-now h3 {
-  font-size: 1.05rem;
-  font-weight: 800;
-}
-
-#siembra .soil-now p {
-  font-size: 0.95rem;
-  line-height: 1.55;
-}
-
-#siembra .soil-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-#siembra .soil-list li {
-  background: var(--elevated);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-}
-
-#siembra .soil-reasons {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 28px;
-}
-
-#siembra .soil-reasons li {
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  color: var(--muted);
-}
-
-#siembra .soil-reasons li strong {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--foreground);
-}
-
-#siembra .soil-sources {
-  margin-top: 6px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--elevated);
-}
-
-#siembra .soil-sources summary {
-  cursor: pointer;
-  font-weight: 700;
-  min-height: 28px;
-}
-
-#siembra .soil-sources p {
-  max-width: 72ch;
-  font-size: 0.925rem;
-  line-height: 1.55;
-}
-
-/* Bottom pair: checklist + share */
-#siembra .siembra-bottom-row {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-#siembra .planting-review {
-  width: 100%;
-  margin: 0;
-  padding: 18px 22px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--card);
-}
-
-#siembra .planting-review > summary {
-  font-size: 1.05rem;
-  font-weight: 800;
-}
-
-#siembra :is(button, summary, .ag-select-trigger):focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-
-/* Breakpoints */
-@media (max-width: 1000px) {
-  #siembra .metric-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  #siembra .crop-comparison .crop-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 640px) {
-  #siembra .profile-line,
-  #siembra .recommendation-hero,
-  #siembra .crop-comparison,
-  #siembra .siembra-stack > .panel {
-    padding: 18px;
-  }
-
-  #siembra .recommendation-heading {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 6px 14px;
-  }
-
-  #siembra .recommendation-heading .crop-illustration {
-    width: 72px;
-    height: 72px;
-  }
-
-  #siembra .crop-illustration svg {
-    width: 46px;
-    height: 46px;
-  }
-
-  #siembra .recommendation-heading h2 {
-    font-size: 2rem;
-  }
-
-  #siembra .crop-comparison .crop-list,
-  #siembra .options .option-list,
-  #siembra .planting-plan .workbench-form,
-  #siembra .soil,
-  #siembra .soil-list,
-  #siembra .soil-reasons {
-    grid-template-columns: 1fr !important;
-  }
-
-  #siembra .option-crop-card {
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr) 36px;
-    align-items: start;
-    gap: 10px;
-  }
-
-  #siembra .option-crop-card .crop-medallion {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-  }
-
-  #siembra .option-crop-copy {
-    grid-column: 2;
-    min-width: 0;
-  }
-
-  #siembra .option-crop-copy strong {
-    display: block;
-    white-space: normal;
-  }
-
-  #siembra .option-crop-card .stars {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  #siembra .option-crop-card .src-button {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
-  #siembra .siembra-stack {
-    gap: 16px;
-  }
-}
-
-@media (max-width: 400px) {
-  #siembra .metric-tiles,
-  #siembra .option-row-card .option-pillars {
-    grid-template-columns: 1fr;
-  }
-}
-
-#siembra .options-plan { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
-#siembra .options-plan h3 { margin: 0 0 16px; font-size: 1.2rem; font-weight: 750; color: var(--foreground); }
+  display:flex; flex-direction:column; gap:12px; padding:18px 20px; margin:0;
+  border:1px solid var(--border); border-radius:var(--planting-radius); background:var(--card); box-shadow:none;
+}
+#siembra .recommendation-content { display:grid; gap:10px; }
+#siembra .recommendation-heading { display:grid; grid-template-columns:80px minmax(0,1fr); gap:6px 16px; align-items:center; }
+#siembra .recommendation-heading > div:first-child { grid-column:2; grid-row:1; }
+#siembra .recommendation-heading h2 { margin:0; font-size:2.55rem; font-weight:800; line-height:1.08; letter-spacing:-.03em; color:var(--foreground); }
+#siembra .recommendation-caption { display:none; }
+#siembra .previous-crop { margin:4px 0 0; color:var(--muted); font-size:.92rem; }
+#siembra .recommendation-heading .crop-illustration { position:static; grid-column:1; grid-row:1 / span 2; width:80px; height:80px; opacity:1; border:0; border-radius:14px; background:var(--muted-surface); color:var(--success); }
+#siembra .crop-illustration svg { width:52px; height:52px; }
+#siembra .recommendation-score { display:flex; grid-column:2; grid-row:2; flex-direction:row; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:8px 10px; color:var(--success); font-size:.9rem; font-variant-numeric:tabular-nums; }
+#siembra .advisor-reason { margin:0; max-width:60ch; font-size:1.02rem; line-height:1.55; color:var(--foreground); }
+#siembra .recommendation-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin:0; }
+#siembra .recommendation-meta > span { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:2px 8px; font-size:.92rem; }
+#siembra .recommendation-meta small { color:var(--muted); }
+#siembra .tech-meta-pill {
+  display:inline-flex; align-items:center; padding:4px 10px; border:1px solid var(--border);
+  border-radius:999px; background:var(--elevated); color:var(--muted);
+  font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums;
+}
+#siembra .source-chip { border-color:var(--border); color:var(--water); }
+#siembra .risk-pill { justify-self:start; padding:7px 11px; border:0; border-radius:8px; background:var(--status-amber-bg); color:var(--status-amber-fg); font-size:.88rem; line-height:1.45; }
+#siembra .recommendation-hero .verdict-actions { display:flex; flex-wrap:wrap; gap:8px 10px; margin-top:0; padding-top:10px; border-top:1px solid var(--border); }
+#siembra .verdict-actions :is(.listen,.src-button) { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:8px 14px; border-radius:10px; font-size:.9rem; box-shadow:none; }
+#siembra .verdict-actions .listen { background:var(--primary); color:var(--primary-foreground); border:1px solid var(--primary); }
+#siembra .verdict-actions .src-button { background:var(--card); color:var(--foreground); border:1px solid var(--input); }
+#siembra .metric-tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0; margin:0; padding:4px 12px; border:1px solid var(--border); border-radius:var(--planting-radius); background:var(--card); }
+#siembra .metric-tile { display:flex; flex-direction:column; justify-content:center; gap:3px; min-height:0; margin:0; padding:10px 12px; border:0; border-radius:0; background:transparent; box-shadow:none; }
+#siembra .metric-tile:nth-child(odd) { border-right:1px solid var(--border); }
+#siembra .metric-tile:nth-child(-n+2) { border-bottom:1px solid var(--border); }
+#siembra .metric-label { font-size:.85rem; color:var(--muted); font-weight:600; font-variant-numeric:tabular-nums; }
+#siembra .metric-label svg { width:17px; height:17px; }
+#siembra .metric-tile strong { font-size:1.22rem; line-height:1.25; color:var(--foreground); }
+#siembra .metric-tile small { display:block; overflow:visible; -webkit-line-clamp:unset; color:var(--muted); font-size:.86rem; line-height:1.45; }
+#siembra .metric-water { padding-right:30px; }
+#siembra .water-tank { width:9px; inset:14px 10px 14px auto; }
+#siembra .crop-comparison { margin-top:16px; }
+#siembra .planting-panel { padding:var(--planting-inset); border:1px solid var(--border); border-radius:var(--planting-radius); background:var(--card); box-shadow:none; }
+#siembra .section-panel-heading { display:flex; align-items:center; flex-wrap:wrap; gap:8px 14px; padding:0 0 12px; margin:0; }
+#siembra .section-panel-heading h2 { display:flex; align-items:center; gap:9px; margin:0; font-size:1.25rem; line-height:1.3; font-weight:750; letter-spacing:-.02em; color:var(--foreground); }
+#siembra .section-panel-heading h2 > svg { width:20px; height:20px; color:var(--success); flex-shrink:0; }
+#siembra .section-panel-heading .help-tip-wrap { margin-inline-start:auto; }
+#siembra .help-tip-btn { min-height:40px; padding:6px 10px; font-size:.8rem; background:transparent; border-color:var(--border); color:var(--muted); }
+#siembra .help-tip-box { background:var(--elevated); color:var(--foreground); border-color:var(--input); z-index:120; }
+#siembra .crops-dist-pills { gap:6px; }
+#siembra .dist-pill { padding:3px 8px; font-size:.75rem; }
+#siembra .crops-dist-bar { height:5px; margin:0 0 12px; }
+#siembra .crop-list, #siembra .options .option-list {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start;
+  gap:10px; padding:0; margin:0; list-style:none;
+}
+#siembra .crop-row, #siembra .option.option-row-card {
+  display:flex; flex-direction:column; gap:8px; grid-column:auto; padding:12px 14px; margin:0;
+  border:1px solid var(--border); border-radius:12px; background:var(--card); box-shadow:none; transform:none;
+}
+#siembra .planting-crop-identity { display:grid; grid-template-columns:44px minmax(0,1fr) auto; align-items:center; gap:4px 10px; min-height:46px; }
+#siembra .planting-crop-icon { display:grid; place-items:center; width:44px; height:44px; border-radius:10px; color:var(--success); background:var(--muted-surface); }
+#siembra .planting-crop-copy h3 { margin:0; font-size:1.08rem; font-weight:750; line-height:1.3; color:var(--foreground); }
+#siembra .planting-recommended { display:inline-block; margin-top:2px; font-size:.7rem; line-height:1.35; font-weight:700; color:var(--success); }
+#siembra .crop-tech-meta { display:block; margin-top:2px; font-size:.74rem; line-height:1.35; color:var(--muted); font-variant-numeric:tabular-nums; }
+#siembra .planting-source-button { grid-column:3; grid-row:1; display:grid; place-items:center; width:40px; min-height:40px; padding:0; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--water); cursor:pointer; }
+#siembra .planting-source-button:hover { background:var(--elevated); border-color:var(--input); }
+#siembra .crop-row-rating { display:flex; align-items:center; gap:10px; }
+#siembra .rating-numeric { font-size:.9rem; font-weight:750; font-variant-numeric:tabular-nums; color:var(--foreground); white-space:nowrap; }
+#siembra .crop-row-meter { flex:1; height:5px; background:var(--track-bg); }
+#siembra .stars { gap:3px; }
+#siembra .planting-pillars { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; padding:0; margin:0; list-style:none; }
+#siembra .planting-pillar { display:flex; flex-direction:column; gap:2px; padding:7px 9px; border:1px solid var(--border); border-radius:8px; font-size:.78rem; line-height:1.35; }
+#siembra .planting-pillar > span { display:flex; align-items:center; gap:5px; font-weight:500; }
+#siembra .pillar-score { margin-inline-start:auto; font-style:normal; font-weight:700; font-variant-numeric:tabular-nums; font-size:.74rem; opacity:.9; }
+#siembra .planting-pillar strong { font-size:.84rem; font-weight:650; }
+#siembra .is-green { background:color-mix(in srgb,var(--status-green-bg) 45%,var(--card)); border-color:var(--status-green-border); color:var(--status-green-fg); }
+#siembra .is-amber { background:color-mix(in srgb,var(--status-amber-bg) 45%,var(--card)); border-color:var(--status-amber-border); color:var(--status-amber-fg); }
+#siembra .is-red { background:color-mix(in srgb,var(--status-red-bg) 45%,var(--card)); border-color:var(--status-red-border); color:var(--status-red-fg); }
+#siembra .is-gray { background:var(--status-gray-bg); border-color:var(--border); color:var(--status-gray-fg); }
+#siembra .planting-note { color:var(--muted); font-size:.88rem; }
+#siembra .crop-row-alert, #siembra .option-warn-bar { margin-top:2px; padding:0; border:0; background:transparent; }
+#siembra .crop-row-alert[open], #siembra .option-warn-bar[open] { width:100%; padding-top:8px; border-top:1px solid var(--border); }
+#siembra .crop-row-alert > summary, #siembra .option-warn-bar > summary {
+  display:inline-flex; align-items:center; gap:6px; width:fit-content; min-height:34px; padding:4px 10px;
+  border:1px solid var(--border); border-radius:8px; background:var(--elevated);
+  font-size:.82rem; font-weight:600; color:var(--foreground); cursor:pointer; white-space:nowrap;
+}
+#siembra .crop-row-alert[open] > summary, #siembra .option-warn-bar[open] > summary { margin-bottom:6px; }
+#siembra .crop-row-alert .warning { background:transparent; border:0; padding:4px 0; margin:0; color:var(--foreground); font-weight:400; line-height:1.48; }
+#siembra .siembra-stack { display:grid; gap:12px; width:100%; max-width:none; margin:12px 0 0; }
+#siembra .options-subtitle, #siembra .pest-intro { margin:0 0 10px; font-size:.92rem; line-height:1.45; color:var(--muted); }
+#siembra .options .option-list { grid-template-columns:minmax(0,1fr) !important; align-items:stretch; }
+#siembra .option-top-bar { display:flex; flex-direction:column; align-items:stretch; gap:8px; }
+#siembra .option-goal-group { display:flex; align-items:flex-start; flex:none; gap:10px; width:100%; }
+#siembra .option-goal-copy { display:flex; flex-direction:column; gap:2px; flex:1; }
+#siembra .option-goal { display:flex; flex-wrap:wrap; gap:4px; font-size:.96rem; line-height:1.35; color:var(--foreground); }
+#siembra .option-goal > span { white-space:normal; overflow-wrap:normal; }
+#siembra .option-goal-sub { font-size:.84rem; line-height:1.4; color:var(--muted); }
+#siembra .option-icon-badge { display:grid; place-items:center; width:30px; height:30px; flex-shrink:0; border:0; border-radius:10px; background:var(--muted-surface); color:var(--success); }
+#siembra .option-crop-card { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; max-width:none; padding:0; border:0; border-radius:0; background:transparent; }
+#siembra .option-crop-rating { display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; padding-left:54px; }
+#siembra .option-crop-rating > span:last-child { font-size:.84rem; color:var(--muted); }
+#siembra .option-empty-bar { padding:8px 12px; background:var(--elevated); border:0; border-radius:8px; }
+#siembra .options-plan { margin:0 0 12px; padding:0 0 12px; border-bottom:1px solid var(--border); }
+#siembra .siembra-plan-card { position:relative; width:100%; }
+#siembra .siembra-plan-card > h3 { margin:0 0 8px; font-size:1.1rem; font-weight:750; }
+#siembra .planting-plan { margin:0; }
+#siembra .planting-plan .workbench-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:12px; align-items:end; }
+#siembra .plan-form-actions { grid-column:auto; display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+#siembra .plan-form-actions button[type=submit] { flex:none; min-height:44px; border:1px solid var(--primary); border-radius:10px; background:var(--primary); color:var(--primary-foreground); font-size:.95rem; font-weight:700; padding:9px 16px; }
+#siembra .plan-form-actions button:disabled { opacity:.55; cursor:not-allowed; }
+#siembra .saved-plan { padding:10px 14px; margin:0 0 12px; background:var(--muted-surface); border-radius:10px; line-height:1.45; }
+#siembra .ag-select-trigger { min-height:44px; border-radius:10px; }
+#siembra .options:has(.ag-select[data-open=true]) { position:relative; z-index:40; }
+#siembra .ag-select[data-open=true] { z-index:50; }
+#siembra .ag-select-menu { z-index:51; }
+#siembra .soil { display:grid; grid-template-columns:1fr; gap:12px; }
+#siembra .soil > *, #siembra .soil-primary > * { margin:0; }
+#siembra .soil-primary { display:grid; gap:10px; align-content:start; }
+#siembra .soil-lead { max-width:66ch; font-size:.94rem; line-height:1.5; color:var(--muted); }
+#siembra .soil-diagnoses { display:grid; grid-template-columns:1fr; gap:8px; }
+#siembra .soil-now { display:flex; flex-direction:column; gap:5px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:var(--elevated); }
+#siembra .soil-now.lv-good { background:color-mix(in srgb,var(--status-green-bg) 35%,var(--card)); border-color:var(--status-green-border); }
+#siembra .soil-now.lv-ok { background:color-mix(in srgb,var(--status-amber-bg) 35%,var(--card)); border-color:var(--status-amber-border); }
+#siembra .soil-now.lv-bad { background:color-mix(in srgb,var(--status-red-bg) 35%,var(--card)); border-color:var(--status-red-border); }
+#siembra .soil-tag { display:inline-flex; align-items:center; gap:5px; font-size:.76rem; font-weight:700; color:var(--success); }
+#siembra .soil-now.lv-bad .soil-tag { color:var(--status-red-fg); }
+#siembra .soil-now h3 { margin:0; font-size:.98rem; line-height:1.35; font-weight:750; color:var(--foreground); }
+#siembra .soil-now p { margin:0; line-height:1.48; font-size:.9rem; color:var(--foreground); }
+#siembra .soil-now p.soil-declared { margin-top:auto; padding-top:4px; font-size:.8rem; color:var(--muted); }
+#siembra .soil-missing-note { font-size:.85rem; color:var(--muted); }
+#siembra .soil-matrix, #siembra .soil-reasons-wrap, #siembra .soil-footer { display:grid; gap:8px; align-content:start; }
+#siembra .soil-sub { margin:0; padding:0; font-size:1.02rem; font-weight:750; color:var(--foreground); }
+#siembra .soil-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:0; list-style:none; margin:0; }
+#siembra .soil-list[data-count="5"] > li:last-child { grid-column:1 / -1; }
+#siembra .soil-list li { display:flex; flex-direction:column; gap:5px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--elevated); line-height:1.4; }
+#siembra .soil-list-head { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+#siembra .soil-list-head strong { font-size:.92rem; font-weight:750; color:var(--foreground); }
+#siembra .soil-badge { display:inline-flex; align-items:center; padding:2px 7px; border:1px solid var(--border); border-radius:999px; font-size:.72rem; font-weight:700; white-space:nowrap; }
+#siembra .soil-badge.lv-good { background:var(--status-green-bg); border-color:var(--status-green-border); color:var(--status-green-fg); }
+#siembra .soil-badge.lv-ok { background:var(--status-amber-bg); border-color:var(--status-amber-border); color:var(--status-amber-fg); }
+#siembra .soil-badge.lv-bad { background:var(--status-red-bg); border-color:var(--status-red-border); color:var(--status-red-fg); }
+#siembra .soil-badge.lv-none { background:var(--status-gray-bg); border-color:var(--border); color:var(--status-gray-fg); }
+#siembra .soil-list-desc { margin:0; font-size:.83rem; color:var(--muted); line-height:1.4; }
+#siembra .soil-reasons { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); gap:8px 16px; list-style:none; padding:0; margin:0; }
+#siembra .soil-reasons li { padding:8px 0 0; border-top:1px solid var(--border); line-height:1.45; font-size:.88rem; }
+#siembra .soil-reasons strong { display:block; margin-bottom:2px; font-size:.92rem; }
+#siembra .soil-reasons p { margin:0; color:var(--muted); }
+#siembra .soil-sources, #siembra .pest-general { padding:8px 14px; border:1px solid var(--border); border-radius:10px; background:var(--card); }
+#siembra .soil-sources:not([open]), #siembra .pest-general:not([open]) { width:fit-content; max-width:100%; background:var(--elevated); }
+#siembra .soil-sources-open { display:grid; gap:8px; padding:10px 14px; width:100%; background:var(--elevated); }
+#siembra .soil-sources summary, #siembra .pest-general summary { cursor:pointer; min-height:34px; font-size:.88rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+#siembra .soil-sources[open] > summary, #siembra .pest-general[open] > summary { margin-bottom:8px; }
+#siembra .soil-source-links { display:grid; gap:6px; margin-top:8px; }
+#siembra .soil-sources-open .soil-source-links { margin-top:0; }
+#siembra .soil-source-chips { display:flex; flex-wrap:wrap; gap:6px; }
+#siembra .soil-source-chip { display:inline-flex; align-items:center; padding:4px 10px; border:1px solid var(--border); border-radius:999px; background:var(--card); font-size:.8rem; font-weight:600; text-decoration:none; }
+#siembra .soil-source-chip:hover { border-color:var(--input); background:var(--muted-surface); }
+#siembra .soil-source-disclaimer { margin:0; font-size:.84rem; line-height:1.48; color:var(--muted); }
+#siembra .pest-crops { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:0; margin:0; list-style:none; align-items:stretch; }
+#siembra .pest-row-item {
+  display:flex; flex-direction:column; gap:8px; align-items:stretch;
+  padding:12px 14px; margin:0; border:1px solid var(--border); border-radius:12px; background:var(--elevated);
+}
+#siembra .pest-col-crop { display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 10px; }
+#siembra .pest-col-crop .planting-crop-identity { min-height:38px; grid-template-columns:38px minmax(0,1fr); flex:1; }
+#siembra .pest-col-crop .planting-crop-icon { width:38px; height:38px; background:var(--card); }
+#siembra .pest-risk-badge {
+  display:inline-flex; align-items:center; padding:2px 8px; border:1px solid var(--border);
+  border-radius:999px; font-size:.73rem; font-weight:700; white-space:nowrap; flex-shrink:0;
+}
+#siembra .pest-col-watch { display:flex; flex-direction:column; gap:4px; }
+#siembra .pest-overview { display:flex; flex-direction:column; gap:5px; margin:0; }
+#siembra .pest-crops .pest-status { margin:0; font-size:.9rem; font-weight:600; color:var(--foreground); }
+#siembra .pest-watch { display:flex; flex-wrap:wrap; gap:5px; list-style:none; padding:0; margin:0; }
+#siembra .pest-watch li { padding:3px 8px; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--foreground); font-size:.81rem; font-weight:500; }
+#siembra .pest-watch li.is-shared { background:var(--status-red-bg); border-color:var(--status-red-border); color:var(--status-red-fg); font-weight:650; }
+#siembra .pest-ext-note { color:var(--muted); font-size:.76rem; }
+#siembra .pest-row-item > .pest-no-guide { margin:auto 0 0; font-size:.82rem; }
+#siembra .pest-row-item > details.pest-evidence { margin:auto 0 0; padding:0; border:0; background:transparent; width:fit-content; max-width:100%; }
+#siembra .pest-row-item > details.pest-evidence > summary {
+  display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:4px 10px;
+  border:1px solid var(--border); border-radius:8px; background:var(--card);
+  font-size:.82rem; font-weight:600; color:var(--foreground); cursor:pointer; white-space:nowrap;
+}
+#siembra .pest-row-item > details.pest-evidence[open] { width:100%; padding:8px 0 0; border-top:1px solid var(--border); }
+#siembra .pest-row-item > details.pest-evidence[open] > summary { margin-bottom:6px; }
+#siembra .pest-row-item > .pest-evidence-open { margin:auto 0 0; padding-top:8px; border-top:1px solid var(--border); font-size:.84rem; line-height:1.45; }
+#siembra .pest-list { display:grid; grid-template-columns:1fr; gap:4px; padding:0 0 0 16px; margin:2px 0 6px; font-size:.83rem; }
+#siembra .pest-evidence-foot { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:6px 12px; margin-top:4px; font-size:.82rem; }
+#siembra .pest-evidence-foot p { margin:0; }
+#siembra .pest-general.pest-evidence-open { width:100%; border:1px solid var(--border); margin-top:10px; padding:10px 14px; background:var(--elevated); }
+#siembra .pest-general { margin-top:10px; }
+#siembra .planting-review { margin:12px 0 0; padding:8px 14px; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+#siembra .planting-review:not([open]) { width:fit-content; max-width:100%; }
+#siembra .planting-review[open] { width:100%; padding:12px 16px; border-radius:var(--planting-radius); }
+#siembra .planting-review > summary { min-height:34px; padding:0; color:var(--foreground); font-size:.94rem; font-weight:750; }
+#siembra .planting-review p, #siembra .planting-review li { line-height:1.5; }
+#siembra .share { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:10px; padding:0; border:0; background:transparent; box-shadow:none; }
+#siembra .share-button { flex:none; width:auto; min-height:42px; padding:8px 14px; border-radius:10px; }
+#siembra :is(button,summary):focus-visible { outline:2px solid var(--focus); outline-offset:3px; }
+#siembra ::selection { background:var(--primary); color:var(--primary-foreground); }
+/* Balance incomplete rows; larger comparisons use a compact, aligned reading grid. */
+@media (min-width:1120px) {
+  #siembra .pest-crops:is([data-count="3"],[data-count="6"]) { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #siembra .pest-crops[data-count="5"] { grid-template-columns:repeat(6,minmax(0,1fr)); }
+  #siembra .pest-crops[data-count="5"] > li:nth-child(-n+3) { grid-column:span 2; }
+  #siembra .pest-crops[data-count="5"] > li:nth-child(n+4) { grid-column:span 3; }
+}
+@media (min-width:920px) {
+  #siembra .soil.soil-split { grid-template-columns:minmax(0,1fr) minmax(0,1.12fr); gap:14px 18px; align-items:start; }
+  #siembra .soil-diagnoses:has(> :nth-child(2)) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #siembra .soil-diagnoses:has(> :nth-child(3)) > :first-child { grid-column:1 / -1; }
+  #siembra .soil-footer { grid-column:1 / -1; }
+  #siembra .soil-reasons { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media (min-width:1020px) {
+  #siembra .options .option-list { grid-template-columns:repeat(3,minmax(0,1fr)) !important; align-items:start; }
+  #siembra .options .option-list:is([data-count="2"],[data-count="4"]) { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  #siembra .options .option.option-row-card:last-child:nth-child(odd) { grid-column:auto; }
+  #siembra .crop-list:has(>li:nth-child(3):last-child),
+  #siembra .crop-list:has(>li:nth-child(6):last-child) { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #siembra .crop-list:has(>li:nth-child(5):last-child) { grid-template-columns:repeat(6,minmax(0,1fr)); }
+  #siembra .crop-list:has(>li:nth-child(5):last-child) > li:nth-child(-n+3) { grid-column:span 2; }
+  #siembra .crop-list:has(>li:nth-child(5):last-child) > li:nth-child(n+4) { grid-column:span 3; }
+}
+@media (max-width:1019px) {
+  #siembra .planting-overview.card { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:0 14px; }
+  #siembra .metric-tiles { padding:4px 8px; }
+  #siembra .metric-tile { padding:10px 10px; }
+  #siembra .metric-water { padding-right:26px; }
+}
+@media (min-width:601px) and (max-width:1019px) {
+  #siembra .options .option-list { grid-template-columns:repeat(2,minmax(0,1fr)) !important; align-items:start; }
+}
+@media (max-width:800px) {
+  #siembra { --planting-inset:14px; }
+  #siembra .soil, #siembra .pest-crops { grid-template-columns:1fr; }
+  #siembra .planting-overview.card { grid-template-columns:1fr; gap:8px; }
+  #siembra .planting-overview > * { grid-column:1 / -1; }
+  #siembra .crop-comparison { margin-top:10px; }
+  #siembra .planting-plan .workbench-form { grid-template-columns:1fr 1fr; }
+  #siembra .plan-form-actions { grid-column:1 / -1; }
+}
+@media (max-width:600px) {
+  #siembra { --planting-inset:14px; }
+  #siembra .profile-line { padding:0 0 6px; gap:4px 10px; }
+  #siembra .profile-loc { font-size:.88rem; }
+  #siembra .profile-actions { width:100%; }
+  #siembra .profile-actions .ob-link, #siembra .inline-month-pick .ag-select-trigger { min-height:38px; padding-block:6px; }
+  #siembra .inline-month-pick { flex:1; }
+  #siembra .inline-month-pick .ag-select { flex:1; }
+  #siembra .recommendation-hero { padding:10px 12px; gap:6px; }
+  #siembra .recommendation-content { gap:5px; }
+  #siembra .recommendation-heading { grid-template-columns:46px minmax(0,1fr); gap:2px 10px; }
+  #siembra .recommendation-heading .crop-illustration { width:46px; height:46px; border-radius:10px; }
+  #siembra .crop-illustration svg { width:30px; height:30px; }
+  #siembra .recommendation-heading h2 { font-size:1.45rem; }
+  #siembra .previous-crop { margin-top:1px; font-size:.82rem; }
+  #siembra .recommendation-score { grid-column:2; grid-row:2; margin-top:0; gap:6px; font-size:.82rem; }
+  #siembra .advisor-reason { font-size:.92rem; line-height:1.38; }
+  #siembra .recommendation-meta { gap:4px 12px; }
+  #siembra .recommendation-meta > span { font-size:.84rem; }
+  #siembra .recommendation-hero .verdict-actions { padding-top:6px; gap:8px; }
+  #siembra .verdict-actions :is(.listen,.src-button) { min-height:38px; padding:6px 12px; font-size:.82rem; }
+  #siembra .metric-tiles { padding:2px 6px; }
+  #siembra .metric-tile { padding:6px 8px; gap:1px; }
+  #siembra .metric-label { font-size:.8rem; }
+  #siembra .metric-tile strong { font-size:.98rem; line-height:1.2; }
+  #siembra .metric-tile small { font-size:.78rem; line-height:1.3; }
+  #siembra .water-tank { inset:8px 8px 8px auto; }
+  #siembra .section-panel-heading { gap:8px; padding-bottom:10px; }
+  #siembra .section-panel-heading h2 { font-size:1.15rem; }
+  #siembra .section-panel-heading .help-tip-btn span { display:none; }
+  #siembra .section-panel-heading .help-tip-btn { width:40px; justify-content:center; }
+  #siembra .crop-list, #siembra .options .option-list { grid-template-columns:1fr !important; }
+  #siembra .crop-row, #siembra .option.option-row-card { padding:14px; }
+  #siembra .option-crop-rating { padding-left:0; }
+  #siembra .planting-plan .workbench-form, #siembra .soil, #siembra .soil-list, #siembra .soil-list[data-count="5"], #siembra .soil-reasons { grid-template-columns:1fr; }
+  #siembra .siembra-stack { gap:12px; margin-top:12px; }
+  #siembra .soil-list li { grid-template-columns:1fr; gap:4px; }
+  #siembra .planting-review { margin-top:4px; width:100%; padding:8px 12px; }
+  #siembra .share { justify-content:flex-start; }
+}
+@media (prefers-reduced-motion:reduce) { #siembra * { animation:none !important; transition:none !important; } }

@@ -14,11 +14,12 @@ export function rainWords(pct: number) {
 }
 
 function RingGauge({ value, max, tone }: { value: number; max: number; tone: string }) {
-  const pct = Math.max(0, Math.min(1, max > 0 ? value / max : 0));
+  const rawPct = max > 0 ? value / max : 0;
+  const pct = value > 0 ? Math.max(0.06, Math.min(1, rawPct)) : 0;
   const r = 18, c = 2 * Math.PI * r;
   return (
     <svg className="mini-ring" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
-      <circle cx="23" cy="23" r={r} fill="none" stroke="#dbe5d8" strokeWidth="5" />
+      <circle cx="23" cy="23" r={r} fill="none" stroke="var(--track-bg, #dce5dc)" strokeWidth="5" />
       <circle
         className={`mini-ring-arc ${tone}`}
         cx="23"

@@ -1,3 +1,4 @@
+/* AI: Codex/OpenAI with Impeccable, 2026-11-15. Application composition and shared UI; Frainer review pending. See AI_USAGE.md. */
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — farmer market card; animated price area chart & 12-month seasonal strip by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
@@ -59,7 +60,7 @@ function Sparkline({ values, periods }: { values: number[]; periods: string[] })
   );
 }
 
-export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
+export function MarketCard({ initialCrop, supervisor = false }: { initialCrop: CropId; supervisor?: boolean }) {
   const [chosen, setChosen] = useState<CropId | null>(null);
   const [pickedMonth, setPickedMonth] = useState<number | null>(null);
   const crop = chosen ?? initialCrop;
@@ -75,7 +76,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   return <section className="card market" aria-label="Precio y mercado">
     <div className="section-row"><h3>Precio del cultivo</h3>
       <div className="select-with-icon"><FarmIcon name={crop} size={20} /><CustomSelect ariaLabel="Cultivo" value={crop} options={(Object.keys(cropNames) as CropId[]).map(c => ({ value: c, label: cropNames[c] }))} onChange={val => setChosen(val as CropId)} /></div></div>
-    {latest ? <>
+    {latest ? <><div className="market-columns"><div className="market-current">
       <div className="market-hero-strip">
         <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>
         {change !== null && <p className={`trend ${change > 0 ? "up" : change < 0 ? "down" : ""}`}>{change > 0 ? "▲" : change < 0 ? "▼" : "▶"} {Math.abs(change)}% {change > 0 ? "más caro" : change < 0 ? "más barato" : "igual"} que hace un año</p>}
@@ -83,6 +84,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
       {m.priceQuality && <p className="note">Calidad limitada: se excluyeron {m.priceQuality.excluded.length} registros extremos. {m.priceQuality.rule}</p>}
       <Sparkline values={(m.recent ?? []).map(r => r.price)} periods={(m.recent ?? []).map(r => r.period)} />
       {Boolean(m.recent?.length) && <details className="visual-details"><summary>Ver precios mensuales en tabla</summary><table><caption>Precios mayoristas en Santo Domingo ({m.unit})</caption><thead><tr><th scope="col">Mes</th><th scope="col">Precio promedio</th></tr></thead><tbody>{m.recent?.map(row => <tr key={row.period}><th scope="row">{row.period}</th><td>{row.price.toLocaleString("es-DO")}</td></tr>)}</tbody></table></details>}
+      </div><div className="market-context">
       {(bestSet.size > 0 || worstSet.size > 0) && (
         <div className="season-cal" aria-label="Calendario estacional de venta (12 meses)">
           <div className="season-cal-head">
@@ -137,9 +139,9 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
       <ul className="market-facts">
         {m.bestSellMonths && m.bestSellMonths.length > 0 && <li><strong>Meses con precios históricos más altos:</strong> {m.bestSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
         {m.worstSellMonths && m.worstSellMonths.length > 0 && <li><strong>Precio más bajo:</strong> {m.worstSellMonths.map(x => monthNames[x - 1]).join(" y ")}</li>}
-        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]} el histórico estuvo entre</strong> {money(outlook.low)} y {money(outlook.high)} {unitWord(m.unit)}</li>}
+        {outlook && <li><strong>En {monthNames[Number(outlook.period.slice(5, 7)) - 1]} el histórico estuvo entre</strong> {money(outlook.low)} y {money(outlook.high)} {unitWord(m.unit)}</li>}{supervisor && cost && <li><strong>Referencia MA 2019 ({cost.area}):</strong> {money(cost.costPerTarea)}/tarea · rendimiento típico {cost.yield} {cost.yieldUnit}/tarea</li>}
       </ul>
-    </> : <p>No hay precios mayoristas recientes de {cropNames[crop].toLowerCase()} en la fuente oficial.</p>}
+    </div></div></> : <p>No hay precios mayoristas recientes de {cropNames[crop].toLowerCase()} en la fuente oficial.</p>}
     {m?.sowing?.status === "alta" && <p className="warning"><AlertTriangle aria-hidden="true" size={18} /><span>Muchos están sembrando {cropNames[crop].toLowerCase()}: +{Math.round(((m.sowing.ratio ?? 1) - 1) * 100)}% sobre lo normal (últimos 12 meses). Posible sobreoferta al cosechar.</span></p>}
     {m?.sowing?.status === "baja" && <p className="note-good">Siembra nacional menor que lo normal para {cropNames[crop].toLowerCase()}.</p>}
     <details className="sources-fold">

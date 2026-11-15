@@ -38,6 +38,7 @@ data/model/*.joblib
 .env*
 
 # local agent skills installed for the UI pass (not part of the app)
+.agent/
 web/.agents/
 web/.claude/
 web/skills-lock.json
