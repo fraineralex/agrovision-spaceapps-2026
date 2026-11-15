@@ -13,6 +13,8 @@ La organización permite el uso de IA solo si se cita. Este registro es obligato
 
 ## Registro
 
+| 15-11-2026 | Codex (OpenAI) | Migración RAG a Turso con fallback JSON, carga idempotente, pruebas y documentación | `web/lib/rag.ts`, `web/lib/rag-turso.ts`, `web/lib/rag-turso.test.ts`, `web/scripts/upload-rag-index.ts`, `web/package.json`, `web/package-lock.json`, `docs/rag_eval.md`, `AI_USAGE.md` | Pendiente: Frainer |
+
 | Fecha | Herramienta | Para qué | Archivos afectados | Quién revisó |
 |---|---|---|---|---|
 | 14-11-2026 | Codex (OpenAI) | Análisis de recursos para el reto | `/workspace/spaceapps/analisis_recursos.md` | Frainer |

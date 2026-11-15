@@ -17,7 +17,7 @@ Resumen de esta corrida: 5 respuestas no vacías; 1 fallo vacío. A juicio manua
 
 - Las recomendaciones de siembra en pantalla siguen siendo deterministas (`web/lib/advisor.ts`); el RAG no altera puntajes.
 - Cuando Haiku devuelve cuerpo vacío, la API usa resumen determinista del fragmento mejor clasificado; una respuesta de esta corrida mostró que ese fragmento puede no contestar la pregunta. Se ajustó el texto de salida para hacer explícito que no se generó respuesta y pedir revisar fuentes. Conviene ampliar corpus POWER explícito y revisar el prompt.
-- Si el corpus crece, se puede mover el índice a Turso (`F32_BLOB` + `vector_top_k`); hoy solo JSON versionado.
+- Turso ofrece recuperación vectorial cuando está configurado; el JSON versionado conserva el fallback offline.
 - Reproducir: `cd web && npx tsx scripts/build-rag-index.ts` (requiere `AI_GATEWAY_API_KEY`) y `AGROVISION_URL=http://localhost:3000 npx tsx scripts/rag-eval-local.ts` con `npm run start` y la misma clave en el entorno del servidor.
 
 ## Próximo corpus sugerido
@@ -41,3 +41,33 @@ Corrida real contra instancia local iniciada desde el build actual en `http://lo
 | ¿CEDAF tiene una guía técnica de plátano y otra de yuca? | Grounded como referencia bibliográfica, aclara que no tiene instrucciones de manejo extraídas. | CEDAF catálogo, Inventario, Resumen |
 
 La evaluación se ejecutó contra instancia en `http://localhost:3467`, con el índice de 62 fragmentos (google/gemini-embedding-2). Hubo fallos HTTP 500 intermitentes y fallback que reproduce una cabecera en preguntas de habichuela; no se cuentan como respuestas grounded. La recuperación en las preguntas de fechas del guandul y referencias de plátano/yuca sí incluyó el nuevo documento CEDAF.
+
+
+
+## Almacenamiento vectorial en Turso
+
+El índice fuente sigue siendo `web/data/rag-index.json` (62 fragmentos, 3072 dimensiones). La app usa Turso cuando están configurados `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`; si faltan o la consulta falla, recupera exactamente desde el índice JSON. Se mantiene `RAG_MIN_SCORE` (coseno ≥ 0.38), `RAG_TOP_K` (5) y el formato de fragmentos existente.
+
+Para volver a cargar el índice, desde `web/` exporta las credenciales sin imprimirlas y ejecuta:
+
+```sh
+set -a
+source /home/box/secrets/agrovision-turso.env
+set +a
+npm run rag:upload
+```
+
+El comando crea la tabla `rag_chunks` y su índice vectorial si hacen falta, hace upsert por ID, elimina filas que ya no estén en el JSON y termina verificando que el total de filas coincida. La salida solo informa conteos. Si se regenera `data/rag-index.json`, vuelve a ejecutar la carga.
+
+### Comparación del 15-11-2026
+
+Se ejecutaron las seis preguntas del script de evaluación contra dos instancias del mismo build e índice de 62 fragmentos: una configurada para Turso y otra usando el fallback JSON. Las seis recuperaron exactamente el mismo conjunto de títulos de fuente y ambas devolvieron cuerpo de respuesta no vacío. Esto verifica paridad de recuperación/fuentes; no cambia la revisión humana de grounding, que sigue pendiente.
+
+| Pregunta | Fuentes recuperadas (Turso = JSON) |
+|---|---|
+| ¿Cuándo siembro habichuela en San Juan? | CEDAF Cultivo de Habichuela; Guías CEDAF de arroz y guandul; Inventario de datos; Recursos de datos |
+| ¿Puedo sembrar papa después de papa? | Asesor de siembra y mercado; CEDAF guías técnicas de plátano y yuca; Guías CEDAF de arroz y guandul; Mercado y costos 2019; Resumen del equipo |
+| ¿Qué dice la NASA de la lluvia en mi zona? | Agua y clima; Inventario de datos; Recursos de datos; Resumen del equipo |
+| ¿Cuánto cuesta sembrar una tarea de arroz? | Guías CEDAF de arroz y guandul; Mercado y costos 2019; Resumen del equipo |
+| ¿Qué le echo al tizón de la papa? | CEDAF Cultivo de Habichuela; CEDAF guías técnicas de plátano y yuca; Guías CEDAF de arroz y guandul; Resumen del equipo |
+| ¿De dónde sacan los precios? | Asesor de siembra y mercado; Mercado y costos 2019; Precios mayoristas MA; Resumen del equipo |
