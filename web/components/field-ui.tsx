@@ -1,5 +1,5 @@
 /* AI: OpenAI GPT-6, 2026-11-15. Frainer review pending. */
-import { AlertTriangle, Satellite } from "lucide-react";
+import { AlertTriangle, Satellite, Star } from "lucide-react";
 import type { ReactNode } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -21,15 +21,11 @@ export function WaterGauge({ value }: { value: number | null }) {
   </span>;
 }
 
-export function ScoreRing({ score, label }: { score: number; label: string }) {
-  const offset = 100 - Math.max(0, Math.min(5, score)) * 20;
-  return <div className="score-figure" role="img" aria-label={`${label}: ${score.toFixed(1).replace(".", ",")} de 5 puntos`}>
-    <svg aria-hidden="true" viewBox="0 0 88 88" width="88" height="88">
-      <circle cx="44" cy="44" r="38" />
-      <circle cx="44" cy="44" r="38" pathLength="100" strokeDasharray="100" strokeDashoffset={offset} />
-    </svg>
-    <div aria-hidden="true"><strong>{score.toFixed(1).replace(".", ",")}</strong><small>de 5 pts</small></div>
-  </div>;
+export function Stars({ score, size = 22 }: { score: number | null; size?: number }) {
+  const n = score === null ? 0 : Math.max(1, Math.min(5, Math.round(score)));
+  return <span className="stars" role="img" aria-label={score === null ? "Sin estrellas: falta información" : `${n} de 5 estrellas`}>
+    {[1, 2, 3, 4, 5].map(i => <Star key={i} aria-hidden="true" size={size} className={i <= n ? "star on" : "star"} />)}
+  </span>;
 }
 
 export function RiskPill({ children }: { children: ReactNode }) {

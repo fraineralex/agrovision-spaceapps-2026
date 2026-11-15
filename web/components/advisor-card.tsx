@@ -3,9 +3,9 @@
 "use client";
 import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
-import { HeroRecommendation, MetricTile, RiskPill, ScoreRing, SourceChip, WaterGauge } from "@/components/field-ui";
+import { HeroRecommendation, MetricTile, RiskPill, SourceChip, Stars } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, pillarTitle, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
 import { SourcesSheet } from "@/components/sources-sheet";
 import { climate, type Irrigation } from "@/lib/data";
@@ -16,7 +16,7 @@ const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
   { id: "water", label: "Agua", icon: "water" }, { id: "climate", label: "Sequía", icon: "climate" },
   { id: "pests", label: "Plagas", icon: "pests" }, { id: "market", label: "Precio", icon: "market" },
 ];
-const lightWord: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
+const lightWord: Record<string, string> = { green: "Conviene", amber: "Puede servir", red: "No conviene", gray: "Falta información" };
 const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rainfed: "sin riego", unconfirmed: "riego sin confirmar" };
 
 type Props = {
@@ -24,34 +24,12 @@ type Props = {
   onEdit: () => void; onTop?: (crop: CropId) => void;
 };
 
-function MiniScoreRing({ score, light }: { score: number | null; light: string }) {
-  const pct = score === null ? 0.15 : Math.max(0.12, Math.min(1, score / 5));
-  const r = 14, c = 2 * Math.PI * r;
-  return (
-    <span className={`mini-score-ring light-${light}`} aria-hidden="true">
-      <svg width="34" height="34" viewBox="0 0 34 34">
-        <circle className="dial-track" cx="17" cy="17" r={r} strokeWidth="3.5" />
-        <circle
-          className={`dial-arc ${light}`}
-          cx="17"
-          cy="17"
-          r={r}
-          strokeWidth="3.5"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - pct)}
-        />
-      </svg>
-      <small>{score !== null ? score.toFixed(1).replace(".", ",") : "—"}</small>
-    </span>
-  );
-}
-
 function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources: () => void }) {
   const rowLight = lightFor(a.overall);
   const pct = a.overall === null ? 12 : Math.max(15, Math.min(100, Math.round((a.overall / 5) * 100)));
   return <li className={top ? "crop-row top" : "crop-row"}>
     <div className="crop-row-head">
-      <MiniScoreRing score={a.overall} light={rowLight} />
+      <Stars score={a.overall} size={14} />
       <span className="crop-medallion sm" aria-hidden="true"><FarmIcon name={a.crop} size={18} /></span>
       <div className="crop-row-title">
         <strong>{a.name}</strong>
@@ -61,7 +39,7 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
       </div>
       {top && a.overall !== null && <span className="badge">Recomendado</span>}
       {!a.viable && <span className="badge gray">Sin riego</span>}
-      <button type="button" className="src-button icon-only" onClick={onSources} aria-label={`Datos y fuentes de ${a.name}`} title="Datos y fuentes">
+      <button type="button" className="src-button icon-only" onClick={onSources} aria-label={`Por qué ${a.name}: explicación y fuentes`} title="Explicación y fuentes">
         <Info aria-hidden="true" size={16} />
       </button>
     </div>
@@ -82,7 +60,7 @@ export function AdvisorCard(p: Props) {
   const sowYear = now.getFullYear() + Number(p.sowMonth <= now.getMonth());
   const harvestYear = top ? sowYear + Math.floor((p.sowMonth - 1 + Math.round(top.cycleDays / 30)) / 12) : sowYear;
   const sentence = adviceSentence(top, p.previous);
-  const reason = top?.scores.pests === 5 ? "IDIAF respalda rotar habichuela con maíz." : top?.words.water + " en la comparación.";
+  const reason = top?.scores.pests === 5 ? "El IDIAF recomienda maíz tras habichuela." : (top?.scores.water ?? 0) >= 3.34 ? "Pide menos agua que tus otros cultivos." : "El que mejor sale en tu lista.";
   const notes = [...(top?.warnings ?? []), ...(top?.pestPrecautions ?? [])];
   const summary = [sentence, ...notes, "Confirma el agua disponible con tu técnico."].join(" ");
   const { reading, read, stop } = useReadAloud();
@@ -94,18 +72,18 @@ export function AdvisorCard(p: Props) {
     </div>
     <HeroRecommendation tone={"tone-" + light} actions={<>
       <button type="button" className="listen" onClick={() => void read(summary)}><FarmIcon name="sound" size={18} /> Oír resumen</button>
-      {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={18} /> Datos y fuentes</button>}
+      {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={18} /> ¿Por qué este cultivo?</button>}
     </>}>
       {top && top.overall !== null ? <>
         <div className="recommendation-heading">
           <div>
-            <span className="recommendation-caption">Mejor puntaje</span>
+            <span className="recommendation-caption">Te conviene sembrar</span>
             <h2>{top.name}</h2>
             {p.previous !== "unknown" && <p className="previous-crop">Después de {previousCropName(p.previous).toLowerCase()}</p>}
           </div>
           <span className="crop-illustration" aria-hidden="true"><FarmIcon name={top.crop} size={60} /></span>
           <div className="recommendation-score">
-            <ScoreRing score={top.overall} label="Puntaje comparativo" />
+            <Stars score={top.overall} />
             <span>{lightWord[light]}</span>
           </div>
         </div>
@@ -117,13 +95,12 @@ export function AdvisorCard(p: Props) {
         <RiskPill>{loss ? "Posible pérdida al precio mayorista" : notes[0]?.split(". ")[0] || "Confirma el agua y suelo"}</RiskPill>
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
     </HeroRecommendation>
-    {top && <div className="metric-tiles" role="group" aria-label="Indicadores por pilar">
-      {pillarInfo.map(({ id, label, icon }) => <MetricTile key={id} label={label}
-        icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id}
-        value={lightWord[lightFor(top.scores[id])]} detail={top.words[id]}>
-        {id === "water" && <WaterGauge value={top.scores.water} />}
-      </MetricTile>)}
+    {top && <div className="metric-tiles" role="group" aria-label={`Por qué ${top.name}: agua, sequía, plagas y precio`}>
+      {pillarInfo.map(({ id, label, icon }) => { const c = lightFor(top.scores[id]); return <MetricTile key={id} label={label}
+        icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + c}
+        value={pillarTitle(id, top.scores[id])} detail={id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.scores.pests === null && !top.sharedPests.length ? "Sin datos de este cambio" : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ")} />; })}
     </div>}
+    {top && <p className="stars-help">Las estrellas comparan {top.name.toLowerCase()} con los otros cultivos de tu lista en 4 cosas: agua, sequía, plagas y precio. Más estrellas = te conviene más. Verde es bueno, amarillo es regular y rojo es malo.</p>}
     {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
     {top && <details className="compare-fold"><summary>Qué revisar antes de sembrar</summary>
       <p>Revisa agua y suelo con tu técnico.</p>
@@ -132,7 +109,7 @@ export function AdvisorCard(p: Props) {
         {notes.map(note => <li key={note}>{note}</li>)}
         {repeat && <li>Riesgo de plagas si repites {repeat.name.toLowerCase()}.</li>}
       </ul>
-      <p className="note">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía del puntaje: FAO GIEWS.</p>
+      <p className="note">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía: FAO GIEWS.</p>
     </details>}
 
     <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({p.crops.length})</summary>
