@@ -489,3 +489,6 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: tradujo el escenario histórico, sus límites y fuentes sin cambiar el cálculo de costos ni rendimientos. Archivos: `web/components/profit-card.tsx` y `web/lib/i18n/profit-messages.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió comprobación de paridad para textos del escenario de costos en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió verificación de cifras y enlaces del escenario histórico al cambiar idioma en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo precios, gráficos, estacionalidad, alertas de oferta y fuentes del mercado, manteniendo cifras y referencias. Archivos: `web/components/market-card.tsx` y `web/lib/i18n/market-messages.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: verificó la correspondencia de mensajes, parámetros y límites del mercado en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: agregó una prueba de mercado que conserva cultivo, precio, mes y enlaces al cambiar idioma en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.

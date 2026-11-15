@@ -210,3 +210,22 @@ test("historical profit scenario keeps figures and sources when language changes
   expect(await profit.locator(".profit-range strong").allTextContents()).toEqual(amounts);
   expect(await profit.locator("a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
 });
+
+test("market prices, selected month and sources remain unchanged across languages", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("tab", { name: "Venta" }).click();
+  const market = page.locator(".market");
+  await market.getByLabel("Cultivo").selectOption("papa");
+  const price = await market.locator(".price-big").innerText();
+  expect(price).toContain("RD$");
+  await market.locator(".season-months button").first().click();
+  await market.locator(".sources-fold summary").click();
+  const links = await market.locator(".sources-box a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort());
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(market.getByRole("heading", { name: "Crop price" })).toBeVisible();
+  await expect(market.getByLabel("Crop")).toHaveValue("papa");
+  await expect(market.locator(".price-big")).toHaveText(price);
+  await expect(market.locator(".season-months button").first()).toHaveAttribute("aria-pressed", "true");
+  expect(await market.locator(".sources-box a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
+  await expect(market.getByText("Wholesale prices in Santo Domingo, not farm-gate prices.")).toBeVisible();
+});

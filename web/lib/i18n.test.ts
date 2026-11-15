@@ -169,3 +169,17 @@ test("profit messages preserve keys and interpolation fields", () => {
     assert.deepEqual(placeholders(profitMessages.en[key]), placeholders(profitMessages.es[key]), key);
   }
 });
+
+import { marketMessages } from "./i18n/market-messages";
+import { marketLimits } from "./advisor";
+test("market messages and source limitations stay aligned", () => {
+  assert.deepEqual(leafKeys(marketMessages.en), leafKeys(marketMessages.es));
+  for (const key of Object.keys(marketMessages.en) as Array<keyof typeof marketMessages.en>) {
+    const en = marketMessages.en[key], es = marketMessages.es[key];
+    if (typeof en !== "string" || typeof es !== "string") continue;
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(en), placeholders(es), key);
+  }
+  assert.deepEqual([...marketMessages.es.limits], marketLimits);
+  assert.equal(marketMessages.en.limits.length, marketLimits.length);
+});
