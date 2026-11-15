@@ -2515,7 +2515,7 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
 .water-tank { padding: 0; margin: 0; }
 .wnav-tab:not(.is-active):hover { background: var(--muted-surface); color: var(--foreground); transform: none; }
 .recommendation-hero :is(.listen,.src-button):hover { filter: brightness(.92); }
-:is(.theme-toggle, .wnav-tab, .farm-tab, .ob-choice) { transition: background-color var(--motion-quick) ease, color var(--motion-quick) ease, border-color var(--motion-quick) ease; }
+:is(.theme-toggle, .farm-tab, .ob-choice) { transition: background-color var(--motion-quick) ease, color var(--motion-quick) ease, border-color var(--motion-quick) ease; }
 .wt-chip.rain strong { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .wt-chip.rain small { font-size: .8125rem; }
 .wt-chip.rain { color: var(--water); }
@@ -2555,3 +2555,75 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
   position: static; margin-inline-end: auto; color: var(--muted); background: none; padding-inline: 0;
 }
 @media (max-width: 720px) { .ob-footer:has(> .ob-credit:only-child) { display: none; } }
+
+/* AI: Antigravity (Gemini), 2026-11-15. Frainer review pending. See AI_USAGE.md. */
+/* Todos los cultivos: resumen de distribucion, barra proporcional y tarjetas compactas */
+.compare-fold {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 12px 16px;
+}
+.compare-summary-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.compare-fold > summary {
+  padding: 2px 0;
+}
+.dist-pill.green {
+  background-color: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+}
+.dist-pill.amber {
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+.dist-pill.red {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+}
+[data-theme="sun"] .dist-pill.green { background-color: #d7ebd5; color: #163d20; }
+[data-theme="sun"] .dist-pill.amber { background-color: #f6e7bd; color: #5c3d0c; }
+[data-theme="sun"] .dist-pill.red { background-color: #f5d2d4; color: #6e1a20; }
+
+.crop-row {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+.crop-row.top {
+  background-color: color-mix(in srgb, var(--success) 10%, var(--card));
+  border: 1.5px solid color-mix(in srgb, var(--success) 55%, var(--border));
+  box-shadow: 0 4px 14px -4px rgba(22, 163, 74, 0.18);
+}
+.badge.top-badge {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.crop-row .pillar-chip.green {
+  background-color: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+}
+.crop-row .pillar-chip.amber {
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+.crop-row .pillar-chip.red {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+}
+.crop-row .pillar-chip.gray {
+  background-color: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+}
+[data-theme="sun"] .crop-row .pillar-chip.green { background-color: #d7ebd5; color: #163d20; }
+[data-theme="sun"] .crop-row .pillar-chip.amber { background-color: #f6e7bd; color: #5c3d0c; }
+[data-theme="sun"] .crop-row .pillar-chip.red { background-color: #f5d2d4; color: #6e1a20; }
+[data-theme="sun"] .crop-row .pillar-chip.gray { background-color: #e4e8dc; color: #2b3830; }
