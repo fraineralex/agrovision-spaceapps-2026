@@ -59,7 +59,7 @@ Si no hay dato verificado, di: "${RAG_NO_DATA}".`;
     if (!text.trim()) {
       const hint = rag.chunks[0]?.text.replace(/\s+/g, " ").slice(0, 280);
       const names = ragSources(rag.chunks).map(s => s.sourceName).join("; ");
-      text = `${hint ? `${hint}… ` : ""}Si necesitas confirmar en campo, consulta a tu técnico.\n\nFuente: ${names}.`;
+      text = `${hint ? `${hint}… ` : "No pude generar una respuesta a partir de las guías recuperadas."} Consulta las fuentes antes de tomar una decisión.\n\nFuente: ${names}.`;
     }
     return new Response(text, { headers });
   }
