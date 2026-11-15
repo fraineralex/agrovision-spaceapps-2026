@@ -292,6 +292,7 @@ test("voice tools, location validation and honest missing-key fallback",async({r
 });
 test("missing realtime credentials release microphone and preserve text input",async({page})=>{
  await page.addInitScript(()=>{
+  Object.assign(window, { SpeechRecognition: undefined, webkitSpeechRecognition: undefined });
   const tracks:MediaStreamTrack[]=[];
   Object.assign(window,{testMicTracks:tracks});
   navigator.mediaDevices.getUserMedia=async ()=>{
@@ -306,10 +307,61 @@ test("missing realtime credentials release microphone and preserve text input",a
  });
  await page.goto("/");
  await page.getByRole("button",{name:"Hablar",exact:true}).click();
- await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la voz/)).toBeVisible();
+ await expect(page.getByText("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.")).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
  await page.getByText("Escribir", {exact:true}).click();
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
+});
+
+test("the Spanish summary can pause, resume, stop and restart", async ({ page }) => {
+ await page.addInitScript(() => {
+  const calls: string[] = [];
+  const synthesis = {
+   paused: false,
+   cancel() { calls.push("cancel"); },
+   pause() { this.paused = true; calls.push("pause"); },
+   resume() { this.paused = false; calls.push("resume"); },
+   getVoices() { return [{ name: "Voz básica", lang: "es-DO" }, { name: "Natural", lang: "es-MX" }]; },
+   speak(utterance: { voice?: { name: string } }) { calls.push(`speak:${utterance.voice?.name}`); },
+  };
+  Object.defineProperty(window, "speechSynthesis", { value: synthesis });
+  Object.assign(window, { SpeechSynthesisUtterance: class {}, summaryCalls: calls });
+ });
+ await page.goto("/");
+ await page.getByRole("button", { name: "Oír resumen" }).click();
+ const controls = page.getByRole("group", { name: "Controles del resumen" });
+ await controls.getByRole("button", { name: "Pausar" }).click();
+ await controls.getByRole("button", { name: "Continuar" }).click();
+ await controls.getByRole("button", { name: "Reiniciar" }).click();
+ await controls.getByRole("button", { name: "Detener" }).click();
+ await expect(controls).toBeHidden();
+ const calls = await page.evaluate(() => (window as unknown as { summaryCalls: string[] }).summaryCalls);
+ expect(calls.filter(call => call === "speak:Natural")).toHaveLength(2);
+ expect(calls).toEqual(expect.arrayContaining(["pause", "resume", "cancel"]));
+});
+
+test("the voice button sends a dictated question when realtime setup fails", async ({ page }) => {
+ await page.route("**/api/voice/setup?**", route => route.fulfill({ status: 503 }));
+ await page.route("**/api/voice/chat", route => {
+  expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
+  return route.fulfill({ body: "Este es tu resumen." });
+ });
+ await page.addInitScript(() => {
+  navigator.mediaDevices.getUserMedia = async () => new MediaStream();
+  Object.assign(window, { SpeechRecognition: class {
+   onresult?: (event: unknown) => void;
+   onend?: () => void;
+   start() { setTimeout(() => { this.onresult?.({ results: [[{ transcript: "¿Qué siembro?" }]] }); this.onend?.(); }, 0); }
+   abort() {}
+  } });
+ });
+ await page.goto("/");
+ const response = page.waitForResponse("**/api/voice/chat");
+ await page.getByRole("button", { name: "Hablar", exact: true }).click();
+ expect((await response).ok()).toBe(true);
+ await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
+ await page.getByText("Ver conversación", { exact: true }).click();
+ await expect(page.getByRole("log")).toContainText("Este es tu resumen.");
 });
 
 test("the voice orb stays centered while the grower scrolls and uses the page", async ({page}) => {

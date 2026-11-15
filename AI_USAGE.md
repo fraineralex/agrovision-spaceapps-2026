@@ -247,3 +247,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
   - balance a dos columnas tanto en modo `Agricultor` como `Supervisor` en `Siembra`, `Venta` y `Mapa y clima` (manteniendo mapa satelital abierto al entrar a `Mapa y clima` y expandiendo la tercera tarjeta de `Sequía y lluvia` al ancho completo de la fila inferior);
   - tarjeta estructurada para la barra inferior `Asistente rápido de voz y texto`, guía visual de 3 pasos con apertura automática del formulario escrito en la pestaña `Preguntar`, y posicionamiento del botón flotante de micrófono en la esquina inferior derecha cuando está inactivo para no tapar contenido centrado.
 - **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench.tsx,voice-assistant.tsx,voice-session.module.css,fao-giews.module.css}`, `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-15 — Controles del resumen y respaldo de voz
+
+- Codex (OpenAI) añadió controles de reproducción, preferencia por voces naturales en español y dictado del navegador cuando falla la sesión en tiempo real. Archivos: `web/components/voice-assistant.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias y tres pruebas dirigidas en Chrome, con voz y dictado simulados. La conversación real está pendiente de una credencial de AI Gateway. Revisión por Frainer pendiente.

@@ -7,6 +7,16 @@ import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
+type Dictation = {
+  lang: string;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  abort(): void;
+};
+type DictationWindow = Window & { SpeechRecognition?: new () => Dictation; webkitSpeechRecognition?: new () => Dictation };
+
 type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection, defaultOpenWrite = false }: { selection: VoiceSelection; defaultOpenWrite?: boolean }) {
   const [notice, setNotice] = useState("");
@@ -18,6 +28,10 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const sessionContext = sessionSelection ?? selection;
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
+  const dictation = useRef<Dictation | null>(null);
+  const [dictating, setDictating] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [summaryState, setSummaryState] = useState<"idle" | "playing" | "paused">("idle");
   const orb = useRef<HTMLButtonElement>(null);
   const generation = useRef(0);
   const starting = useRef(false);
@@ -30,7 +44,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
     },
-    onError: () => { stopVoice("Se cortó la voz. Intenta de nuevo o escribe."); },
+    onError: () => { if (starting.current || media.current) fallbackToDictation(); },
   });
   useEffect(() => {
     // The SDK's connect() opens transport. Capture starts once the server accepts the session.
@@ -75,9 +89,9 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     media.current?.getTracks().forEach(track => track.stop()); media.current = null;
     captureStarted.current = false;
   }
-  useEffect(() => () => { generation.current++; abort.current?.abort(); releaseMedia(); window.speechSynthesis?.cancel(); }, []);
+  useEffect(() => () => { generation.current++; abort.current?.abort(); releaseMedia(); dictation.current?.abort(); window.speechSynthesis?.cancel(); }, []);
   function interrupt() {
-    abort.current?.abort(); window.speechSynthesis?.cancel();
+    abort.current?.abort(); stopSummary();
     setBusy(false);
   }
   async function startVoice() {
@@ -113,23 +127,103 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     setRequesting(false);
     realtime.disconnect();
     releaseMedia();
-    window.speechSynthesis?.cancel();
+    const recognition = dictation.current;
+    dictation.current = null;
+    recognition?.abort();
+    setDictating(false);
+    stopSummary();
     setNotice(message);
     setVoiceError(failed);
   }
-  function speak(text: string) {
-    if (!window.speechSynthesis) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-DO";
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(item => item.lang === utterance.lang) ?? voices.find(item => item.lang.startsWith(utterance.lang.slice(0, 2)));
-    if (voice) utterance.voice = voice;
-    window.speechSynthesis.speak(utterance);
+  function fallbackToDictation() {
+    stopVoice("", false);
+    const browser = window as DictationWindow;
+    const Recognition = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
+    if (!Recognition) {
+      setVoiceError(true);
+      setNotice("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.");
+      return;
+    }
+    const recognition = new Recognition();
+    dictation.current = recognition;
+    recognition.lang = "es-DO";
+    recognition.onresult = event => {
+      if (dictation.current !== recognition) return;
+      const text = event.results[0]?.[0]?.transcript;
+      if (text?.trim()) void send(text, true);
+    };
+    recognition.onerror = event => {
+      if (dictation.current !== recognition) return;
+      setVoiceError(true);
+      setNotice(event.error === "not-allowed" ? "Permite el micrófono en tu navegador." : "El dictado no pudo reconocer tu pregunta. Intenta de nuevo o escribe.");
+    };
+    recognition.onend = () => {
+      if (dictation.current !== recognition) return;
+      dictation.current = null;
+      setDictating(false);
+    };
+    try {
+      setDictating(true);
+      recognition.start();
+    } catch {
+      stopVoice("El dictado no está disponible. Puedes escribir.");
+    }
   }
-  async function send(text: string) {
+  function stopSummary() {
+    utteranceRef.current = null;
+    window.speechSynthesis?.cancel();
+    setSummaryState("idle");
+  }
+  function speak(text: string, summary = false) {
+    const synthesis = window.speechSynthesis;
+    if (!synthesis) {
+      setVoiceError(true);
+      setNotice("Este navegador no puede leer el resumen en voz alta.");
+      return;
+    }
+    stopSummary();
+    if (synthesis.paused) synthesis.resume();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const spanish = synthesis.getVoices().filter(voice => /^es(?:[-_]|$)/i.test(voice.lang));
+    const natural = (voice: SpeechSynthesisVoice) => /natural|neural|premium|enhanced|google|online/i.test(voice.name);
+    const regional = (voice: SpeechSynthesisVoice) => /^es[-_](DO|US|MX|419)$/i.test(voice.lang);
+    utterance.voice = spanish.find(voice => natural(voice) && regional(voice))
+      ?? spanish.find(natural) ?? spanish.find(regional) ?? spanish[0] ?? null;
+    utterance.lang = utterance.voice?.lang ?? "es-DO";
+    utterance.rate = 0.95;
+    utteranceRef.current = utterance;
+    const finish = () => {
+      if (utteranceRef.current !== utterance) return;
+      utteranceRef.current = null;
+      setSummaryState("idle");
+    };
+    utterance.onend = finish;
+    utterance.onerror = () => {
+      if (utteranceRef.current !== utterance) return;
+      finish();
+      setVoiceError(true);
+      setNotice("No se pudo reproducir la voz. Intenta otra vez.");
+    };
+    if (summary) setSummaryState("playing");
+    synthesis.speak(utterance);
+  }
+  function playSummary() {
+    interrupt();
+    speak(localAdviceText(selection), true);
+  }
+  function toggleSummaryPause() {
+    if (summaryState === "paused") {
+      window.speechSynthesis.resume();
+      setSummaryState("playing");
+    } else {
+      window.speechSynthesis.pause();
+      setSummaryState("paused");
+    }
+  }
+  async function send(text: string, readAnswer = false) {
     if (!text.trim()) return;
     setDraft("");
-    if (realtime.status === "connected") {
+    if (!readAnswer && realtime.status === "connected") {
       try { realtime.sendTextMessage(text); return; }
       catch { stopVoice("Se cortó la voz. Puedes escribir."); }
     }
@@ -151,14 +245,17 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
         if (done) break;
       }
       if (!answer.trim()) throw new Error("Empty answer");
+      if (readAnswer && !controller.signal.aborted) speak(answer);
     } catch {
       if (!controller.signal.aborted) {
-        setMessages([...conversation, { role: "assistant", content: `Resumen sin conexión. ${localAdviceText(selection)}` }]);
+        const fallback = `Resumen sin conexión. ${localAdviceText(selection)}`;
+        setMessages([...conversation, { role: "assistant", content: fallback }]);
+        if (readAnswer) speak(fallback);
       }
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
-  const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
-  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : realtime.isCapturing ? "listening" : "connecting";
+  const active = dictating || requesting || realtime.status === "connecting" || realtime.status === "connected";
+  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : (dictating || realtime.isCapturing) ? "listening" : "connecting";
   const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
   const hangUp = () => stopVoice("Micrófono apagado.", false);
   return <section id="voz" className="voice-compact" aria-label="Asistente de voz">
@@ -178,8 +275,13 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     </div></details>}
     <div className="voice-alternatives">
       <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
-      {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
-      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
+      <button type="button" className="link-button" onClick={playSummary}><Volume2 aria-hidden="true"/> Oír resumen</button>
+      {summaryState !== "idle" && <div role="group" aria-label="Controles del resumen">
+        <button type="button" className="link-button" onClick={toggleSummaryPause}>{summaryState === "paused" ? "Continuar" : "Pausar"}</button>
+        <button type="button" className="link-button" onClick={stopSummary}>Detener</button>
+        <button type="button" className="link-button" onClick={playSummary}>Reiniciar</button>
+      </div>}
+      <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>La conversación en tiempo real usa AI Gateway. Si no está disponible, el dictado usa el servicio de voz de tu navegador. AgroVision no guarda grabaciones.</p></details>
     </div>
     </div>
   </section>;
