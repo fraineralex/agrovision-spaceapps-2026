@@ -6,11 +6,16 @@ import type { Location } from "./geography";
 export const TAREA_M2 = 628.86;
 export type Ring = [number, number][]; // [lon, lat], closed or open
 export type Piece = { id: string; kind: "cell" | "field" | "parcel" | "drawn"; ring: Ring };
+export type IrrigationDate = { date: string; mode: "own" | "assigned" };
 export type Farm = {
   id: string; name: string; province: string; location: Location; pieces: Piece[];
   previous: PreviousCrop; irrigation: Irrigation; crops: CropId[]; sowMonth: number; priority: Priority;
   plan?: { crop: CropId; sowMonth: number };
-  waterTurn?: string;
+  waterTurn?: string; // Legacy assigned turn, kept for existing farms.
+  irrigationDate?: IrrigationDate;
+  placeName?: string;
+  machinery?: string;
+  pesticides?: string;
 };
 
 const R = 6378137;

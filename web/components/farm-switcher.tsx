@@ -14,7 +14,7 @@ export function FarmSwitcher({ farms, activeId, onSelect, onAdd, onEdit, onDelet
       <button type="button" className="farm-tab add" onClick={onAdd}><Plus aria-hidden="true" size={20} /> Agregar finca</button>
     </div>
     {active && <div className="farm-meta">
-      <span>{active.province} · {area ? areaLabel(area) : "sin marcar en el mapa"}</span>
+      <span>{active.placeName ? `${active.placeName}, ` : ""}{active.province} · {area ? areaLabel(area) : "sin marcar en el mapa"}</span>
       <span className="farm-actions">
         <button type="button" className="ob-link" onClick={() => onEdit(active)}>Editar</button>
         {confirm === active.id
@@ -22,5 +22,10 @@ export function FarmSwitcher({ farms, activeId, onSelect, onAdd, onEdit, onDelet
           : <button type="button" className="ob-link" onClick={() => setConfirm(active.id)}>Borrar</button>}
       </span>
     </div>}
+    {active && (active.machinery || active.pesticides) && <details className="visual-details">
+      <summary>Maquinaria y pesticidas</summary>
+      {active.machinery && <p><strong>Maquinaria</strong> · {active.machinery}</p>}
+      {active.pesticides && <p><strong>Pesticidas</strong> · {active.pesticides}</p>}
+    </details>}
   </nav>;
 }

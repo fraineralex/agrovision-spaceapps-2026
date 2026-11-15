@@ -3,10 +3,10 @@
 import { AlertTriangle, CalendarDays, Info, MapPin, Sprout, TriangleAlert, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
-import { adviseNextCrop, adviceSentence, previousCropName, lightFor, monthNames, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { adviseNextCrop, adviceSentence, previousCropName, lightFor, monthNames, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
 import { SourcesSheet } from "@/components/sources-sheet";
-import type { Irrigation, Priority } from "@/lib/data";
+import type { Irrigation } from "@/lib/data";
 
 const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
   { id: "water", label: "Agua", icon: "water" }, { id: "climate", label: "Sequía", icon: "climate" },
@@ -60,7 +60,7 @@ function PillarBars({ a }: { a: CropAdvice }) {
 }
 
 type Props = {
-  province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: Priority; crops: CropId[];
+  province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[];
   onEdit: () => void; onTop?: (crop: CropId) => void;
 };
 

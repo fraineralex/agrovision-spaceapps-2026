@@ -1,11 +1,11 @@
 /* AI: Codex (OpenAI), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
-import { CalendarDays, CloudRain, Coins, MapPin, MessageCircle, Sprout, Sun, ThermometerSun } from "lucide-react";
+import { CalendarDays, CloudRain, Coins, Droplets, MapPin, MessageCircle, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { HelpTip } from "@/components/help-tip";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
-import type { Farm } from "@/lib/farms";
+import type { Farm, IrrigationDate } from "@/lib/farms";
 import { provinces, type Location } from "@/lib/geography";
 import { localDate, shortDate } from "@/lib/rain";
 import { RainCard, type useRain } from "@/components/rain-card";
@@ -53,26 +53,32 @@ export function WorkbenchNav({
   );
 }
 
-export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText, onTurn, onAdd, onLocation }: {
+export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText, onIrrigationDate, onAdd, onLocation }: {
   farm: Farm | null;
   province?: string;
   rain: ReturnType<typeof useRain>;
   droughtLabel?: string;
   tempC?: number | null;
   areaText?: string;
-  onTurn: (date: string) => boolean;
+  onIrrigationDate: (entry?: IrrigationDate) => boolean;
   onAdd: () => void;
   onLocation: (point: Location) => void;
 }) {
-  const [turn, setTurn] = useState(farm?.waterTurn ?? "");
+  const saved = farm?.irrigationDate ?? (farm?.waterTurn ? { date: farm.waterTurn, mode: "assigned" } as const : undefined);
+  const [date, setDate] = useState(saved?.date ?? "");
+  const [mode, setMode] = useState<IrrigationDate["mode"]>(saved?.mode ?? "own");
   const [status, setStatus] = useState("");
-  const saveTurn = (event: FormEvent<HTMLFormElement>) => {
+  const saveDate = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatus(onTurn(turn) ? (turn ? "Turno guardado en este dispositivo." : "Turno borrado.") : "Este navegador no pudo guardar el turno.");
+    setStatus(onIrrigationDate({ date, mode }) ? "Fecha guardada." : "No se pudo guardar la fecha.");
   };
-  const savedTurn = farm?.waterTurn;
+  const clearDate = () => {
+    if (!onIrrigationDate()) { setStatus("No se pudo borrar la fecha."); return; }
+    setDate("");
+    setStatus("Fecha borrada.");
+  };
   const forecast = rain.forecast?.kind === "forecast" && !rain.cached ? rain.forecast : null;
-  const turnDay = forecast?.days.find(day => day.date === savedTurn);
+  const rainDay = forecast?.days.find(day => day.date === saved?.date);
   const weekRainMm = rain.forecast?.days ? Math.round(rain.forecast.days.reduce((sum, d) => sum + d.rainMm, 0)) : null;
   return <section id="lluvia-esta-semana" className="field-week" aria-labelledby="week-title">
     <div className="field-week-heading">
@@ -80,7 +86,7 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
         <p className="workbench-place"><MapPin aria-hidden="true"/> {farm?.province || province || "República Dominicana"}{areaText ? ` · ${areaText}` : ""}</p>
         <div className="subhead-help">
           <h2 id="week-title">Lluvia de la semana</h2>
-          <HelpTip label="Lluvia de la semana" text="Mira la lluvia esperada de los próximos 7 días. Toca cualquier día para ver el detalle y anota aquí la fecha de tu turno de canal." />
+          <HelpTip label="Lluvia de la semana" text="Mira la lluvia esperada de los próximos 7 días. Toca cualquier día para ver el detalle y anota aquí tu próxima fecha de riego." />
         </div>
       </div>
       <div className="week-telemetry" aria-label="Indicadores rápidos de la semana">
@@ -100,21 +106,29 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
         {(province || farm) && <RainCard rain={rain}/>}
       </div>
       <div className="field-week-side">
-        {farm?.irrigation !== "rainfed" || savedTurn ? <div className="week-turn">
+        {farm?.irrigation !== "rainfed" || saved ? <div className="week-turn">
           <div className="subhead-help">
-            <h3><CalendarDays aria-hidden="true"/> Turno de riego</h3>
-            <HelpTip label="Turno de riego" text="Anota la fecha en que te toca agua del canal. La comparamos con los días de lluvia para ayudarte a planificar." />
+            <h3><Droplets aria-hidden="true"/> Próximo riego</h3>
+            <HelpTip label="Próximo riego" text="Elige si tú decides el día de riego o si te dan turno de canal, y guarda la fecha para cruzarla con la lluvia." />
           </div>
           {farm ? <>
-            {savedTurn && <p className="turn-summary"><time dateTime={savedTurn}>{shortDate(savedTurn)}</time><span>{savedTurn < localDate() ? "Turno pasado" : turnDay ? `${turnDay.rainMm} mm${turnDay.probPct !== null ? ` · ${turnDay.probPct}% de lluvia` : " previstos"}` : "Sin pronóstico actualizado"}</span></p>}
-            <form onSubmit={saveTurn}>
-              <label>Fecha que te dio la junta<input type="date" value={turn} min={localDate()} required onChange={event => { setTurn(event.target.value); setStatus(""); }}/></label>
-              <button type="submit" disabled={!turn || turn === savedTurn}>Guardar turno</button>
-              {savedTurn && <button type="button" className="link-button" onClick={() => { setTurn(""); setStatus(onTurn("") ? "Turno borrado." : "Este navegador no pudo borrar el turno."); }}>Borrar turno</button>}
+            {saved && <p className="turn-summary"><time dateTime={saved.date}>{shortDate(saved.date)}</time><strong>{saved.mode === "assigned" ? "Turno asignado" : "Fecha elegida"}</strong><span>{saved.date < localDate() ? "Fecha pasada" : rainDay ? `${rainDay.rainMm} mm${rainDay.probPct !== null ? ` · ${rainDay.probPct}% de lluvia` : " previstos"}` : "Sin pronóstico actualizado"}</span></p>}
+            <form onSubmit={saveDate}>
+              <fieldset className="irrigation-modes">
+                <legend className="sr-only">Quién fija la fecha de riego</legend>
+                {(["own", "assigned"] as const).map(value => <label className="irrigation-choice" key={value}>
+                  <input type="radio" name="irrigation-mode" checked={mode === value} onChange={() => { setMode(value); setStatus(""); }}/>
+                  {value === "own" ? <Droplets aria-hidden="true"/> : <CalendarDays aria-hidden="true"/>}
+                  {value === "own" ? "Yo elijo" : "Me dan turno"}
+                </label>)}
+              </fieldset>
+              <label>{mode === "assigned" ? "Fecha del turno" : "Fecha de riego"}<input type="date" value={date} min={localDate()} required onChange={event => { setDate(event.target.value); setStatus(""); }}/></label>
+              <button type="submit" disabled={!date || (date === saved?.date && mode === saved.mode)}>Guardar fecha</button>
+              {saved && <button type="button" className="link-button" onClick={clearDate}>Borrar fecha</button>}
             </form>
-            <p className="week-note">Confirma los cambios de turno con tu junta.</p>
+            {mode === "assigned" && <p className="week-note">Confirma los cambios con quien te asigna el turno.</p>}
             <p role="status" className="week-note">{status}</p>
-          </> : <div className="week-turn-empty"><p className="week-note">Registra tu finca para guardar tu fecha de turno y ver si llueve ese día.</p><button type="button" className="workbench-button" onClick={onAdd}>Registrar finca para guardar turno</button></div>}
+          </> : <div className="week-turn-empty"><p className="week-note">Registra tu finca para guardar tu fecha de riego y ver si llueve ese día.</p><button type="button" className="workbench-button" onClick={onAdd}>Registrar finca para guardar riego</button></div>}
         </div> : <p className="week-note">Cultivo de lluvia</p>}
         <a className="indomet-link" href="https://indomet.gob.do/pronostico/">Avisos de INDOMET →</a>
       </div>

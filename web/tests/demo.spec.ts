@@ -22,7 +22,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await page.getByRole("button", {name:"Agregar mi finca", exact:true}).click();
  const ob=page.getByRole("dialog",{name:"Cuéntanos de tu finca"});
  expect(await axeSerious(page)).toEqual([]);
- await ob.getByLabel("O escribe tu provincia").fill("san juan");
+ await ob.getByLabel("Busca un lugar en RD").fill("san juan");
  await ob.getByRole("button",{name:"San Juan",exact:true}).click();
  await ob.getByLabel("Nombre de esta finca").fill("Finca del río");
  await ob.getByRole("button",{name:/Marcar la finca en el mapa/}).click();
@@ -56,7 +56,10 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".farm-meta")).toContainText("tareas");
  await expect(page.locator(".crop-feature")).toContainText("Después de arroz");
  await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
- // Helper toggle explains tools without cluttering the screen.
+ // Default mode is Agricultor; Supervisor mode unlocks 5-goal comparison, GeoJSON export & cost/price details.
+ await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
+ await expect(page.getByText("Otras opciones (si quieres cambiar tu prioridad)", {exact:true})).toBeHidden();
+ await page.getByRole("button", {name:"Supervisor",exact:true}).click();
  await page.getByRole("button",{name:/¿Para qué sirve Otras opciones/}).click();
  await expect(page.getByRole("region",{name:/Ayuda sobre Otras opciones/})).toBeVisible();
  await page.getByRole("button",{name:"Cerrar ayuda"}).click();
@@ -81,8 +84,8 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator("#siembra")).toBeHidden();
  await expect(page.locator(".rain-wet")).toContainText("80%");
  expect(await axeSerious(page)).toEqual([]);
- // Independent Venta tab (profit calculator + market prices).
- await sectionNav.getByRole("tab",{name:/Venta/}).click();
+ // Supervisor quick link switches to Venta tab with profit calculator + market prices.
+ await page.getByRole("link", {name:"Clima y mercado",exact:true}).click();
  await expect(page.locator("#lluvia-esta-semana")).toBeHidden();
  await expect(page.locator("#cuanto-me-deja")).toBeVisible();
  await expect(page.locator("#precio-y-mercado")).toBeVisible();
@@ -91,17 +94,21 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await page.getByLabel("Tareas").fill("20");
  await expect(page.locator(".profit-lines")).toContainText("20 tareas");
  expect(await axeSerious(page)).toEqual([]);
- // Independent Mapa y clima tab.
+ // Independent Mapa y clima tab: parcel card, GeoJSON export & FAO drought.
  await sectionNav.getByRole("tab",{name:/Mapa y clima/}).click();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  for (const id of ["tu-finca-en-el-mapa","sequia-y-lluvia"]) await expect(page.locator(`#${id}`)).toBeVisible();
+ const downloadEvent = page.waitForEvent("download");
+ await page.getByRole("button", {name:"Descargar parcela (GeoJSON)",exact:true}).click();
+ expect((await downloadEvent).suggestedFilename()).toMatch(/^parcela-.+\.geojson$/);
  expect(await axeSerious(page)).toEqual([]);
  // Independent Preguntar tab.
  await sectionNav.getByRole("tab",{name:/Preguntar/}).click();
  await expect(page.locator("#tu-finca-en-el-mapa")).toBeHidden();
- await expect(page.locator("#voz")).toBeVisible();
+ await expect(page.getByRole("region", {name:"Asistente de voz"})).toBeVisible();
  expect(await axeSerious(page)).toEqual([]);
- // Switch back to Siembra for the final mobile snapshot check.
+ // Switch back to Agricultor + Siembra for clean mobile snapshot check.
+ await page.getByRole("button", {name:"Agricultor",exact:true}).click();
  await sectionNav.getByRole("tab",{name:/Siembra/}).click();
  await expect(page.locator("#siembra")).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -111,10 +118,32 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect(errors).toEqual([]);
 });
 
-test("desktop defaults to Siembra in two columns and isolates each section",async({page})=>{
+for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde"]) {
+ test(`farm picker zooms and supports manual field drawing in ${province}`, async ({ page }) => {
+  await page.route("https://**", r => r.abort());
+  await page.goto("/");
+  await page.getByRole("button", { name: "Agregar mi finca", exact: true }).click();
+  const ob = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+  await ob.getByRole("button", { name: province, exact: true }).click();
+  await ob.getByRole("button", { name: /Marcar la finca en el mapa/ }).click();
+  const map = page.getByTestId("farm-picker-map");
+  await expect(map).toHaveAttribute("data-ready", "true", { timeout: 20000 });
+  await expect(ob.getByRole("status").filter({ hasText: `${province} no hay contornos automáticos verificados` })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getZoom(): number; getMaxZoom(): number } }).__farmPicker.getZoom())).toBeGreaterThanOrEqual(15);
+  expect(await page.evaluate(() => (window as unknown as { __farmPicker: { getMaxZoom(): number } }).__farmPicker.getMaxZoom())).toBe(19);
+  await ob.getByRole("button", { name: /Dibujar/ }).click();
+  await map.scrollIntoViewIfNeeded();
+  const bb = (await map.boundingBox())!;
+  for (const [dx, dy] of [[80, 60], [170, 60], [170, 130]]) await page.mouse.click(bb.x + dx, bb.y + dy);
+  await ob.getByRole("button", { name: /Cerrar figura/ }).click();
+  await expect(page.locator(".picker-pieces")).toContainText("Figura dibujada");
+ });
+}
+
+test("desktop defaults to Siembra in two columns (Supervisor) and isolates each section",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
- await page.addInitScript(()=>{ localStorage.setItem("agrovision:farms",JSON.stringify([{id:"f1",name:"Conuco 1",province:"San Juan",location:{longitude:-71.23,latitude:18.8},pieces:[],previous:"arroz",irrigation:"irrigated",crops:["habichuela_roja","maiz","arroz"],sowMonth:11,priority:"water"}])); localStorage.setItem("agrovision:activeFarm","f1"); });
+ await page.addInitScript(()=>{ localStorage.setItem("agrovision:view-mode","supervisor"); localStorage.setItem("agrovision:farms",JSON.stringify([{id:"f1",name:"Conuco 1",province:"San Juan",location:{longitude:-71.23,latitude:18.8},pieces:[],previous:"arroz",irrigation:"irrigated",crops:["habichuela_roja","maiz","arroz"],sowMonth:11,priority:"water"}])); localStorage.setItem("agrovision:activeFarm","f1"); });
  await page.setViewportSize({width:1280,height:800});
  await page.goto("/");
  const sectionNav=page.getByRole("tablist",{name:/Secciones principales/});
@@ -134,6 +163,43 @@ test("desktop defaults to Siembra in two columns and isolates each section",asyn
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  await expect(page.locator("#lluvia-esta-semana")).toBeVisible();
+});
+
+test("finds a municipality and a neighborhood, then saves and renames a farm with its records", async ({page}) => {
+ await page.route("https://**", route => route.abort());
+ await page.route("**/api/rain**", route => route.fulfill({json: rainMock}));
+ await page.goto("/");
+ await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Mapa y clima/}).click();
+ const mapSearch = page.getByLabel("Busca un lugar en RD", {exact:true});
+ await mapSearch.fill("ensanche naco");
+ await page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/}).click();
+ await expect(page.getByRole("region", {name:"Elige tu zona"}).locator(".place")).toHaveText("Ensanche Naco · Distrito Nacional");
+ await expect(mapSearch).toBeFocused();
+ await page.getByRole("button", {name:"Agregar mi finca",exact:true}).click();
+ const dialog = page.getByRole("dialog", {name:"Cuéntanos de tu finca"});
+ await dialog.getByLabel("Busca un lugar en RD").fill("pedro brand");
+ await dialog.getByRole("button", {name:/^Pedro Brand Municipio.*Santo Domingo$/}).click();
+ await dialog.getByLabel("Nombre de esta finca").fill("La Lomita");
+ await dialog.getByText("Maquinaria y pesticidas (opcional)", {exact:true}).click();
+ await dialog.getByLabel("Maquinaria disponible").fill("Tractor alquilado");
+ await dialog.getByLabel("Pesticidas registrados en la finca").fill("Registro de ejemplo");
+ await dialog.getByRole("button", {name:"Seguir sin marcar"}).click();
+ await dialog.getByRole("button", {name:/Listo, ver mi recomendación/}).click();
+ await page.reload();
+ await expect(page.getByRole("tab", {name:"La Lomita"})).toBeVisible();
+ const farms = page.getByRole("navigation", {name:"Mis fincas"});
+ await expect(farms).toContainText("Pedro Brand, Santo Domingo");
+ await farms.getByText("Maquinaria y pesticidas", {exact:true}).click();
+ await expect(farms.getByText(/Tractor alquilado/)).toBeVisible();
+ await expect(farms.getByText(/Registro de ejemplo/)).toBeVisible();
+ await farms.getByRole("button", {name:"Editar"}).click();
+ await dialog.getByLabel("Nombre de esta finca").fill("La Lomita Norte");
+ await dialog.getByRole("button", {name:"Guardar cambios"}).click();
+ await expect(page.getByRole("tab", {name:"La Lomita Norte"})).toBeVisible();
+ await page.getByRole("button", {name:"Supervisor",exact:true}).click();
+ await page.reload();
+ await expect(page.getByRole("button", {name:"Supervisor",exact:true})).toHaveAttribute("aria-pressed", "true");
+ await expect(page.getByRole("tab", {name:"La Lomita Norte"})).toBeVisible();
 });
 
 test("farm switcher: add a second farm, switch between them, delete one; saved after reload",async({page})=>{
@@ -166,19 +232,25 @@ test("farm switcher: add a second farm, switch between them, delete one; saved a
  await page.getByRole("button",{name:"Sí, borrar"}).click();
  await expect(farmTabs).toHaveCount(1);
 });
-test("grower saves a planting plan and irrigation turn, then checks a buyer offer offline", async ({page,context}) => {
+test("grower can keep an old turn or choose their own irrigation date and use the farm tools offline", async ({page,context}) => {
  await page.clock.setFixedTime(new Date("2026-11-16T14:00:00Z"));
  await page.route("https://**", route => route.abort());
  await page.route("**/api/rain**", route => route.fulfill({ json: rainMock }));
  await page.addInitScript(() => {
    if (localStorage.getItem("agrovision:farms")) return;
-   localStorage.setItem("agrovision:farms", JSON.stringify([{ id:"f1", name:"Conuco", province:"San Juan", location:{longitude:-71.23, latitude:18.8}, pieces:[], previous:"habichuela_roja", irrigation:"irrigated", crops:["habichuela_roja","maiz"], sowMonth:11, priority:"water" }]));
+   localStorage.setItem("agrovision:farms", JSON.stringify([{ id:"f1", name:"Conuco", province:"San Juan", location:{longitude:-71.23, latitude:18.8}, pieces:[], previous:"habichuela_roja", irrigation:"irrigated", crops:["habichuela_roja","maiz"], sowMonth:11, priority:"water", waterTurn:"2026-11-18" }]));
  });
  await page.goto("/");
  const sectionNav=page.getByRole("tablist",{name:/Secciones principales/});
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
- await page.getByLabel("Fecha que te dio la junta").fill("2026-11-19");
- await page.getByRole("button", {name:"Guardar turno"}).click();
+ await expect(page.getByRole("radio", {name:"Me dan turno"})).toBeChecked();
+ await expect(page.getByLabel("Fecha del turno")).toHaveValue("2026-11-18");
+ await page.getByLabel("Fecha del turno").fill("2026-11-19");
+ await page.getByRole("button", {name:"Guardar fecha"}).click();
+ await expect(page.locator(".turn-summary")).toContainText("Turno asignado");
+ await page.getByRole("radio", {name:"Yo elijo"}).check();
+ await page.getByRole("button", {name:"Guardar fecha"}).click();
+ await expect(page.locator(".turn-summary")).toContainText("Fecha elegida");
  await expect(page.locator(".week-turn")).toContainText("14 mm · 80%");
  await sectionNav.getByRole("tab",{name:/Siembra/}).click();
  await page.getByLabel("Mes para comparar").selectOption("12");
@@ -191,7 +263,8 @@ test("grower saves a planting plan and irrigation turn, then checks a buyer offe
  await expect(page.locator(".saved-plan")).toContainText("Maíz en diciembre");
  await expect(page.getByLabel("Mes para comparar")).toHaveValue("12");
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
- await expect(page.getByLabel("Fecha que te dio la junta")).toHaveValue("2026-11-19");
+ await expect(page.getByRole("radio", {name:"Yo elijo"})).toBeChecked();
+ await expect(page.getByLabel("Fecha de riego")).toHaveValue("2026-11-19");
  await expect(page.getByText("Copia guardada", {exact:true})).toBeVisible();
  await expect(page.locator(".week-turn")).toContainText("Sin pronóstico actualizado");
  await sectionNav.getByRole("tab",{name:/Venta/}).click();
@@ -203,7 +276,7 @@ test("grower saves a planting plan and irrigation turn, then checks a buyer offe
  await expect(page.locator(".budget-result")).toContainText("Te faltan RD$1,000");
 });
 test("voice tools, location validation and honest missing-key fallback",async({request})=>{
- const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"water",month:11,irrigation:"unconfirmed"};
+ const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"balanced",month:11,irrigation:"unconfirmed"};
  const setup=await request.post(`/api/voice/setup?${new URLSearchParams(Object.entries(selection).map(([k,v])=>[k,typeof v === "object"?JSON.stringify(v):String(v)]))}`);
  expect(setup.status()).toBe(503);expect(JSON.stringify(await setup.json())).not.toContain("token");
  const chat=await request.post("/api/voice/chat",{data:{selection,messages:[{role:"user",content:"¿Qué sabes del agua?"}]}});
@@ -231,9 +304,39 @@ test("missing realtime credentials release microphone and preserve text input",a
   };
  });
  await page.goto("/");
- await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Preguntar/}).click();
- await page.getByRole("button",{name:"Iniciar conversación"}).click();
- await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la conversación/)).toBeVisible();
+ await page.getByRole("button",{name:"Hablar",exact:true}).click();
+ await expect(page.getByText(/No se pudo iniciar la voz|Se cortó la voz/)).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
+ await page.getByText("Escribir", {exact:true}).click();
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
+});
+
+test("the voice orb stays centered while the grower scrolls and uses the page", async ({page}) => {
+ await page.setViewportSize({width:360,height:780});
+ await page.addInitScript(() => {
+   navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
+ });
+ await page.goto("/");
+ const start = page.getByRole("button", {name:"Hablar",exact:true});
+ await start.click();
+ const voice = page.getByRole("region", {name:"Asistente de voz"});
+ const stop = voice.getByRole("button", {name:"Colgar",exact:true});
+ await expect(voice.getByRole("status")).toHaveText("Conectando…");
+ await expect(voice.getByText("Escribir", {exact:true})).toBeHidden();
+ await expect(voice.getByText("Sobre el micrófono", {exact:true})).toBeHidden();
+ await expect(page.getByRole("dialog")).toHaveCount(0);
+ const before = (await stop.boundingBox())!;
+ expect(before.x + before.width / 2).toBeCloseTo(180, 0);
+ expect(780 - before.y - before.height).toBeLessThan(24);
+ await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Venta/}).click();
+ await page.getByLabel("Gasto total (RD$)").fill("12000");
+ await page.evaluate(() => window.scrollTo(0, 220));
+ expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+ expect(await stop.boundingBox()).toEqual(before);
+ expect(await axeSerious(page)).toEqual([]);
+ await page.screenshot({path:"test-results/voice-mobile.png"});
+ await stop.click();
+ await expect(voice.getByRole("status")).toHaveText("Micrófono apagado.");
+ await expect(voice.getByText("Escribir", {exact:true})).toBeVisible();
+ await expect(start).toBeFocused();
 });

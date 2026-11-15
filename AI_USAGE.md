@@ -184,10 +184,58 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 ## 2026-11-14 — Integración del flujo de finca, seccionamiento sin saturación y gráficos interactivos
 
-- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** integrar los cambios de `origin/main` (PR #9 y PR #10 `feature/farm-workbench`), conservar las correcciones de rigor agronómico/científico (`currentRain`, exclusión de mandatos de riego, separación de evidencia y costos declarados) y elevar el diseño visual por secciones claras:
+- **Herramienta:** Antigravity / Gemini (Google). **Propósito:** integrar los cambios de `origin/main` (PR #9, PR #10 `feature/farm-workbench`, PR #11 `fix/farm-irrigation-and-voice` y PR #12 `feature/province-field-map`), conservar las correcciones de rigor agronómico/científico (`currentRain`, exclusión de mandatos de riego, separación de evidencia y costos declarados, modos Agricultor/Supervisor, búsqueda offline de lugares en RD, fecha de riego elegida o asignada y orbe flotante de voz) y elevar el diseño visual por secciones claras:
   - mantener el onboarding centrado con fotografía rural CC0 de San Juan (`web/public/images/san-juan-valley.jpg`), pasos adaptados a pantalla de laptop (`1366×620`) e íconos Lucide/SVG unificados;
-  - reorganizar la portada en secciones limpias (pulso semanal de lluvia interactiva + turno de riego, mesa de decisión de siembra en 2 columnas con tarjetas de comparación más compactas, calculadora de precio mínimo con barra visual comparativa de oferta, bloque regional colapsable por temática y asistente de voz);
-  - hacer interactiva la tira de lluvia de 7 días (selección por día con detalle y animación suave de gotas/rayos solares respetando `prefers-reduced-motion`) y la estacionalidad de mercado (inspección de mes).
+  - reorganizar el panel en 5 pestañas independientes (`role="tablist"` / `role="tabpanel"`): `Siembra` (abierta por defecto al entrar, con selector rápido de zona cuando no hay fincas guardadas y el plan + 5 opciones al elegir), `Lluvia`, `Venta`, `Mapa y clima` y `Preguntar`, más botones de ayuda sencilla `¿Para qué sirve?` (`web/components/help-tip.tsx`), tira de lluvia de 7 días interactiva e inspección interactiva por mes/punto en la curva de 24 meses de mercado (`web/components/market-card.tsx`).
 - **Archivos:** `web/app/{layout.tsx,page.tsx,globals.css}`, `web/components/{farm-icon,farm-picker,farm-workbench,onboarding,advisor-card,options-card,market-card,profit-card,rain-card,fao-giews,sale-budget,fold,help-tip}.tsx`, `web/public/{icon.svg,images/san-juan-valley.jpg}`, `web/scripts/offline-assets.mjs`, `web/package.json`, `web/pnpm-lock.yaml`, `web/tests/demo.spec.ts`, `docs/DATA_SOURCES.md`, `AI_USAGE.md`.
-- **Actualización de arquitectura por pestañas independientes (2026-11-14):** se reorganizaron las herramientas en 5 pestañas independientes (`role="tablist"` / `role="tabpanel"`): `Siembra` (abierta por defecto al entrar, con selector rápido de zona cuando no hay fincas guardadas y el plan + 5 opciones al elegir), `Lluvia`, `Venta`, `Mapa y clima` y `Preguntar`, más botones de ayuda sencilla `¿Para qué sirve?` (`web/components/help-tip.tsx`) e inspección interactiva por mes/punto en la curva de 24 meses de mercado (`web/components/market-card.tsx`).
 - **Límites:** solo mejoras visuales, interactivas y de arquitectura de pantalla sobre datos y reglas vigentes; no se inventaron datos ni métricas. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Fecha de riego elegida o asignada
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** registrar el próximo riego según quién fija la fecha y conservar turnos ya guardados. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench,onboarding}.tsx`, `web/lib/farms.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Reparación y controles compactos de voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** corregir la validación de la prioridad equilibrada y activar el micrófono cuando la sesión está lista. Reducir la interfaz a hablar, colgar y alternativas plegadas. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,voice-assistant}.tsx`, `web/lib/{advisor,farmer-comparison,voice-context}.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`.
+- **Verificación:** conexión real a Vercel AI Gateway con `openai/gpt-realtime-mini`. Una frase sintética generada con Windows Speech se usó como entrada de micrófono en Chromium. Se verificaron detección de voz, recepción de audio y cierre de la pista al colgar. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Pantalla de conversación por voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** crear una vista de voz con orbe de estado, subtítulos, silencio y cierre. **Archivos:** `web/components/voice-assistant.tsx`, `web/components/voice-session.module.css` y `web/tests/demo.spec.ts`.
+- **Referencia visual:** demo y documentación públicas de [Voice Mode de HextaUI](https://hextaui.com/es/blocks/voice-mode). Implementación original con CSS, diálogo nativo e iconos Lucide. No se importó código del registro privado. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Orbe flotante de voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** reemplazar el diálogo de voz por un control circular fijo que permite usar la página durante la conversación. **Referencia:** captura compartida por Frainer. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+
+- **Iteración:** orbe activo inspirado en la demo pública de [HextaUI Voice Mode](https://hextaui.com/es/blocks/voice-mode), con brillo y halo según el nivel del micrófono. El análisis visual se hace en el navegador. **Archivos:** `web/components/{voice-assistant.tsx,voice-session.module.css}`. **Revisión por Frainer:** pendiente.
+- **Ajuste:** se retiró la tarjeta de voz y se dejaron solo el orbe y su estado accesible mientras la sesión está activa. **Archivos:** `web/app/page.tsx`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+- **Ajuste visual:** se recuperaron el degradado y la escala de la primera iteración en el orbe flotante. **Archivos:** `web/app/globals.css` y `web/components/voice-session.module.css`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Búsqueda de lugares y ficha de finca
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** buscar más allá de las provincias y permitir nombrar, renombrar y registrar maquinaria y pesticidas declarados por finca. **Archivos:** `scripts/geography/export_places.ps1`, `web/public/data/places-do.json`, `web/lib/{place-search,farms}.ts`, `web/components/{onboarding,farm-switcher}.tsx`, `web/app/{page.tsx,globals.css}`, `web/scripts/offline-assets.mjs` y `web/tests/demo.spec.ts`.
+- **Fuente:** [GeoNames](https://www.geonames.org/export/), licencia CC BY, extracto [DO.zip](https://download.geonames.org/export/dump/DO.zip) del 14-11-2026. Los puntos representan nombres de lugares, con cobertura desigual a nivel de sector. No son límites de finca ni equivalen a un padrón oficial. Los apuntes son datos declarados y se guardan localmente. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Modos Agricultor y Supervisor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** organizar las tareas básicas y los análisis técnicos en vistas con las mismas fincas, y exportar los contornos dibujados como GeoJSON. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/map.tsx` y `web/tests/demo.spec.ts`. Los modos son vistas y no permisos. La exportación contiene geometrías aproximadas del usuario, no delimitaciones catastrales. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Auditoría de flujos de finca, mapa y voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** priorizar el guardado de la ficha, conservar el lugar elegido al buscar, limpiar datos de una parcela anterior, facilitar acceso a diagnósticos y mostrar errores de voz junto al orbe. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{onboarding.tsx,voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Auditoría de mapa para cinco provincias
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** dejar clara la cobertura automática parcial de San Juan, conservar selección manual en otras provincias y documentar por separado fondo, detecciones y pipeline.
+- **Archivos:** `web/lib/map/fields.ts`, `web/components/{farm-picker,map}.tsx`, `web/tests/demo.spec.ts`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`.
+- **Fuentes:** metadatos del GeoJSON local de San Juan; documentación y términos Esri enlazados en `docs/12_field_boundaries_method.md`.
+- **Límites:** disponibilidad/resolución de tiles no comprobada sistemáticamente por provincia; no hay detecciones verificadas en Azua, La Vega, Monte Cristi, Santiago ni Valverde. Revisión por Frainer y autorización para redistribuir derivados pendientes.
+
+## 2026-11-14 — Verificación del selector provincial
+
+- Codex (OpenAI) corrigió el límite de zoom del selector y adaptó la prueba al flujo de alta de finca. Archivos: `web/components/farm-picker.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias, build con Webpack y las cinco pruebas dirigidas en Chrome con WebGL por software. Las pruebas bloquearon las solicitudes externas. Revisión por Frainer pendiente.
+
+## 2026-11-14 — Resolución de integración
+
+- **Herramienta:** Codex (OpenAI) / Antigravity (Google). **Propósito:** conservar ambos registros de uso de IA al integrar los cambios de mapa provincial, fincas, modos Agricultor/Supervisor y voz con la interfaz de pestañas independientes y gráficos interactivos. **Archivos:** `AI_USAGE.md`. **Revisión por Frainer:** pendiente.
