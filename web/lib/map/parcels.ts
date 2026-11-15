@@ -17,6 +17,7 @@ export type ParcelProps = {
 };
 export const parcelCollection = parcels as unknown as GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, ParcelProps>;
 export const parcelEvidence = { provenance: parcels.provenance, method: parcels.method, signalRule: parcels.signalRule, limitation: parcels.limitation };
+export type ParcelSelection = { properties: ParcelProps; signalLabel: string; evidence: typeof parcelEvidence };
 export const signalColor: Record<ParcelSignal, string> = { low: "#dc5545", mid: "#e6b53f", high: "#46b976", unknown: "#9ca3af" };
 export const signalLabels: Record<ParcelSignal, string> = { low: "Verdor bajo", mid: "Verdor intermedio", high: "Verdor alto", unknown: "Sin datos" };
 export function parcelFillColor(): ExpressionSpecification {

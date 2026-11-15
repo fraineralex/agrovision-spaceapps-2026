@@ -2531,3 +2531,23 @@ dialog.src-overlay::backdrop { background: rgb(0 0 0 / .66); }
 
 .sale-metrics > div.sale-loss dd { color: var(--risk); }
 @media (max-width: 390px) { .field-week { padding-inline: 8px; } }
+/* Keep controls clear of the map and keep the header stable as offline status arrives. */
+.topbar { height: 76px; min-height: 0; flex-wrap: nowrap; }
+.header-actions .offline-pill { padding: 4px 8px; }
+.ob-footer {
+  flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px;
+  padding: 10px 16px; border-top: 1px solid var(--border); background: var(--card);
+}
+.ob-footer .ob-primary { margin: 0; width: auto; }
+.ob-footer .link-button { padding-inline: 8px; }
+@media (max-width: 720px) {
+  .topbar, .topbar:has(+ .workspace.has-farm) { height: 68px; min-height: 0; }
+  .ob-footer { padding: 8px 14px max(8px, env(safe-area-inset-bottom)); }
+  .ob-footer > * { width: 100%; justify-content: center; }
+  .ob-footer .ob-primary { width: 100%; }
+}
+.voice-loading {
+  display: flex; min-height: 168px; align-items: center; justify-content: center; gap: 8px;
+  margin-block: 14px; background: var(--card); color: var(--muted);
+  border: 1px solid var(--border); border-radius: var(--radius-panel);
+}

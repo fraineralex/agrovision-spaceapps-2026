@@ -7,7 +7,7 @@ import { useState, type FormEvent } from "react";
 import { HelpTip } from "@/components/help-tip";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
 import type { Farm, IrrigationDate } from "@/lib/farms";
-import { provinces, type Location } from "@/lib/geography";
+import { provinces, type Location } from "@/lib/geography-core";
 import { localDate, shortDate } from "@/lib/rain";
 import { RainCard, type useRain } from "@/components/rain-card";
 
