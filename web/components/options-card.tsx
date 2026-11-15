@@ -5,13 +5,14 @@ import { useMemo, useState } from "react";
 import { CloudSun, Droplets, Bug, Coins, RotateCcw, Info, type LucideIcon } from "lucide-react";
 import { FarmIcon } from "@/components/farm-icon";
 import { HelpTip } from "@/components/help-tip";
-import { fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
+import { Stars } from "@/components/field-ui";
+import { fiveOptions, lightFor, monthNames, pillarTitle, type CropAdvice, type CropId, type OptionKey, type Pillar, type PreviousCrop } from "@/lib/advisor";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
 
 const goalIcon: Record<OptionKey, LucideIcon> = { water: Droplets, market: Coins, pests: Bug, climate: CloudSun, keep: RotateCcw };
 const pillars: { id: Pillar; label: string; Icon: LucideIcon }[] = [{ id: "water", label: "Agua", Icon: Droplets }, { id: "climate", label: "Sequía", Icon: CloudSun }, { id: "pests", label: "Plagas", Icon: Bug }, { id: "market", label: "Precio", Icon: Coins }];
-const word: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
+const word: Record<string, string> = { green: "Conviene", amber: "Puede servir", red: "No conviene", gray: "Falta información" };
 const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Precio histórico", pests: "Plagas", climate: "Sequía", keep: "Seguir igual" };
 
 export function OptionsCard({ province, irrigation, previous, sowMonth, crops }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[] }) {
@@ -31,7 +32,7 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
             <Icon className="option-icon" />
           </span>
           <span className="option-goal" title={o.goal}>{a ? options.filter(option => option.advice?.crop === a.crop).map(option => goalLabel[option.key]).join(" · ") : goalLabel[o.key]}</span>
-          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{word[light]}</span>}
+          {a && <span className={`option-light ${light}`}><i aria-hidden="true" />{o.key === "keep" ? word[light] : pillarTitle(o.key as Pillar, a.scores[o.key as Pillar])}</span>}
         </div>
         {a ? <>
           <div className="option-crop-row">
@@ -42,7 +43,7 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
                 {a.harvestMonth ? <small>Cosecha en {monthNames[a.harvestMonth - 1]}</small> : <small>Cultivo permanente</small>}
               </span>
             </p>
-            {a.overall !== null && <span className={`option-score-pill ${light}`} aria-label={`Puntaje ${a.overall.toFixed(1).replace(".", ",")}`}>{a.overall.toFixed(1).replace(".", ",")}</span>}
+            {a.overall !== null && <Stars score={a.overall} size={15} />}
           </div>
           <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>
             {pillars.map(({ id, label, Icon: P }) => {
@@ -50,14 +51,14 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops }:
               return (
                 <li key={id} className={`pill ${c}`} title={a.words[id]}>
                   <span className="pill-label"><P aria-hidden="true" />{label}</span>
-                  <small className="pill-val">{word[c]}</small>
+                  <small className="pill-val">{pillarTitle(id, a.scores[id])}</small>
                 </li>
               );
             })}
           </ul>
           <div className="option-foot">
             {a.warnings.length > 0 && <details className="visual-details crop-alerts"><summary>Qué revisar ({a.warnings.length})</summary><ul>{a.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></details>}
-            <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> Datos y fuentes</button>
+            <button type="button" className="link-button" onClick={() => setSources(a)}><Info aria-hidden="true" /> ¿Por qué?</button>
           </div>
         </> : <details className="visual-details"><summary>Sin datos suficientes</summary><p>{o.note}</p></details>}
       </li>; })}

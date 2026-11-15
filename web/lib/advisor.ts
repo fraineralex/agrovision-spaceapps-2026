@@ -135,10 +135,10 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const overall = clamp(base - (pests === 1 ? 0.5 * weightFor("pests") : 0));
     const pctVsAvg = typeof idx === "number" ? Math.round(idx - 100) : null;
     const words: Record<Pillar, string> = {
-      water: !viable ? "Necesita riego" : water >= 3.34 ? "Demanda relativa baja" : water >= 1.67 ? "Demanda relativa media" : "Demanda relativa alta",
-      climate: signal.label,
-      pests: reported.length ? "Plagas en común" : pests === 5 ? "Rotación citada por IDIAF" : pests === 1 ? "Repetición de cultivo" : shared.length ? "Plaga en común por confirmar †" : "Sin puntaje de plagas",
-      market: perennial ? "Permanente: sin mes de cosecha" : pctVsAvg === null ? "Sin precio de referencia" : `Cosecha en ${monthNames[harvestMonth - 1]}: precio ${pctVsAvg > 0 ? `${pctVsAvg}% sobre` : pctVsAvg < 0 ? `${-pctVsAvg}% bajo` : "igual al"} promedio`,
+      water: !viable ? "Necesita riego y no tienes" : water >= 3.34 ? "Pide poca agua" : water >= 1.67 ? "Pide agua regular" : "Pide mucha agua",
+      climate: signal.color === "green" ? "Sin sequía ahora" : signal.color === "amber" ? "Algo de sequía en la zona" : signal.color === "red" ? "Hay sequía en la zona" : "Sin dato de sequía",
+      pests: reported.length ? "Comparte plagas con tu cultivo anterior" : pests === 5 ? "Ayuda a cortar las plagas (rotación del IDIAF)" : pests === 1 ? "Repetir el cultivo mantiene las plagas" : shared.length ? "Puede compartir plagas (por confirmar) †" : "No tenemos datos de plagas para este cambio",
+      market: perennial ? "Cultivo permanente: no tiene un mes de cosecha" : pctVsAvg === null ? "No hay precio de referencia" : `Cosechas en ${monthNames[harvestMonth - 1]}: el precio suele estar ${pctVsAvg > 0 ? `${pctVsAvg}% más alto que` : pctVsAvg < 0 ? `${-pctVsAvg}% más bajo que` : "igual a"} lo normal`,
     };
     return { crop, repeats, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
@@ -155,11 +155,63 @@ export function adviceSentence(top: CropAdvice | undefined, previous: PreviousCr
   if (!top || top.repeats || top.overall === null) return "Falta información para recomendar. Consulta con tu técnico.";
   const reasons: string[] = [];
   if (top.scores.pests === 5) reasons.push("el IDIAF respalda rotar habichuela con maíz");
-  if ((top.scores.water ?? 0) >= 3.34) reasons.push("su demanda relativa de agua es baja en la comparación");
+  if ((top.scores.water ?? 0) >= 3.34) reasons.push("pide menos agua que los otros cultivos de tu lista");
   if ((top.scores.market ?? 0) >= 3.34) reasons.push(`suele venderse mejor en ${monthNames[top.harvestMonth - 1]}`);
-  if (!reasons.length) reasons.push(top.words.water.toLowerCase() + " en la comparación");
+  if (!reasons.length) reasons.push("es el que mejor sale entre los cultivos de tu lista");
   const after = previous !== "unknown" && previous !== "otro" ? ` después de ${previousCropName(previous).toLowerCase()}` : "";
   return `Considera ${top.name.toLowerCase()}${after}${reasons.length ? ": " + reasons.slice(0, 2).join(" y ") : ""}.`;
+}
+
+/** Short farmer-facing headline per pillar: what the colour means in plain words. */
+export function pillarTitle(id: Pillar, score: number | null): string {
+  const c = lightFor(score);
+  const t: Record<Pillar, Record<string, string>> = {
+    water: { green: "Pide poca agua", amber: "Pide agua regular", red: "Pide mucha agua", gray: "Sin dato de agua" },
+    climate: { green: "Sin sequía", amber: "Algo de sequía", red: "Hay sequía", gray: "Sin dato" },
+    pests: { green: "Menos plagas", amber: "Ojo con plagas", red: "Riesgo de plagas", gray: "Sin dato" },
+    market: { green: "Buen precio", amber: "Precio normal", red: "Precio bajo", gray: "Sin precio" },
+  };
+  return t[id][c];
+}
+/** Whole stars (1-5) shown instead of the decimal score. */
+export const starsFor = (score: number | null) => score === null ? 0 : Math.max(1, Math.min(5, Math.round(score)));
+/** Plain "why this crop and not another" text built only from the same comparison data. */
+export function whyThisCrop(a: CropAdvice, all: CropAdvice[], previous: PreviousCrop): string[] {
+  const out: string[] = [];
+  const name = a.name.toLowerCase();
+  const good = (["water", "climate", "pests", "market"] as Pillar[]).filter(p => (a.scores[p] ?? 0) >= 3.34);
+  const bad = (["water", "climate", "pests", "market"] as Pillar[]).filter(p => a.scores[p] !== null && a.scores[p]! < 1.67);
+  const say: Record<Pillar, string> = {
+    water: "pide poca agua", climate: "no hay sequía en tu zona ahora",
+    pests: "ayuda a cortar las plagas del cultivo anterior", market: `se cosecha en ${a.harvestMonth ? monthNames[a.harvestMonth - 1] : "un mes"} con buen precio`,
+  };
+  const sayBad: Record<Pillar, string> = {
+    water: "pide mucha agua", climate: "hay sequía en tu zona",
+    pests: "puede mantener las plagas del cultivo anterior", market: "se cosecha cuando el precio suele estar bajo",
+  };
+  if (!a.viable) { out.push(`${a.name} necesita riego y dijiste que no tienes. Por eso no lo recomendamos ahora.`); return out; }
+  const top = recommendedCrop(all);
+  if (good.length) out.push(`${a.name} sale bien porque ${good.map(p => say[p]).join(", ").replace(/, ([^,]*)$/, " y $1")}.`);
+  else out.push(`${a.name} no destaca en nada, pero tampoco sale mal en la comparación.`);
+  if (bad.length) out.push(`Lo que tiene en contra: ${bad.map(p => sayBad[p]).join(" y ")}.`);
+  if (a.scores.market !== null && !good.includes("market") && !bad.includes("market")) out.push("El precio al cosechar es normal: ni muy bueno ni muy malo.");
+  if (a.scores.pests === null) out.push("De plagas no tenemos datos para este cambio de cultivo, así que no lo contamos ni a favor ni en contra.");
+  if (top && top.crop === a.crop) {
+    const next = all.find(x => x.viable && x.crop !== a.crop && x.overall !== null);
+    if (next) {
+      const worse = (["water", "pests", "market"] as Pillar[]).find(p => a.scores[p] !== null && next.scores[p] !== null && a.scores[p]! - next.scores[p]! >= 0.5);
+      const w: Record<string, string> = { water: "pide menos agua", pests: "trae menos riesgo de plagas", market: "se cosecha con mejor precio" };
+      const noPestData = a.scores.pests === 5 && next.scores.pests === null;
+      out.push(worse ? `¿Por qué no ${next.name.toLowerCase()}? Porque ${name} ${w[worse]}.`
+        : noPestData ? `¿Por qué no ${next.name.toLowerCase()}? Porque para ${name} hay una rotación recomendada por el IDIAF y para ${next.name.toLowerCase()} no tenemos ese dato.`
+        : `${next.name} sale parecido: también es una opción.`);
+    }
+    const prev = previous !== "unknown" && previous !== "otro" ? all.find(x => x.crop === previous) : undefined;
+    if (prev && prev.repeats) out.push(`¿Por qué no repetir ${prev.name.toLowerCase()}? Porque sembrar lo mismo seguido deja las plagas en el terreno.`);
+  } else if (top) {
+    out.push(`El que mejor sale en tu lista es ${top.name.toLowerCase()}.`);
+  }
+  return out;
 }
 
 export const unitWord = (u?: string | null) => u === "DOP/lb" ? "la libra" : u === "DOP/quintal" ? "el quintal" : u === "DOP/kg" ? "el kilo" : u === "DOP/unidad" ? "la unidad" : "la unidad";

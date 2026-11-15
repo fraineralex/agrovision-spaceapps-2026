@@ -46,8 +46,6 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [name, setName] = useState(initial.name ?? (farmCount ? `Finca ${farmCount + 1}` : "Mi finca"));
   const [declaredTareas, setDeclaredTareas] = useState(initial.declaredTareas ?? "");
   const [placeName, setPlaceName] = useState(initial.placeName);
-  const [machinery, setMachinery] = useState(initial.machinery ?? "");
-  const [pesticides, setPesticides] = useState(initial.pesticides ?? "");
   const next = () => setStep(s => Math.min(STEPS - 1, s + 1));
   const back = () => setStep(s => Math.max(0, s - 1));
   const pick = (name: string, loc?: Location, place?: string) => {
@@ -81,8 +79,6 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       previous, irrigation, crops, sowMonth, priority,
       plan: initial.plan, waterTurn: initial.waterTurn, irrigationDate: initial.irrigationDate,
       placeName: farmProvince === province ? placeName : undefined,
-      machinery: machinery.trim() || undefined,
-      pesticides: pesticides.trim() || undefined,
     });
   };
 
@@ -145,12 +141,9 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
           </div>
           <label className="ob-label ob-name-field">Nombre de esta finca<input value={name} maxLength={40} placeholder="Ej.: Finca del río" onChange={e => setName(e.target.value)} /></label>
         </div>
-        <details className="ob-more"><summary>Área declarada, maquinaria y pesticidas (opcional)</summary>
+        <details className="ob-more"><summary>¿Cuántas tareas tiene? (opcional)</summary>
           <label className="ob-label">Área declarada en tareas<input type="number" min="0" max="100000" step="any" value={declaredTareas} onChange={event => setDeclaredTareas(event.target.value === "" ? "" : event.target.valueAsNumber)} /></label>
           <p className="note">Venta usa primero el área que declaras. El mapa y la ubicación usan lo marcado.</p>
-          <label className="ob-label">Maquinaria disponible<textarea rows={2} value={machinery} maxLength={500} placeholder="Ej.: tractor alquilado, bomba propia" onChange={e => setMachinery(e.target.value)} /></label>
-          <label className="ob-label">Pesticidas registrados en la finca<textarea rows={2} value={pesticides} maxLength={500} placeholder="Anota los nombres de los productos que usas" onChange={e => setPesticides(e.target.value)} /></label>
-          <p className="note">Tus apuntes quedan en este navegador.</p>
         </details>
         {showMap ? <FarmPicker center={location} pieces={pieces} onChange={setPieces} /> : (
           <div className="ob-map-prompt">

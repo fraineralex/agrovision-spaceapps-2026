@@ -80,7 +80,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect(decodeURIComponent(href!)).toContain("Finca del río");
  expect(decodeURIComponent(href!)).toContain("Posible lluvia");
  // Sources panel still works.
- await page.locator(".recommendation-hero").getByRole("button",{name:"Datos y fuentes"}).click();
+ await page.locator(".recommendation-hero").getByRole("button",{name:"¿Por qué este cultivo?"}).click();
  await expect(page.getByRole("dialog",{name:/De dónde sale la recomendación/})).toContainText("FAO-56");
  expect(await axeSerious(page)).toEqual([]);
  await page.getByRole("button",{name:/Cerrar/}).click();
@@ -193,18 +193,14 @@ test("finds a municipality and a neighborhood, then saves and renames a farm wit
  await dialog.getByLabel("Busca un lugar en RD").fill("pedro brand");
  await dialog.getByRole("button", {name:/^Pedro Brand Municipio.*Santo Domingo$/}).click();
  await dialog.getByLabel("Nombre de esta finca").fill("La Lomita");
- await dialog.getByText("Área declarada, maquinaria y pesticidas (opcional)", {exact:true}).click();
- await dialog.getByLabel("Maquinaria disponible").fill("Tractor alquilado");
- await dialog.getByLabel("Pesticidas registrados en la finca").fill("Registro de ejemplo");
+ await expect(dialog.getByText(/maquinaria|pesticida/i)).toHaveCount(0);
  await dialog.getByRole("button", {name:"Seguir sin marcar"}).click();
  await dialog.getByRole("button", {name:/Listo, ver mi recomendación/}).click();
  await page.reload();
  await expect(page.getByRole("tab", {name:"La Lomita"})).toBeVisible();
  const farms = page.getByRole("navigation", {name:"Mis fincas"});
  await expect(farms).toContainText("Pedro Brand, Santo Domingo");
- await farms.getByText("Maquinaria y pesticidas", {exact:true}).click();
- await expect(farms.getByText(/Tractor alquilado/)).toBeVisible();
- await expect(farms.getByText(/Registro de ejemplo/)).toBeVisible();
+ await expect(farms.getByText(/maquinaria|pesticida/i)).toHaveCount(0);
  await farms.getByRole("button", {name:"Editar"}).click();
  await dialog.getByLabel("Nombre de esta finca").fill("La Lomita Norte");
  await dialog.getByRole("button", {name:"Guardar cambios"}).click();
@@ -488,7 +484,7 @@ for (const fixture of [
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
       await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voice unavailable");
-      const source = verdict.getByRole("button", { name: "Datos y fuentes" });
+      const source = verdict.getByRole("button", { name: "¿Por qué este cultivo?" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
       const close = dialog.getByRole("button", { name: /Cerrar/ });
