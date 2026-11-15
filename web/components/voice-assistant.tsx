@@ -6,7 +6,7 @@ import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { useReadAloud } from "@/lib/use-read-aloud";
-import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, type VoiceSelection } from "@/lib/voice-context";
+import { REALTIME_MODEL, REALTIME_VOICE, voiceInstructions, localAdviceText, localVoiceAnswer, plainVoiceText, type VoiceSelection } from "@/lib/voice-context";
 import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Dictation = {
@@ -250,7 +250,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     }
     stopSummary();
     if (synthesis.paused) synthesis.resume();
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(plainVoiceText(text));
     const spanish = synthesis.getVoices().filter(voice => /^es(?:[-_]|$)/i.test(voice.lang));
     const natural = (voice: SpeechSynthesisVoice) => /natural|neural|premium|enhanced|google|online/i.test(voice.name);
     const regional = (voice: SpeechSynthesisVoice) => /^es[-_](DO|US|MX|419)$/i.test(voice.lang);
@@ -299,7 +299,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
         const { value, done } = await reader.read();
         const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
         if (controller.signal.aborted) return;
-        answer += chunk;
+        answer += plainVoiceText(chunk);
         setMessages([...conversation, { role: "assistant", content: answer }]);
         if (done) break;
       }

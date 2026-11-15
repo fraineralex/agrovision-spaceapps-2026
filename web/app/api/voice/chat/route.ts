@@ -2,7 +2,7 @@
 import { gateway } from "@ai-sdk/gateway";
 import { streamText, stepCountIs } from "ai";
 import { z } from "zod";
-import { TEXT_MODEL, voiceSelection, voiceInstructions, localVoiceAnswer, plantingCalendar } from "@/lib/voice-context";
+import { TEXT_MODEL, voiceSelection, voiceInstructions, localVoiceAnswer, plainVoiceText, plantingCalendar } from "@/lib/voice-context";
 import { guard, localTools, readJson } from "@/lib/voice-server";
 import { askLocalVoiceModel } from "@/lib/local-voice-model";
 export const maxDuration = 30;
@@ -24,6 +24,11 @@ export async function POST(request: Request) {
   }
   const result = streamText({ model: gateway(TEXT_MODEL), system: voiceInstructions(input.selection, "question"), messages: input.messages,
     tools: localTools(input.selection), stopWhen: stepCountIs(3), maxOutputTokens: 320,
+    experimental_transform: () => new TransformStream({
+      transform(part, controller) {
+        controller.enqueue(part.type === "text-delta" ? { ...part, text: plainVoiceText(part.text) } : part);
+      },
+    }),
     abortSignal: AbortSignal.any([request.signal, AbortSignal.timeout(25_000)]),
   });
   return result.toTextStreamResponse({ headers: { "X-AgroVision-Mode": "ai", "Cache-Control": "no-store" } });

@@ -422,7 +422,7 @@ test("the voice button sends a dictated question without waiting for realtime se
  await page.route("**/api/voice/chat", async route => {
   expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
   await answerPending;
-  return route.fulfill({ body: "Este es tu resumen." });
+  return route.fulfill({ body: "Este es tu **resumen**." });
  });
  await page.addInitScript(() => {
   navigator.mediaDevices.getUserMedia = async () => new MediaStream();
@@ -435,6 +435,7 @@ test("the voice button sends a dictated question without waiting for realtime se
   } });
   Object.assign(window.speechSynthesis, {
    speak(utterance: SpeechSynthesisUtterance) {
+    document.documentElement.dataset.spokenReply = utterance.text;
     window.addEventListener("test:reply-ended", () => utterance.dispatchEvent(new Event("end")), { once: true });
    },
   });
@@ -450,6 +451,7 @@ test("the voice button sends a dictated question without waiting for realtime se
  releaseAnswer();
  expect((await response).ok()).toBe(true);
  await expect(orb).toHaveAttribute("data-state", "speaking");
+ await expect(page.locator("html")).toHaveAttribute("data-spoken-reply", "Este es tu resumen.");
  await page.evaluate(() => window.dispatchEvent(new Event("test:reply-ended")));
  await expect(orb).toHaveAttribute("data-state", "ready");
  await page.getByRole("button", { name: "Hacer otra pregunta" }).click();

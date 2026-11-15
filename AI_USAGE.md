@@ -342,3 +342,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Revisión por Frainer:** pendiente.
 
 - 2026-11-15 — OpenAI (Codex). Rediseño del círculo de conversación por voz inspirado en la documentación pública de HextaUI Voice Mode (https://hextaui.com/es/blocks/voice-mode), continuidad entre turnos de dictado y verificación E2E. Archivos: web/components/voice-assistant.tsx, web/components/voice-session.module.css y web/tests/demo.spec.ts. Revisión por Frainer pendiente.
+
+- 2026-11-15 — OpenAI (Codex). Instrucciones de texto plano y filtrado de marcas de formato en las respuestas de voz. Archivos: web/lib/voice-context.ts, web/lib/local-voice-model.ts, web/app/api/voice/chat/route.ts, web/components/voice-assistant.tsx y web/tests/demo.spec.ts. Revisión por Frainer pendiente.

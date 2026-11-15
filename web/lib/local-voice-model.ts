@@ -1,7 +1,7 @@
 /* AI: Codex (OpenAI), 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 import "server-only";
 import { z } from "zod";
-import { adviceMetrics, type VoiceSelection } from "./voice-context";
+import { adviceMetrics, plainVoiceInstructions, plainVoiceText, type VoiceSelection } from "./voice-context";
 
 export type VoiceMessage = { role: "user" | "assistant"; content: string };
 
@@ -51,7 +51,7 @@ export async function askLocalVoiceModel(
         messages: [
           {
             role: "system",
-            content: `Eres AgroVision. Contesta la última pregunta en español sencillo en una o dos frases. Usa el historial para entender «esa» u «otra». Si te piden una alternativa, elige solo un cultivo distinto del mencionado y da un motivo de su ficha. Si piden cuándo se cosecha, identifica el cultivo de la conversación y copia el mes exacto de su campo cosecha como una estimación. No calcules otro mes. Usa únicamente los datos de la finca. Los precios son históricos, al por mayor. Si falta el dato, dilo. Datos en JSON: ${JSON.stringify(evidence)}`,
+            content: `Eres AgroVision. Contesta la última pregunta en español sencillo en una o dos frases. ${plainVoiceInstructions} Usa el historial para entender «esa» u «otra». Si te piden una alternativa, elige solo un cultivo distinto del mencionado y da un motivo de su ficha. Si piden cuándo se cosecha, identifica el cultivo de la conversación y copia el mes exacto de su campo cosecha como una estimación. No calcules otro mes. Usa únicamente los datos de la finca. Los precios son históricos, al por mayor. Si falta el dato, dilo. Datos en JSON: ${JSON.stringify(evidence)}`,
           },
           ...messages.map(message => ({ ...message, content: message.content.slice(0, 1200) })),
         ],
@@ -59,7 +59,7 @@ export async function askLocalVoiceModel(
     });
     if (!response.ok) return null;
     const parsed = modelResponse.safeParse(await response.json());
-    return parsed.success ? parsed.data.choices[0].message.content : null;
+    return parsed.success ? plainVoiceText(parsed.data.choices[0].message.content).trim() || null : null;
   } catch {
     return null;
   }
