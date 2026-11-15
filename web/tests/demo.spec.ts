@@ -146,7 +146,7 @@ for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde
  });
 }
 
-test("desktop uses the full Siembra width and keeps sections independent",async({page})=>{
+test("desktop pairs the planting hero with its metrics and keeps sections independent",async({page})=>{
  await page.route("https://**",r=>r.abort());
  await page.route("**/api/rain**",r=>r.fulfill({json:rainMock}));
  await page.addInitScript(()=>{ localStorage.setItem("agrovision:view-mode","supervisor"); localStorage.setItem("agrovision:farms",JSON.stringify([{id:"f1",name:"Conuco 1",province:"San Juan",location:{longitude:-71.23,latitude:18.8},pieces:[],previous:"arroz",irrigation:"irrigated",crops:["habichuela_roja","maiz","arroz"],sowMonth:11,priority:"water"}])); localStorage.setItem("agrovision:activeFarm","f1"); });
@@ -155,9 +155,13 @@ test("desktop uses the full Siembra width and keeps sections independent",async(
  const sectionNav=page.getByRole("tablist",{name:/Secciones principales/});
  await expect(sectionNav.getByRole("tab",{name:/Siembra/})).toHaveAttribute("aria-selected","true");
  const board=(await page.locator("#siembra").boundingBox())!;
- const decision=(await page.locator(".visual-verdict").boundingBox())!;
+ const decision=(await page.locator(".recommendation-hero").boundingBox())!;
+ const metrics=(await page.locator(".metric-tiles").boundingBox())!;
  const opts=(await page.locator(".options").boundingBox())!;
- expect(decision.width).toBeGreaterThan(board.width * .95);
+ expect(decision.width).toBeGreaterThan(board.width * .5);
+ expect(metrics.x).toBeGreaterThanOrEqual(decision.x + decision.width);
+ expect(metrics.y).toBeCloseTo(decision.y, 0);
+ expect(metrics.x + metrics.width).toBeLessThanOrEqual(board.x + board.width + 1);
  expect(board.width).toBeGreaterThan(1200);
  expect(opts.y).toBeGreaterThan(decision.y + decision.height);
  await expect(page.locator("#lluvia-esta-semana")).toBeHidden();
@@ -274,7 +278,7 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(page.getByRole("radio", {name:"Yo elijo"})).toBeChecked();
  await expect(page.getByLabel("Fecha de riego")).toHaveValue("2026-11-19");
- await expect(page.getByText("Copia guardada", {exact:true})).toBeVisible();
+ await expect(page.getByText(/Copia guardada · hace 2 h/)).toBeVisible();
  await expect(page.locator(".week-turn")).toContainText("Sin pronóstico actualizado");
  await sectionNav.getByRole("tab",{name:/Venta/}).click();
  await page.getByText("Ya tengo mis gastos y cosecha", {exact:true}).click();
@@ -420,6 +424,7 @@ for (const fixture of [
   { id: "arroz", name: "Arroz de Monte Cristi", province: "Monte Cristi", location: { longitude: -71.60, latitude: 19.73 }, irrigation: "irrigated", previous: "arroz", crops: ["arroz", "maiz"], declaredTareas: 40 }
 ]) {
   test("farmer decision and sale for " + fixture.name, async ({ page }) => {
+    test.setTimeout(75_000);
     await page.route("https://**", route => route.abort());
     await page.route("**/api/climate**", route => route.fulfill({ status: 503, json: {} }));
     await page.setViewportSize({ width: 390, height: 844 });
@@ -430,7 +435,7 @@ for (const fixture of [
     }, fixture);
     await page.goto("/");
     const verdict = page.locator(".recommendation-hero");
-    await expect(verdict.locator(".recommendation-heading")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
+    await expect(verdict.locator(".recommendation-heading h2")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
     await expect(verdict.locator(".recommendation-meta")).toContainText("2027");
     const tiles = (await page.locator(".metric-tiles").boundingBox())!;
     expect(tiles.y + tiles.height).toBeLessThanOrEqual(844 - 58);

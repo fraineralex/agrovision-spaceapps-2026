@@ -7,7 +7,7 @@
     "build": "next build && node scripts/offline-assets.mjs",
     "start": "next start",
     "lint": "eslint .",
-    "test": "tsx --test 'lib/*.test.ts' 'app/api/**/*.test.ts'",
+    "test": "tsx --test \"lib/*.test.ts\" \"app/api/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "prebuild": "node scripts/map-worker.mjs",
     "predev": "node scripts/map-worker.mjs"
