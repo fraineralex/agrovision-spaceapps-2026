@@ -56,10 +56,11 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".farm-meta")).toContainText("tareas");
  await expect(page.locator(".crop-feature")).toContainText("Después de arroz");
  await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
- // Default mode is Agricultor; Supervisor mode unlocks 5-goal comparison, GeoJSON export & cost/price details.
+ // Default mode is Agricultor; Supervisor mode unlocks supervision quick bar, GeoJSON export & cost/price details.
  await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
- await expect(page.getByText("Otras opciones (si quieres cambiar tu prioridad)", {exact:true})).toBeHidden();
+ await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeHidden();
  await page.getByRole("button", {name:"Supervisor",exact:true}).click();
+ await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeVisible();
  await page.getByRole("button",{name:/¿Para qué sirve Otras opciones/}).click();
  await expect(page.getByRole("region",{name:/Ayuda sobre Otras opciones/})).toBeVisible();
  await page.getByRole("button",{name:"Cerrar ayuda"}).click();
