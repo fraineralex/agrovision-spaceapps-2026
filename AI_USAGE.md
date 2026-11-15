@@ -463,3 +463,4 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: añadió una prueba de preguntas del asistente en ambos idiomas en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió una prueba con reconocimiento de voz simulado para verificar el idioma del dictado antes y después de cambiarlo en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió traducciones de etiquetas y descripciones de los cuatro pilares en `web/lib/i18n/{advice,messages}.ts`; conserva los puntajes y sus umbrales. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: conectó la tarjeta de recomendación a los nombres, explicaciones, precauciones y etiquetas bilingües en `web/components/advisor-card.tsx` y `web/lib/i18n/{advice,messages}.ts`. No se cambió el cálculo de puntajes. Revisión por Frainer pendiente.
