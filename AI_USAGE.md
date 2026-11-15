@@ -505,3 +505,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex (OpenAI):** integró `origin/main` en la rama de internacionalización, adaptó las explicaciones de rotación y plagas y localizó errores de clima, lluvia y configuración de voz. Archivos: `web/lib/i18n/{advice,api-messages}.ts`, `web/app/api/{rain,climate,voice/setup}/route.ts`, `web/app/[locale]/page.tsx`, `web/components/{rain-card,voice-assistant}.tsx`. Revisión por Frainer pendiente.
 
 - **2026-11-15 — Codex (OpenAI):** tradujo los campos de suelo del registro y parte de las explicaciones de rotación incorporadas desde main. Archivos: `web/components/{onboarding,soil-card,sources-sheet}.tsx`, `web/app/[locale]/page.tsx` y `web/lib/i18n/soil-messages.ts`. Revisión por Frainer pendiente.
+
+- **2026-11-15 — Codex (OpenAI):** tradujo la tarjeta de plagas y sus fuentes usando el catálogo bilingüe. Archivos: `web/components/pest-card.tsx` y `web/lib/i18n/pest-messages.ts`. Revisión por Frainer pendiente.
