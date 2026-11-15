@@ -4051,3 +4051,12 @@ body {
 .farm-action-button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .farm-action-button.danger { color: var(--risk); border-color: var(--risk); }
 @media(max-width: 640px) { .workspace.has-farm .heading-farms-bar .farm-switcher { padding: 12px; gap: 12px; } .heading-farms-bar .farm-meta { width: 100%; justify-content: space-between; } }
+
+/* Plagas a vigilar */
+.pest-crops{list-style:none;padding:0;margin:10px 0;display:grid;gap:12px}
+.pest-crops>li{border:1px solid var(--border);border-radius:14px;padding:16px 18px;background:var(--elevated)}
+.pest-crops h3{display:flex;gap:8px;align-items:center;margin:0 0 8px;font-size:1.05rem;font-weight:800;color:var(--foreground)}
+.pest-list{margin:0 0 8px;padding-left:20px;display:grid;gap:4px;line-height:1.45}
+.pest-shared{font-weight:700;color:var(--caution)}
+.pest-state{margin:6px 0;line-height:1.45;font-weight:600}
+.pest-src{margin:6px 0 0;font-size:.9rem;color:var(--muted)}

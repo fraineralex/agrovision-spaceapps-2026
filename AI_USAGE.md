@@ -419,3 +419,20 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex / OpenAI:** integración de Tu plan de siembra dentro de Otras opciones (`web/app/page.tsx`, `web/components/options-card.tsx`, `web/app/planting.css`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** preparación de copia independiente de UI en el escritorio, con fixtures sintéticos y maquetas de mapas y voz; archivos de la copia documentados en su propio `AI_USAGE.md`. Revisión por Frainer: pendiente.
+
+## 2026-11-15 — Plagas sin “sin dato” y palabras del tipo de tierra
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:** el indicador de plagas usa el catálogo dominicano que ya estaba en `web/lib/pests.ts`: si el cultivo anterior y el nuevo no tienen plagas principales en común dice “Plagas distintas”; si no se sabe el cultivo anterior, dice qué plagas vigilar. La opción “Plagas” elige un cultivo con plagas distintas cuando no hay una rotación citada por el IDIAF. El tipo de tierra “Media” ahora es “Mezclada”, con una línea que explica las tres opciones.
+- **Archivos:** `web/lib/{advisor,advisor.test,soil}.ts`, `web/components/{advisor-card,options-card,sources-sheet,onboarding,soil-card}.tsx`, `web/tests/demo.spec.ts`.
+- **Límites:** “Plagas distintas” no cambia las estrellas. El catálogo lista solo las plagas principales de cada cultivo (1 a 4), así que puede haber otras en la zona; la app lo dice.
+- **Revisión por Frainer:** pendiente.
+
+## 2026-11-15 — Color de la tierra y sección “Plagas a vigilar”
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:** pregunta opcional “¿De qué color es tu tierra?” con una nota por color en “Rotación y suelo”; sección “Plagas a vigilar” con todas las plagas del catálogo por cultivo (nombre científico, tipo, si se repite con el cultivo anterior y enlaces a las fuentes) y un aviso sobre nematodos.
+- **Archivos:** `web/lib/{soil,soil.test,pests,farms}.ts`, `web/components/{pest-card,soil-card,onboarding,fold}.tsx`, `web/app/{page.tsx,globals.css}`, `web/tests/demo.spec.ts`.
+- **Fuentes:** color del suelo, Soil Science Society of America (adaptado de Lynn y Pearson, 2000), consultada el 15-11-2026. Plagas: el catálogo que ya estaba en `web/lib/pests.ts`, que coincide con la hoja “Plagas a vigilar por cultivo” del equipo; no se añadieron plagas nuevas.
+- **Límites:** el color es una pista, no un análisis; no afirma cantidades de nutrientes. El tipo de plaga (insecto, ácaro, nematodo) se deduce del nombre común. Nada de esto cambia las estrellas.
+- **Revisión por Frainer:** pendiente.
+
+- **2026-11-15 — Antigravity / Gemini (Google):** integración de `origin/main` (catálogo de plagas a vigilar y color del suelo) manteniendo predominancia visual, diseño propio y refinamientos Impeccable en toda la aplicación para subida final a `main`. Revisión por Frainer: pendiente.

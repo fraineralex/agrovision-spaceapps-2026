@@ -1,7 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers; centered natural backdrop & unified SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import type { SoilTexture } from "@/lib/soil";
+import type { SoilColor, SoilTexture } from "@/lib/soil";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
@@ -39,6 +39,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [previous, setPrevious] = useState<PreviousCrop>(initial.previous ?? "unknown");
   const [irrigation, setIrrigation] = useState<Irrigation>(initial.irrigation ?? "unconfirmed");
   const [soilTexture, setSoilTexture] = useState<SoilTexture | undefined>(initial.soilTexture);
+  const [soilColor, setSoilColor] = useState<SoilColor | undefined>(initial.soilColor);
   const [chosenCrops, setCrops] = useState<CropId[] | null>(initial.crops ?? null);
   const common: CropId[] = province === "Monte Cristi" ? ["arroz", "guineo", "maiz"] : province === "La Vega" ? ["papa", "cebolla", "repollo"] : ["habichuela_roja", "maiz", "yuca"];
   const crops = chosenCrops ?? Array.from(new Set([...allCrops.filter(crop => crop === previous), ...common]));
@@ -80,6 +81,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       province: farmProvince, location: markedCenter ?? location,
       declaredTareas: area > 0 && area <= 100000 ? area : undefined,
       soilTexture,
+      soilColor,
       previous, irrigation, crops, sowMonth, priority,
       plan: initial.plan, waterTurn: initial.waterTurn, irrigationDate: initial.irrigationDate,
       placeName: farmProvince === province ? placeName : undefined,
@@ -178,9 +180,19 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             <h3 className="ob-sub">¿Cómo es tu tierra? <small>(opcional)</small></h3>
             <div className="ob-row" role="group" aria-label="¿Cómo es tu tierra?">
               <Choice on={soilTexture === "arenosa"} onClick={() => setSoilTexture("arenosa")}>Arenosa</Choice>
-              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>Media</Choice>
+              <Choice on={soilTexture === "franca"} onClick={() => setSoilTexture("franca")}>Mezclada</Choice>
               <Choice on={soilTexture === "arcillosa"} onClick={() => setSoilTexture("arcillosa")}>Barro</Choice>
               <Choice on={!soilTexture} onClick={() => setSoilTexture(undefined)}>No sé</Choice>
+            </div>
+            <p className="ob-hint">Arenosa: suelta, se escurre entre los dedos. Barro: se pega cuando se moja y se agrieta al secarse. Mezclada: ni arena ni barro, se desmorona fácil.</p>
+            <h3 className="ob-sub">¿De qué color es tu tierra? <small>(opcional)</small></h3>
+            <div className="ob-row" role="group" aria-label="¿De qué color es tu tierra?">
+              <Choice on={soilColor === "negra"} onClick={() => setSoilColor("negra")}>Negra</Choice>
+              <Choice on={soilColor === "roja"} onClick={() => setSoilColor("roja")}>Roja</Choice>
+              <Choice on={soilColor === "amarilla"} onClick={() => setSoilColor("amarilla")}>Amarilla</Choice>
+              <Choice on={soilColor === "gris"} onClick={() => setSoilColor("gris")}>Gris</Choice>
+              <Choice on={soilColor === "blanca"} onClick={() => setSoilColor("blanca")}>Blanca</Choice>
+              <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>No sé</Choice>
             </div>
             <details className="ob-more ob-compare"><summary>Cambiar los cultivos que se comparan ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
               <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label="Cultivos para comparar">{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => setCrops(on ? crops.filter(x => x !== c) : [...crops, c])}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{cropNames[c]}{c === "ajo" ? " · sin datos todavía" : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>

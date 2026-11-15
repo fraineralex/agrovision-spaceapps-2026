@@ -100,7 +100,10 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
         {shared.length > 0 && <><p>Coincidencias con {prevName}. Los grupos identificados solo por género requieren confirmar la especie.</p></>}
         {advice.scores.pests === 5 && <p>El IDIAF cita el maíz como opción de rotación después de habichuela para problemas específicos de ese cultivo.</p>}
         {advice.scores.pests === 1 && <p>Pierde estrellas porque repite el cultivo o comparte plagas con el anterior, según referencias locales.</p>}
-        {advice.scores.pests === null && <p>Como no hay datos, las plagas no suman ni restan estrellas aquí.</p>}
+        {advice.pestState === "different" && <p>{advice.name} y tu cultivo anterior no tienen plagas principales en común en las guías dominicanas que usamos. Cambiar de cultivo ayuda a que las plagas de una siembra no pasen a la siguiente.</p>}
+        {advice.watch.length > 0 && <p>Plagas principales de {advice.name.toLowerCase()} según las guías: <strong>{advice.watch.join(", ")}</strong>.</p>}
+        {advice.pestState === "unknown" && <p>Las guías que usamos no listan las plagas de {advice.name.toLowerCase()}. Pregunta a tu técnico.</p>}
+        {advice.scores.pests === null && <p>Esta parte no suma ni resta estrellas: las guías solo listan las plagas principales y puede haber otras en tu zona.</p>}
         <p className="src-limit">{pestLimit}</p>
 
       </Block>

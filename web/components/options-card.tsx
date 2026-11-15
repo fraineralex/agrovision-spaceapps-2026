@@ -6,7 +6,7 @@ import { AlertTriangle, CloudSun, Droplets, Bug, Coins, RotateCcw, Info, Sprout,
 import { FarmIcon } from "@/components/farm-icon";
 import { Stars } from "@/components/field-ui";
 import { Fold } from "@/components/fold";
-import { fiveOptions, lightFor, monthNames, type CropAdvice, type CropId, type OptionKey, type PreviousCrop } from "@/lib/advisor";
+import { fiveOptions, monthNames, type CropAdvice, type CropId, type OptionKey, type PreviousCrop } from "@/lib/advisor";
 import { SourcesSheet } from "@/components/sources-sheet";
 import type { Irrigation } from "@/lib/data";
 
@@ -17,7 +17,6 @@ const pillars: { id: "water" | "climate" | "pests" | "market"; label: string }[]
   { id: "pests", label: "Plagas" },
   { id: "market", label: "Precio" },
 ];
-const word: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
 const goalLabel: Record<OptionKey, string> = { water: "Menos agua", market: "Precio histórico", pests: "Plagas", climate: "Sequía", keep: "Seguir igual", other: "Otra opción" };
 
 export function OptionsCard({ province, irrigation, previous, sowMonth, crops, children }: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; crops: CropId[]; children?: ReactNode }) {
@@ -31,7 +30,6 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops, c
       {grouped.map(o => {
         const Icon = goalIcon[o.key];
         const a = o.advice;
-
         const titles = a ? options.filter(option => option.advice?.crop === a.crop).map(option => goalLabel[option.key]) : [goalLabel[o.key]];
         return <li key={o.key} className={`option option-row-card ${o.key === "keep" ? "keep" : ""}`}>
           <div className="option-top-bar">
@@ -59,11 +57,11 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops, c
           {a ? <>
             <ul className="option-pillars" aria-label={`Cómo sale ${a.name}`}>
               {pillars.map(({ id, label }) => {
-                const c = lightFor(a.scores[id]);
+                const c = a.lights[id];
                 return (
                   <li key={id} className={`pill ${c}`} title={a.words[id]}>
                     <span className="pill-label"><FarmIcon name={id} size={14} />{label}</span>
-                    <small className="pill-val">{word[c]}</small>
+                    <small className="pill-val">{a.titles[id]}</small>
                   </li>
                 );
               })}

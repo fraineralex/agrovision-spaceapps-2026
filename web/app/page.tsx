@@ -35,6 +35,7 @@ const AdvisorCard = dynamic(() => import("@/components/advisor-card").then(modul
 const PlantingReview = dynamic(() => import("@/components/advisor-card").then(module => module.PlantingReview));
 const MarketCard = dynamic(() => import("@/components/market-card").then(module => module.MarketCard));
 const SoilCard = dynamic(() => import("@/components/soil-card").then(module => module.SoilCard));
+const PestCard = dynamic(() => import("@/components/pest-card").then(module => module.PestCard));
 const OptionsCard = dynamic(() => import("@/components/options-card").then(module => module.OptionsCard));
 const FaoDroughtCard = dynamic(() => import("@/components/fao-giews").then(module => module.FaoDroughtCard));
 const ProfitCard = dynamic(() => import("@/components/profit-card").then(module => module.ProfitCard));
@@ -298,16 +299,21 @@ export default function Home() {
             <section id="siembra" aria-label="Recomendación y plan de siembra">
               <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onSowMonth={setMonth} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
               <div className="siembra-stack">
+                {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
+                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
+                </Fold>}
                 <OptionsCard
                   province={farmProvince}
                   irrigation={irrigation}
                   previous={previous}
                   sowMonth={month}
                   crops={crops} />
-                {activeFarm && <Fold id="planting-plan" icon="🌱" title="Tu plan de siembra" className="siembra-plan-card">
-                  <PlantingPlan key={activeFarm.id} farm={activeFarm} sowMonth={month} onMonth={setMonth} onSave={plan => updateFarm({ plan })}/>
-                </Fold>}
-                <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica cómo la rotación puede cuidar el suelo."><SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture}/></Fold>
+                <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica por qué cambiar de cultivo cuida la tierra: nutrientes, abono natural de las leguminosas y materia orgánica.">
+                  <SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture} color={activeFarm?.soilColor}/>
+                </Fold>
+                <Fold id="plagas-a-vigilar" icon="🐛" title="Plagas a vigilar" help="Lista las plagas principales de cada cultivo de tu lista según guías dominicanas, y si se repiten con tu cultivo anterior.">
+                  <PestCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
+                </Fold>
                 <ShareButton summary={shareSummary}/>
                 <PlantingReview province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
               </div>

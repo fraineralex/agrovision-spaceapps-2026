@@ -69,13 +69,14 @@ export const marketSources = market.sources;
 export const marketLimits = market.limits;
 
 export type Pillar = "water" | "climate" | "pests" | "market";
+export type PestState = "rotation" | "repeat" | "shared" | "maybe" | "different" | "listed" | "unknown";
 export type AdvicePriority = Priority | "balanced";
 export type CropAdvice = {
   crop: CropId; repeats: boolean; name: string; cycleDays: number; harvestMonth: number;
   scores: Record<Pillar, number | null>; overall: number | null; viable: boolean;
   pestPrecautions: string[];
   sharedPests: ReturnType<typeof sharedPests>;
-  words: Record<Pillar, string>; soil: SoilNote; warnings: string[]; kcDays: number; faoRow: string;
+  words: Record<Pillar, string>; lights: Record<Pillar, string>; titles: Record<Pillar, string>; pestState: PestState; watch: string[]; soil: SoilNote; warnings: string[]; kcDays: number; faoRow: string;
 };
 
 const clamp = (n: number) => Math.max(0, Math.min(5, Math.round(n * 10) / 10));
@@ -121,6 +122,11 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     if (reported.length) {
       pests = 1;
     }
+    // Both crops are in the Dominican pest catalogue and list no pest in common: say so instead of "no data".
+    // The stars do not change: the catalogue lists only the main pests of each crop.
+    const bothListed = Boolean(pestsFor(String(opts.previous)) && pestsFor(crop));
+    const pestState: PestState = pests === 5 ? "rotation" : pests === 1 ? (repeats ? "repeat" : "shared") : shared.length ? "maybe" : bothListed ? "different" : pestsFor(crop) ? "listed" : "unknown";
+    const watch = (pestsFor(crop)?.pests ?? []).filter(p => !p.external).map(p => p.name.toLowerCase()).filter((n, i, all) => all.indexOf(n) === i);
     const m = marketFor(crop);
     const idx = perennial ? null : m?.seasonalIndex?.[String(harvestMonth)] ?? null;
     let marketScore: number | null = typeof idx === "number" ? clamp(2.5 + (idx - 100) / 5) : null;
@@ -138,10 +144,10 @@ export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation
     const words: Record<Pillar, string> = {
       water: !viable ? "Necesita riego y no tienes" : water >= 3.34 ? "Pide poca agua" : water >= 1.67 ? "Pide agua regular" : "Pide mucha agua",
       climate: signal.color === "green" ? "Sin sequía ahora" : signal.color === "amber" ? "Algo de sequía en la zona" : signal.color === "red" ? "Hay sequía en la zona" : "Sin dato de sequía",
-      pests: reported.length ? "Comparte plagas con tu cultivo anterior" : pests === 5 ? "Ayuda a cortar las plagas (rotación del IDIAF)" : pests === 1 ? "Repetir el cultivo mantiene las plagas" : shared.length ? "Puede compartir plagas (por confirmar) †" : "No tenemos datos de plagas para este cambio",
+      pests: reported.length ? "Comparte plagas con tu cultivo anterior" : pests === 5 ? "Ayuda a cortar las plagas (rotación del IDIAF)" : pests === 1 ? "Repetir el cultivo mantiene las plagas" : shared.length ? "Puede compartir plagas (por confirmar) †" : pestState === "different" ? "No comparten sus plagas principales, según las guías" : watch.length ? `Vigila ${watch.slice(0, 2).join(" y ")}` : "Las guías no listan plagas de este cultivo",
       market: perennial ? "Cultivo permanente: no tiene un mes de cosecha" : pctVsAvg === null ? "No hay precio de referencia" : `Cosechas en ${monthNames[harvestMonth - 1]}: el precio suele estar ${pctVsAvg > 0 ? `${pctVsAvg}% más alto que` : pctVsAvg < 0 ? `${-pctVsAvg}% más bajo que` : "igual a"} lo normal`,
     };
-    return { crop, repeats, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, soil: soilNote(String(opts.previous), crop, previousCropName(opts.previous), cropNames[crop]), warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
+    return { crop, repeats, name: cropNames[crop], cycleDays, harvestMonth, scores, overall: viable ? overall : null, viable, pestPrecautions: pestPrecautions(opts.previous, crop), sharedPests: shared, words, pestState, watch, lights: { water: lightFor(water), climate: lightFor(climate), pests: pestState === "different" ? "green" : pestState === "maybe" ? "amber" : lightFor(pests), market: lightFor(marketScore) }, titles: { water: pillarTitle("water", water), climate: pillarTitle("climate", climate), pests: pestState === "different" ? "Plagas distintas" : pestState === "maybe" ? "Ojo con plagas" : pestState === "listed" ? "Plagas a vigilar" : pillarTitle("pests", pests), market: pillarTitle("market", marketScore) }, soil: soilNote(String(opts.previous), crop, previousCropName(opts.previous), cropNames[crop]), warnings, kcDays: Math.round(kcDays), faoRow: FAO56[crop].row };
   });
   // Permanent crops are investments, not the next rotation: list them after seasonal crops.
   return advice.sort((a, b) => Number(b.viable) - Number(a.viable) || Number(a.repeats) - Number(b.repeats) || Number(a.cycleDays === 0) - Number(b.cycleDays === 0) || (b.overall ?? -1) - (a.overall ?? -1));
@@ -199,9 +205,12 @@ export function whyThisCrop(a: CropAdvice, all: CropAdvice[], previous: Previous
   if (a.soil.level === "bad") out.push(`Ojo con la tierra: ${a.soil.text}`);
   if (bad.length) out.push(`Lo que tiene en contra: ${bad.map(p => sayBad[p]).join(" y ")}.`);
   if (a.scores.market !== null && !good.includes("market") && !bad.includes("market")) out.push("El precio al cosechar es normal: ni muy bueno ni muy malo.");
-  if (a.scores.pests === null) out.push("De plagas no tenemos datos para este cambio de cultivo, así que no lo contamos ni a favor ni en contra.");
+  if (a.pestState === "different") out.push(`De plagas: ${name} y tu cultivo anterior no comparten sus plagas principales según las guías dominicanas, así que el cambio ayuda a cortarlas.${a.watch.length ? ` En ${name} hay que vigilar ${a.watch.slice(0, 2).join(" y ")}.` : ""}`);
+  else if (a.pestState === "listed" && a.watch.length) out.push(`De plagas: en ${name} hay que vigilar ${a.watch.slice(0, 2).join(" y ")}. Dinos qué sembraste antes para comparar.`);
+  else if (a.pestState === "unknown") out.push(`De plagas: las guías que usamos no listan las plagas de ${name}. Pregunta a tu técnico.`);
   const gaps = ["no medimos tu tierra (haría falta un análisis de suelo)", "el precio es al por mayor en Santo Domingo, no lo que te pagan en la finca"];
-  if (a.scores.pests === null) gaps.unshift("no hay datos de plagas para este cambio");
+  if (a.pestState === "unknown") gaps.unshift(`las guías no listan las plagas de ${name}`);
+  if (a.pestState === "different" || a.pestState === "listed") gaps.unshift("las guías solo listan las plagas principales; puede haber otras en tu zona");
   out.push(`Lo que no sabemos: ${gaps.join("; ")}.`);
   if (top && top.crop === a.crop) {
     const next = all.find(x => x.viable && x.crop !== a.crop && x.overall !== null);
@@ -245,7 +254,7 @@ export function fiveOptions(opts: { province?: string; irrigation: Irrigation; p
     const ranked = adviseNextCrop({ ...opts, priority: key });
     const alternatives = ranked.filter(a => a.viable && a.harvestMonth > 0 && !a.repeats && a.scores[key] !== null);
     const best = key === "pests"
-      ? alternatives.find(a => a.scores.pests === 5) ?? null
+      ? alternatives.find(a => a.scores.pests === 5) ?? ranked.find(a => a.viable && a.harvestMonth > 0 && !a.repeats && a.pestState === "different") ?? null
       : alternatives.sort((a, b) => b.scores[key]! - a.scores[key]!)[0] ?? null;
     return { key, goal, advice: best, note: key === "pests" ? "Falta evidencia local a favor de una rotación con los cultivos elegidos." : "Faltan datos para comparar este criterio en las alternativas." };
   });

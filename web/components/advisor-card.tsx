@@ -42,7 +42,7 @@ function CropRow({ a, top, onSources }: { a: CropAdvice; top: boolean; onSources
       </button>
     </div>
     <div className="crop-row-rating"><Stars score={a.overall} size={19} /><div className="crop-row-meter" aria-hidden="true"><span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} /></div></div>
-    <div className="pillar-row">{pillarInfo.map(pi => { const c = lightFor(a.scores[pi.id]); return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
+    <div className="pillar-row">{pillarInfo.map(pi => { const c = a.lights[pi.id]; return <span key={pi.id} className={`pillar-chip ${c}`} title={`${pi.label}: ${a.words[pi.id]}`}>
       <FarmIcon name={pi.icon} size={13} /><span>{pi.label}</span></span>; })}</div>
     {alertCount > 0 && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> Precaución ({alertCount})</summary>{a.repeats && <p className="warning">Repetir {a.name.toLowerCase()} puede mantener plagas.</p>}{a.pestPrecautions.map(note => <p key={note} className="warning"><span>{note}</span></p>)}</details>}
   </li>;
@@ -108,11 +108,16 @@ export function AdvisorCard(p: Props) {
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
     </HeroRecommendation>
     {top && <div className="metric-tiles" role="group" aria-label={`Por qué ${top.name}: agua, sequía, plagas y precio`}>
-      {pillarInfo.map(({ id, label, icon }) => <MetricTile key={id} label={label}
-        icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + lightFor(top.scores[id])}
-        value={lightWord[lightFor(top.scores[id])]} detail={top.words[id]}>
-        {id === "water" && <WaterGauge value={top.scores.water} />}
-      </MetricTile>)}
+      {pillarInfo.map(({ id, label, icon }) => {
+        const c = top.lights[id];
+        return (
+          <MetricTile key={id} label={label}
+            icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + c}
+            value={top.titles[id]} detail={id === "water" ? (top.viable ? "Frente a tus otros cultivos" : top.words.water) : id === "climate" ? "En tu provincia (FAO)" : id === "pests" ? (top.scores.pests === 5 ? "Rotación del IDIAF" : top.pestState === "different" ? "Según las guías de RD" : top.words.pests) : top.words.market.replace(/^Cosechas en (\w+): el precio suele estar /, "En $1: ")}>
+            {id === "water" && <WaterGauge value={top.scores.water} />}
+          </MetricTile>
+        );
+      })}
     </div>}
     {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.generated && <p>AI-generated voice</p>}{(reading.phase === "loading" || reading.phase === "playing") && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
 

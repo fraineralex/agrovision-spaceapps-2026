@@ -126,6 +126,15 @@ export function pestsFor(crop: string): PestEntry | undefined {
   return Object.hasOwn(pestCatalog, crop) ? pestCatalog[crop as PestCrop] : undefined;
 }
 
+/** Kind of pest in plain words, from its common name. */
+export function pestKind(p: { name: string }): { kind: "nematodo" | "ácaro" | "insecto"; where: string } {
+  if (/nematodo/i.test(p.name)) return { kind: "nematodo", where: "gusanitos que no se ven a simple vista; viven en la tierra y dañan raíces y tubérculos" };
+  if (/ácaro/i.test(p.name)) return { kind: "ácaro", where: "arañitas muy pequeñas, casi no se ven" };
+  return { kind: "insecto", where: "insecto" };
+}
+/** Hosts-in-common note from the team's reference sheet (source: Ministerio de Medio Ambiente, Estrategia Nacional). */
+export const nematodeNote = "Los nematodos se quedan en la tierra. Si un técnico confirma nematodos agalladores, no alternes dos cultivos que los hospedan (por ejemplo habichuela y guandul): el riesgo se mantiene.";
+
 export const pestLimit = "La lista indica qué vigilar. La presencia y la importancia de cada plaga dependen de la finca, la zona y la época. † Referencia externa pendiente de confirmar localmente.";
 
 export function sharedPests(previous: string, crop: string) {

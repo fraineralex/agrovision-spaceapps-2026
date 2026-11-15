@@ -112,3 +112,17 @@ test("advice carries a soil rotation note and the sentence leads with the soil",
   assert.match(adviceSentence(top, "habichuela_roja"), /abono natural/);
   assert.equal(all.find(a => a.crop === "habichuela_roja")!.soil.level, "bad");
 });
+
+test("pests never read as 'no data' when both crops are in the Dominican catalogue", async () => {
+  const { adviseNextCrop } = await import("./advisor");
+  const all = adviseNextCrop({ province: "San Juan", irrigation: "irrigated", previous: "arroz", sowMonth: 11, priority: "balanced" as never, crops: ["arroz", "maiz", "yuca", "batata", "tomate"] });
+  const maiz = all.find(a => a.crop === "maiz")!;
+  assert.equal(maiz.pestState, "different");
+  assert.equal(maiz.titles.pests, "Plagas distintas");
+  assert.equal(maiz.scores.pests, null); // stars unchanged
+  assert.ok(maiz.watch.includes("gusano cogollero"));
+  for (const a of all) assert.ok(!/sin dato|no tenemos datos/i.test(a.titles.pests + a.words.pests), a.crop);
+  const unknownPrev = adviseNextCrop({ province: "San Juan", irrigation: "irrigated", previous: "unknown", sowMonth: 11, priority: "balanced" as never, crops: ["maiz"] })[0];
+  assert.equal(unknownPrev.pestState, "listed");
+  assert.match(unknownPrev.words.pests, /Vigila gusano cogollero/);
+});
