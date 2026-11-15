@@ -38,8 +38,8 @@ function Sparkline({ values, periods }: { values: number[]; periods: string[] })
         <line x1="0" y1={avgY} x2={w} y2={avgY} stroke="#6b4226" strokeOpacity="0.35" strokeDasharray="4 4" />
         <line x1={active.x} y1={padTop - 4} x2={active.x} y2={h - padBot} stroke="#185b3c" strokeOpacity="0.35" strokeWidth="1.5" />
         <polygon points={areaPts} fill="url(#priceAreaGrad)" />
-        <polyline className="price-line-anim" points={linePts} fill="none" stroke="#1f4d2c" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-        <circle className={hoverIdx === null ? "price-dot-pulse" : undefined} cx={active.x} cy={active.y} r="5.5" fill="#1f4d2c" stroke="#fff" strokeWidth="2" />
+        <polyline className="price-line-anim" points={linePts} fill="none" stroke="var(--success)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+        <circle className={hoverIdx === null ? "price-dot-pulse" : undefined} cx={active.x} cy={active.y} r="5.5" fill="var(--success)" stroke="var(--card)" strokeWidth="2" />
         {coords.map((c, idx) => (
           <rect
             key={c.p || idx}

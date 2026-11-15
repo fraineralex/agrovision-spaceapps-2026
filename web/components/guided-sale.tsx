@@ -1,6 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 "use client";
 
+import { StepProgress } from "@/components/field-ui";
 import { useState } from "react";
 import { allCrops, cropNames, marketFor, marketSources, type CropId } from "@/lib/advisor";
 import type { Irrigation } from "@/lib/data";
@@ -48,8 +49,16 @@ export function GuidedSale({ initialCrop, farmTareas, initialIrrigation, areaSou
     ? [wholesale.low, wholesale.mid, wholesale.high].map(value => value * (100 - Number(discount))) : [];
   const canAdvance = step === 0 ? tareas > 0 : step === 3 ? totalCost > 0 : step === 4 ? harvestQQ > 0 : true;
 
+  const saleLow = prices[0] * harvestQQ;
+  const saleHigh = prices.at(-1)! * harvestQQ;
+  const breakEven = Math.ceil(totalCost / harvestQQ);
+  const comparisonPrice = prices[Math.floor(prices.length / 2)];
+  const maxPrice = Math.max(breakEven, comparisonPrice ?? 0);
+  const range = (low: number, high: number) => low === high ? rounded(low) : rounded(low) + " a " + rounded(high);
+
   return <div className="guided-sale">
     {step < questions.length ? <form className="workbench-form" onSubmit={event => { event.preventDefault(); setStep(step + 1); }}>
+      <StepProgress step={step + 1} total={questions.length} />
       <fieldset>
         <legend>{questions[step]}</legend>
         {step === 0 && <>
@@ -88,8 +97,19 @@ export function GuidedSale({ initialCrop, farmTareas, initialIrrigation, areaSou
       </div>
     </form> : <section className="budget-result" aria-label="Resultado de la calculadora">
       <h3>{cropNames[crop]} · {tareas} tareas</h3>
-      <p>Gasto total · {useEstimate ? rounded(totalCost) : rd(totalCost)}</p>
-      <strong>Vende a mínimo {rd(Math.ceil(totalCost / harvestQQ))} por quintal para no perder</strong>
+      <dl className="sale-metrics">
+        <div><dt>Gasto total</dt><dd>{useEstimate ? rounded(totalCost) : rd(totalCost)}</dd></div>
+        <div><dt>Venta</dt><dd>{prices.length ? range(saleLow, saleHigh) : "Sin datos"}</dd></div>
+        <div><dt>Te queda</dt><dd>{prices.length ? range(saleLow - totalCost, saleHigh - totalCost) : "Sin datos"}</dd></div>
+      </dl>
+      <strong>Vende a mínimo {rd(breakEven)} por quintal para no perder</strong>
+      {comparisonPrice !== undefined && maxPrice > 0 && <div className="break-even-chart">
+        <span>{offer === "" ? "Precio del escenario medio" : "Tu oferta"}: {rounded(comparisonPrice)}/qq</span>
+        <div className="break-even-track" aria-hidden="true">
+          <i style={{ width: (comparisonPrice / maxPrice) * 100 + "%" }} />
+          <b style={{ insetInlineStart: "min(calc(100% - 2px), " + (breakEven / maxPrice) * 100 + "%)" }} />
+        </div>
+      </div>}
       {offer === "" && prices.length > 0 && <p className="note">Escenario histórico (precio mayorista) · Santo Domingo · {irrigation === "irrigated" ? "con riego" : irrigation === "rainfed" ? "secano" : "riego sin confirmar"} · 12 meses hasta {market?.latest?.period} · RD$ por {tareas} tareas · {discount ? discount + "% de descuento declarado" : "sin descuento declarado"}.</p>}
       {prices.length ? <dl>{prices.map((value, index) => {
         const income = value * harvestQQ;

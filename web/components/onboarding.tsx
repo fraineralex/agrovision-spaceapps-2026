@@ -1,7 +1,7 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Claude (Anthropic), 2026-11-14 — first-visit onboarding for farmers; centered natural backdrop & unified SVG icons by Antigravity (Gemini), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
 import { allCrops, cropNames, monthNames, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
@@ -19,6 +19,13 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 }
 
 export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial: Partial<FarmProfile>; onDone: (p: FarmProfile) => void; onSkip: () => void; farmCount?: number }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    const previousFocus = document.activeElement;
+    element?.showModal();
+    return () => { element?.close(); if (previousFocus instanceof HTMLElement) previousFocus.focus(); };
+  }, []);
   const now = new Date().getMonth() + 1;
   const [step, setStep] = useState(initial.id && initial.location ? 1 : 0);
   const [province, setProvince] = useState(initial.province ?? "");
@@ -77,7 +84,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     });
   };
 
-  return <div className="onboarding" role="dialog" aria-modal="true" aria-label="Cuéntanos de tu finca">
+  return <dialog ref={dialog} className="onboarding" aria-label="Cuéntanos de tu finca" onCancel={event => { event.preventDefault(); onSkip(); }}>
     <div className="ob-backdrop" aria-hidden="true">
       <div className="ob-backdrop-photo" />
       <div className="ob-backdrop-scrim" />
@@ -185,5 +192,5 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
       </div>
     </div>
     <span className="ob-credit" aria-hidden="true">El Cercado, Valle de San Juan · Paisaje rural (CC0)</span>
-  </div>;
+  </dialog>;
 }

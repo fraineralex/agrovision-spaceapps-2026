@@ -58,8 +58,8 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.getByRole("tab",{name:/Finca del río/})).toHaveAttribute("aria-selected","true");
  await expect(sectionNav.getByRole("tab",{name:/Siembra/})).toHaveAttribute("aria-selected","true");
  await expect(page.locator(".farm-meta")).toContainText("tareas");
- await expect(page.locator(".crop-feature")).toContainText("Después de arroz");
- await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
+ await expect(page.locator(".recommendation-heading")).toContainText("Después de arroz");
+ await expect(page.locator(".recommendation-meta")).toContainText("Cosecha aprox.");
  // Default mode is Agricultor; Supervisor mode unlocks supervision quick bar, GeoJSON export & cost/price details.
  await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
  await expect(page.getByRole("navigation", {name:"Herramientas de supervisión"})).toBeHidden();
@@ -80,7 +80,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect(decodeURIComponent(href!)).toContain("Finca del río");
  expect(decodeURIComponent(href!)).toContain("Posible lluvia");
  // Sources panel still works.
- await page.locator(".verdict").getByRole("button",{name:"Datos y fuentes"}).click();
+ await page.locator(".recommendation-hero").getByRole("button",{name:"Datos y fuentes"}).click();
  await expect(page.getByRole("dialog",{name:/De dónde sale la recomendación/})).toContainText("FAO-56");
  expect(await axeSerious(page)).toEqual([]);
  await page.getByRole("button",{name:/Cerrar/}).click();
@@ -101,7 +101,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".profit-lines")).toContainText("20 tareas");
  expect(await axeSerious(page)).toEqual([]);
  // Independent Mapa y clima tab: parcel card, GeoJSON export & FAO drought.
- await sectionNav.getByRole("tab",{name:/Mapa y clima/}).click();
+ await sectionNav.getByRole("tab",{name:/Fincas/}).click();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  for (const id of ["tu-finca-en-el-mapa","sequia-y-lluvia"]) await expect(page.locator(`#${id}`)).toBeVisible();
  const downloadEvent = page.waitForEvent("download");
@@ -109,7 +109,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  expect((await downloadEvent).suggestedFilename()).toMatch(/^parcela-.+\.geojson$/);
  expect(await axeSerious(page)).toEqual([]);
  // Independent Preguntar tab.
- await sectionNav.getByRole("tab",{name:/Preguntar/}).click();
+ await sectionNav.getByRole("tab",{name:/Ayuda/}).click();
  await expect(page.locator("#tu-finca-en-el-mapa")).toBeHidden();
  await expect(page.getByRole("region", {name:"Asistente de voz"})).toBeVisible();
  expect(await axeSerious(page)).toEqual([]);
@@ -178,7 +178,7 @@ test("finds a municipality and a neighborhood, then saves and renames a farm wit
  await page.route("https://**", route => route.abort());
  await page.route("**/api/rain**", route => route.fulfill({json: rainMock}));
  await page.goto("/");
- await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Mapa y clima/}).click();
+ await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Fincas/}).click();
  const mapSearch = page.getByLabel("Busca un lugar en RD", {exact:true});
  await mapSearch.fill("ensanche naco");
  await page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/}).click();
@@ -429,16 +429,16 @@ for (const fixture of [
       localStorage.setItem("agrovision:activeFarm", farm.id);
     }, fixture);
     await page.goto("/");
-    const verdict = page.locator(".verdict");
-    await expect(verdict.locator(".crop-feature")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
-    await expect(verdict.locator(".crop-timeline")).toContainText("2027");
-    const card = (await verdict.boundingBox())!;
-    expect(card.y + card.height).toBeLessThanOrEqual(844);
+    const verdict = page.locator(".recommendation-hero");
+    await expect(verdict.locator(".recommendation-heading")).not.toContainText(fixture.previous === "papa" ? /^Papa/ : fixture.previous === "arroz" ? /^Arroz/ : /^Habichuela roja/);
+    await expect(verdict.locator(".recommendation-meta")).toContainText("2027");
+    const tiles = (await page.locator(".metric-tiles").boundingBox())!;
+    expect(tiles.y + tiles.height).toBeLessThanOrEqual(844 - 58);
     expect(await axeSerious(page)).toEqual([]);
     if (fixture.id === "ramon") {
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
-      await expect(verdict.getByRole("status")).toHaveText("Voz no disponible");
+      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voz no disponible");
       const source = verdict.getByRole("button", { name: "Datos y fuentes" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
@@ -499,3 +499,24 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 800 
     await page.screenshot({ path: "test-results/calculator-start-after-" + viewport.width + ".png" });
   });
 }
+
+
+test("Modo sol persists, and the bottom tabs support arrow keys", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const toggle = page.getByRole("button", { name: "Modo sol" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sun");
+  await page.reload();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  const siembra = page.getByRole("tab", { name: "Siembra" });
+  await siembra.focus();
+  await page.keyboard.press("ArrowRight");
+  const lluvia = page.getByRole("tab", { name: "Lluvia" });
+  await expect(lluvia).toHaveAttribute("aria-selected", "true");
+  await expect(lluvia).toBeFocused();
+  await expect(page.getByRole("tabpanel", { name: "Lluvia" })).toBeVisible();
+  expect(await axeSerious(page)).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});

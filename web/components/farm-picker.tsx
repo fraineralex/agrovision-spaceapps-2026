@@ -52,8 +52,8 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
         m.addLayer({ id: "fields-fill", type: "fill", source: "fields", layout: { visibility: "none" }, paint: { "fill-color": "#fff3a2", "fill-opacity": 0.06 } });
         m.addLayer({ id: "fields-line", type: "line", source: "fields", layout: { visibility: "none" }, paint: { "line-color": "#fff3a2", "line-width": 2 } });
         m.addSource("sel", { type: "geojson", data: piecesToGeoJSON(piecesRef.current) });
-        m.addLayer({ id: "sel-fill", type: "fill", source: "sel", paint: { "fill-color": "#22c55e", "fill-opacity": 0.45 } });
-        m.addLayer({ id: "sel-line", type: "line", source: "sel", paint: { "line-color": "#14532d", "line-width": 2.5 } });
+        m.addLayer({ id: "sel-fill", type: "fill", source: "sel", paint: { "fill-color": "#DDFF86", "fill-opacity": 0.35 } });
+        m.addLayer({ id: "sel-line", type: "line", source: "sel", paint: { "line-color": "#DDFF86", "line-width": 3 } });
         m.addSource("draft", { type: "geojson", data: empty });
         m.addLayer({ id: "draft-line", type: "line", source: "draft", paint: { "line-color": "#f59e0b", "line-width": 3, "line-dasharray": [2, 1] } });
         m.addLayer({ id: "draft-pts", type: "circle", source: "draft", filter: ["==", "$type", "Point"], paint: { "circle-radius": 7, "circle-color": "#f59e0b", "circle-stroke-color": "#fff", "circle-stroke-width": 2 } });

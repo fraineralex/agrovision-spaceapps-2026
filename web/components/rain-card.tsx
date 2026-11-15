@@ -54,7 +54,7 @@ export function RainCard({ rain }: { rain: ReturnType<typeof useRain> }) {
       <span className={`rain-badge-kind ${alert?.level ?? "normal"}`}>
         {forecast.kind === "forecast" ? "Pronóstico regional · 7 días" : "Estimación de días pasados"}
       </span>
-      {cached && <span className="rain-cached">Copia guardada</span>}
+      {cached && <span className="rain-cached">Copia guardada{ageHours === null ? "" : ageHours < 1 ? " · hace menos de 1 h" : " · hace " + ageHours + " h"}</span>}
       {alert?.sentence && <span className="rain-summary-pill">{alert.sentence}</span>}
     </div>
     <ol className="rain-days" aria-label={forecast.kind === "forecast" ? "Próximos 7 días" : "Últimos días"}>
