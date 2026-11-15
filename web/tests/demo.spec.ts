@@ -78,8 +78,9 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(soil).toContainText("Abono natural");
  await expect(soil.getByRole("link",{name:/FAO/}).first()).toBeVisible();
  await expect(soil).toContainText("no una medición de tu finca");
- await opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText("Sin datos suficientes").click();
- await expect(opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText(/Falta evidencia local/)).toBeVisible();
+ // Pests are explained from the Dominican guides instead of "no data".
+ await expect(page.locator(".option-list")).toContainText("Plagas distintas");
+ await expect(page.locator(".option-list")).not.toContainText("Sin datos suficientes");
  await expect(opts.last()).toContainText("Arroz");
  // Share: WhatsApp text fallback link carries the summary.
  const href=await page.getByTestId("wa-link").getAttribute("href");
