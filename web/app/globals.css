@@ -3816,3 +3816,150 @@ body {
 .voice-live-drawer {
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
 }
+
+/* Custom AgroVision dropdowns replacing native OS <select> menus */
+.ag-select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+.ag-select-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+.ag-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.ag-select-trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: #ffffff;
+  color: #0f2419;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+.ag-select-trigger:hover {
+  border-color: #15803d;
+  background: #f8fcf9;
+}
+.ag-select[data-open="true"] .ag-select-trigger,
+.ag-select-trigger:focus-visible {
+  outline: none;
+  border-color: #14532d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.14);
+}
+.ag-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ag-select-value.is-placeholder {
+  color: var(--muted);
+  font-weight: 600;
+}
+.ag-select-chevron {
+  flex: 0 0 auto;
+  color: #14532d;
+  transition: transform 160ms ease;
+}
+.ag-select[data-open="true"] .ag-select-chevron {
+  transform: rotate(180deg);
+}
+.ag-select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: max(100%, 170px);
+  max-height: 248px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid rgba(20, 83, 45, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(15, 38, 24, 0.12);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ag-select-option {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #0f2419;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.ag-select-option:hover:not(:disabled) {
+  background: #f0fdf4;
+  color: #14532d;
+}
+.ag-select-option.is-selected {
+  background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+  color: #ffffff;
+  font-weight: 700;
+}
+.ag-select-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ag-select-check {
+  flex: 0 0 auto;
+}
+.inline-month-pick .ag-select {
+  min-width: 132px;
+}
+.inline-month-pick .ag-select-trigger {
+  min-height: 40px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 14.5px;
+}
+.select-with-icon .ag-select {
+  flex: 1;
+}
+
+/* Keep crop counts beside the title and the disclosure arrow at the far edge. */
+.compare-fold > summary:has(.crops-dist-pills) { justify-content: flex-start; gap: 12px; }
+.compare-fold > summary:has(.crops-dist-pills)::after { margin-inline-start: auto; }
+
+/* Keep option goals readable and the crop summary aligned to the card. */
+#siembra .option-top-bar { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+#siembra .option-goal-group { flex: none; width: 100%; align-items: flex-start; }
+#siembra .option-goal-copy { flex: 1; }
+#siembra .option-goal { display: flex; flex-wrap: wrap; gap: 2px 4px; line-height: 1.35; }
+#siembra .option-goal > span { white-space: nowrap; }
+#siembra .option-crop-card { width: 100%; max-width: none; flex: none; box-sizing: border-box; }
+#siembra .option-crop-copy { flex: 1 1 100px; min-width: 0; }
+#siembra .option-crop-copy small { white-space: normal; overflow: visible; text-overflow: clip; }
+#siembra .option-crop-card .src-button { margin-inline-start: auto; }

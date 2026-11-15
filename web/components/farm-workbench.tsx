@@ -5,6 +5,7 @@
 import { CalendarDays, CloudRain, Coins, Droplets, MapPin, Mic, Sprout, Sun, ThermometerSun } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { HelpTip } from "@/components/help-tip";
+import { CustomSelect } from "@/components/custom-select";
 import { allCrops, cropNames, monthNames, type CropId } from "@/lib/advisor";
 import type { Farm, IrrigationDate } from "@/lib/farms";
 import { provinces, type Location } from "@/lib/geography-core";
@@ -109,12 +110,12 @@ export function FieldWeek({ farm, province, rain, droughtLabel, tempC, areaText,
     </div>
     <div className="field-week-grid">
       <div className="field-week-main">
-        {!farm && <label className="week-province">Provincia para consultar la lluvia
-          <select value={province ?? ""} onChange={event => {
-            const point = provinces.find(item => item.name === event.target.value);
+        {!farm && <div className="week-province ag-select-field"><span className="ag-select-label">Provincia para consultar la lluvia</span>
+          <CustomSelect ariaLabel="Provincia para consultar la lluvia" placeholder="Elige tu provincia" value={province ?? ""} options={provinces.map(item => ({ value: item.name, label: item.name }))} onChange={val => {
+            const point = provinces.find(item => item.name === val);
             if (point) onLocation({ longitude: point.longitude, latitude: point.latitude });
-          }}><option value="" disabled>Elige tu provincia</option>{provinces.map(item => <option key={item.name}>{item.name}</option>)}</select>
-        </label>}
+          }} />
+        </div>}
         {(province || farm) && <RainCard rain={rain}/>}
       </div>
       <div className="field-week-side">
@@ -164,8 +165,8 @@ export function PlantingPlan({ farm, sowMonth, onMonth, onSave }: {
   return <div className="planting-plan">
     {farm.plan && <p className="saved-plan"><strong>Tu plan guardado</strong> · {cropNames[farm.plan.crop]} en {monthNames[farm.plan.sowMonth - 1]}</p>}
     <form className="workbench-form" onSubmit={save}>
-      <label>Mes para comparar<select value={sowMonth} onChange={event => { onMonth(Number(event.target.value)); setStatus(""); }}>{monthNames.map((month, index) => <option value={index + 1} key={month}>{month}</option>)}</select></label>
-      <label>Cultivo para tu plan<select value={crop} onChange={event => { setCrop(event.target.value as CropId | ""); setStatus(""); }}><option value="">Elige un cultivo</option>{options.map(id => <option value={id} key={id}>{cropNames[id]}</option>)}</select></label>
+      <div className="ag-select-field"><span className="ag-select-label">Mes para comparar</span><CustomSelect ariaLabel="Mes para comparar" value={String(sowMonth)} options={monthNames.map((month, index) => ({ value: String(index + 1), label: month }))} onChange={val => { onMonth(Number(val)); setStatus(""); }} /></div>
+      <div className="ag-select-field"><span className="ag-select-label">Cultivo para tu plan</span><CustomSelect ariaLabel="Cultivo para tu plan" placeholder="Elige un cultivo" value={crop} options={[{ value: "", label: "Elige un cultivo" }, ...options.map(id => ({ value: id, label: cropNames[id] }))]} onChange={val => { setCrop(val as CropId | ""); setStatus(""); }} /></div>
       <div className="plan-form-actions">
         <button type="submit" disabled={!crop || (farm.plan?.crop === crop && farm.plan.sowMonth === sowMonth)}>Guardar plan</button>
         {farm.plan && <button type="button" className="link-button" onClick={() => setStatus(onSave(undefined) ? "Plan borrado." : "Este navegador no pudo borrar el plan.")}>Borrar plan</button>}

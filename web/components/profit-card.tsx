@@ -4,6 +4,7 @@
 import type { Irrigation } from "@/lib/data";
 import { useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
+import { CustomSelect } from "@/components/custom-select";
 import { cropNames, marketSources, type CropId } from "@/lib/advisor";
 import { CPI, profitFor, rd } from "@/lib/profit";
 
@@ -15,7 +16,7 @@ export function ProfitCard({ crops, initialCrop, tareas: farmTareas, irrigation 
   const maxMoney = "unavailable" in p ? 1 : Math.max(1, p.costRD, p.income.high);
   return <div className="profit">
     <div className="profit-inputs">
-      <label>Cultivo<div className="select-with-icon"><FarmIcon name={crop} size={20} /><select value={crop} onChange={e => setCrop(e.target.value as CropId)}>{crops.map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></label>
+      <div className="ag-select-field"><span className="ag-select-label">Cultivo</span><div className="select-with-icon"><FarmIcon name={crop} size={20} /><CustomSelect ariaLabel="Cultivo" value={crop} options={crops.map(c => ({ value: c, label: cropNames[c] }))} onChange={val => setCrop(val as CropId)} /></div></div>
       <label>Tareas<input inputMode="decimal" value={tareas} onChange={e => setTareas(e.target.value)} aria-label="Tareas" /></label>
     </div>
     {t <= 0 ? <p className="note">Escribe cuántas tareas vas a sembrar para ver el ejemplo.</p> : "unavailable" in p ? <p className="warning">No podemos calcularlo para {cropNames[crop].toLowerCase()}: {p.unavailable}</p> : <>

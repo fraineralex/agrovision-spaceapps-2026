@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceDock } from "@/components/voice-dock";
+import { CustomSelect } from "@/components/custom-select";
 import { usePlaceSearch } from "@/lib/place-search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
@@ -31,6 +32,7 @@ import type { ParcelSelection } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced";
 const AdvisorCard = dynamic(() => import("@/components/advisor-card").then(module => module.AdvisorCard));
+const PlantingReview = dynamic(() => import("@/components/advisor-card").then(module => module.PlantingReview));
 const MarketCard = dynamic(() => import("@/components/market-card").then(module => module.MarketCard));
 const SoilCard = dynamic(() => import("@/components/soil-card").then(module => module.SoilCard));
 const OptionsCard = dynamic(() => import("@/components/options-card").then(module => module.OptionsCard));
@@ -282,12 +284,12 @@ export default function Home() {
                 ))}
               </div>
               <div className="quick-zone-actions">
-                <label className="quick-zone-select">Otras provincias
-                  <select aria-label="Elige tu provincia" value={province ?? ""} onChange={e => { const p = provinces.find(item => item.name === e.target.value); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }}>
-                    <option value="" disabled>Selecciona una provincia</option>
-                    {provinces.map(p => <option key={p.name}>{p.name}</option>)}
-                  </select>
-                </label>
+                <div className="quick-zone-select ag-select-field"><span className="ag-select-label">Otras provincias</span>
+                  <CustomSelect ariaLabel="Elige tu provincia" placeholder="Selecciona una provincia" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(item => item.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} />
+
+
+                </div>
+
                 <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
               </div>
               {gpsStatus && <p role="status">{gpsStatus}</p>}
@@ -312,6 +314,7 @@ export default function Home() {
                 </section>}
                 <Fold id="rotacion-y-suelo" icon="🍂" title="Rotación y suelo" help="Explica cómo la rotación puede cuidar el suelo."><SoilCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} texture={activeFarm?.soilTexture}/></Fold>
                 <ShareButton summary={shareSummary}/>
+                <PlantingReview province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops}/>
               </div>
             </section>
           )}
@@ -360,7 +363,7 @@ export default function Home() {
                     {placesLoading && <p role="status">Buscando lugares…</p>}
                     {placesUnavailable && <p role="status">Catálogo temporalmente no disponible. Puedes escoger una provincia.</p>}
                     {provinceSearch.trim().length >= 2 && !places.length && !placesLoading && !placesUnavailable && <p role="status">No encontramos ese lugar.</p>}
-                    <label>O escoge de la lista<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.map(p => <option key={p.name}>{p.name}</option>)}</select></label>
+                    <div className="ag-select-field"><span className="ag-select-label">O escoge de la lista</span><CustomSelect ariaLabel="Provincia" placeholder="Selecciona" value={province ?? ""} options={provinces.map(p => ({ value: p.name, label: p.name }))} onChange={val => { const p = provinces.find(p => p.name === val); if (p) onLocation({ longitude: p.longitude, latitude: p.latitude }); }} /></div>
                     {gpsStatus && <p role="status">{gpsStatus}</p>}
                   </div>
                   {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField} advanced={supervisor}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}

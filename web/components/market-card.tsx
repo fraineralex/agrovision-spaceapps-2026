@@ -4,6 +4,7 @@
 import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { FarmIcon } from "@/components/farm-icon";
+import { CustomSelect } from "@/components/custom-select";
 import { cropNames, marketFor, marketLimits, marketSources, monthNames, unitWord, type CropId } from "@/lib/advisor";
 
 const money = (n: number) => `RD$${n.toLocaleString("es-DO", { maximumFractionDigits: n < 100 ? 0 : 0 })}`;
@@ -73,7 +74,7 @@ export function MarketCard({ initialCrop }: { initialCrop: CropId }) {
   const activeIdx = activeMonth ? m?.seasonalIndex?.[String(activeMonth)] ?? null : null;
   return <section className="card market" aria-label="Precio y mercado">
     <div className="section-row"><h3>Precio del cultivo</h3>
-      <div className="select-with-icon"><FarmIcon name={crop} size={20} /><select aria-label="Cultivo" value={crop} onChange={e => setChosen(e.target.value as CropId)}>{(Object.keys(cropNames) as CropId[]).map(c => <option key={c} value={c}>{cropNames[c]}</option>)}</select></div></div>
+      <div className="select-with-icon"><FarmIcon name={crop} size={20} /><CustomSelect ariaLabel="Cultivo" value={crop} options={(Object.keys(cropNames) as CropId[]).map(c => ({ value: c, label: cropNames[c] }))} onChange={val => setChosen(val as CropId)} /></div></div>
     {latest ? <>
       <div className="market-hero-strip">
         <div className="price-now"><span className="price-big">{money(latest.price)}</span><span>{unitWord(m.unit)} · {periodWord(latest.period)}</span></div>

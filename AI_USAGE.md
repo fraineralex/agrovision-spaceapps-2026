@@ -326,6 +326,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **2026-11-15 — Antigravity / Gemini (Google):** suavizado y limpieza de sombras en el tema claro (`--panel-shadow`, `.heading-row`, `.card`, `.wnav-bar`, `.wnav-tab.is-active` y fondo limpio en `body`) en `web/app/globals.css` para evitar halos oscuros debajo del banner superior y entre tarjetas. Revisión por Frainer: pendiente.
 
+- **2026-11-15 — Antigravity / Gemini (Google):** creación de `CustomSelect` (`web/components/custom-select.tsx`, `web/app/globals.css`) y reemplazo de los `<select>` nativos en `page.tsx`, `advisor-card.tsx`, `farm-workbench.tsx`, `guided-sale.tsx`, `market-card.tsx`, `onboarding.tsx`, `profit-card.tsx` y `sale-budget.tsx` para que todas las listas desplegables tengan el diseño propio en blanco y verde bosque de la aplicación. Revisión por Frainer: pendiente.
+
 - **2026-11-15 — Codex / OpenAI:** eliminación de accesos duplicados de supervisor y ajuste de prueba de navegación (`web/app/page.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** altura estable del primer paso de registro y desplazamiento interno de resultados (`web/components/onboarding.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
@@ -389,3 +391,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex / OpenAI:** reorganización y aumento de legibilidad de tarjetas de comparación de cultivos (`web/components/advisor-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
 
 - **2026-11-15 — Codex / OpenAI:** corrección de estrellas y barra duplicadas en tarjetas de cultivos (`web/components/advisor-card.tsx`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** alineación de indicadores de cultivos junto al título (`web/app/globals.css`). Revisión por Frainer: pendiente.
+
+- **2026-11-15 — Codex / OpenAI:** ajuste del ancho de ficha de cultivo y legibilidad de objetivos en Otras opciones (`web/components/options-card.tsx`, `web/app/globals.css`). Revisión por Frainer: pendiente.
