@@ -17,7 +17,7 @@ export function droughtSignal(province?: FaoProvince, asOf = new Date()) {
   }
   if (asi.value > 30 || vhi.value < .35) return { label: "Sequía", color: "red", sentence: "Hay señales de estrés en la provincia; revisa el agua disponible antes de sembrar." };
   if (asi.value >= 10 || vhi.value < .5) return { label: "Atención", color: "amber", sentence: "Se observa estrés en parte de la provincia; comprueba las condiciones de tu terreno." };
-  return { label: "Normal", color: "green", sentence: "La señal provincial es baja; confirma la humedad y el acceso al agua en tu terreno." };
+  return { label: "Sin sequía", color: "green", sentence: "La señal provincial es baja; confirma la humedad y el acceso al agua en tu terreno." };
 }
 export const faoScoreRule = "Regla exploratoria AgroVision, confianza baja: riesgo = máximo de ASI/100, déficit VHI max(0, (0.5 − VHI)/0.5) y frecuencia histórica ASI >30% (la mayor de las temporadas con ≥30 años válidos). Clima = 5 × (1 − riesgo × Kc·día de la rotación / máximo Kc·día comparado). No es aptitud climática ni probabilidad de pérdida. Lluvia y fenología no puntúan.";
 export function droughtScore(province: FaoProvince | undefined, waterProxy: number, maximumProxy: number, asOf = new Date()): number | null {
