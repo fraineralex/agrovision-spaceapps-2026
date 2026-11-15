@@ -182,6 +182,40 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Herramienta:** Codex (OpenAI). **Propósito:** sustituir texto repetido por un gráfico diario de lluvia, una línea de tiempo de siembra y cosecha, y señales claras para el cálculo de venta. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,options-card,rain-card,sale-budget}.tsx`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.
 
+## 2026-11-14 — Fecha de riego elegida o asignada
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** registrar el próximo riego según quién fija la fecha y conservar turnos ya guardados. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{farm-workbench,onboarding}.tsx`, `web/lib/farms.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Reparación y controles compactos de voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** corregir la validación de la prioridad equilibrada y activar el micrófono cuando la sesión está lista. Reducir la interfaz a hablar, colgar y alternativas plegadas. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{advisor-card,farm-workbench,voice-assistant}.tsx`, `web/lib/{advisor,farmer-comparison,voice-context}.ts`, `web/tests/demo.spec.ts` y `docs/18_auditoria_valor_agricultor.md`.
+- **Verificación:** conexión real a Vercel AI Gateway con `openai/gpt-realtime-mini`. Una frase sintética generada con Windows Speech se usó como entrada de micrófono en Chromium. Se verificaron detección de voz, recepción de audio y cierre de la pista al colgar. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Pantalla de conversación por voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** crear una vista de voz con orbe de estado, subtítulos, silencio y cierre. **Archivos:** `web/components/voice-assistant.tsx`, `web/components/voice-session.module.css` y `web/tests/demo.spec.ts`.
+- **Referencia visual:** demo y documentación públicas de [Voice Mode de HextaUI](https://hextaui.com/es/blocks/voice-mode). Implementación original con CSS, diálogo nativo e iconos Lucide. No se importó código del registro privado. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Orbe flotante de voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** reemplazar el diálogo de voz por un control circular fijo que permite usar la página durante la conversación. **Referencia:** captura compartida por Frainer. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+
+- **Iteración:** orbe activo inspirado en la demo pública de [HextaUI Voice Mode](https://hextaui.com/es/blocks/voice-mode), con brillo y halo según el nivel del micrófono. El análisis visual se hace en el navegador. **Archivos:** `web/components/{voice-assistant.tsx,voice-session.module.css}`. **Revisión por Frainer:** pendiente.
+- **Ajuste:** se retiró la tarjeta de voz y se dejaron solo el orbe y su estado accesible mientras la sesión está activa. **Archivos:** `web/app/page.tsx`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+- **Ajuste visual:** se recuperaron el degradado y la escala de la primera iteración en el orbe flotante. **Archivos:** `web/app/globals.css` y `web/components/voice-session.module.css`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Búsqueda de lugares y ficha de finca
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** buscar más allá de las provincias y permitir nombrar, renombrar y registrar maquinaria y pesticidas declarados por finca. **Archivos:** `scripts/geography/export_places.ps1`, `web/public/data/places-do.json`, `web/lib/{place-search,farms}.ts`, `web/components/{onboarding,farm-switcher}.tsx`, `web/app/{page.tsx,globals.css}`, `web/scripts/offline-assets.mjs` y `web/tests/demo.spec.ts`.
+- **Fuente:** [GeoNames](https://www.geonames.org/export/), licencia CC BY, extracto [DO.zip](https://download.geonames.org/export/dump/DO.zip) del 14-11-2026. Los puntos representan nombres de lugares, con cobertura desigual a nivel de sector. No son límites de finca ni equivalen a un padrón oficial. Los apuntes son datos declarados y se guardan localmente. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Modos Agricultor y Supervisor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** organizar las tareas básicas y los análisis técnicos en vistas con las mismas fincas, y exportar los contornos dibujados como GeoJSON. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/map.tsx` y `web/tests/demo.spec.ts`. Los modos son vistas y no permisos. La exportación contiene geometrías aproximadas del usuario, no delimitaciones catastrales. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Auditoría de flujos de finca, mapa y voz
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** priorizar el guardado de la ficha, conservar el lugar elegido al buscar, limpiar datos de una parcela anterior, facilitar acceso a diagnósticos y mostrar errores de voz junto al orbe. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/{onboarding.tsx,voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
 ## 2026-11-14 — Auditoría de mapa para cinco provincias
 - **Herramienta:** Codex (OpenAI). **Propósito:** dejar clara la cobertura automática parcial de San Juan, conservar selección manual en otras provincias y documentar por separado fondo, detecciones y pipeline.
 - **Archivos:** `web/lib/map/fields.ts`, `web/components/{farm-picker,map}.tsx`, `web/tests/demo.spec.ts`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`.
@@ -191,3 +225,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 ## 2026-11-14 — Verificación del selector provincial
 
 - Codex (OpenAI) corrigió el límite de zoom del selector y adaptó la prueba al flujo de alta de finca. Archivos: `web/components/farm-picker.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias, build con Webpack y las cinco pruebas dirigidas en Chrome con WebGL por software. Las pruebas bloquearon las solicitudes externas. Revisión por Frainer pendiente.
+
+## 2026-11-14 — Resolución de integración
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** conservar ambos registros de uso de IA al integrar los cambios de mapa provincial con la rama de fincas y voz. **Archivos:** `AI_USAGE.md`. **Revisión por Frainer:** pendiente.

@@ -64,6 +64,7 @@ export const marketSources = market.sources;
 export const marketLimits = market.limits;
 
 export type Pillar = "water" | "climate" | "pests" | "market";
+export type AdvicePriority = Priority | "balanced";
 export type CropAdvice = {
   crop: CropId; name: string; cycleDays: number; harvestMonth: number;
   scores: Record<Pillar, number | null>; overall: number | null; viable: boolean;
@@ -83,7 +84,7 @@ export function meanKc(id: CropId) {
 }
 
 /** Score each candidate crop for the next season. Every rule is documented in docs/16_asesor_siembra.md. */
-export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: Priority; crops?: CropId[] }): CropAdvice[] {
+export function adviseNextCrop(opts: { province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops?: CropId[] }): CropAdvice[] {
   const ids = (opts.crops?.length ? opts.crops : defaultCrops).filter(id => id in FAO56);
   const crops = ids.map(crop => ({ crop, kcDays: meanKc(crop), cycleDays: FAO56[crop].stages?.reduce((a, b) => a + b, 0) ?? 0 }));
   const maxKc = Math.max(...allCrops.map(meanKc));

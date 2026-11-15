@@ -1,90 +1,124 @@
-/* AI: Codex/OpenAI, 2026-11-14; conversational voice UI by Claude (Anthropic), 2026-11-14. Frainer review pending. */
+/* AI: Codex (OpenAI) and Claude (Anthropic), 2026-11-14. Frainer review pending. See AI_USAGE.md. */
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AudioLines, Keyboard, Square, Volume2 } from "lucide-react";
 import { experimental_useRealtime as useRealtime } from "@ai-sdk/react";
 import { gateway } from "@ai-sdk/gateway";
 import { REALTIME_MODEL, voiceInstructions, localAdviceText, type VoiceSelection } from "@/lib/voice-context";
-import { FarmIcon } from "@/components/farm-icon";
+import session from "./voice-session.module.css";
 const model = gateway.experimental_realtime(REALTIME_MODEL);
 type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
-  const [notice, setNotice] = useState("Habla con naturalidad. Te respondemos en español.");
+  const [notice, setNotice] = useState("");
+  const [voiceError, setVoiceError] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState("Disponibilidad de IA por comprobar");
-  const [readAloud, setReadAloud] = useState(true);
+  const [sessionSelection, setSessionSelection] = useState<VoiceSelection>();
+  const sessionContext = sessionSelection ?? selection;
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
-  const vad = useRef<{ context: AudioContext; timer: ReturnType<typeof setInterval> | null } | null>(null);
+  const orb = useRef<HTMLButtonElement>(null);
   const generation = useRef(0);
   const starting = useRef(false);
-  const greeted = useRef(false);
-  const [level, setLevel] = useState(0);
-  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(selection).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [selection]);
-  const config = useMemo(() => ({ instructions: voiceInstructions(selection), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [selection]);
+  const captureStarted = useRef(false);
+  const [requesting, setRequesting] = useState(false);
+  const selectionQuery = useMemo(() => new URLSearchParams(Object.entries(sessionContext).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, typeof value === "object" ? JSON.stringify(value) : String(value)])).toString(), [sessionContext]);
+  const config = useMemo(() => ({ instructions: voiceInstructions(sessionContext), voice: "coral", outputModalities: ["audio"] as ["audio"], inputAudioTranscription: { model: "gpt-4o-mini-transcribe", language: "es" }, turnDetection: { type: "server-vad" as const, threshold: 0.5, silenceDurationMs: 600, prefixPaddingMs: 300 } }), [sessionContext]);
   const realtime = useRealtime({ model, api: { token: `/api/voice/setup?${selectionQuery}` }, sessionConfig: config, startupTimeoutMs: 15_000,
     onToolCall: async ({ toolCall }) => {
-      const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
+      const response = await fetch("/api/voice/tools", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection: sessionContext, name: toolCall.toolName, args: toolCall.args }), signal: AbortSignal.timeout(5000) });
       return response.ok ? response.json() : { error: "Local evidence unavailable. Say you do not know." };
     },
-    onError: () => { releaseMedia(); setNotice("Se cortó la conversación de voz. Revisa tu internet y toca Hablar otra vez, o escribe tu pregunta."); },
+    onError: () => { stopVoice("Se cortó la voz. Intenta de nuevo o escribe."); },
   });
-  // connect() initiates transport; only the SDK status confirms a live session.
   useEffect(() => {
-    if (realtime.status === "disconnected" && media.current) releaseMedia();
-    // Like a phone call: once connected, AgroVision speaks first with a short greeting.
-    if (realtime.status === "connected" && !greeted.current) { greeted.current = true; realtime.requestResponse(); }
-    if (realtime.status !== "connected") greeted.current = false;
-  },[realtime.status, realtime]);
-  const controls = useRef(realtime);
-  useEffect(() => { controls.current = realtime; }, [realtime]);
+    // The SDK's connect() opens transport. Capture starts once the server accepts the session.
+    if (realtime.status === "connected" && media.current && !captureStarted.current) {
+      captureStarted.current = true;
+      try { realtime.startAudioCapture(media.current); }
+      catch { realtime.disconnect(); releaseMedia(); }
+    }
+    if ((realtime.status === "disconnected" || realtime.status === "error") && !starting.current) releaseMedia();
+  }, [realtime]);
+  const { isCapturing, isPlaying } = realtime;
+  useEffect(() => {
+    const button = orb.current;
+    const stream = media.current;
+    if (!button || !stream || !isCapturing || isPlaying || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const context = new AudioContext();
+    const source = context.createMediaStreamSource(stream);
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    void context.resume().catch(() => undefined);
+    const samples = new Float32Array(analyser.fftSize);
+    let frame = 0;
+    let level = 0;
+    const update = () => {
+      analyser.getFloatTimeDomainData(samples);
+      const rms = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
+      const target = Math.min(1, Math.max(0, rms - 0.012) * 7);
+      level += (target - level) * (target > level ? 0.42 : 0.15);
+      button.style.setProperty("--voice-level", level.toFixed(3));
+      frame = requestAnimationFrame(update);
+    };
+    frame = requestAnimationFrame(update);
+    return () => {
+      cancelAnimationFrame(frame);
+      button.style.removeProperty("--voice-level");
+      source.disconnect();
+      void context.close().catch(() => undefined);
+    };
+  }, [isCapturing, isPlaying]);
   function releaseMedia() {
-    if (vad.current) { if (vad.current.timer) clearInterval(vad.current.timer); void vad.current.context.close(); vad.current = null; }
     media.current?.getTracks().forEach(track => track.stop()); media.current = null;
+    captureStarted.current = false;
   }
   useEffect(() => () => { generation.current++; abort.current?.abort(); releaseMedia(); window.speechSynthesis?.cancel(); }, []);
   function interrupt() {
     abort.current?.abort(); window.speechSynthesis?.cancel();
-    if (realtime.status === "connected") { realtime.cancelResponse(); realtime.stopPlayback(); }
     setBusy(false);
   }
   async function startVoice() {
     if (starting.current) return;
-    interrupt(); starting.current = true; const attempt = ++generation.current;
+    interrupt();
+    setNotice("");
+    setVoiceError(false);
+    setRequesting(true);
+    // Keep the session on its starting farm and month while the page remains interactive.
+    setSessionSelection(selection);
+    starting.current = true;
+    const attempt = ++generation.current;
     try {
       if (!navigator.onLine) throw new Error("Offline");
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("Microphone unavailable");
-      // Warm the audio context inside the user gesture; SDK manages streaming PCM and playback.
-      const context = new AudioContext(); vad.current = { context, timer: null }; await context.resume();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-      if (attempt !== generation.current) { stream.getTracks().forEach(track => track.stop()); void context.close(); return; }
+      if (attempt !== generation.current) { stream.getTracks().forEach(track => track.stop()); return; }
       media.current = stream;
-      const analyser = context.createAnalyser(); analyser.fftSize = 1024;
-      context.createMediaStreamSource(stream).connect(analyser);
-      const samples = new Float32Array(analyser.fftSize); let sustained = 0;
-      const timer = setInterval(() => {
-        analyser.getFloatTimeDomainData(samples);
-        const rms = Math.sqrt(samples.reduce((sum, value) => sum + value * value, 0) / samples.length);
-        sustained = rms > 0.08 ? sustained + 1 : 0;
-        setLevel(Math.min(1, rms * 8));
-        // Local VAD cuts queued playback immediately; Gateway VAD owns turn completion.
-        if (sustained === 3 && controls.current.isPlaying) { controls.current.cancelResponse(); controls.current.stopPlayback(); }
-      }, 70);
-      vad.current = { context, timer };
       await realtime.connect({ stream });
-
     } catch (error) {
+      if (attempt !== generation.current) return;
       releaseMedia();
+      setVoiceError(true);
       const name = error instanceof Error ? error.name : "";
-      setNotice(name === "NotAllowedError" ? "No diste permiso al micrófono. Toca el candado junto a la dirección web, permite el micrófono y vuelve a tocar Hablar." : !navigator.onLine ? "Sin internet: la voz necesita conexión. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos micrófono en este equipo." : "No se pudo iniciar la voz. Toca Hablar otra vez o escribe tu pregunta.");
+      setNotice(name === "NotAllowedError" ? "Permite el micrófono en tu navegador." : !navigator.onLine ? "Sin internet. Puedes escuchar el resumen." : name === "NotFoundError" ? "No encontramos un micrófono." : "No se pudo iniciar la voz. Intenta de nuevo o escribe.");
+    } finally {
+      if (attempt === generation.current) { starting.current = false; setRequesting(false); }
     }
-    finally { starting.current = false; }
   }
-  function stopVoice() { generation.current++; realtime.disconnect(); releaseMedia(); interrupt(); setNotice("Micrófono apagado. Puedes escribir tu pregunta."); }
-  function localSummary() { return localAdviceText(selection); }
+  function stopVoice(message: string, failed = true) {
+    generation.current++;
+    starting.current = false;
+    setRequesting(false);
+    realtime.disconnect();
+    releaseMedia();
+    window.speechSynthesis?.cancel();
+    setNotice(message);
+    setVoiceError(failed);
+  }
   function speak(text: string) {
-    if (!readAloud || !window.speechSynthesis) return;
+    if (!window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-DO";
     const voices = window.speechSynthesis.getVoices();
@@ -95,54 +129,54 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   async function send(text: string) {
     if (!text.trim()) return;
     setDraft("");
-    if (realtime.status === "connected") { interrupt(); realtime.sendTextMessage(text); return; }
+    if (realtime.status === "connected") {
+      try { realtime.sendTextMessage(text); return; }
+      catch { stopVoice("Se cortó la voz. Puedes escribir."); }
+    }
     interrupt(); setBusy(true);
     const conversation = [...messages.filter(message => message.content.trim()), { role: "user" as const, content: text.slice(0, 1800) }].slice(-7);
     setMessages([...conversation, { role: "assistant", content: "" }]);
     const controller = new AbortController(); abort.current = controller;
-    let answer = ""; let sentence = "";
+    let answer = "";
     try {
       const response = await fetch("/api/voice/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, messages: conversation }), signal: controller.signal });
       if (!response.ok || !response.body) throw new Error("Unavailable");
-      setMode(response.headers.get("X-AgroVision-Mode") === "ai" ? "Texto de IA · AI Gateway · voz del navegador" : "Resumen local · sin IA · voz del navegador");
       const reader = response.body.getReader(); const decoder = new TextDecoder();
       while (true) {
         const { value, done } = await reader.read();
         const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
-        answer += chunk; sentence += chunk;
+        if (controller.signal.aborted) return;
+        answer += chunk;
         setMessages([...conversation, { role: "assistant", content: answer }]);
-        // Speak completed phrases while text continues streaming. Never wait for the full answer.
-        const phrases = sentence.match(/^([\s\S]*?[.!?](?:\s|$))([\s\S]*)$/);
-        if (phrases) { speak(phrases[1]); sentence = phrases[2]; }
         if (done) break;
       }
       if (!answer.trim()) throw new Error("Empty answer");
-      speak(sentence);
     } catch {
       if (!controller.signal.aborted) {
-        const local = localSummary();
-        setMessages([...conversation, { role: "assistant", content: local }]);
-        setMode("Resumen local · sin IA · voz del navegador"); speak(local);
+        setMessages([...conversation, { role: "assistant", content: `Resumen sin conexión. ${localAdviceText(selection)}` }]);
       }
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
-  const active = realtime.status === "connecting" || realtime.status === "connected";
-  return <section className="card voice-card" aria-label="Asistente de voz">
-    <div className="voice-intro"><h3>Pregunta con tu voz</h3><p>Voz generada por IA. Solo explica la evidencia disponible.</p></div>
-    <div className="voice-actions">
-      <button className={`voice-orb ${realtime.isPlaying ? "speaking" : active ? "listening" : ""}`} style={{ ["--lvl" as string]: String(realtime.isPlaying ? 0.6 : level) }} onClick={active ? stopVoice : startVoice} aria-label={active ? "Terminar conversación" : "Iniciar conversación"}>
-        <span className="orb-core"><FarmIcon name={active ? "stop" : "mic"} size={44}/></span>
-      </button>
-      <strong className="orb-label">{realtime.status === "connecting" ? "Conectando…" : realtime.isPlaying ? "AgroVision está hablando… (háblale para interrumpir)" : realtime.status === "connected" ? "Te escucho… habla cuando quieras" : "Toca para hablar"}</strong>
-      {active && <button className="secondary-action" onClick={stopVoice}><FarmIcon name="stop"/>Colgar</button>}
-    </div>
-    <p role="status">{realtime.status === "connected" ? "Micrófono encendido. Habla de nuevo para interrumpir." : realtime.status === "connecting" ? "Conectando micrófono…" : notice}</p>
-    <div className="voice-transcript" role="log" aria-label="Transcripción de la conversación" aria-live="polite">
+  const active = requesting || realtime.status === "connecting" || realtime.status === "connected";
+  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : realtime.isCapturing ? "listening" : "connecting";
+  const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
+  const hangUp = () => stopVoice("Micrófono apagado.", false);
+  return <section id="voz" className="voice-compact" aria-label="Asistente de voz">
+    <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
+      onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
+      {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
+    </button>
+    <p className={voiceError && !active ? session.error : "sr-only"} role="status">{voiceStatus}</p>
+    <div hidden={active}>
+    {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" role="log" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
       {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
+    </div></details>}
+    <div className="voice-alternatives">
+      <details className="visual-details"><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
+      {!active && <button type="button" className="link-button" onClick={() => { interrupt(); speak(localAdviceText(selection)); }}><Volume2 aria-hidden="true"/> Oír resumen</button>}
     </div>
-    <form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Pregunta sobre esta parcela…" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar →</button></form>
-    <div className="voice-bottom"><button className="secondary-action" onClick={() => { interrupt(); const text = localSummary(); setMessages([{ role: "assistant", content: text }]); setMode("Resumen local · sin IA · voz del navegador"); speak(text); }}><FarmIcon name="sound"/>Escuchar resumen</button><label><input type="checkbox" checked={readAloud} onChange={event => { setReadAloud(event.target.checked); window.speechSynthesis?.cancel(); }}/> Leer en voz alta</label></div>
-    <small>{realtime.status === "connected" ? "Voz de IA · Vercel AI Gateway" : mode}. La conversación requiere conexión y permiso de micrófono. Con el micrófono encendido se envía audio a AI Gateway. La aplicación no guarda grabaciones; el proveedor aplica sus políticas de datos.</small>
+    <details className="visual-details voice-privacy"><summary>Sobre el micrófono</summary><p>Durante la conversación se envía audio a AI Gateway. AgroVision no guarda grabaciones.</p></details>
+    </div>
   </section>;
 }
