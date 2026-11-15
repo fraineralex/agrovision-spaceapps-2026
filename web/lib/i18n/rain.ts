@@ -18,3 +18,10 @@ export function localizedRainAlert(forecast: RainForecast, locale: Locale) {
   if (alert.level === "dry") return { ...alert, sentence: `Little rain is forecast${forecast.days.some(day => (day.tMaxC ?? 0) >= 33) ? " with hot days" : ""}: about ${total} mm over ${forecast.days.length} days.` };
   return { ...alert, sentence: `The forecast totals about ${total} mm over ${forecast.days.length} days.` };
 }
+
+export function localizedDayName(iso: string, locale: Locale) {
+  return new Intl.DateTimeFormat(localeTag(locale), { weekday: "long", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
+}
+export function localizedShortDate(iso: string, locale: Locale) {
+  return new Intl.DateTimeFormat(localeTag(locale), { month: "2-digit", day: "2-digit", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
+}

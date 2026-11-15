@@ -105,3 +105,17 @@ test("source-panel dictionaries have matching keys, interpolation fields and lin
   assert.equal(pestSourceLabels.en.length, pestSources.length);
   assert.deepEqual([...pestSourceLabels.es], pestSources.map(([label]) => label));
 });
+
+import { weatherMessages } from "./i18n/weather-messages";
+import { localizedDayName, localizedShortDate } from "./i18n/rain";
+test("weather dictionaries and date formats follow the language", () => {
+  assert.deepEqual(leafKeys(weatherMessages.en), leafKeys(weatherMessages.es));
+  for (const key of Object.keys(weatherMessages.en) as Array<keyof typeof weatherMessages.en>) {
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort();
+    assert.deepEqual(placeholders(weatherMessages.en[key]), placeholders(weatherMessages.es[key]), key);
+  }
+  assert.equal(localizedDayName("2026-11-16", "en"), "Monday");
+  assert.equal(localizedDayName("2026-11-16", "es"), "lunes");
+  assert.equal(localizedShortDate("2026-11-16", "en"), "11/16");
+  assert.equal(localizedShortDate("2026-11-16", "es"), "16/11");
+});

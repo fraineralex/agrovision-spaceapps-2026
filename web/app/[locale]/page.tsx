@@ -11,6 +11,7 @@ import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import { cropLabel, localizedAdviceSentence, localizedOversupply, monthLabel } from "@/lib/i18n/advice";
 import { localizedRainAlert } from "@/lib/i18n/rain";
+import { sourceMessages } from "@/lib/i18n/source-messages";
 import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
@@ -339,7 +340,7 @@ export default function Home() {
 
       {activeTab === "lluvia" && (
         <div id="panel-lluvia" role="tabpanel" aria-labelledby="tab-lluvia" className="tab-stage" key={`lluvia-${activeFarm?.id ?? "none"}`}>
-          <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought?.label} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
+          <FieldWeek key={activeFarm?.id ?? "new"} farm={activeFarm} province={province} rain={rain} droughtLabel={drought ? ({ gray: sourceMessages[locale].signalGray, red: sourceMessages[locale].signalRed, amber: sourceMessages[locale].signalAmber, green: sourceMessages[locale].signalGreen }[drought.color] ?? sourceMessages[locale].signalGray) : undefined} tempC={selectedClimate?.temperatureC ?? null} areaText={farmAreaM2 ? areaLabel(farmAreaM2) : undefined} onIrrigationDate={irrigationDate => updateFarm({ irrigationDate, waterTurn: undefined })} onAdd={() => setOnboarding(true)} onLocation={onLocation}/>
         </div>
       )}
 

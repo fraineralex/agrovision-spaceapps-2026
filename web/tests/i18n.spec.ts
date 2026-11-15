@@ -109,3 +109,21 @@ test("recommendation sources switch language while retaining the same evidence l
   await english.getByLabel("Language").selectOption("es");
   await expect(page.getByRole("dialog", { name: /De dónde sale la recomendación/ }).getByRole("heading", { name: "El detalle y las fuentes" })).toBeVisible();
 });
+
+test("rain forecast labels and dates switch without changing the measurements", async ({ page }) => {
+  const forecast = { source: "open-meteo", kind: "forecast", model: "gfs_global", url: "https://open-meteo.com", fetchedAt: "2026-11-16T12:00:00Z", days: Array.from({ length: 7 }, (_, i) => ({ date: `2026-11-${String(16 + i).padStart(2, "0")}`, rainMm: i === 0 ? 14 : 0, probPct: i === 0 ? 80 : 10, tMaxC: 31 })) };
+  await page.clock.setFixedTime(new Date("2026-11-16T14:00:00Z"));
+  await page.route("**/api/rain**", route => route.fulfill({ json: forecast }));
+  await page.goto("/es");
+  await page.getByRole("tab", { name: "Lluvia" }).click();
+  await page.getByLabel("Provincia para consultar la lluvia").selectOption("San Juan");
+  await expect(page.getByRole("list", { name: "Próximos 7 días" })).toContainText("14");
+  await expect(page.locator(".rain-summary-pill")).toContainText("80%");
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(page.getByRole("heading", { name: "This week's rain" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Next 7 days" })).toContainText("14");
+  await expect(page.locator(".rain-summary-pill")).toContainText("80%");
+  await expect(page.locator(".rain-summary-pill")).toContainText("Possible rain");
+  await page.getByLabel("Language").selectOption("es");
+  await expect(page.locator(".rain-summary-pill")).toContainText("Posible lluvia");
+});

@@ -472,3 +472,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: verificó paridad de claves, parámetros y atribuciones del panel de fuentes en `web/lib/i18n.test.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: habilitó el selector dentro del diálogo de fuentes y ajustó su navegación de teclado en `web/components/sources-sheet.tsx` y `web/app/globals.css`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: agregó una prueba de navegador del cambio de idioma y la conservación de enlaces en el panel de fuentes en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo el pronóstico, fechas de riego y el plan de siembra, sin cambiar umbrales ni datos meteorológicos. Archivos: `web/components/{rain-card,farm-workbench}.tsx`, `web/lib/i18n/{rain,weather-messages}.ts` y `web/app/[locale]/page.tsx`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: agregó pruebas de paridad de mensajes, formato de fechas y conservación de medidas del pronóstico al cambiar el idioma en `web/lib/i18n.test.ts` y `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
