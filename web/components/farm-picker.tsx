@@ -110,7 +110,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
         <button type="button" aria-pressed={mode === "box"} className={mode === "box" ? "chip on" : "chip"} onClick={() => setMode("box")}><SquareDashed size={16} aria-hidden="true" /> Arrastrar</button>
         <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}><Pencil size={16} aria-hidden="true" /> Dibujar</button>
       </div>
-      <p className="picker-help">{mode === "tap" ? "Toca los cuadros o las parcelas amarillas que son tuyas. Toca otra vez para quitar." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
+      <p className="picker-help">{mode === "tap" ? "Toca para marcar o quitar un cuadro." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
       <details className="picker-instructions"><summary>¿Cómo marco mi finca?</summary><p className="note">Toca los cuadros de tu finca, marca un rectángulo o dibuja el borde. Los cuadros miden 50 × 50 m (unas 4 tareas). Las imágenes Esri requieren internet.</p></details>
     </div>
     <div className="picker-stage">
@@ -120,7 +120,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
         <button type="button" className="chip" disabled={!ready} aria-label="Acercar mapa" onClick={() => map.current?.zoomIn()}>+</button>
         <button type="button" className="chip" disabled={!ready} aria-label="Alejar mapa" onClick={() => map.current?.zoomOut()}>−</button>
       </div>
-      {showFields && <p className="note">Contornos aproximados por satélite, no catastrales. Cobertura parcial de San Juan.</p>}
+      {showFields && <p className="note picker-outlines-note">Contornos aproximados por satélite, no catastrales.</p>}
       <p className="note picker-scale-note">Los contornos amarillos son candidatos aproximados, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m². {fieldMeta.attribution}</p>
     </div>
     <div className="picker-status">

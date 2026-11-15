@@ -87,9 +87,10 @@ export function GuidedSale({ initialCrop, farmTareas, initialIrrigation, areaSou
         <button type="submit" disabled={!canAdvance}>{step === 5 ? "Ver resultado" : "Continuar"}</button>
       </div>
     </form> : <section className="budget-result" aria-label="Resultado de la calculadora">
+      <h3>{cropNames[crop]} · {tareas} tareas</h3>
       <p>Gasto total · {useEstimate ? rounded(totalCost) : rd(totalCost)}</p>
       <strong>Vende a mínimo {rd(Math.ceil(totalCost / harvestQQ))} por quintal para no perder</strong>
-      {offer === "" && prices.length > 0 && <p className="note">Escenario histórico (precio mayorista) · Santo Domingo · 12 meses hasta {market?.latest?.period} · RD$ por {tareas} tareas · {discount ? discount + "% de descuento declarado" : "sin descuento declarado"}.</p>}
+      {offer === "" && prices.length > 0 && <p className="note">Escenario histórico (precio mayorista) · Santo Domingo · {irrigation === "irrigated" ? "con riego" : irrigation === "rainfed" ? "secano" : "riego sin confirmar"} · 12 meses hasta {market?.latest?.period} · RD$ por {tareas} tareas · {discount ? discount + "% de descuento declarado" : "sin descuento declarado"}.</p>}
       {prices.length ? <dl>{prices.map((value, index) => {
         const income = value * harvestQQ;
         return <div key={index}><dt>{offer !== "" ? "Oferta declarada" : ["Bajo", "Medio", "Alto"][index]}</dt><dd>Venta {rounded(income)} · saldo {rounded(income - totalCost)}</dd></div>;

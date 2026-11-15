@@ -2405,3 +2405,13 @@ dialog.src-overlay:not([open]) { display: none; }
   #siembra .verdict-actions button { flex: 1 1 auto; width: auto; font-size: .8rem; padding-inline: 7px; }
   #siembra .advisor-nasa a { min-height: 44px; }
 }
+
+.picker-outlines-note { position: absolute; inset: 66px 12px auto; z-index: 1; width: fit-content; padding: 5px 9px; border-radius: 8px; background: #fff; color: #153421; pointer-events: none; }
+.guided-sale .budget-result a, .guided-sale .budget-result button { display: inline-flex; align-items: center; min-height: 44px; margin-inline-end: 12px; }
+@media (max-width: 720px) {
+  .ob-card-mapping .ob-step-map { display: flex; flex-direction: column; gap: 8px; }
+  .ob-card-mapping .ob-map-head, .ob-card-mapping .ob-step-map > .ob-more { order: 1; }
+  .ob-card-mapping .ob-map-done, .ob-card-mapping .ob-step-map > .link-button { order: 2; }
+  .ob-card-mapping .picker-instructions summary { min-height: 34px; }
+  .ob-card-mapping .picker-stage { gap: 2px; }
+}
