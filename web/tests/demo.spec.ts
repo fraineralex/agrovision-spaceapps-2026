@@ -72,6 +72,12 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  const opts=page.locator(".option-list > li");
  expect(await opts.count()).toBeLessThanOrEqual(5);
  for (const g of ["Menos agua","Precio histórico","Plagas","Sequía"]) await expect(page.locator(".option-list")).toContainText(g);
+ // Soil rotation section: why rotating feeds the soil, with FAO sources and no farm measurement claim.
+ const soil=page.locator("#rotacion-y-suelo");
+ await expect(soil).toContainText("para cuidar la tierra");
+ await expect(soil).toContainText("Abono natural");
+ await expect(soil.getByRole("link",{name:/FAO/}).first()).toBeVisible();
+ await expect(soil).toContainText("no una medición de tu finca");
  await opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText("Sin datos suficientes").click();
  await expect(opts.filter({hasText:"Plagas"}).filter({hasText:"Sin datos suficientes"}).getByText(/Falta evidencia local/)).toBeVisible();
  await expect(opts.last()).toContainText("Arroz");
