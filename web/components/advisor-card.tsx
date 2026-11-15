@@ -152,20 +152,22 @@ export function AdvisorCard(p: Props) {
 }
 
 export function PlantingReview(p: Pick<Props, "province" | "irrigation" | "previous" | "sowMonth" | "priority" | "crops">) {
-  const advice = useMemo(() => adviseNextCrop(p), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
+  const locale = useLocale();
+  const text = messages[locale].advisor;
+  const advice = useMemo(() => adviseNextCrop({ province: p.province, irrigation: p.irrigation, previous: p.previous, sowMonth: p.sowMonth, priority: p.priority, crops: p.crops }), [p.province, p.irrigation, p.previous, p.sowMonth, p.priority, p.crops]);
   const top = recommendedCrop(advice);
   if (!top) return null;
   const repeat = advice.find(item => item.repeats);
   const historical = profitFor(top.crop, 1, p.irrigation);
   const loss = historical && !("unavailable" in historical) && historical.profit.mid < 0;
-  const notes = [...top.warnings, ...top.pestPrecautions];
-  return <details className="compare-fold planting-review"><summary><AlertTriangle aria-hidden="true" /> Qué revisar antes de sembrar</summary>
-    <p>Antes de decidir, revisa el agua y el suelo con tu técnico y ten en cuenta estas alertas:</p>
+  const notes = [...localizedWarnings(top, locale), ...localizedPestPrecautions(p.previous, top.crop, locale)];
+  return <details className="compare-fold planting-review"><summary><AlertTriangle aria-hidden="true" /> {text.whatToCheck}</summary>
+    <p>{text.checkWater}</p>
     <ul className="decision-risks">
-      {loss && <li>Posible pérdida al último precio mayorista.</li>}
+      {loss && <li>{text.riskLoss}</li>}
       {notes.map(note => <li key={note}>{note}</li>)}
-      {repeat && <li>Riesgo de plagas si repites {repeat.name.toLowerCase()}.</li>}
+      {repeat && <li>{text.repeatRisk.replace("{crop}",cropLabel(repeat.crop,locale).toLowerCase())}</li>}
     </ul>
-    <p className="note">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía: FAO GIEWS.</p>
+    <p className="note">{text.climateSource}</p>
   </details>;
 }

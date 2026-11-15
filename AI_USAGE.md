@@ -507,3 +507,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 — Codex (OpenAI):** tradujo los campos de suelo del registro y parte de las explicaciones de rotación incorporadas desde main. Archivos: `web/components/{onboarding,soil-card,sources-sheet}.tsx`, `web/app/[locale]/page.tsx` y `web/lib/i18n/soil-messages.ts`. Revisión por Frainer pendiente.
 
 - **2026-11-15 — Codex (OpenAI):** tradujo la tarjeta de plagas y sus fuentes usando el catálogo bilingüe. Archivos: `web/components/pest-card.tsx` y `web/lib/i18n/pest-messages.ts`. Revisión por Frainer pendiente.
+
+- **2026-11-15 — Codex (OpenAI):** integró los cambios de diseño de `main` en internacionalización, resolvió conflictos de navegación, formularios, mapa, lluvia, voz y recomendaciones. Revisión por Frainer pendiente.

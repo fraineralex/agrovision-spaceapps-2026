@@ -25,7 +25,6 @@ export function OptionsCard({ province, irrigation, previous, sowMonth, crops, c
   const locale = useLocale();
   const text = optionsMessages[locale];
   const advisor = messages[locale].advisor;
-  const word = { green: advisor.worth, amber: advisor.possible, red: advisor.unsuitable, gray: advisor.missing };
   const goalTitle = (key: OptionKey) => key === "other" ? text.other : key === "keep" ? (allCrops.includes(previous as CropId) ? text.keepCrop.replace("{crop}", cropLabel(previous, locale).toLowerCase()) : text.keepUnknown) : text[`${key}Goal`];
   const options = useMemo(() => fiveOptions({ province, irrigation, previous, sowMonth, crops }), [province, irrigation, previous, sowMonth, crops]);
   const grouped = options.filter((option, index) => !option.advice || options.findIndex(candidate => candidate.advice?.crop === option.advice?.crop) === index);

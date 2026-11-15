@@ -57,11 +57,11 @@ const Onboarding = dynamic(() => import("@/components/onboarding").then(module =
 function MapLoading() { const locale = useLocale(); return <div className="map-placeholder"><div className="map-wrap map-loading" role="status">{mapMessages[locale].loading}</div><div className="map-placeholder-tail" aria-hidden="true" /></div>; }
 const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: MapLoading });
 const SupervisorRotations = dynamic(() => import("@/components/supervisor-rotations").then(module => module.SupervisorRotations));
-const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
 const CLIMO_MONTHS = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
 type MonthlyPoint = { month: number; temperatureC: number | null; precipitationMmDay: number | null };
 
 function Climograph12M({ monthly, activeMonth, onMonth }: { monthly: MonthlyPoint[]; activeMonth: number; onMonth: (m: number) => void }) {
+  const locale = useLocale();
   const byMonth = Array.from({ length: 12 }, (_, idx) => monthly.find(item => item.month === idx + 1) ?? { month: idx + 1, temperatureC: null, precipitationMmDay: null });
   const rains = byMonth.map(m => (m.precipitationMmDay != null ? m.precipitationMmDay * 30 : 0));
   const temps = byMonth.map(m => m.temperatureC).filter((v): v is number => v != null);
@@ -99,7 +99,7 @@ function Climograph12M({ monthly, activeMonth, onMonth }: { monthly: MonthlyPoin
       </svg>
       <div className="climo-months">
         {pts.map((p, idx) => (
-          <button key={p.month} type="button" className={`climo-m-btn${p.month === activeMonth ? " active" : ""}`} onClick={() => onMonth(p.month)} aria-label={`Mes ${monthNames[p.month - 1]}`} aria-pressed={p.month === activeMonth}>
+          <button key={p.month} type="button" className={`climo-m-btn${p.month === activeMonth ? " active" : ""}`} onClick={() => onMonth(p.month)} aria-label={monthLabel(p.month, locale)} aria-pressed={p.month === activeMonth}>
             {CLIMO_MONTHS[idx]}
           </button>
         ))}
@@ -291,7 +291,7 @@ export default function Home() {
             <nav className="supervisor-tools" aria-label={text.supervisorTools}>
               <a href="#tu-finca-en-el-mapa" onClick={e => { e.preventDefault(); setActiveTab("mapa"); }}>{text.parcels}</a>
               <a href="#precio-y-mercado" onClick={e => { e.preventDefault(); setActiveTab("venta"); }}>{text.climateMarket}</a>
-              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => openReport("rotaciones"), 30); }}>{text.rotations}</a>
+              <a href="#rotaciones" onClick={e => { e.preventDefault(); setActiveTab("mapa"); window.setTimeout(() => { const el = document.getElementById("rotaciones") as HTMLDetailsElement | null; if (el) { el.open = true; el.scrollIntoView(); } }, 30); }}>{text.rotations}</a>
             </nav>
           )}
         </div>
