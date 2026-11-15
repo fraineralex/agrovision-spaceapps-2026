@@ -96,7 +96,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await page.getByText("Consultar costos y precios de referencia", {exact:true}).click();
  await page.locator(".profit select").selectOption("habichuela_roja");
  await expect(page.locator(".profit-range")).toContainText("RD$");
- await page.getByLabel("Tareas").fill("20");
+ await page.getByLabel("Tareas", {exact:true}).fill("20");
  await expect(page.locator(".profit-lines")).toContainText("20 tareas");
  expect(await axeSerious(page)).toEqual([]);
  // Independent Mapa y clima tab: parcel card, GeoJSON export & FAO drought.
@@ -368,7 +368,12 @@ for (const fixture of [
       const source = verdict.getByRole("button", { name: "Datos y fuentes" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
-      await expect(dialog.getByRole("button", { name: /Cerrar/ })).toBeFocused();
+      const close = dialog.getByRole("button", { name: /Cerrar/ });
+      await expect(close).toBeFocused();
+      await page.keyboard.press("Shift+Tab");
+      await expect(dialog.locator("a").last()).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(close).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(source).toBeFocused();
     }
@@ -386,7 +391,7 @@ for (const fixture of [
     await page.getByRole("button", { name: "Continuar" }).click();
     if (fixture.id !== "ramon") await page.getByLabel(/Cosecha para vender/).fill("100");
     await page.getByRole("button", { name: "Continuar" }).click();
-    if (fixture.id === "arroz") await page.getByLabel(/Oferta por quintal/).fill("4000");
+    if (fixture.id === "arroz") await page.locator(".guided-sale").getByLabel(/Oferta por quintal/).fill("4000");
     await page.getByRole("button", { name: "Ver resultado" }).click();
     await expect(page.getByRole("region", { name: "Resultado de la calculadora" })).toContainText("por quintal para no perder");
     expect(await axeSerious(page)).toEqual([]);

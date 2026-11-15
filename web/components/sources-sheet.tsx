@@ -24,10 +24,12 @@ function Block({ icon, title, verdict, children, links }: { icon: React.ReactNod
 
 export function SourcesSheet({ advice, all, province, previous, irrigation, sowMonth, onClose }: { advice: CropAdvice; all: CropAdvice[]; province?: string; previous: PreviousCrop; irrigation: Irrigation; sowMonth: number; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const element = dialog.current;
     const trigger = document.activeElement;
     element?.showModal();
+    close.current?.focus();
     return () => {
       element?.close();
       if (trigger instanceof HTMLElement) trigger.focus();
@@ -57,7 +59,7 @@ export function SourcesSheet({ advice, all, province, previous, irrigation, sowM
   if (advice.scores.pests === 5) pestLinks.push(["IDIAF · Compendio de habichuela (2013), págs. 88, 94 y 102", IDIAF_URL]);
   return <dialog ref={dialog} onKeyDown={keepFocus} className="src-overlay" aria-label={`De dónde sale la recomendación de ${advice.name}`} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="src-sheet" onClick={e => e.stopPropagation()}>
-      <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" autoFocus onClick={onClose}>Cerrar ✕</button></div>
+      <div className="src-head"><h2>¿De dónde sale esto? · {advice.name}</h2><button type="button" className="ob-link" ref={close} onClick={onClose}>Cerrar ✕</button></div>
       <p className="src-intro">Así calculamos cada punto para <strong>{advice.name.toLowerCase()}</strong> en <strong>{province ?? "todo el país"}</strong>, sembrando en <strong>{monthNames[sowMonth - 1]}</strong>{prevName ? <>, después de <strong>{prevName}</strong></> : null}. Cada parte tiene su fuente para que la revises tú o tu técnico.</p>
 
       <Block icon={<Droplets />} title="Agua" verdict={advice.words.water} links={[["FAO-56, tablas 11 y 12 (1998)", FAO56_URL]]}>
