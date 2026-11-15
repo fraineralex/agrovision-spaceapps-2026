@@ -1,10 +1,11 @@
 /* AI: Claude (Anthropic) & Codex (OpenAI), 2026-11-14; UI/i18n polish: Antigravity, 2026-11-15. */
 "use client";
-import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
+import { AlertTriangle, CalendarDays, Info, Leaf, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
 import { cropLabel, localizedAdvicePillarTitle, localizedAdviceSentence, localizedPestPrecautions, localizedPillarWord, localizedWarnings, monthLabel } from "@/lib/i18n/advice";
+import { soilNoteFor } from "@/lib/i18n/soil-messages";
 import { HeroRecommendation, MetricTile, RiskPill, SourceChip, Stars, WaterGauge } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
 import { PestOverview } from "@/components/pest-overview";
@@ -26,13 +27,15 @@ type Props = {
   supervisor?: boolean; onEdit: () => void; onTop?: (crop: CropId) => void; onSowMonth?: (month: number) => void;
 };
 
-function CropRow({ a, top, supervisor, onSources }: { a: CropAdvice; top: boolean; supervisor: boolean; onSources: () => void }) {
+function CropRow({ a, top, supervisor, previous, sowMonth, sowYear, onSources }: { a: CropAdvice; top: boolean; supervisor: boolean; previous: PreviousCrop; sowMonth: number; sowYear: number; onSources: () => void }) {
   const locale = useLocale();
   const text = messages[locale].advisor;
   const name = cropLabel(a.crop, locale);
   const rowLight = lightFor(a.overall);
   const pct = a.overall === null ? 12 : Math.max(15, Math.min(100, Math.round((a.overall / 5) * 100)));
   const alertCount = a.pestPrecautions.length + (a.repeats ? 1 : 0);
+  const rowHarvestYear = sowYear + Math.floor((sowMonth - 1 + Math.round(a.cycleDays / 30)) / 12);
+  const soil = soilNoteFor(locale, previous, a.crop, a.soil);
   const techSubtitle = supervisor
     ? (a.cycleDays > 0
       ? `${locale === "en" ? "Cycle" : "Ciclo"} ~${a.cycleDays} d · ${a.kcDays} Kc·d`
@@ -48,7 +51,15 @@ function CropRow({ a, top, supervisor, onSources }: { a: CropAdvice; top: boolea
       {supervisor && a.overall !== null && <strong className="rating-numeric">{a.overall.toFixed(1)}</strong>}
       <div className="crop-row-meter" aria-hidden="true"><span className={`crop-row-fill ${rowLight}`} style={{ width: `${pct}%` }} /></div>
     </div>
+    <div className="crop-row-meta">
+      <span className="crop-meta-pill"><Wheat size={13} aria-hidden="true" /> {a.harvestMonth > 0 ? `${text.harvest}: ${monthLabel(a.harvestMonth, locale)} ${rowHarvestYear}` : (locale === "en" ? "Permanent crop" : "Cultivo permanente")}</span>
+      <span className={`crop-soil-pill soil-${a.soil.level}`}><Leaf size={13} aria-hidden="true" /> {text.soilLabel}: {soil.title}</span>
+    </div>
     <PlantingPillars advice={a} showScores={supervisor}/>
+    <ul className="crop-row-insights">
+      <li>{localizedPillarWord(a, "market", locale)}</li>
+      <li>{localizedPillarWord(a, "pests", locale)}</li>
+    </ul>
     {alertCount > 0 && <details className="visual-details crop-row-alert"><summary><AlertTriangle aria-hidden="true" size={13} /> {text.precautions} ({alertCount})</summary><PestOverview advice={a}/></details>}
   </li>;
 }
@@ -139,13 +150,17 @@ export function AdvisorCard(p: Props) {
       {amberCount > 0 && <em className="dist-pill amber">{amberCount} {text.possible}</em>}
       {redCount > 0 && <em className="dist-pill red">{redCount} {text.unsuitable}</em>}
     </span>}>
+      <div className="selected-crops-strip">
+        <span>{text.comparingCount.replace("{count}", String(p.crops.length))}</span>
+        <button type="button" className="link-button" onClick={p.onEdit}>{text.adjustCrops}</button>
+      </div>
       <div className="crops-dist-bar" aria-hidden="true">
         {greenCount > 0 && <span className="dist-seg green" style={{ flex: greenCount }} />}
         {amberCount > 0 && <span className="dist-seg amber" style={{ flex: amberCount }} />}
         {redCount > 0 && <span className="dist-seg red" style={{ flex: redCount }} />}
       </div>
       <ul className="crop-list" data-count={p.crops.length} aria-label={text.compareCrops}>
-        {advice.map(a => <CropRow key={a.crop} a={a} top={a === top} supervisor={supervisor} onSources={() => setSources(a)} />)}
+        {advice.map(a => <CropRow key={a.crop} a={a} top={a === top} supervisor={supervisor} previous={p.previous} sowMonth={p.sowMonth} sowYear={sowYear} onSources={() => setSources(a)} />)}
         {p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => (
           <li key={crop} className="crop-row crop-row-empty">
             <CropIdentity name={cropLabel(crop, locale)} crop={crop}/>

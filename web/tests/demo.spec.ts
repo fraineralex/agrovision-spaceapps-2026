@@ -58,6 +58,12 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".picker-pieces")).toContainText("Figura dibujada");
  await ob.getByRole("button",{name:/^Listo: /}).click();
  await ob.getByRole("button",{name:/Arroz/}).click();
+ // Farmer can also pick multiple crops of interest directly in step 3.
+ const papaCheck = ob.getByRole("checkbox",{name:"Papa"});
+ await expect(papaCheck).toHaveAttribute("aria-checked","false");
+ await papaCheck.click();
+ await expect(papaCheck).toHaveAttribute("aria-checked","true");
+ await expect(ob.locator(".ob-interest-preview")).toContainText("Papa");
  await ob.getByRole("button",{name:"Sí",exact:true}).click();
  await ob.getByRole("button",{name:/Listo, ver mi recomendación/}).click();
  await expect(ob).toBeHidden();
@@ -66,6 +72,8 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator(".farm-meta")).toContainText("tareas");
  await expect(page.locator(".recommendation-heading")).toContainText("Después de arroz");
  await expect(page.locator(".recommendation-meta")).toContainText("Cosecha aprox.");
+ await expect(page.locator("#crop-comparison .crop-row").filter({ hasText: "Papa" })).toContainText(/Cosecha aprox.:/);
+ await expect(page.locator("#crop-comparison .crop-row").filter({ hasText: "Papa" })).toContainText(/Suelo:/);
  // Default mode is Agricultor; Supervisor mode unlocks supervision quick bar, GeoJSON export & cost/price details.
  await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("navigation", {name:"Barra técnica de supervisión"})).toBeHidden();

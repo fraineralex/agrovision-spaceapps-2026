@@ -74,6 +74,7 @@
 #siembra .help-tip-box { background:var(--elevated); color:var(--foreground); border-color:var(--input); z-index:120; }
 #siembra .crops-dist-pills { gap:6px; }
 #siembra .dist-pill { padding:3px 8px; font-size:.75rem; }
+#siembra .selected-crops-strip { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin:0 0 8px; font-size:.86rem; color:var(--muted); }
 #siembra .crops-dist-bar { height:5px; margin:0 0 12px; }
 #siembra .crop-list, #siembra .options .option-list {
   display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start;
@@ -104,6 +105,11 @@
 #siembra .is-red { background:color-mix(in srgb,var(--status-red-bg) 45%,var(--card)); border-color:var(--status-red-border); color:var(--status-red-fg); }
 #siembra .is-gray { background:var(--status-gray-bg); border-color:var(--border); color:var(--status-gray-fg); }
 #siembra .planting-note { color:var(--muted); font-size:.88rem; }
+#siembra .crop-row-meta { display:flex; flex-wrap:wrap; gap:6px; }
+#siembra .crop-meta-pill, #siembra .crop-soil-pill { display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:7px; font-size:.76rem; font-weight:600; line-height:1.35; background:var(--muted-surface); color:var(--foreground); }
+#siembra .crop-soil-pill.soil-good { background:color-mix(in srgb,var(--status-green-bg) 50%,var(--card)); border-color:var(--status-green-border); color:var(--status-green-fg); }
+#siembra .crop-soil-pill.soil-bad { background:color-mix(in srgb,var(--status-red-bg) 50%,var(--card)); border-color:var(--status-red-border); color:var(--status-red-fg); }
+#siembra .crop-row-insights { display:grid; gap:3px; margin:0; padding:6px 0 0; list-style:none; border-top:1px solid var(--border); font-size:.82rem; line-height:1.4; color:var(--muted); }
 #siembra .crop-row-alert, #siembra .option-warn-bar { margin-top:2px; padding:0; border:0; background:transparent; }
 #siembra .crop-row-alert[open], #siembra .option-warn-bar[open] { width:100%; padding-top:8px; border-top:1px solid var(--border); }
 #siembra .crop-row-alert > summary, #siembra .option-warn-bar > summary {

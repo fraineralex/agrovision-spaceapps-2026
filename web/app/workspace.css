@@ -177,6 +177,19 @@
 .ob-field-group .ob-choice { justify-content:center; min-height:44px; padding:8px; text-align:center; }
 .ob-field-group .ob-hint { margin:8px 0 0; text-align:left; font-size:.8rem; }
 .ob-step3-side>.ob-compare { grid-column:1/-1; margin:0; }
+.ob-interest-box { display:flex; flex-direction:column; gap:10px; padding:14px; border:1px solid var(--border); border-radius:14px; background:var(--muted-surface); }
+.ob-interest-head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px; }
+.ob-interest-head h3 { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 4px; font-size:1.05rem; font-weight:750; color:var(--foreground); }
+.ob-interest-head .ob-hint { margin:0; text-align:left; font-size:.86rem; }
+.ob-count-pill { display:inline-flex; align-items:center; padding:2px 9px; border-radius:999px; font-size:.78rem; font-weight:700; background:var(--status-green-bg); color:var(--status-green-fg); border:1px solid var(--status-green-border); }
+.ob-mini-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.ob-mini-btn { min-height:36px; padding:6px 11px; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--foreground); font-size:.82rem; font-weight:600; cursor:pointer; }
+.ob-mini-btn:hover { background:var(--elevated); border-color:var(--input); }
+.ob-grid-multi { max-height:min(220px,32dvh); overflow-y:auto; overscroll-behavior:contain; padding:2px; align-content:start; scrollbar-gutter:stable; }
+.ob-check-mark { margin-inline-start:auto; flex-shrink:0; color:var(--success); }
+.ob-interest-preview { margin:0; font-size:.85rem; line-height:1.45; color:var(--muted); }
+.ob-interest-empty { margin:0; font-size:.86rem; font-weight:600; color:var(--status-red-fg); }
+.ob-month-field { margin-top:10px; }
 @media (max-width:1050px) {
   .market-columns { gap:16px; }
   .farm-context, .field-week-grid { grid-template-columns:1fr; }

@@ -16,7 +16,7 @@ import { CustomSelect } from "@/components/custom-select";
 import { allCrops, defaultComparisonPool, previousCrops, previousCropName, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { provinces, isInCountry, provinceAt, type Location } from "@/lib/geography-core";
 import { usePlaceSearch } from "@/lib/place-search";
-import { Check, ChevronDown, Droplets, CloudRain, CircleHelp, MapPin, Search } from "lucide-react";
+import { Check, Droplets, CloudRain, CircleHelp, MapPin, Search } from "lucide-react";
 import { areaLabel, centroid, newFarmId, piecesAreaM2, type Farm, type Piece } from "@/lib/farms";
 import type { Irrigation, Priority } from "@/lib/data";
 
@@ -52,7 +52,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
   const [soilTexture, setSoilTexture] = useState<SoilTexture | undefined>(initial.soilTexture);
   const [soilColor, setSoilColor] = useState<SoilColor | undefined>(initial.soilColor);
   const [chosenCrops, setCrops] = useState<CropId[] | null>(initial.crops ?? null);
-  const [customCropsEdited, setCustomCropsEdited] = useState(false);
+  const [customCropsEdited, setCustomCropsEdited] = useState(Boolean(initial.crops?.length));
   const crops = chosenCrops ?? defaultComparisonPool(province, previous);
   const [sowMonth, setSowMonth] = useState(initial.sowMonth ?? now);
   const [priority] = useState<Priority>(initial.priority ?? "water");
@@ -184,6 +184,37 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
           <div className="ob-grid ob-grid-crops">{previousCrops.map(c => <Choice key={c} on={previous === c} onClick={() => { setPrevious(c); if (!customCropsEdited) setCrops(null); else if (chosenCrops && allCrops.some(crop => crop === c)) setCrops(Array.from(new Set([...chosenCrops, c as CropId]))); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c as CropId] ?? previousCropName(c)}{c === "ajo" ? <small>{text.noData}</small> : null}</span></Choice>)}
             <Choice on={previous === "otro"} onClick={() => { setPrevious("otro"); if (!customCropsEdited) setCrops(null); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="field" size={18} /></span><span>{text.other}</span></Choice>
             <Choice on={previous === "unknown"} onClick={() => { setPrevious("unknown"); if (!customCropsEdited) setCrops(null); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name="close" size={16} /></span><span>{text.unknown}</span></Choice></div>
+
+          <section className="ob-interest-box" aria-labelledby="ob-interest-heading">
+            <div className="ob-interest-head">
+              <div>
+                <h3 id="ob-interest-heading">{text.interestTitle} <span className="ob-count-pill">{text.selectedCount.replace("{count}", String(crops.length))}</span></h3>
+                <p className="ob-hint">{text.interestHint}</p>
+              </div>
+              <div className="ob-mini-actions">
+                <button type="button" className="ob-mini-btn" onClick={() => { setCustomCropsEdited(false); setCrops(null); }}>{text.useSuggested}</button>
+                <button type="button" className="ob-mini-btn" onClick={() => { setCustomCropsEdited(true); setCrops(allCrops.filter(x => x !== "ajo")); }}>{text.selectAllCrops}</button>
+              </div>
+            </div>
+            <div className="ob-grid ob-grid-crops ob-grid-multi" role="group" aria-labelledby="ob-interest-heading">
+              {allCrops.map(c => {
+                const on = crops.includes(c);
+                return (
+                  <button key={c} type="button" role="checkbox" aria-checked={on} className={on ? "ob-choice on" : "ob-choice"} onClick={() => { setCustomCropsEdited(true); setCrops(on ? crops.filter(x => x !== c) : [...crops, c]); }}>
+                    <span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span>
+                    <span>{messages[locale].crops[c]}{c === "ajo" ? <small>{text.noData}</small> : null}</span>
+                    {on && <Check className="ob-check-mark" size={16} aria-hidden="true" />}
+                  </button>
+                );
+              })}
+            </div>
+            {crops.length > 0 ? (
+              <p className="ob-interest-preview">{text.interestPreview.replace("{list}", crops.map(c => messages[locale].crops[c]).join(", "))}</p>
+            ) : (
+              <p role="status" className="ob-interest-empty">{text.pickAtLeastOne}</p>
+            )}
+          </section>
+
           <div className="ob-step3-side">
             <section className="ob-field-group">
               <h3 className="ob-sub">{text.irrigation}</h3>
@@ -192,6 +223,7 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
                 <Choice on={irrigation === "rainfed"} onClick={() => setIrrigation("rainfed")}><CloudRain size={19} aria-hidden="true" /> {text.rainfed} {irrigation === "rainfed" && <Check size={18} aria-hidden="true" />}</Choice>
                 <Choice on={irrigation === "unconfirmed"} onClick={() => setIrrigation("unconfirmed")}><CircleHelp size={19} aria-hidden="true" /> {text.dontKnow} {irrigation === "unconfirmed" && <Check size={18} aria-hidden="true" />}</Choice>
               </div>
+              <div className="ob-label ag-select-field ob-month-field"><span className="ag-select-label">{text.sowMonth}</span><CustomSelect ariaLabel={text.sowMonth} value={String(sowMonth)} options={Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: new Intl.DateTimeFormat(locale === "es" ? "es-DO" : "en-US", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(2020, i, 1))) }))} onChange={val => setSowMonth(Number(val))} /></div>
             </section><section className="ob-field-group">
               <h3 className="ob-sub">{soilText.texture} <small>({soilText.optional})</small></h3>
               <div className="ob-row" role="group" aria-label={soilText.texture}>
@@ -212,10 +244,6 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
                 <Choice on={!soilColor} onClick={() => setSoilColor(undefined)}>{soilText.unknown}</Choice>
               </div>
             </section>
-            <details className="ob-more ob-compare"><summary>{text.changeCrops} ({crops.length}) <ChevronDown size={19} aria-hidden="true" /></summary>
-              <div className="ob-grid ob-grid-compact" tabIndex={0} role="region" aria-label={text.changeCrops}>{allCrops.map(c => { const on = crops.includes(c); return <Choice key={c} on={on} onClick={() => { setCustomCropsEdited(true); setCrops(on ? crops.filter(x => x !== c) : [...crops, c]); }}><span className="ob-icon-chip sm" aria-hidden="true"><FarmIcon name={c} size={18} /></span><span>{messages[locale].crops[c]}{c === "ajo" ? ` · ${text.noData}` : ""}{on ? " ✓" : ""}</span></Choice>; })}</div>
-              <div className="ob-label ag-select-field"><span className="ag-select-label">{text.sowMonth}</span><CustomSelect ariaLabel={text.sowMonth} value={String(sowMonth)} options={Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: new Intl.DateTimeFormat(locale === "es" ? "es-DO" : "en-US", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(2020, i, 1))) }))} onChange={val => setSowMonth(Number(val))} /></div>
-            </details>
             {!location && <p role="status">{text.missingLocation}</p>}
           </div>
         </div>
