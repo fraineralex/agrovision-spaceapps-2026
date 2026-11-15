@@ -78,6 +78,11 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(soil).toContainText("Abono natural");
  await expect(soil.getByRole("link",{name:/FAO/}).first()).toBeVisible();
  await expect(soil).toContainText("no una medición de tu finca");
+ const pestSection=page.locator("#plagas-a-vigilar");
+ await expect(pestSection).toContainText("Gusano cogollero");
+ await expect(pestSection).toContainText("Spodoptera frugiperda");
+ await expect(pestSection.getByRole("link").first()).toBeVisible();
+ await expect(pestSection).toContainText("No recomendamos pesticidas");
  // Pests are explained from the Dominican guides instead of "no data".
  await expect(page.locator(".option-list")).toContainText("Plagas distintas");
  await expect(page.locator(".option-list")).not.toContainText("Sin datos suficientes");
