@@ -35,7 +35,9 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
   const dictation = useRef<Dictation | null>(null);
+  const [dictationSession, setDictationSession] = useState(false);
   const [dictating, setDictating] = useState(false);
+  const [readingReply, setReadingReply] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const summary = useReadAloud();
   const orb = useRef<HTMLButtonElement>(null);
@@ -176,13 +178,19 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     const recognition = dictation.current;
     dictation.current = null;
     recognition?.abort();
+    setDictationSession(false);
     setDictating(false);
-    stopSummary();
+    interrupt();
     setNotice(message);
     setVoiceError(failed);
   }
   function fallbackToDictation() {
     stopVoice("", false);
+    startDictation();
+  }
+  function startDictation() {
+    setNotice("");
+    setVoiceError(false);
     const browser = window as DictationWindow;
     const Recognition = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
     if (!Recognition) {
@@ -219,6 +227,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
       }
     };
     try {
+      setDictationSession(true);
       setDictating(true);
       recognition.start();
       voicePanel.current?.scrollIntoView({ block: "nearest" });
@@ -228,10 +237,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
   }
   function stopSummary() {
     utteranceRef.current = null;
+    setReadingReply(false);
     window.speechSynthesis?.cancel();
     summary.stop();
   }
-  function speak(text: string) {
+  function speak(text: string, trackReply = false) {
     const synthesis = window.speechSynthesis;
     if (!synthesis) {
       setVoiceError(true);
@@ -249,9 +259,11 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     utterance.lang = utterance.voice?.lang ?? "es-DO";
     utterance.rate = 0.95;
     utteranceRef.current = utterance;
+    setReadingReply(trackReply);
     const finish = () => {
       if (utteranceRef.current !== utterance) return;
       utteranceRef.current = null;
+      setReadingReply(false);
     };
     utterance.onend = finish;
     utterance.onerror = () => {
@@ -292,27 +304,35 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
         if (done) break;
       }
       if (!answer.trim()) throw new Error("Empty answer");
-      if (readAnswer && !controller.signal.aborted) speak(answer);
+      if (readAnswer && !controller.signal.aborted) speak(answer, true);
     } catch {
       if (!controller.signal.aborted) {
         const fallback = localVoiceAnswer(selection, text);
         setMessages([...conversation, { role: "assistant", content: fallback }]);
-        if (readAnswer) speak(fallback);
+        if (readAnswer) speak(fallback, true);
       }
     } finally { if (abort.current === controller) { abort.current = null; setBusy(false); } }
   }
-  const active = dictating || requesting || realtime.status === "connecting" || realtime.status === "connected";
-  const orbState = !active ? "idle" : realtime.isPlaying ? "speaking" : (dictating || realtime.isCapturing) ? "listening" : "connecting";
-  const voiceStatus = { idle: busy && dictatedAnswer ? "Preparando tu respuesta…" : notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…" }[orbState];
+  const active = dictationSession || requesting || realtime.status === "connecting" || realtime.status === "connected";
+  const orbState = !active ? "idle"
+    : realtime.isPlaying || readingReply ? "speaking"
+    : dictating || realtime.isCapturing ? "listening"
+    : busy && dictatedAnswer ? "thinking"
+    : requesting || realtime.status === "connecting" ? "connecting"
+    : "ready";
+  const voiceStatus = notice || { idle: "", connecting: "Conectando…", listening: "Escuchando…", thinking: "Preparando tu respuesta…", speaking: "Hablando…", ready: "Listo para otra pregunta" }[orbState];
   const lastAnswer = messages.at(-1)?.role === "assistant" ? messages.at(-1)?.content : undefined;
   const hangUp = () => stopVoice("Micrófono apagado.", false);
-  return <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz">
-    <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
-      onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
-      {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
-    </button>
-    <p className={voiceError && !active ? session.error : dictating || (busy && dictatedAnswer) ? "note" : "sr-only"} role="status">{voiceStatus}</p>
-    {dictating && <button type="button" className="link-button" onClick={() => dictation.current?.stop()}>Terminar pregunta</button>}
+  return <section ref={voicePanel} id="voz" className="voice-compact" aria-label="Asistente de voz" onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); orb.current?.focus(); } }}>
+    <div className={active ? session.stage : undefined}>
+      <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}>
+        {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
+      </button>
+      <p className={active ? session.status : voiceError ? session.error : "sr-only"} role="status">{voiceStatus}</p>
+      {dictating && <button type="button" className="link-button" onClick={() => { dictation.current?.stop(); orb.current?.focus(); }}>Terminar pregunta</button>}
+      {dictationSession && orbState === "ready" && <button type="button" className="link-button" onClick={() => { startDictation(); orb.current?.focus(); }}>Hacer otra pregunta</button>}
+    </div>
+    {active && dictationSession && lastAnswer && <p className={session.caption}>{lastAnswer}</p>}
     <div hidden={active}>
     <div className="voice-bar-head">
       <strong><AudioLines aria-hidden="true" size={18}/> Asistente rápido de voz y texto</strong>

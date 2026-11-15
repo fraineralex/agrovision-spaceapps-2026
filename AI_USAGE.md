@@ -332,3 +332,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Archivos:** `web/lib/{advisor,advisor.test,soil}.ts`, `web/components/{advisor-card,options-card,sources-sheet,onboarding,soil-card}.tsx`, `web/tests/demo.spec.ts`.
 - **Límites:** “Plagas distintas” no cambia las estrellas. El catálogo lista solo las plagas principales de cada cultivo (1 a 4), así que puede haber otras en la zona; la app lo dice.
 - **Revisión por Frainer:** pendiente.
+
+- 2026-11-15 — OpenAI (Codex). Rediseño del círculo de conversación por voz inspirado en la documentación pública de HextaUI Voice Mode (https://hextaui.com/es/blocks/voice-mode), continuidad entre turnos de dictado y verificación E2E. Archivos: web/components/voice-assistant.tsx, web/components/voice-session.module.css y web/tests/demo.spec.ts. Revisión por Frainer pendiente.

@@ -412,8 +412,11 @@ test("the voice button sends a dictated question without waiting for realtime se
   setupMethods.push(route.request().method());
   return route.fulfill({ status: 204 });
  });
- await page.route("**/api/voice/chat", route => {
+ let releaseAnswer!: () => void;
+ const answerPending = new Promise<void>(resolve => { releaseAnswer = resolve; });
+ await page.route("**/api/voice/chat", async route => {
   expect(route.request().postDataJSON().messages.at(-1).content).toBe("¿Qué siembro?");
+  await answerPending;
   return route.fulfill({ body: "Este es tu resumen." });
  });
  await page.addInitScript(() => {
@@ -421,15 +424,32 @@ test("the voice button sends a dictated question without waiting for realtime se
   Object.assign(window, { SpeechRecognition: class {
    onresult?: (event: unknown) => void;
    onend?: () => void;
-   start() { setTimeout(() => { this.onresult?.({ results: [[{ transcript: "¿Qué siembro?" }]] }); this.onend?.(); }, 0); }
+   start() {}
+   stop() { this.onresult?.({ results: [[{ transcript: "¿Qué siembro?" }]] }); this.onend?.(); }
    abort() {}
   } });
+  Object.assign(window.speechSynthesis, {
+   speak(utterance: SpeechSynthesisUtterance) {
+    window.addEventListener("test:reply-ended", () => utterance.dispatchEvent(new Event("end")), { once: true });
+   },
+  });
  });
  await page.goto("/");
  await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const response = page.waitForResponse("**/api/voice/chat");
  await page.getByRole("button", { name: "Hablar", exact: true }).click();
+ const orb = page.getByRole("button", { name: "Colgar", exact: true });
+ await expect(orb).toHaveAttribute("data-state", "listening");
+ await page.getByRole("button", { name: "Terminar pregunta" }).click();
+ await expect(orb).toHaveAttribute("data-state", "thinking");
+ releaseAnswer();
  expect((await response).ok()).toBe(true);
+ await expect(orb).toHaveAttribute("data-state", "speaking");
+ await page.evaluate(() => window.dispatchEvent(new Event("test:reply-ended")));
+ await expect(orb).toHaveAttribute("data-state", "ready");
+ await page.getByRole("button", { name: "Hacer otra pregunta" }).click();
+ await expect(orb).toHaveAttribute("data-state", "listening");
+ await orb.click();
  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
  await expect(page.getByRole("region", { name: "Respuesta a tu pregunta" })).toContainText("Este es tu resumen.");
  await expect(page.getByRole("button", { name: "Oír respuesta", exact: true })).toBeVisible();
