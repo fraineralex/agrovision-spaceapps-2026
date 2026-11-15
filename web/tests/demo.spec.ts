@@ -288,6 +288,8 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await page.getByRole("button", {name:"Calcular precio mínimo"}).click();
  await expect(page.locator(".budget-result")).toContainText("RD$625.00 por quintal");
  await expect(page.locator(".budget-result")).toContainText("Te faltan RD$1,000");
+ await sectionNav.getByRole("tab", {name:"Fincas",exact:true}).click();
+ await expect(page.locator("#map .maplibregl-canvas")).toBeVisible();
 });
 test("voice tools, location validation and honest missing-key fallback",async({request})=>{
  const selection={parcelId:"location",location:{longitude:-70.2,latitude:18.8},priority:"balanced",month:11,irrigation:"unconfirmed"};
@@ -326,6 +328,7 @@ test("missing realtime credentials release microphone and preserve text input",a
   };
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  await page.getByRole("button",{name:"Hablar",exact:true}).click();
  await expect(page.getByText("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.")).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
@@ -348,6 +351,7 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
   Object.assign(window, { SpeechSynthesisUtterance: class {}, summaryCalls: calls });
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  await page.getByRole("button", { name: "Oír resumen" }).click();
  const controls = page.getByRole("group", { name: "Controles del resumen" });
  await controls.getByRole("button", { name: "Pausar" }).click();
@@ -382,6 +386,7 @@ test("the voice button sends a dictated question when realtime setup fails", asy
   } });
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const response = page.waitForResponse("**/api/voice/chat");
  await page.getByRole("button", { name: "Hablar", exact: true }).click();
  expect((await response).ok()).toBe(true);
@@ -398,6 +403,7 @@ test("the voice button stays outside the main workspace content", async ({page})
    navigator.mediaDevices.getUserMedia = () => new Promise(() => {});
  });
  await page.goto("/");
+ await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const start = page.getByRole("button", {name:"Hablar",exact:true});
  await start.click();
  const voice = page.getByRole("region", {name:"Asistente de voz"});
