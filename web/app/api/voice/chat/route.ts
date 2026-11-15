@@ -6,23 +6,23 @@ import { TEXT_MODEL, voiceSelection, voiceInstructions, localVoiceAnswer, planti
 import { guard, localTools, readJson } from "@/lib/voice-server";
 import { askLocalVoiceModel } from "@/lib/local-voice-model";
 export const maxDuration = 30;
-const schema = z.object({ selection: voiceSelection, messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(1800) }).strict()).min(1).max(8) }).strict();
+const schema = z.object({ selection: voiceSelection, messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(1800) }).strict()).min(1).max(8), locale: z.enum(["en", "es"]).default("es") }).strict();
 export async function POST(request: Request) {
   const blocked = guard(request); if (blocked) return blocked;
   let input;
   try { input = schema.parse(await readJson(request, 20_000)); }
   catch { return Response.json({ error: "Invalid conversation" }, { status: 400 }); }
   const question = input.messages.findLast(message => message.role === "user")?.content ?? "";
-  const calendar = plantingCalendar(question);
+  const calendar = plantingCalendar(question, input.locale);
   if (calendar) {
     return new Response(calendar.answer, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "data", "Cache-Control": "no-store" } });
   }
   if (!process.env.AI_GATEWAY_API_KEY && !process.env.VERCEL_OIDC_TOKEN) {
-    const answer = await askLocalVoiceModel(input.selection, input.messages, request.signal);
+    const answer = await askLocalVoiceModel(input.selection, input.messages, request.signal, input.locale);
     if (answer) return new Response(answer, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "ai-local", "Cache-Control": "no-store" } });
-    return new Response(`Sin conexión con IA. ${localVoiceAnswer(input.selection, question)}`, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "local", "Cache-Control": "no-store" } });
+    return new Response(`${input.locale === "en" ? "AI is offline." : "Sin conexión con IA."} ${localVoiceAnswer(input.selection, question, input.locale)}`, { headers: { "Content-Type": "text/plain; charset=utf-8", "X-AgroVision-Mode": "local", "Cache-Control": "no-store" } });
   }
-  const result = streamText({ model: gateway(TEXT_MODEL), system: voiceInstructions(input.selection, "question"), messages: input.messages,
+  const result = streamText({ model: gateway(TEXT_MODEL), system: voiceInstructions(input.selection, "question", input.locale), messages: input.messages,
     tools: localTools(input.selection), stopWhen: stepCountIs(3), maxOutputTokens: 320,
     abortSignal: AbortSignal.any([request.signal, AbortSignal.timeout(25_000)]),
   });

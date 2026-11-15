@@ -1,6 +1,7 @@
 /* AI: Codex (OpenAI), 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 import "server-only";
 import { z } from "zod";
+import type { Locale } from "./i18n/messages";
 import { adviceMetrics, type VoiceSelection } from "./voice-context";
 
 export type VoiceMessage = { role: "user" | "assistant"; content: string };
@@ -13,6 +14,7 @@ export async function askLocalVoiceModel(
   selection: VoiceSelection,
   messages: VoiceMessage[],
   signal: AbortSignal,
+  locale: Locale = "es",
 ) {
   if (process.env.NODE_ENV !== "development" && process.env.AGROVISION_LOCAL_VOICE !== "1") return null;
   const advice = adviceMetrics(selection);
@@ -51,7 +53,7 @@ export async function askLocalVoiceModel(
         messages: [
           {
             role: "system",
-            content: `Eres AgroVision. Contesta la última pregunta en español sencillo en una o dos frases. Usa el historial para entender «esa» u «otra». Si te piden una alternativa, elige solo un cultivo distinto del mencionado y da un motivo de su ficha. Si piden cuándo se cosecha, identifica el cultivo de la conversación y copia el mes exacto de su campo cosecha como una estimación. No calcules otro mes. Usa únicamente los datos de la finca. Los precios son históricos, al por mayor. Si falta el dato, dilo. Datos en JSON: ${JSON.stringify(evidence)}`,
+            content: `Eres AgroVision. Contesta la última pregunta en ${locale === "en" ? "inglés" : "español"} sencillo en una o dos frases. Usa el historial para entender «esa» u «otra». Si te piden una alternativa, elige solo un cultivo distinto del mencionado y da un motivo de su ficha. Si piden cuándo se cosecha, identifica el cultivo de la conversación y copia el mes exacto de su campo cosecha como una estimación. No calcules otro mes. Usa únicamente los datos de la finca. Los precios son históricos, al por mayor. Si falta el dato, dilo. ${locale === "en" ? "Responde siempre en inglés, traduciendo fielmente los datos en español." : "Responde siempre en español."} Datos en JSON: ${JSON.stringify(evidence)}`,
           },
           ...messages.map(message => ({ ...message, content: message.content.slice(0, 1200) })),
         ],

@@ -22,3 +22,53 @@ test("browser language, saved choice, explicit URL and in-progress form", async 
   await expect(page.getByRole("heading", { name: "¿Qué siembro ahora?" })).toBeVisible();
   await context.close();
 });
+
+test("assistant calendar returns the requested language and rejects unsupported locales", async ({ request }) => {
+  const selection = { parcelId: "demo-01", month: 1, irrigation: "irrigated", priority: "balanced", previousCrop: "habichuela_roja", crops: "maiz,yuca" };
+  for (const [locale, question, expected] of [["en", "When should I plant maize?", /maize/i], ["es", "¿Cuándo siembro maíz?", /maíz/i]] as const) {
+    const response = await request.post("/api/voice/chat", { data: { selection, locale, messages: [{ role: "user", content: question }] } });
+    expect(response.ok()).toBeTruthy();
+    expect(response.headers()["x-agrovision-mode"]).toBe("data");
+    expect(await response.text()).toMatch(expected);
+  }
+  const invalid = await request.post("/api/voice/chat", { data: { selection, locale: "fr", messages: [{ role: "user", content: "When should I plant maize?" }] } });
+  expect(invalid.status()).toBe(400);
+});
+
+test("assistant text questions follow the selected language", async ({ page }) => {
+  await page.goto("/en");
+  await page.getByRole("tab", { name: "Help" }).click();
+  const voice = page.getByRole("region", { name: "Voice assistant" });
+  await voice.getByLabel("Question about this field").fill("When should I plant maize?");
+  await voice.getByRole("button", { name: "Send" }).click();
+  await voice.getByText("View conversation").click();
+  await expect(voice.getByRole("log")).toContainText(/maize/i);
+  await page.getByLabel("Language").selectOption("es");
+  await expect(page).toHaveURL(/\/es$/);
+  const spanishVoice = page.getByRole("region", { name: "Asistente de voz" });
+  await spanishVoice.getByLabel("Pregunta sobre esta parcela").fill("¿Cuándo siembro maíz?");
+  await spanishVoice.getByRole("button", { name: "Enviar" }).click();
+  await expect(spanishVoice.getByRole("log")).toContainText(/maíz/i);
+});
+
+test("dictation follows the selected language after switching", async ({ page }) => {
+  await page.addInitScript(() => {
+    class MockRecognition {
+      lang = "";
+      onresult = null;
+      onerror = null;
+      onend = null;
+      start() { (window as unknown as { recognitionLanguage: string }).recognitionLanguage = this.lang; }
+      stop() {}
+      abort() {}
+    }
+    Object.defineProperty(window, "SpeechRecognition", { value: MockRecognition, configurable: true });
+  });
+  await page.goto("/en");
+  await page.getByRole("button", { name: "Speak", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { recognitionLanguage: string }).recognitionLanguage)).toBe("en-US");
+  await page.getByLabel("Language").selectOption("es");
+  await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Hablar", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { recognitionLanguage: string }).recognitionLanguage)).toBe("es-DO");
+});
