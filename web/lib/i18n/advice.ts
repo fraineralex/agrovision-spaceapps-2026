@@ -1,5 +1,5 @@
 /* AI: OpenAI GPT-6, 2026-11-15. Frainer review pending; see AI_USAGE.md. */
-import { adviceSentence, marketFor, monthNames, type CropAdvice, type CropId, type PreviousCrop } from "@/lib/advisor";
+import { adviceSentence, marketFor, monthNames, recommendedCrop, whyThisCrop, type CropAdvice, type CropId, type PreviousCrop } from "@/lib/advisor";
 import { pestPrecautions, pestsFor, sharedPests } from "@/lib/pests";
 import { messages, type Locale } from "./messages";
 import { localeTag } from "./locale";
@@ -92,4 +92,36 @@ export function localizedPillarWord(a: CropAdvice, pillar: import("@/lib/advisor
     }
   }
   return "No reference data";
+}
+
+/** Explain the same comparison in the selected language; this does not rank crops. */
+export function localizedWhyThisCrop(a: CropAdvice, all: CropAdvice[], previous: PreviousCrop, locale: Locale): string[] {
+  if (locale === "es") return whyThisCrop(a, all, previous);
+  const name = cropLabel(a.crop, locale);
+  if (!a.viable) return [`${name} needs irrigation and you said you do not have it. That is why we do not recommend it now.`];
+  const pillars = ["water", "climate", "pests", "market"] as const;
+  const good = pillars.filter(p => (a.scores[p] ?? 0) >= 3.34);
+  const bad = pillars.filter(p => a.scores[p] !== null && a.scores[p]! < 1.67);
+  const positives = { water: "needs little water", climate: "faces no drought in your area now", pests: "helps interrupt pest cycles from the previous crop", market: `is harvested in ${a.harvestMonth ? monthLabel(a.harvestMonth, locale) : "a month"} with a good price` };
+  const negatives = { water: "needs a lot of water", climate: "there is drought in your area", pests: "may maintain pests from the previous crop", market: "is harvested when prices are usually low" };
+  const list = new Intl.ListFormat(localeTag(locale));
+  const result = good.length ? [`${name} scores well because it ${list.format(good.map(p => positives[p]))}.`] : [`${name} does not stand out in any one area, but it does not score poorly in the comparison either.`];
+  if (bad.length) result.push(`Its drawbacks: ${list.format(bad.map(p => negatives[p]))}.`);
+  if (a.scores.market !== null && !good.includes("market") && !bad.includes("market")) result.push("The harvest price is average: neither very good nor very bad.");
+  if (a.scores.pests === null) result.push("We have no pest data for this crop change, so it does not count for or against it.");
+  const top = recommendedCrop(all);
+  if (top?.crop === a.crop) {
+    const next = all.find(x => x.viable && x.crop !== a.crop && x.overall !== null);
+    if (next) {
+      const worse = (["water", "pests", "market"] as const).find(p => a.scores[p] !== null && next.scores[p] !== null && a.scores[p]! - next.scores[p]! >= 0.5);
+      const comparison = { water: "needs less water", pests: "has lower pest risk", market: "is harvested at a better price" };
+      const nextName = cropLabel(next.crop, locale);
+      result.push(worse ? `Why not ${nextName.toLowerCase()}? Because ${name.toLowerCase()} ${comparison[worse]}.`
+        : a.scores.pests === 5 && next.scores.pests === null ? `Why not ${nextName.toLowerCase()}? IDIAF recommends a rotation for ${name.toLowerCase()}, but we do not have that information for ${nextName.toLowerCase()}.`
+        : `${nextName} scores similarly and is also an option.`);
+    }
+    const prev = previous !== "unknown" && previous !== "otro" ? all.find(x => x.crop === previous) : undefined;
+    if (prev?.repeats) result.push(`Why not repeat ${cropLabel(prev.crop, locale).toLowerCase()}? Planting the same crop repeatedly leaves pests in the field.`);
+  } else if (top) result.push(`${cropLabel(top.crop, locale)} scores best on your list.`);
+  return result;
 }

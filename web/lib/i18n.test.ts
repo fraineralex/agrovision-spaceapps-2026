@@ -83,3 +83,13 @@ test("localized rain alerts keep the same weather level and measurements", () =>
   assert.match(en.sentence, /14 mm.*80%/);
   assert.match(es.sentence, /14 mm.*80%/);
 });
+
+import { localizedWhyThisCrop } from "./i18n/advice";
+import { whyThisCrop } from "./advisor";
+test("localized why explanations preserve comparison branches", () => {
+  const advice = adviseNextCrop({ province: "San Juan", irrigation: "irrigated", previous: "habichuela_roja", sowMonth: 1, priority: "balanced", crops: ["maiz", "yuca", "arroz"] });
+  for (const item of advice) {
+    assert.deepEqual(localizedWhyThisCrop(item, advice, "habichuela_roja", "es"), whyThisCrop(item, advice, "habichuela_roja"));
+    assert.equal(localizedWhyThisCrop(item, advice, "habichuela_roja", "en").length, whyThisCrop(item, advice, "habichuela_roja").length);
+  }
+});
