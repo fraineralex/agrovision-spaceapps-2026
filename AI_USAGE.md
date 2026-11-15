@@ -310,3 +310,16 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Revisión por Frainer:** pendiente.
 
 - 2026-11-15, Codex (OpenAI): unificó el inicio de dictado en navegadores compatibles, habilitó OIDC de Vercel y limitó la espera de búsqueda de guías. Las preguntas de meses de siembra usan el histórico del cultivo directamente. Archivos: README.md, web/app/api/voice/{chat,setup,summary}/route.ts, web/components/voice-assistant.tsx, web/lib/{local-voice-model,rag}.ts y web/tests/demo.spec.ts. Pasaron 37 pruebas, lint, TypeScript y dos pruebas dirigidas en Chrome. Revisión por Frainer pendiente.
+## 2026-11-15 — Rotación y suelo, tipo de tierra y revisión de requisitos del reto
+- **Herramienta:** Claude (Anthropic), pedido por Juan Carlos Báez.
+- **Cambios:**
+  - sección “Rotación y suelo” y bloque “Suelo” en “¿Por qué este cultivo?”: explican la rotación por nutrientes, nitrógeno de leguminosas y materia orgánica;
+  - la recomendación, las explicaciones y la voz hablan primero de la tierra;
+  - pregunta opcional “¿Cómo es tu tierra?” (arenosa, media, barro) con una nota sobre cómo guarda el agua;
+  - “Otras opciones” garantiza al menos tres estrategias, incluida la actual;
+  - línea “Lo que no sabemos” en cada explicación;
+  - `docs/19_requisitos_reto.md` con la revisión contra el enunciado.
+- **Archivos:** `web/lib/{soil,soil.test,advisor,advisor.test,farms,voice-context}.ts`, `web/components/{soil-card,sources-sheet,advisor-card,options-card,onboarding,fold}.tsx`, `web/app/{page.tsx,globals.css}`, `web/tests/demo.spec.ts`.
+- **Fuentes (consultadas el 15-11-2026):** FAO, Agricultura de conservación: diversificación de especies (https://www.fao.org/conservation-agriculture/in-practice/species-diversification/es/); FAO (2016), Las legumbres y la biodiversidad; FAO, Irrigation Water Management Training Manual 1, cap. 2 (https://www.fao.org/4/r4082e/r4082e03.htm).
+- **Límites:** son reglas generales, no mediciones de la finca; no cambian las estrellas. La agrupación de cultivos por familia la hizo la IA y falta revisión agronómica.
+- **Revisión por Frainer:** pendiente.
