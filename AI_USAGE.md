@@ -308,3 +308,5 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Archivos:** `web/lib/{advisor,advisor.test,fao-giews,farms}.ts`, `web/components/{advisor-card,options-card,sources-sheet,field-ui,fao-giews,farm-workbench,farm-switcher,onboarding}.tsx`, `web/app/globals.css`, `web/tests/demo.spec.ts`.
 - **Datos:** no hay números nuevos. La explicación se arma con la misma comparación (FAO-56, FAO GIEWS, IDIAF, Ministerio de Agricultura). Si falta el dato de plagas de un cultivo, el texto lo dice y no lo compara.
 - **Revisión por Frainer:** pendiente.
+
+- 2026-11-15, Codex (OpenAI): unificó el inicio de dictado en navegadores compatibles, habilitó OIDC de Vercel y limitó la espera de búsqueda de guías. Las preguntas de meses de siembra usan el histórico del cultivo directamente. Archivos: README.md, web/app/api/voice/{chat,setup,summary}/route.ts, web/components/voice-assistant.tsx, web/lib/{local-voice-model,rag}.ts y web/tests/demo.spec.ts. Pasaron 37 pruebas, lint, TypeScript y dos pruebas dirigidas en Chrome. Revisión por Frainer pendiente.
