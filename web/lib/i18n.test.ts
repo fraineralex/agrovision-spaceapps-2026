@@ -192,3 +192,14 @@ test("map labels have matching keys and fields", () => {
     assert.deepEqual(placeholders(mapMessages.en[key]), placeholders(mapMessages.es[key]), key);
   }
 });
+
+import { shareMessages } from "./i18n/share-messages";
+import { shareText, whatsappUrl } from "@/components/share-button";
+test("sharing text and link follow the selected locale", () => {
+  assert.deepEqual(leafKeys(shareMessages.en), leafKeys(shareMessages.es));
+  const summary = { farm: "Test farm", place: "San Juan", area: "", advice: "Consider maize." };
+  assert.match(shareText(summary, "en"), /Approximate data/);
+  assert.match(shareText(summary, "es"), /Datos aproximados/);
+  assert.match(shareText(summary, "en"), /vercel\.app\/en/);
+  assert.match(decodeURIComponent(whatsappUrl(summary, "es")), /vercel\.app\/es/);
+});

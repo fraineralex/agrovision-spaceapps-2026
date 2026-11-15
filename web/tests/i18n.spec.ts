@@ -261,3 +261,18 @@ test("map navigation control labels follow the selected language", async ({ page
   await expect(zoom).toHaveAttribute("aria-label", "Zoom in");
   await expect(page.getByRole("region", { name: /Map of the Dominican Republic/ })).toBeVisible();
 });
+
+test("WhatsApp text and destination follow the chosen language", async ({ page }) => {
+  await page.goto("/es");
+  await page.getByRole("button", { name: "San Juan", exact: true }).click();
+  const link = page.getByTestId("wa-link");
+  await expect(link).toBeVisible();
+  let href = decodeURIComponent((await link.getAttribute("href")) ?? "");
+  expect(href).toContain("Datos aproximados");
+  expect(href).toContain("vercel.app/es");
+  await page.getByLabel("Idioma").selectOption("en");
+  await expect(link).toHaveText("Send text only");
+  href = decodeURIComponent((await link.getAttribute("href")) ?? "");
+  expect(href).toContain("Approximate data");
+  expect(href).toContain("vercel.app/en");
+});
