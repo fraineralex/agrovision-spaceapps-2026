@@ -45,8 +45,27 @@ export function localAdviceText(input: VoiceSelection) {
   const price = m?.latest ? ` En Santo Domingo, al por mayor, estaba a ${Math.round(m.latest.price)} pesos ${unitWord(m.unit)}${m.bestSellMonths_twoSeparateMonths?.length ? `; suele venderse mejor en ${m.bestSellMonths_twoSeparateMonths.join(" y ")}` : ""}.` : "";
   return `${a.recommendation}${top?.warnings.length ? " " + top.warnings.join(" ") : ""}${price} Es una guía: revísalo con tu técnico.`;
 }
+const normalize = (value: string) => value.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+
+export function plantingCalendar(question: string) {
+  const words = normalize(question);
+  if (!/\b(mes|meses|cuando|epoca|fecha|temporada)\b/.test(words) || !/sembr|siembr|plantar/.test(words)) return null;
+  const crop = Object.entries(cropNames).find(([, name]) => words.includes(normalize(name)));
+  if (!crop) return null;
+  const [id, name] = crop;
+  const months = (marketFor(id)?.sowing?.peakSowingMonths ?? []).map(month => monthNames[month - 1]).filter(Boolean);
+  return {
+    name,
+    months,
+    answer: months.length
+      ? `En el histórico nacional, los meses con más siembra de ${name.toLowerCase()} son ${new Intl.ListFormat("es-DO").format(months)}. Para elegir la fecha en tu finca, revisa la lluvia y el acceso a riego.`
+      : `No tengo datos históricos de meses de siembra para ${name.toLowerCase()}. Consulta con un técnico de tu zona para elegir la fecha.`,
+  };
+}
+
 export function localVoiceAnswer(input: VoiceSelection, question: string) {
-  const normalize = (value: string) => value.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+  const calendar = plantingCalendar(question);
+  if (calendar) return calendar.answer;
   const words = normalize(question);
   if (/alternativa|otra opcion|otro cultivo|en vez/.test(words) ||
       (/ademas|\botr[oa]\b|aparte|distint[oa]/.test(words) && /sembr|cultiv|recomien|recomend/.test(words))) {
