@@ -258,3 +258,8 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **2026-11-15 · OpenAI** — Lectura accesible compartida en `web/lib/use-read-aloud.ts`, Siembra y Preguntar, con prueba del mensaje sin voz. Revisión por Frainer pendiente.
 
 - **2026-11-15 · OpenAI** — Rediseño de la tarjeta de Siembra y ampliación del área de trabajo en `web/components/advisor-card.tsx`, `web/app/page.tsx`, `web/app/globals.css` y pruebas de ancho. Revisión por Frainer pendiente.
+
+## 2026-11-15 — Mapa del área de imágenes de Cañafístol
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** representar el AOI de Google Earth, centrar el selector de finca en Cañafístol y añadir accesos para volver al AOI en ambos mapas. **Archivos:** web/lib/map/canafistol.ts, web/components/{map,farm-picker}.tsx y AI_USAGE.md.
+- **Límites:** el pedido SkyWatch seguía In Progress al 15-11-2026; no hay mosaico descargado y no se derivan límites de fincas de la imagen. El AOI es el polígono proporcionado por el usuario, no una finca catastral. **Revisión por Frainer:** pendiente.

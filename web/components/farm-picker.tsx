@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-gl";
 import { parcelCollection } from "@/lib/map/parcels";
 import { FIELDS_URL, fieldMeta } from "@/lib/map/fields";
+import { CANAFISTOL_AOI, CANAFISTOL_BOUNDS, CANAFISTOL_CENTER } from "@/lib/map/canafistol";
 import { ESRI_IMAGERY_TILES, ESRI_ATTRIBUTION, ESRI_LABEL_TILES } from "@/lib/map/basemaps";
 import { addPieces, areaLabel, cellAt, cellsInBox, drawnPiece, gridAround, piecesAreaM2, piecesToGeoJSON, ringAreaM2, togglePiece, type Piece, type Ring } from "@/lib/farms";
 import { type Location } from "@/lib/geography";
@@ -34,7 +35,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     void import("maplibre-gl").then(mod => {
       if (disposed || !box.current) return;
       mod.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, maxZoom: 19, attributionControl: { compact: true },
+      const m = new mod.Map({ container: box.current, center: CANAFISTOL_CENTER, zoom: 15.5, maxZoom: 19, attributionControl: { compact: true },
         style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION } }, layers: [{ id: "bg", type: "background", paint: { "background-color": "#3b4a35" } }, { id: "imagery", type: "raster", source: "imagery" }] } });
       map.current = m;
       (window as unknown as { __farmPicker?: MapLibreMap }).__farmPicker = m;
@@ -49,6 +50,8 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
         m.addLayer({ id: "parcels-fill", type: "fill", source: "parcels", paint: { "fill-color": "#9fe0b4", "fill-opacity": 0.04 } });
         m.addLayer({ id: "parcels-line", type: "line", source: "parcels", paint: { "line-color": "#9fe0b4", "line-width": 1.4 } });
         m.addSource("fields", { type: "geojson", data: FIELDS_URL });
+        m.addSource("canafistol-aoi", { type: "geojson", data: CANAFISTOL_AOI });
+        m.addLayer({ id: "canafistol-aoi-line", type: "line", source: "canafistol-aoi", paint: { "line-color": "#f4c542", "line-width": 3, "line-dasharray": [2, 1] } });
         m.addLayer({ id: "fields-fill", type: "fill", source: "fields", layout: { visibility: "none" }, paint: { "fill-color": "#fff3a2", "fill-opacity": 0.06 } });
         m.addLayer({ id: "fields-line", type: "line", source: "fields", layout: { visibility: "none" }, paint: { "line-color": "#fff3a2", "line-width": 2 } });
         m.addSource("sel", { type: "geojson", data: piecesToGeoJSON(piecesRef.current) });
@@ -116,12 +119,13 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     <div className="picker-stage">
       <div ref={box} className="picker-map" data-testid="farm-picker-map" />
       <div className="picker-map-actions">
-        <button type="button" className="chip" disabled={!ready} aria-pressed={showFields} onClick={toggleFields}>Ver fincas de San Juan</button>
+        <button type="button" className="chip" disabled={!ready} onClick={() => map.current?.fitBounds(CANAFISTOL_BOUNDS, { padding: 32, maxZoom: 16.5, duration: 650 })}>Back to Cañafístol image area</button>
+        <button type="button" className="chip" disabled={!ready} aria-pressed={showFields} onClick={toggleFields}>Ver fincas detectadas de San Juan</button>
         <button type="button" className="chip" disabled={!ready} aria-label="Acercar mapa" onClick={() => map.current?.zoomIn()}>+</button>
         <button type="button" className="chip" disabled={!ready} aria-label="Alejar mapa" onClick={() => map.current?.zoomOut()}>−</button>
       </div>
       {showFields && <p className="note picker-outlines-note">Contornos aproximados por satélite, no catastrales.</p>}
-      <p className="note picker-scale-note">Los contornos amarillos son candidatos aproximados, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m². {fieldMeta.attribution}</p>
+      <p className="note picker-scale-note">The dashed yellow outline marks the purchased imagery area. The mosaic has not been delivered, so farms have not yet been identified inside it. San Juan outlines are approximate candidates, not cadastral boundaries. Grid cells are 50 × 50 m. {fieldMeta.attribution}</p>
     </div>
     <div className="picker-status">
       {mode === "draw" && <div className="picker-draw">

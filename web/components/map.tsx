@@ -9,6 +9,7 @@ import sample from "@/public/data/gibs-sample.json";
 import { Button } from "@/components/ui/button";
 import { ESRI_IMAGERY_TILES, ESRI_LABEL_TILES, ESRI_ATTRIBUTION } from "@/lib/map/basemaps";
 import { FIELDS_URL, type FieldInfo } from "@/lib/map/fields";
+import { CANAFISTOL_AOI, CANAFISTOL_BOUNDS } from "@/lib/map/canafistol";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 type Props = { selected: string; onSelect: (id: string) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void; advanced?: boolean };
@@ -54,8 +55,10 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
           instance.addLayer({ id: `cached-${tile.id}`, type: "raster", source: tile.id, layout: { visibility: tile.id.startsWith("BlueMarble") ? "visible" : "none" }, maxzoom: tile.id.startsWith("BlueMarble") ? 10 : 24, paint: { "raster-opacity": tile.id.startsWith("BlueMarble") ? 1 : 0.65, "raster-fade-duration": 0 } }, tile.id.startsWith("BlueMarble") ? "esri-imagery" : undefined);
         }
         instance.addSource("provinces", { type:"geojson", data:boundaries as GeoJSON.FeatureCollection });
+        instance.addSource("canafistol-aoi", { type: "geojson", data: CANAFISTOL_AOI });
         instance.addLayer({ id:"province-fill",type:"fill",source:"provinces",paint:{"fill-color":"#9cae6b","fill-opacity":["interpolate",["linear"],["zoom"],7,.06,11,0]} });
         instance.addLayer({ id:"province-lines",type:"line",source:"provinces",paint:{"line-color":"#eef5d5","line-width":1.5} });
+        instance.addLayer({ id: "canafistol-aoi-line", type: "line", source: "canafistol-aoi", paint: { "line-color": "#f4c542", "line-width": 3, "line-dasharray": [2, 1] } });
         instance.addSource("point", {type:"geojson",data:{type:"FeatureCollection",features:[]}});
         instance.addLayer({id:"selected-point",type:"circle",source:"point",paint:{"circle-radius":10,"circle-color":"#fff3a2","circle-stroke-color":"#133d2c","circle-stroke-width":4}});
         instance.on("click", event => { if (instance.queryRenderedFeatures(event.point,{layers:["parcels","fields-fill"].filter(l=>instance.getLayer(l))}).length) return; const point={longitude:event.lngLat.lng,latitude:event.lngLat.lat}; if (isInCountry(point)) { onLocation(point);setError(""); } else setError("Selecciona un punto terrestre de República Dominicana."); });
@@ -108,7 +111,7 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField, ad
     <div className="map-wrap"><div id="map" role="region" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
       {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Preparando mapa… Puedes seleccionar una provincia arriba.</p></div>}
     </div>
-    <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>Ver fincas de San Juan</Button></div>
+    <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>Ver fincas de San Juan</Button><Button variant="outline" onClick={() => map.current?.fitBounds(CANAFISTOL_BOUNDS, { padding: 36, maxZoom: 16.5, duration: 700 })}>Cañafístol · imagery area</Button></div>
     {advanced && <details className="map-caption"><summary>Más capas de la NASA</summary><div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.label}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> Ver imagen más reciente (requiere internet)</label></div></details>}
     <p className="map-caption">Toca tu finca en el mapa. Líneas amarillas: fincas aproximadas detectadas por satélite (no catastrales). Colores: verdor de la vegetación.</p>
     <div className="pillar-legend" aria-label="Verdor de parcelas"><span><i className="light red"/>Verdor bajo</span><span><i className="light amber"/>Intermedio</span><span><i className="light green"/>Alto</span><span><i className="light gray"/>Sin datos</span></div>
