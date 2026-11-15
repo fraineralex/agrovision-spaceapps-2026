@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, GeoJSONSource, MapMouseEvent } from "maplibre-gl";
 import { parcelCollection } from "@/lib/map/parcels";
-import { FIELDS_URL } from "@/lib/map/fields";
+import { FIELDS_URL, fieldMeta } from "@/lib/map/fields";
 import { ESRI_IMAGERY_TILES, ESRI_ATTRIBUTION } from "@/lib/map/basemaps";
 import { addPieces, areaLabel, cellAt, cellsInBox, drawnPiece, gridAround, piecesAreaM2, piecesToGeoJSON, ringAreaM2, togglePiece, type Piece, type Ring } from "@/lib/farms";
-import type { Location } from "@/lib/geography";
+import { provinceAt, type Location } from "@/lib/geography";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 type Mode = "tap" | "draw" | "box";
@@ -30,7 +30,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     void import("maplibre-gl").then(mod => {
       if (disposed || !box.current) return;
       mod.setWorkerUrl(new URL("/vendor/maplibre-gl-worker.mjs", window.location.origin).href);
-      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, attributionControl: { compact: true },
+      const m = new mod.Map({ container: box.current, center: [center.longitude, center.latitude], zoom: 16, maxZoom: 19, attributionControl: { compact: true },
         style: { version: 8, sources: { imagery: { type: "raster", tiles: ESRI_IMAGERY_TILES, tileSize: 256, maxzoom: 19, attribution: ESRI_ATTRIBUTION } }, layers: [{ id: "bg", type: "background", paint: { "background-color": "#3b4a35" } }, { id: "imagery", type: "raster", source: "imagery" }] } });
       map.current = m;
       (window as unknown as { __farmPicker?: MapLibreMap }).__farmPicker = m;
@@ -85,6 +85,8 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
 
   const closeShape = () => { const p = drawnPiece(draft); if (p) { onChange([...pieces, p]); setDraft([]); } };
   const total = piecesAreaM2(pieces);
+  const province = provinceAt(center) ?? "República Dominicana";
+  const inDetectionArea = center.longitude >= fieldMeta.bbox[0] && center.longitude <= fieldMeta.bbox[2] && center.latitude >= fieldMeta.bbox[1] && center.latitude <= fieldMeta.bbox[3];
   return <div className="picker">
     <div className="picker-modes" role="group" aria-label="Cómo marcar la finca">
       <button type="button" aria-pressed={mode === "tap"} className={mode === "tap" ? "chip on" : "chip"} onClick={() => setMode("tap")}>👆 Tocar cuadros</button>
@@ -92,6 +94,7 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
       <button type="button" aria-pressed={mode === "draw"} className={mode === "draw" ? "chip on" : "chip"} onClick={() => setMode("draw")}>✏️ Dibujar</button>
     </div>
     <p className="picker-help">{mode === "tap" ? "Toca los cuadros o las parcelas amarillas que son tuyas. Toca otra vez para quitar." : mode === "box" ? "Arrastra el dedo para marcar un rectángulo de cuadros." : "Toca las esquinas de tu finca y luego “Cerrar figura”."}</p>
+    <p className="note" role="status">{inDetectionArea ? `En ${province} hay contornos satelitales experimentales solo en este recorte: 10 de 42 ventanas procesadas. Confirma el lindero en campo.` : `En ${province} no hay contornos automáticos verificados. Puedes marcar cuadros o dibujar la finca.`} Las imágenes Esri requieren internet; su fecha y resolución cambian según la zona.</p>
     <div ref={box} className="picker-map" data-testid="farm-picker-map" />
     {mode === "draw" && <div className="picker-draw">
       <span>{draft.length} puntos</span>
@@ -102,6 +105,6 @@ export function FarmPicker({ center, pieces, onChange }: { center: Location; pie
     <div className="picker-total" aria-live="polite"><strong>{pieces.length ? `Marcado: ${areaLabel(total)}` : "Aún no has marcado nada"}</strong>
       {pieces.length > 0 && <button type="button" className="ob-link" onClick={() => onChange([])}>Borrar todo</button>}</div>
     {pieces.length > 0 && <ul className="picker-pieces">{pieces.slice(-6).map(p => <li key={p.id}>{p.kind === "cell" ? "Cuadro" : p.kind === "field" ? "Parcela satelital" : p.kind === "drawn" ? "Figura dibujada" : "Parcela"}: {areaLabel(ringAreaM2(p.ring))}<button type="button" aria-label="Quitar" className="ob-link" onClick={() => onChange(pieces.filter(x => x.id !== p.id))}>✕</button></li>)}{pieces.length > 6 && <li>…y {pieces.length - 6} más</li>}</ul>}
-    <p className="note">Parcelas aproximadas detectadas por satélite, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m².</p>
+    <p className="note">Los contornos amarillos son candidatos aproximados, no catastrales. Cuadros de 50 × 50 m (unas 4 tareas). 1 tarea = 628,86 m². {fieldMeta.attribution}</p>
   </div>;
 }
