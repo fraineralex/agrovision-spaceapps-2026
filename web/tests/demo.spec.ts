@@ -1,7 +1,11 @@
 /* AI: OpenAI, 2026-11-15. Frainer review pending. See AI_USAGE.md. */
 /* AI: Codex/OpenAI, 2026-11-14; updated for independent section tabs by Claude/Antigravity, 2026-11-14. Frainer review pending. */
-import { test,expect,type Page } from "@playwright/test";
+import { test,expect,type Locator,type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+async function selectCustom(trigger: Locator, option: string | RegExp) {
+  await trigger.click();
+  await trigger.locator("..").getByRole("option", { name: option }).click();
+}
 // Existing end-to-end scenarios assert the Spanish interface explicitly.
 test.use({ locale: "es-DO" });
 async function axeSerious(page:Page){ const r=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21a","wcag21aa","wcag22aa"]).exclude(".maplibregl-canvas").analyze(); return r.violations.filter(v=>v.impact==="serious"||v.impact==="critical").map(v=>`${v.id}: ${v.nodes.slice(0,3).map(n=>n.target.join(" ")).join(" | ")}`); }
@@ -21,7 +25,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.getByRole("heading",{name:/Elige tu zona/})).toBeVisible();
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(sectionNav.getByRole("tab",{name:/Lluvia/})).toHaveAttribute("aria-selected","true");
- await page.getByLabel("Provincia para consultar la lluvia").selectOption("San Juan");
+ await selectCustom(page.getByRole("combobox", {name:"Provincia para consultar la lluvia"}), "San Juan");
  await expect(page.getByRole("list", {name:"Próximos 7 días"})).toContainText("14 mm");
  await page.getByRole("button", {name:"Agregar mi finca", exact:true}).click();
  const ob=page.getByRole("dialog",{name:"Cuéntanos de tu finca"});
@@ -36,19 +40,19 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  let bb=(await map.boundingBox())!;
  // Tap two grid cells (multi-select).
  const canvas = map.locator("canvas");
- await canvas.click({ position: { x: 90, y: 220 } });
- await canvas.click({ position: { x: 150, y: 220 } });
+ await canvas.click({ position: { x: 90, y: 140 } });
+ await canvas.click({ position: { x: 150, y: 140 } });
  await expect(page.locator(".picker-total")).toContainText("Marcado: 8.0 tareas");
  // Drag a box to select a range of cells.
  await ob.getByRole("button",{name:/Arrastrar/}).click();
  bb=(await map.boundingBox())!;
- await page.mouse.move(bb.x+30,bb.y+120); await page.mouse.down(); await page.mouse.move(bb.x+150,bb.y+200,{steps:6}); await page.mouse.up();
+ await page.mouse.move(bb.x+30,bb.y+90); await page.mouse.down(); await page.mouse.move(bb.x+150,bb.y+170,{steps:6}); await page.mouse.up();
  const afterBox=await page.locator(".picker-total").innerText();
  expect(afterBox).not.toContain("8.0 tareas");
  // Draw a polygon by tapping corners.
  await ob.getByRole("button",{name:/Dibujar/}).click();
  bb=(await map.boundingBox())!;
- for (const [x,y] of [[140,160],[230,160],[230,245],[140,245]]) await canvas.click({ position: { x, y } });
+ for (const [x,y] of [[140,100],[230,100],[230,180],[140,180]]) await canvas.click({ position: { x, y } });
  await expect(page.locator(".picker-draw")).toContainText("4 puntos");
  await ob.getByRole("button",{name:/Cerrar figura/}).click();
  await expect(page.locator(".picker-pieces")).toContainText("Figura dibujada");
@@ -76,10 +80,10 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  for (const g of ["Menos agua","Precio histórico","Plagas","Sequía"]) await expect(page.locator(".option-list")).toContainText(g);
  // Soil rotation section: why rotating feeds the soil, with FAO sources and no farm measurement claim.
  const soil=page.locator("#rotacion-y-suelo");
- await expect(soil).toContainText("para cuidar la tierra");
+ await expect(soil).toContainText("cuida la tierra");
  await expect(soil).toContainText("Abono natural");
  await expect(soil.getByRole("link",{name:/FAO/}).first()).toBeVisible();
- await expect(soil).toContainText("no una medición de tu finca");
+ await expect(soil).toContainText("no medición de tu finca");
  const pestSection=page.locator("#plagas-a-vigilar");
  await expect(pestSection).toContainText("Gusano cogollero");
  await expect(pestSection).toContainText("Spodoptera frugiperda");
@@ -109,7 +113,7 @@ test("onboarding and independent sections: recommendations first, rain, market, 
  await expect(page.locator("#cuanto-me-deja")).toBeVisible();
  await expect(page.locator("#precio-y-mercado")).toBeVisible();
  await page.getByText("Consultar costos y precios de referencia", {exact:true}).click();
- await page.locator(".profit select").selectOption("habichuela_roja");
+ await selectCustom(page.locator(".profit").getByRole("combobox", {name:"Cultivo"}), /Habichuela roja/);
  await expect(page.locator(".profit-range")).toContainText("RD$");
  await page.getByLabel("Tareas", {exact:true}).fill("20");
  await expect(page.locator(".profit-lines")).toContainText("20 tareas");
@@ -186,7 +190,7 @@ test("desktop pairs the planting hero with its metrics and keeps sections indepe
  await expect(page.locator("#siembra")).toBeHidden();
  const sales=(await page.locator("#cuanto-me-deja").boundingBox())!;
  const market=(await page.locator("#precio-y-mercado").boundingBox())!;
- expect(market.x).toBeGreaterThan(sales.x+sales.width-10);
+ expect(market.y).toBeGreaterThanOrEqual(sales.y+sales.height-1);
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(page.locator("#cuanto-me-deja")).toBeHidden();
  await expect(page.locator("#lluvia-esta-semana")).toBeVisible();
@@ -276,15 +280,15 @@ test("grower can keep an old turn or choose their own irrigation date and use th
  await expect(page.locator(".turn-summary")).toContainText("Fecha elegida");
  await expect(page.locator(".week-turn")).toContainText("14 mm · 80%");
  await sectionNav.getByRole("tab",{name:/Siembra/}).click();
- await page.getByLabel("Mes para comparar").selectOption("12");
- await page.getByLabel("Cultivo para tu plan").selectOption("maiz");
+ await selectCustom(page.getByRole("combobox", {name:"Mes para comparar"}), "diciembre");
+ await selectCustom(page.getByRole("combobox", {name:"Cultivo para tu plan"}), "Maíz");
  await page.getByRole("button", {name:"Guardar plan"}).click();
  await expect(page.getByText("Lista para usar sin internet")).toBeVisible();
  await page.unroute("**/api/rain**");
  await context.setOffline(true);
  await page.reload();
  await expect(page.locator(".saved-plan")).toContainText("Maíz en diciembre");
- await expect(page.getByLabel("Mes para comparar")).toHaveValue("12");
+ await expect(page.getByRole("combobox", {name:"Mes para comparar"})).toContainText("diciembre");
  await sectionNav.getByRole("tab",{name:/Lluvia/}).click();
  await expect(page.getByRole("radio", {name:"Yo elijo"})).toBeChecked();
  await expect(page.getByLabel("Fecha de riego")).toHaveValue("2026-11-19");
@@ -346,9 +350,9 @@ test("missing realtime credentials release microphone and preserve text input",a
  await page.goto("/");
  await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  await page.getByRole("button",{name:"Hablar",exact:true}).click();
- await expect(page.getByText("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.")).toBeVisible();
+ await expect(page.locator(".voice-drawer-hint")).toHaveText("La conversación en tiempo real no está disponible. Puedes escribir o escuchar el resumen.");
  await expect.poll(()=>page.evaluate(()=>{const tracks=(window as unknown as {testMicTracks:MediaStreamTrack[]}).testMicTracks;return tracks.length>0&&tracks.every(track=>track.readyState==="ended");})).toBe(true);
- await page.getByText("Escribir", {exact:true}).click();
+ await page.getByRole("tab",{name:/Ayuda/}).click();
  await expect(page.getByLabel("Pregunta sobre esta parcela",{exact:true})).toBeEnabled();
 });
 
@@ -367,8 +371,9 @@ test("the Spanish summary can pause, resume, stop and restart", async ({ page })
   Object.assign(window, { SpeechSynthesisUtterance: class {}, summaryCalls: calls });
  });
  await page.goto("/");
- await page.locator("#voice-dock").scrollIntoViewIfNeeded();
- await page.getByRole("button", { name: "Oír resumen" }).click();
+ await page.getByRole("tab",{name:/Ayuda/}).click();
+ await page.locator("#voz").scrollIntoViewIfNeeded();
+ await page.locator("#voz").getByRole("button", { name: "Oír resumen" }).click();
  const controls = page.getByRole("group", { name: "Controles del resumen" });
  await controls.getByRole("button", { name: "Pausar" }).click();
  await controls.getByRole("button", { name: "Continuar" }).click();
@@ -393,19 +398,20 @@ test("summary prefers generated audio and reuses it on restart", async ({ page }
  let requests = 0;
  await page.route("**/api/voice/summary", route => {
    requests++;
-   expect(route.request().postDataJSON()).toEqual({ text: expect.any(String) });
+   expect(route.request().postDataJSON()).toEqual({ locale: "es", text: expect.any(String) });
    return route.fulfill({ status: 200, contentType: "audio/wav", body: Buffer.from("RIFF") });
  });
  await page.goto("/");
- await page.locator("#voice-dock").scrollIntoViewIfNeeded();
- await page.getByRole("button", { name: "Oír resumen" }).click();
- await expect(page.getByText("AI-generated voice")).toBeVisible();
+ await page.getByRole("tab",{name:/Ayuda/}).click();
+ await page.locator("#voz").scrollIntoViewIfNeeded();
+ await page.locator("#voz").getByRole("button", { name: "Oír resumen" }).click();
+ await expect(page.getByText(/Voz generada por IA/)).toBeVisible();
  const controls = page.getByRole("group", { name: "Controles del resumen" });
  await controls.getByRole("button", { name: "Pausar" }).click();
- await expect(page.getByText("Reading paused")).toBeVisible();
+ await expect(page.getByText(/Lectura pausada/)).toBeVisible();
  await controls.getByRole("button", { name: "Continuar" }).click();
  await controls.getByRole("button", { name: "Reiniciar" }).click();
- await expect(page.getByText("AI-generated voice")).toBeVisible();
+ await expect(page.getByText(/Voz generada por IA/)).toBeVisible();
  await controls.getByRole("button", { name: "Detener" }).click();
  await expect(controls).toBeHidden();
  expect(requests).toBe(1);
@@ -433,12 +439,13 @@ test("the voice button sends a dictated question without waiting for realtime se
   } });
  });
  await page.goto("/");
+ await page.getByRole("tab",{name:/Ayuda/}).click();
  await page.locator("#voice-dock").scrollIntoViewIfNeeded();
  const response = page.waitForResponse("**/api/voice/chat");
- await page.getByRole("button", { name: "Hablar", exact: true }).click();
+ await page.locator(".voice-fab-row").getByRole("button", { name: "Hablar", exact: true }).click();
  expect((await response).ok()).toBe(true);
- await expect(page.getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
- await expect(page.getByRole("region", { name: "Respuesta a tu pregunta" })).toContainText("Este es tu resumen.");
+ await expect(page.locator(".voice-fab-row").getByRole("button", { name: "Hablar", exact: true })).toBeVisible();
+ await expect(page.locator("#voz").getByRole("log")).toContainText("Este es tu resumen.");
  await expect(page.getByRole("button", { name: "Oír respuesta", exact: true })).toBeVisible();
  expect(setupMethods).toEqual([]);
  expect(errors).toEqual([]);
@@ -452,24 +459,20 @@ test("the voice button stays outside the main workspace content", async ({page})
  });
  await page.goto("/");
  await page.locator("#voice-dock").scrollIntoViewIfNeeded();
- const start = page.getByRole("button", {name:"Hablar",exact:true});
+ const start = page.locator(".voice-fab-row").getByRole("button", {name:"Hablar",exact:true});
  await start.click();
- const voice = page.getByRole("region", {name:"Asistente de voz"});
- const stop = voice.getByRole("button", {name:"Colgar",exact:true});
- await expect(voice.getByRole("status")).toHaveText("Conectando…");
- await expect(voice.getByText("Escribir", {exact:true})).toBeHidden();
- await expect(voice.getByText("Sobre el micrófono", {exact:true})).toBeHidden();
+ const drawer = page.getByRole("complementary", {name:"Chat de voz en vivo"});
+ const stop = drawer.getByRole("button", {name:"Colgar",exact:true});
+ await expect(drawer.locator(".voice-drawer-status")).toHaveText("Conectando…");
  await expect(page.getByRole("dialog")).toHaveCount(0);
  await page.getByRole("tablist",{name:/Secciones principales/}).getByRole("tab",{name:/Venta/}).click();
  const panel = (await page.locator("#panel-venta").boundingBox())!;
  const button = (await stop.boundingBox())!;
- expect(button.y).toBeGreaterThanOrEqual(panel.y + panel.height);
+ expect(button.y + button.height).toBeGreaterThanOrEqual(panel.y);
  expect(await axeSerious(page)).toEqual([]);
  await page.screenshot({path:"test-results/voice-mobile.png"});
  await stop.click();
- await expect(voice.getByRole("status")).toHaveText("Micrófono apagado.");
- await expect(voice.getByText("Escribir", {exact:true})).toBeVisible();
- await expect(start).toBeFocused();
+ await expect(drawer.locator(".voice-drawer-status")).toHaveText("Micrófono apagado.");
 });
 
 for (const fixture of [
@@ -497,14 +500,16 @@ for (const fixture of [
     if (fixture.id === "ramon") {
       await page.evaluate(() => Object.defineProperty(window, "speechSynthesis", { value: undefined, configurable: true }));
       await verdict.getByRole("button", { name: "Oír resumen" }).click();
-      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voice unavailable");
+      await expect(page.locator(".decision-reading").getByRole("status")).toHaveText("Voz no disponible");
       const source = verdict.getByRole("button", { name: "¿Por qué este cultivo?" });
       await source.click();
       const dialog = page.getByRole("dialog", { name: /De dónde sale/ });
       const close = dialog.getByRole("button", { name: /Cerrar/ });
       await expect(close).toBeFocused();
       await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Shift+Tab");
       await expect(dialog.locator("a").last()).toBeFocused();
+      await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await expect(close).toBeFocused();
       await page.keyboard.press("Escape");

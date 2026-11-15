@@ -381,12 +381,18 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
           </button>
           <button type="button" className="voice-action-pill" onClick={playSummary}><Volume2 size={15} aria-hidden="true"/> {text.hearSummary}</button>
           {summaryState !== "idle" && (
-            <>
+            <div role="group" aria-label={text.summaryControls} style={{ display: "contents" }}>
               <button type="button" className="voice-action-pill" onClick={toggleSummaryPause}>{summaryState === "paused" ? text.resume : text.pause}</button>
+              <button type="button" className="voice-action-pill" onClick={playSummary}>{text.restart}</button>
               <button type="button" className="voice-action-pill" onClick={stopSummary}>{text.stop}</button>
-            </>
+            </div>
           )}
         </div>
+        {summary.reading && summaryState !== "idle" && (
+          <p className="voice-drawer-hint" role="status">
+            {summary.reading.generated ? `${text.generated} · ` : ""}{summary.reading.status}
+          </p>
+        )}
         <details className="visual-details voice-privacy"><summary>{text.aboutMic}</summary><p>{text.privacy}</p></details>
       </div>
     </section>}

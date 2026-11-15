@@ -5,7 +5,7 @@ import { Info } from "lucide-react";
 import { SectionPanel, type SectionPanelProps } from "@/components/ui/section-panel";
 import { FarmIcon } from "@/components/farm-icon";
 import { useLocale } from "@/lib/i18n/client";
-import { cropLabel, localizedPillarTitle, localizedPillarWord } from "@/lib/i18n/advice";
+import { cropLabel, localizedAdvicePillarTitle, localizedPillarWord } from "@/lib/i18n/advice";
 import { messages } from "@/lib/i18n/messages";
 import type { CropAdvice } from "@/lib/advisor";
 
@@ -48,7 +48,7 @@ export function PlantingPillars({ advice, showScores = false }: { advice: CropAd
       const score = advice.scores[id];
       return <li key={id} className={`planting-pillar is-${advice.lights[id]}`} title={localizedPillarWord(advice, id, locale)}>
         <span><FarmIcon name={id} size={15}/>{label}{showScores && score !== null && <em className="pillar-score">{score.toFixed(1)}/5</em>}</span>
-        <strong>{localizedPillarTitle(id, score, locale)}</strong>
+        <strong>{localizedAdvicePillarTitle(advice, id, locale)}</strong>
       </li>;
     })}
   </ul>;

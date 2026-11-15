@@ -3107,6 +3107,11 @@ body {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 5px;
 }
+@media (max-width: 560px) {
+  .climo-months {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
 .climo-m-btn {
   min-height: 28px;
   border-radius: 8px;

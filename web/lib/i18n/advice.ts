@@ -78,6 +78,15 @@ export function localizedPillarTitle(id: import("@/lib/advisor").Pillar, score: 
   const light = score === null ? "gray" : score >= 3.34 ? "green" : score >= 1.67 ? "amber" : "red";
   return messages[locale].pillarTitles[id][light];
 }
+export function localizedAdvicePillarTitle(a: CropAdvice, id: import("@/lib/advisor").Pillar, locale: Locale): string {
+  if (id === "pests") {
+    if (locale === "es") return a.titles.pests;
+    if (a.pestState === "different") return "Distinct pests";
+    if (a.pestState === "maybe") return "Watch for pests";
+    if (a.pestState === "listed") return "Pests to monitor";
+  }
+  return localizedPillarTitle(id, a.scores[id], locale);
+}
 export function localizedPillarWord(a: CropAdvice, pillar: import("@/lib/advisor").Pillar, locale: Locale): string {
   const original = a.words[pillar];
   if (locale === "es") return original;

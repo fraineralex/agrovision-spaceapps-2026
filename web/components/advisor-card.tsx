@@ -4,7 +4,7 @@ import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import { messages } from "@/lib/i18n/messages";
-import { cropLabel, localizedAdviceSentence, localizedPestPrecautions, localizedPillarTitle, localizedPillarWord, localizedWarnings, monthLabel } from "@/lib/i18n/advice";
+import { cropLabel, localizedAdvicePillarTitle, localizedAdviceSentence, localizedPestPrecautions, localizedPillarWord, localizedWarnings, monthLabel } from "@/lib/i18n/advice";
 import { HeroRecommendation, MetricTile, RiskPill, SourceChip, Stars, WaterGauge } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
 import { PestOverview } from "@/components/pest-overview";
@@ -124,7 +124,7 @@ export function AdvisorCard(p: Props) {
         return (
           <MetricTile key={id} label={supervisor && score !== null ? `${label} · ${score.toFixed(1)}/5` : label}
             icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id + " tile-" + c}
-            value={localizedPillarTitle(id, top.scores[id], locale)} detail={localizedPillarWord(top, id, locale)}>
+            value={localizedAdvicePillarTitle(top, id, locale)} detail={localizedPillarWord(top, id, locale)}>
             {id === "water" && <WaterGauge value={top.scores.water} />}
           </MetricTile>
         );

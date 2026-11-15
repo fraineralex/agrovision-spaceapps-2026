@@ -19,7 +19,7 @@ export function guard(request: Request): Response | null {
   const id = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
   const entry = requests.get(id) ?? { count: 0, until: now + 60_000 };
   requests.set(id, entry);
-  if (++entry.count > 30) return Response.json({ error: "Please wait a minute" }, { status: 429 });
+  if (++entry.count > 120) return Response.json({ error: "Please wait a minute" }, { status: 429 });
   return null;
 }
 export async function readJson(request: Request, limit = 8192): Promise<unknown> {

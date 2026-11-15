@@ -1,5 +1,10 @@
 /* AI: OpenAI GPT-6, 2026-11-15. Frainer review pending; see AI_USAGE.md. */
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
+
+async function selectCustom(trigger: Locator, option: string | RegExp) {
+  await trigger.click();
+  await trigger.locator("..").getByRole("option", { name: option }).click();
+}
 
 test("browser language, saved choice, explicit URL and in-progress form", async ({ browser }) => {
   const context = await browser.newContext({ locale: "es-DO", baseURL: "http://localhost:3210", viewport: { width: 390, height: 844 } });
@@ -41,7 +46,6 @@ test("assistant text questions follow the selected language", async ({ page }) =
   const voice = page.getByRole("region", { name: "Voice assistant" });
   await voice.getByLabel("Question about this field").fill("When should I plant maize?");
   await voice.getByRole("button", { name: "Send" }).click();
-  await voice.getByText("View conversation").click();
   await expect(voice.getByRole("log")).toContainText(/maize/i);
   await page.getByLabel("Language").selectOption("es");
   await expect(page).toHaveURL(/\/es$/);
@@ -77,13 +81,13 @@ test("recommendation crop and labels switch without changing the selection", asy
   await page.goto("/es");
   await page.getByRole("button", { name: "San Juan", exact: true }).click();
   const advisor = page.locator(".advisor");
-  await expect(advisor.getByText("Te conviene sembrar")).toBeVisible();
+  await expect(advisor.getByText("Recomendado")).toBeVisible();
   const cropIcon = advisor.locator(".recommendation-heading .crop-illustration");
   await expect(cropIcon).toBeVisible();
   const spanish = await advisor.locator(".recommendation-heading h2").innerText();
   await page.getByLabel("Idioma").selectOption("en");
   await expect(page).toHaveURL(/\/en$/);
-  await expect(advisor.getByText("Consider planting")).toBeVisible();
+  await expect(advisor.getByText("Recommended")).toBeVisible();
   const english = await advisor.locator(".recommendation-heading h2").innerText();
   const pairs: Record<string, string> = { "Habichuela roja": "Red beans", "Habichuela negra": "Black beans", "Maíz": "Maize", "Arroz": "Rice", "Batata": "Sweet potato", "Yuca": "Cassava", "Plátano": "Plantain", "Guineo": "Banana", "Tomate": "Tomato", "Ají": "Pepper", "Auyama": "Squash" };
   expect(english).toBe(pairs[spanish]);
@@ -116,7 +120,7 @@ test("rain forecast labels and dates switch without changing the measurements", 
   await page.route("**/api/rain**", route => route.fulfill({ json: forecast }));
   await page.goto("/es");
   await page.getByRole("tab", { name: "Lluvia" }).click();
-  await page.getByLabel("Provincia para consultar la lluvia").selectOption("San Juan");
+  await selectCustom(page.getByRole("combobox", { name: "Provincia para consultar la lluvia" }), "San Juan");
   await expect(page.getByRole("list", { name: "Próximos 7 días" })).toContainText("14");
   await expect(page.locator(".rain-summary-pill")).toContainText("80%");
   await page.getByLabel("Idioma").selectOption("en");
@@ -199,7 +203,7 @@ test("historical profit scenario keeps figures and sources when language changes
   await page.getByRole("tab", { name: "Venta" }).click();
   await page.getByText("Consultar costos y precios de referencia").click();
   const profit = page.locator(".profit");
-  await profit.getByLabel("Cultivo").selectOption("habichuela_roja");
+  await selectCustom(profit.getByRole("combobox", { name: "Cultivo" }), /Habichuela roja/);
   await profit.getByLabel("Tareas").fill("1");
   await expect(profit.getByRole("heading", { name: "Escenario histórico (precio mayorista)" })).toBeVisible();
   const amounts = await profit.locator(".profit-range strong").allTextContents();
@@ -215,7 +219,7 @@ test("market prices, selected month and sources remain unchanged across language
   await page.goto("/es");
   await page.getByRole("tab", { name: "Venta" }).click();
   const market = page.locator(".market");
-  await market.getByLabel("Cultivo").selectOption("papa");
+  await selectCustom(market.getByRole("combobox", { name: "Cultivo" }), "Papa");
   const price = await market.locator(".price-big").innerText();
   expect(price).toContain("RD$");
   await market.locator(".season-months button").first().click();
@@ -223,7 +227,7 @@ test("market prices, selected month and sources remain unchanged across language
   const links = await market.locator(".sources-box a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort());
   await page.getByLabel("Idioma").selectOption("en");
   await expect(market.getByRole("heading", { name: "Crop price" })).toBeVisible();
-  await expect(market.getByLabel("Crop")).toHaveValue("papa");
+  await expect(market.getByRole("combobox", { name: "Crop" })).toContainText("Potato");
   await expect(market.locator(".price-big")).toHaveText(price);
   await expect(market.locator(".season-months button").first()).toHaveAttribute("aria-pressed", "true");
   expect(await market.locator(".sources-box a[href]").evaluateAll(items => items.map(item => (item as HTMLAnchorElement).href).sort())).toEqual(links);
