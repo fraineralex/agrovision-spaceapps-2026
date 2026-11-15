@@ -20,8 +20,7 @@ type Dictation = {
 };
 type DictationWindow = Window & { SpeechRecognition?: new () => Dictation; webkitSpeechRecognition?: new () => Dictation };
 
-type RagSource = { id: string; title: string; sourceName: string; sourceUrl?: string; filePath: string; score?: number };
-type Message = { role: "user" | "assistant"; content: string; sources?: RagSource[] };
+type Message = { role: "user" | "assistant"; content: string };
 export function VoiceAssistant({ selection, defaultOpenWrite = false }: { selection: VoiceSelection; defaultOpenWrite?: boolean }) {
   const [notice, setNotice] = useState("");
   const [voiceError, setVoiceError] = useState(false);
@@ -280,21 +279,16 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     setMessages([...conversation, { role: "assistant", content: "" }]);
     const controller = new AbortController(); abort.current = controller;
     let answer = "";
-    let sources: RagSource[] = [];
     try {
       const response = await fetch("/api/voice/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ selection, messages: conversation }), signal: controller.signal });
       if (!response.ok || !response.body) throw new Error("Unavailable");
-      const sourcesHeader = response.headers.get("X-AgroVision-Sources");
-      if (sourcesHeader) {
-        try { sources = JSON.parse(decodeURIComponent(sourcesHeader)) as RagSource[]; } catch { sources = []; }
-      }
       const reader = response.body.getReader(); const decoder = new TextDecoder();
       while (true) {
         const { value, done } = await reader.read();
         const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
         if (controller.signal.aborted) return;
         answer += chunk;
-        setMessages([...conversation, { role: "assistant", content: answer, sources: sources.length ? sources : undefined }]);
+        setMessages([...conversation, { role: "assistant", content: answer }]);
         if (done) break;
       }
       if (!answer.trim()) throw new Error("Empty answer");
@@ -331,7 +325,7 @@ export function VoiceAssistant({ selection, defaultOpenWrite = false }: { select
     </div>}
     {(realtime.messages.length > 0 || messages.length > 0) && <details className="visual-details"><summary>Ver conversación</summary><div className="voice-compact-log" tabIndex={0} role="log" aria-live="polite" aria-label="Transcripción de la conversación">
       {realtime.messages.map(message => <p key={message.id}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.parts.filter(part => part.type === "text").map((part, index) => <span key={index}>{part.type === "text" ? part.text : ""}</span>)}</p>)}
-      {messages.map((message, index) => <div key={index} className="voice-msg"><p><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>{message.sources && message.sources.length > 0 && <div className="rag-sources" role="list" aria-label="Fuentes consultadas">{message.sources.map(source => <a key={source.id} className="rag-source-chip" role="listitem" href={source.sourceUrl ?? "#"} target={source.sourceUrl ? "_blank" : undefined} rel={source.sourceUrl ? "noreferrer" : undefined} title={source.filePath}>{source.sourceName}</a>)}</div>}</div>)}
+      {messages.map((message, index) => <p key={index}><strong>{message.role === "user" ? "Tú" : "AgroVision"}: </strong>{message.content || "Pensando…"}</p>)}
     </div></details>}
     <div className="voice-alternatives">
       <details className="visual-details" open={defaultOpenWrite ? true : undefined}><summary><Keyboard aria-hidden="true"/> Escribir</summary><form className="voice-form" onSubmit={event => { event.preventDefault(); void send(draft); }}><input aria-label="Pregunta sobre esta parcela" placeholder="Tu pregunta (ej.: ¿Qué me conviene sembrar ahora?)" value={draft} maxLength={1800} onChange={event => setDraft(event.target.value)}/><button disabled={busy || !draft.trim()}>Enviar</button></form></details>
