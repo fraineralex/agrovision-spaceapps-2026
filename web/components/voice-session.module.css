@@ -21,10 +21,21 @@
 
 .orb svg { position: relative; width: 22px; height: 22px; }
 .orb:not([data-state="idle"]) {
+  width: 76px;
+  height: 76px;
   border-color: #2d65b4;
   background: #467ccc;
   color: #112f58;
   box-shadow: 0 4px 18px #163e743f;
+}
+
+.orb:not([data-state="idle"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 calc(var(--voice-level, 0) * 11px) #6292ed42;
+  pointer-events: none;
 }
 
 .orb:not([data-state="idle"]) svg { width: 12px; height: 12px; fill: currentColor; }
@@ -42,9 +53,13 @@
 
 .orb[data-state="connecting"]::before { opacity: .7; }
 .orb[data-state="speaking"]::before { animation-duration: 2s; }
+.orb[data-state="listening"]::before {
+  filter: brightness(calc(1 + var(--voice-level, 0) * .21)) saturate(calc(1 + var(--voice-level, 0) * .55));
+}
 .orb[data-state="muted"]::before { filter: grayscale(.85); animation-play-state: paused; }
 @keyframes current { from { transform: rotate(-24deg); } to { transform: rotate(55deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .orb::before { animation: none !important; }
+  .orb::before { animation: none !important; filter: none; }
+  .orb::after { box-shadow: none !important; }
 }

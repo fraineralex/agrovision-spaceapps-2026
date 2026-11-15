@@ -18,6 +18,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const sessionContext = sessionSelection ?? selection;
   const abort = useRef<AbortController | null>(null);
   const media = useRef<MediaStream | null>(null);
+  const orb = useRef<HTMLButtonElement>(null);
   const generation = useRef(0);
   const starting = useRef(false);
   const captureStarted = useRef(false);
@@ -40,6 +41,36 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
     }
     if ((realtime.status === "disconnected" || realtime.status === "error") && !starting.current) releaseMedia();
   }, [realtime]);
+  const { isCapturing, isPlaying } = realtime;
+  useEffect(() => {
+    const button = orb.current;
+    const stream = media.current;
+    if (!button || !stream || !isCapturing || isPlaying || muted || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const context = new AudioContext();
+    const source = context.createMediaStreamSource(stream);
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    void context.resume().catch(() => undefined);
+    const samples = new Float32Array(analyser.fftSize);
+    let frame = 0;
+    let level = 0;
+    const update = () => {
+      analyser.getFloatTimeDomainData(samples);
+      const rms = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
+      const target = Math.min(1, Math.max(0, rms - 0.012) * 7);
+      level += (target - level) * (target > level ? 0.42 : 0.15);
+      button.style.setProperty("--voice-level", level.toFixed(3));
+      frame = requestAnimationFrame(update);
+    };
+    frame = requestAnimationFrame(update);
+    return () => {
+      cancelAnimationFrame(frame);
+      button.style.removeProperty("--voice-level");
+      source.disconnect();
+      void context.close().catch(() => undefined);
+    };
+  }, [isCapturing, isPlaying, muted]);
   function releaseMedia() {
     media.current?.getTracks().forEach(track => track.stop()); media.current = null;
     captureStarted.current = false;
@@ -136,7 +167,7 @@ export function VoiceAssistant({ selection }: { selection: VoiceSelection }) {
   const voiceStatus = { idle: notice, connecting: "Conectando…", listening: "Escuchando…", speaking: "Hablando…", muted: "Micrófono silenciado" }[orbState];
   const hangUp = () => stopVoice("Micrófono apagado.");
   return <section className="voice-compact" aria-label="Asistente de voz">
-    <button type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
+    <button ref={orb} type="button" className={session.orb} data-state={orbState} aria-label={active ? "Colgar" : "Hablar"} title={active ? "Toca para colgar" : "Hablar con AgroVision"} onClick={active ? hangUp : startVoice}
       onKeyDown={event => { if (active && event.key === "Escape") { event.preventDefault(); hangUp(); } }}>
       {active ? <Square aria-hidden="true"/> : <AudioLines aria-hidden="true"/>}
     </button>
