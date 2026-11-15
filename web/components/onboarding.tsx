@@ -3,6 +3,8 @@
 "use client";
 import type { SoilColor, SoilTexture } from "@/lib/soil";
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "@/lib/i18n/client";
+import { messages } from "@/lib/i18n/messages";
 import dynamic from "next/dynamic";
 import { FarmIcon } from "@/components/farm-icon";
 import { CustomSelect } from "@/components/custom-select";
@@ -21,6 +23,7 @@ function Choice({ on, onClick, children }: { on: boolean; onClick: () => void; c
 }
 
 export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial: Partial<FarmProfile>; onDone: (p: FarmProfile) => void; onSkip: () => void; farmCount?: number }) {
+  const text = messages[useLocale()].onboarding;
   const dialog = useRef<HTMLDialogElement>(null);
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -62,13 +65,13 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     next();
   };
   const useGps = () => {
-    if (!("geolocation" in navigator)) { setGps("Tu teléfono no permite ubicación. Escribe tu comunidad o provincia."); return; }
-    setGps("Buscando tu ubicación…");
+    if (!("geolocation" in navigator)) { setGps(text.gpsUnsupported); return; }
+    setGps(text.gpsSearching);
     navigator.geolocation.getCurrentPosition(pos => {
       const loc = { longitude: pos.coords.longitude, latitude: pos.coords.latitude };
-      if (!isInCountry(loc)) { setGps("Tu ubicación no está en República Dominicana. Escribe tu comunidad o provincia."); return; }
+      if (!isInCountry(loc)) { setGps(text.gpsOutside); return; }
       setGps(""); pick(provinceAt(loc) ?? "", loc);
-    }, () => setGps("No se pudo obtener tu ubicación. Escribe tu comunidad o provincia."), { timeout: 10000 });
+    }, () => setGps(text.gpsError), { timeout: 10000 });
   };
   const { places, loading, unavailable } = usePlaceSearch(search, 8);
   const finish = () => {
@@ -88,39 +91,39 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
     });
   };
 
-  return <dialog ref={dialog} className="onboarding" aria-label="Cuéntanos de tu finca" onCancel={event => { event.preventDefault(); onSkip(); }}>
+  return <dialog ref={dialog} className="onboarding" aria-label={text.dialog} onCancel={event => { event.preventDefault(); onSkip(); }}>
     <div className="ob-backdrop" aria-hidden="true">
       <div className="ob-backdrop-photo" />
       <div className="ob-backdrop-scrim" />
     </div>
     <div className={step === 2 || (step === 1 && showMap) ? `ob-card ob-card-wide${step === 1 ? " ob-card-mapping" : ""}` : step === 0 ? "ob-card ob-card-location" : "ob-card"}>
       <div className="ob-top">
-        {step > 0 ? <button type="button" className="ob-link" onClick={back}>← Atrás</button> : <span className="ob-top-spacer" />}
+        {step > 0 ? <button type="button" className="ob-link" onClick={back}>{text.back}</button> : <span className="ob-top-spacer" />}
         <div className="ob-progress-wrap">
           <span className="ob-step-count">Paso {step + 1} de {STEPS}</span>
           <span className="ob-progress" role="progressbar" aria-valuemin={1} aria-valuemax={STEPS} aria-valuenow={step + 1} aria-label={`Paso ${step + 1} de ${STEPS}`}>
             {Array.from({ length: STEPS }, (_, i) => <i key={i} className={i === step ? "on current" : i < step ? "on" : ""} />)}
           </span>
         </div>
-        <button type="button" className="ob-link" onClick={onSkip}>Saltar</button>
+        <button type="button" className="ob-link" onClick={onSkip}>{text.skip}</button>
       </div>
 
       <div className="ob-body" ref={body}>
 
       {step === 0 && <div className="ob-step">
         <div className="ob-hero-badge" aria-hidden="true"><FarmIcon name="soil" size={28} /></div>
-        <h2>¿Dónde está tu finca?</h2>
-        <p>Elige un lugar cercano. Puedes marcar tu finca en el mapa después.</p>
-        <button type="button" className="ob-primary" onClick={useGps}><MapPin aria-hidden="true" /> Usar mi ubicación</button>
+        <h2>{text.where}</h2>
+        <p>{text.nearby}</p>
+        <button type="button" className="ob-primary" onClick={useGps}><MapPin aria-hidden="true" /> {text.gps}</button>
         {gps && <p role="status">{gps}</p>}
-        <div className="ob-divider" aria-hidden="true"><span>o busca manualmente</span></div>
-        <label className="ob-label">Busca un lugar en RD
+        <div className="ob-divider" aria-hidden="true"><span>{text.manual}</span></div>
+        <label className="ob-label">{text.search}
           <div className="ob-search-box">
             <span className="ob-search-icon" aria-hidden="true"><Search size={18} /></span>
-            <input type="search" value={search} placeholder="Ej.: Pedro Brand" onChange={e => setSearch(e.target.value)} />
+            <input type="search" value={search} placeholder={text.example} onChange={e => setSearch(e.target.value)} />
           </div>
         </label>
-        {!search.trim() && <span className="ob-sublabel">Zonas agrícolas frecuentes</span>}
+        {!search.trim() && <span className="ob-sublabel">{text.frequent}</span>}
         <div className={search.trim() ? "ob-grid place-choices" : "ob-grid ob-grid-provinces"}>
           {search.trim() ? places.map(p => (
             <Choice key={p.id} on={p.kind ? placeName === p.name && province === p.province : province === p.name && !placeName} onClick={() => p.kind ? pick(p.province, { longitude: p.longitude, latitude: p.latitude }, p.name) : pick(p.name)}>
@@ -134,9 +137,9 @@ export function Onboarding({ initial, onDone, onSkip, farmCount = 0 }: { initial
             </Choice>
           ))}
         </div>
-        {loading && <p role="status">Buscando lugares…</p>}
-        {unavailable && <p role="status">No se pudo cargar el catálogo. Puedes buscar por provincia o usar el mapa.</p>}
-        {search.trim().length >= 2 && !places.length && !loading && !unavailable && <p role="status">No encontramos ese lugar.</p>}
+        {loading && <p role="status">{text.searching}</p>}
+        {unavailable && <p role="status">{text.unavailable}</p>}
+        {search.trim().length >= 2 && !places.length && !loading && !unavailable && <p role="status">{text.none}</p>}
       </div>}
 
       {step === 1 && location && <div className="ob-step ob-step-map">
