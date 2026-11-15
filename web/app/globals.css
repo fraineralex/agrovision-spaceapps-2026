@@ -483,6 +483,13 @@ h1 { color: var(--monte); }
 /* Compact voice controls. AI: Codex (OpenAI), 2026-11-14. Frainer review pending. */
 .voice-compact { color:var(--tinta); }
 .voice-alternatives svg { width:19px; height:19px; }
+.ob-grid .ob-choice small, .search-results button small { display:block; font-size:13px; font-weight:500; }
+.ob-label textarea { width:100%; border:1px solid #879a86; border-radius:9px; padding:8px; font:inherit; resize:vertical; }
+.mode-switch { display:inline-flex; max-width:100%; gap:4px; border:1px solid #b6cbbb; padding:4px; border-radius:12px; background:#fff; }
+.mode-switch button { display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:6px 10px; border:0; border-radius:8px; background:transparent; color:var(--monte); font-size:15px; font-weight:750; }
+.mode-switch button[aria-pressed="true"] { background:var(--monte); color:#fff; }
+.mode-switch svg, .parcel-export svg { width:18px; height:18px; }
+.parcel-export { margin-top:12px; }
 .voice-alternatives { display:flex; gap:16px; align-items:start; flex-wrap:wrap; }
 .voice-alternatives details[open] { flex:1 1 100%; }
 .voice-compact .voice-form { margin:0 0 8px; }
@@ -506,7 +513,7 @@ h1 { color: var(--monte); }
 .profit-col small { font-size:15px; } .profit-col strong { overflow-wrap:anywhere; }
 @media (max-width:480px){ .profit-range{grid-template-columns:1fr} .profit-col{flex-direction:row;justify-content:space-between;align-items:center;text-align:left;padding:12px 14px;gap:8px} }
 .profit-col strong { white-space:nowrap; font-size:clamp(18px,5vw,22px); }
-.workspace { padding-bottom: 110px; }
+.workspace { padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
 .farm-tablist{display:contents} .farm-tab svg{vertical-align:-4px}
 .rain-sentence svg,.src-icon svg,.src-links svg,.share-button svg,.profile-line svg{vertical-align:-4px;flex-shrink:0} .src-links a{display:inline-flex;gap:6px;align-items:center}
 /* lucide icons sit inline next to their words */

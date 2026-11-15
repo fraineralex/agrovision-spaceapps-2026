@@ -202,3 +202,13 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 - **Iteración:** orbe activo inspirado en la demo pública de [HextaUI Voice Mode](https://hextaui.com/es/blocks/voice-mode), con brillo y halo según el nivel del micrófono. El análisis visual se hace en el navegador. **Archivos:** `web/components/{voice-assistant.tsx,voice-session.module.css}`. **Revisión por Frainer:** pendiente.
 - **Ajuste:** se retiró la tarjeta de voz y se dejaron solo el orbe y su estado accesible mientras la sesión está activa. **Archivos:** `web/app/page.tsx`, `web/components/{voice-assistant.tsx,voice-session.module.css}` y `web/tests/demo.spec.ts`. **Revisión por Frainer:** pendiente.
+- **Ajuste visual:** se recuperaron el degradado y la escala de la primera iteración en el orbe flotante. **Archivos:** `web/app/globals.css` y `web/components/voice-session.module.css`. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Búsqueda de lugares y ficha de finca
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** buscar más allá de las provincias y permitir nombrar, renombrar y registrar maquinaria y pesticidas declarados por finca. **Archivos:** `scripts/geography/export_places.ps1`, `web/public/data/places-do.json`, `web/lib/{place-search,farms}.ts`, `web/components/{onboarding,farm-switcher}.tsx`, `web/app/{page.tsx,globals.css}`, `web/scripts/offline-assets.mjs` y `web/tests/demo.spec.ts`.
+- **Fuente:** [GeoNames](https://www.geonames.org/export/), licencia CC BY, extracto [DO.zip](https://download.geonames.org/export/dump/DO.zip) del 14-11-2026. Los puntos representan nombres de lugares, con cobertura desigual a nivel de sector. No son límites de finca ni equivalen a un padrón oficial. Los apuntes son datos declarados y se guardan localmente. **Revisión por Frainer:** pendiente.
+
+## 2026-11-14 — Modos Agricultor y Supervisor
+
+- **Herramienta:** Codex (OpenAI). **Propósito:** organizar las tareas básicas y los análisis técnicos en vistas con las mismas fincas, y exportar los contornos dibujados como GeoJSON. **Archivos:** `web/app/{page.tsx,globals.css}`, `web/components/map.tsx` y `web/tests/demo.spec.ts`. Los modos son vistas y no permisos. La exportación contiene geometrías aproximadas del usuario, no delimitaciones catastrales. **Revisión por Frainer:** pendiente.

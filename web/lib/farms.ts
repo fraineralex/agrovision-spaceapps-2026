@@ -13,6 +13,9 @@ export type Farm = {
   plan?: { crop: CropId; sowMonth: number };
   waterTurn?: string; // Legacy assigned turn, kept for existing farms.
   irrigationDate?: IrrigationDate;
+  placeName?: string;
+  machinery?: string;
+  pesticides?: string;
 };
 
 const R = 6378137;

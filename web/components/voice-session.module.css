@@ -21,12 +21,12 @@
 
 .orb svg { position: relative; width: 22px; height: 22px; }
 .orb:not([data-state="idle"]) {
-  width: 104px;
-  height: 104px;
+  width: clamp(106px, 34vmin, 148px);
+  height: clamp(106px, 34vmin, 148px);
   border-color: #2d65b4;
-  background: #467ccc;
+  background: #498fb7;
   color: #112f58;
-  box-shadow: 0 4px 18px #163e743f;
+  box-shadow: inset 0 1px 9px #ffffffa3, 0 12px 38px #15599538, 0 0 0 7px #c4e3e749;
 }
 
 .orb:not([data-state="idle"])::after {
@@ -38,17 +38,19 @@
   pointer-events: none;
 }
 
-.orb:not([data-state="idle"]) svg { width: 12px; height: 12px; fill: currentColor; }
+.orb:not([data-state="idle"]) svg { width: 14px; height: 14px; fill: currentColor; opacity: 0; }
+.orb:hover svg, .orb:focus-visible svg { opacity: 1; }
 .orb:not([data-state="idle"])::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(ellipse at 57% 72%, #f4f9ff 1%, #c2d5ff 25%, transparent 60%),
-    radial-gradient(ellipse at 29% 30%, #a8ceff 5%, transparent 65%),
-    linear-gradient(160deg, #285ccd 7%, #6292ed 54%, #b7cdf8 90%);
-  animation: current 8s ease-in-out infinite alternate;
+    radial-gradient(circle at 36% 19%, #ffffff94, transparent 58%),
+    radial-gradient(ellipse at 58% 71%, #eafff6 0%, #83e4d6 23%, transparent 55%),
+    radial-gradient(ellipse at 25% 23%, #bbdcff 3%, #578ddc 34%, transparent 67%),
+    radial-gradient(ellipse at 78% 36%, #2763a3 8%, #397eac 43%, #a6e3e1 72%);
+  animation: current 13s ease-in-out infinite alternate;
 }
 
 .orb[data-state="connecting"]::before { opacity: .7; }

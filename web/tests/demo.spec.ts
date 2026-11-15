@@ -17,7 +17,7 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  await page.getByRole("button", {name:"Agregar mi finca", exact:true}).click();
  const ob=page.getByRole("dialog",{name:"Cuéntanos de tu finca"});
  expect(await axeSerious(page)).toEqual([]);
- await ob.getByLabel("O escribe tu provincia").fill("san juan");
+ await ob.getByLabel("Busca un lugar en RD").fill("san juan");
  await ob.getByRole("button",{name:"San Juan",exact:true}).click();
  await ob.getByLabel("Nombre de esta finca").fill("Finca del río");
  await ob.getByRole("button",{name:/Marcar la finca en el mapa/}).click();
@@ -52,6 +52,12 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
  await expect(page.locator(".crop-timeline")).toContainText("Cosecha aprox.");
  // Rain alert (mocked Open-Meteo): Thursday 19 Nov has 14 mm.
  await expect(page.locator(".rain-wet")).toContainText("80%");
+ await expect(page.getByRole("button", {name:"Agricultor",exact:true})).toHaveAttribute("aria-pressed", "true");
+ await expect(page.getByText("Mercado y clima regional", {exact:true})).toBeHidden();
+ await page.getByRole("button", {name:"Supervisor",exact:true}).click();
+ const downloadEvent = page.waitForEvent("download");
+ await page.getByRole("button", {name:"Descargar parcela (GeoJSON)",exact:true}).click();
+ expect((await downloadEvent).suggestedFilename()).toMatch(/^parcela-.+\.geojson$/);
  // Five options: four goals plus keeping the current crop.
  const opts=page.locator(".option-list > li");
  await expect(opts).toHaveCount(5);
@@ -93,6 +99,40 @@ test("desktop shows weekly conditions and two columns for planting and sales",as
  expect((await page.locator("#lluvia-esta-semana").boundingBox())!.y).toBeLessThan(plan.y);
  expect(await axeSerious(page)).toEqual([]);
  await page.screenshot({path:"test-results/farmer-desktop.png"});
+});
+
+test("finds a municipality and a neighborhood, then saves and renames a farm with its records", async ({page}) => {
+ await page.route("https://**", route => route.abort());
+ await page.route("**/api/rain**", route => route.fulfill({json: rainMock}));
+ await page.goto("/");
+ const mapSearch = page.getByLabel("Busca un lugar en RD", {exact:true});
+ await mapSearch.fill("ensanche naco");
+ await expect(page.getByRole("button", {name:/Ensanche Naco.*Distrito Nacional/})).toBeVisible();
+ await page.getByRole("button", {name:"Agregar mi finca",exact:true}).click();
+ const dialog = page.getByRole("dialog", {name:"Cuéntanos de tu finca"});
+ await dialog.getByLabel("Busca un lugar en RD").fill("pedro brand");
+ await dialog.getByRole("button", {name:/^Pedro Brand Municipio.*Santo Domingo$/}).click();
+ await dialog.getByLabel("Nombre de esta finca").fill("La Lomita");
+ await dialog.getByText("Maquinaria y pesticidas (opcional)", {exact:true}).click();
+ await dialog.getByLabel("Maquinaria disponible").fill("Tractor alquilado");
+ await dialog.getByLabel("Pesticidas registrados en la finca").fill("Registro de ejemplo");
+ await dialog.getByRole("button", {name:"Seguir sin marcar"}).click();
+ await dialog.getByRole("button", {name:/Listo, ver mi recomendación/}).click();
+ await page.reload();
+ await expect(page.getByRole("tab", {name:"La Lomita"})).toBeVisible();
+ const farms = page.getByRole("navigation", {name:"Mis fincas"});
+ await expect(farms).toContainText("Pedro Brand, Santo Domingo");
+ await farms.getByText("Maquinaria y pesticidas", {exact:true}).click();
+ await expect(farms.getByText(/Tractor alquilado/)).toBeVisible();
+ await expect(farms.getByText(/Registro de ejemplo/)).toBeVisible();
+ await farms.getByRole("button", {name:"Editar"}).click();
+ await dialog.getByLabel("Nombre de esta finca").fill("La Lomita Norte");
+ await dialog.getByRole("button", {name:"Guardar cambios"}).click();
+ await expect(page.getByRole("tab", {name:"La Lomita Norte"})).toBeVisible();
+ await page.getByRole("button", {name:"Supervisor",exact:true}).click();
+ await page.reload();
+ await expect(page.getByRole("button", {name:"Supervisor",exact:true})).toHaveAttribute("aria-pressed", "true");
+ await expect(page.getByRole("tab", {name:"La Lomita Norte"})).toBeVisible();
 });
 
 test("farm switcher: add a second farm, switch between them, delete one; saved after reload",async({page})=>{

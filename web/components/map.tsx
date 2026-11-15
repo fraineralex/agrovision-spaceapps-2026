@@ -11,7 +11,7 @@ import { ESRI_IMAGERY_TILES, ESRI_LABEL_TILES, ESRI_ATTRIBUTION } from "@/lib/ma
 import { FIELDS_URL, type FieldInfo } from "@/lib/map/fields";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-type Props = { selected: string; onSelect: (id: string) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void };
+type Props = { selected: string; onSelect: (id: string) => void; location: Location; onLocation: (point:Location) => void; onField?: (field: FieldInfo) => void; advanced?: boolean };
 const layers = [
   { id: "MODIS_Terra_NDVI_8Day", label: "NDVI", level: 9, detail: "MODIS Terra · visualización de 8 días · 250 m · NDVI sin unidad; baja confianza a escala de parcela" },
   { id: "IMERG_Precipitation_Rate", label: "Lluvia IMERG", level: 6, detail: "GPM IMERG · visualización diaria · ~10 km · mm/h; contexto regional" },
@@ -21,7 +21,7 @@ function tileCoordinates(tile: typeof sample.tiles[number]): [[number, number], 
   const latitude = (y: number) => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / 2 ** tile.zoom))) * 180 / Math.PI;
   return [[longitude(tile.x), latitude(tile.y)], [longitude(tile.x + 1), latitude(tile.y)], [longitude(tile.x + 1), latitude(tile.y + 1)], [longitude(tile.x), latitude(tile.y + 1)]];
 }
-export function MapPanel({ selected, onSelect, location, onLocation, onField }: Props) {
+export function MapPanel({ selected, onSelect, location, onLocation, onField, advanced = false }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   const [activeLayer, setActiveLayer] = useState("");
@@ -94,26 +94,26 @@ export function MapPanel({ selected, onSelect, location, onLocation, onField }: 
     if (instance.getLayer("remote-layer")) instance.removeLayer("remote-layer");
     if (instance.getSource("remote")) instance.removeSource("remote");
     layers.forEach((layer) => {
-      instance.setLayoutProperty(`cached-${layer.id}`, "visibility", activeLayer === layer.id && (!remote || date === "2026-11-01") ? "visible" : "none");
+      instance.setLayoutProperty(`cached-${layer.id}`, "visibility", advanced && activeLayer === layer.id && (!remote || date === "2026-11-01") ? "visible" : "none");
       instance.setPaintProperty(`cached-${layer.id}`, "raster-opacity", opacity);
     });
     const layer = layers.find((item) => item.id === activeLayer);
-    if (remote && layer) {
+    if (advanced && remote && layer) {
       instance.addSource("remote", { type: "raster", tileSize: 256, maxzoom: layer.level, attribution: "NASA EOSDIS GIBS", tiles: [`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layer.id}/default/${date}/GoogleMapsCompatible_Level${layer.level}/{z}/{y}/{x}.png`] });
       instance.addLayer({ id: "remote-layer", type: "raster", source: "remote", paint: { "raster-opacity": opacity } }, "parcels");
     }
-  }, [activeLayer, remote, date, opacity, mapReady]);
+  }, [activeLayer, remote, date, opacity, mapReady, advanced]);
   const layer = layers.find((item) => item.id === activeLayer);
   return <>
     <div className="map-wrap"><div id="map" role="region" data-loaded={mapLoaded} ref={container} aria-label="Mapa de República Dominicana; toca para seleccionar tu zona" />
       {!mapReady && <div className="map-fallback"><strong>República Dominicana</strong><p>Preparando mapa… Puedes seleccionar una provincia arriba.</p></div>}
     </div>
     <div className="map-views-below"><Button variant="outline" onClick={() => map.current?.fitBounds([[-72.05,17.4],[-68.2,19.95]],{padding:24,maxZoom:7.3})}>Todo el país</Button><Button variant="outline" onClick={() => map.current?.flyTo({ center: [-71.26, 18.79], zoom: 14, pitch: 0 })}>Ver fincas de San Juan</Button></div>
-    <details className="map-caption"><summary>Más capas de la NASA</summary><div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.label}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> Ver imagen más reciente (requiere internet)</label></div></details>
+    {advanced && <details className="map-caption"><summary>Más capas de la NASA</summary><div className="map-foot"><div className="layer-row">{layers.map((item) => <button aria-pressed={activeLayer === item.id} key={item.id} className={`layer-toggle ${activeLayer === item.id ? "active" : ""}`} onClick={() => { setActiveLayer(activeLayer === item.id ? "" : item.id); setError(""); }}>{item.label}</button>)}</div><label><input type="checkbox" checked={remote} onChange={(event) => { setRemote(event.target.checked); setError(""); }} /> Ver imagen más reciente (requiere internet)</label></div></details>}
     <p className="map-caption">Toca tu finca en el mapa. Líneas amarillas: fincas aproximadas detectadas por satélite (no catastrales). Colores: verdor de la vegetación.</p>
     <div className="pillar-legend" aria-label="Verdor de parcelas"><span><i className="light red"/>Verdor bajo</span><span><i className="light amber"/>Intermedio</span><span><i className="light green"/>Alto</span><span><i className="light gray"/>Sin datos</span></div>
-    {activeLayer && <label className="timeline">Opacidad NASA <input aria-label="Opacidad NASA" type="range" min="0" max="0.8" step="0.05" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/></label>}
-    {remote && <label className="timeline">Fecha de imagen <input aria-label="Fecha de imagen" type="date" min="2026-10-01" max="2026-11-10" value={date} onChange={(event) => setDate(event.target.value)} /></label>}
+    {advanced && activeLayer && <label className="timeline">Opacidad NASA <input aria-label="Opacidad NASA" type="range" min="0" max="0.8" step="0.05" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/></label>}
+    {advanced && remote && <label className="timeline">Fecha de imagen <input aria-label="Fecha de imagen" type="date" min="2026-10-01" max="2026-11-10" value={date} onChange={(event) => setDate(event.target.value)} /></label>}
     <details className="map-caption"><summary>Fuentes del mapa y estado de imágenes</summary><div aria-live="polite">{error || (remote ? `Imagen en línea solicitada: ${date}. Si falla se conserva la imagen guardada.` : "Esri World Imagery · detalle hasta zoom 19 · requiere conexión. Contexto NASA guardado · 2026-11-01 · sin conexión al alejar.")}<br />{layer?.detail ?? "Esri / Maxar / Earthstar Geographics; fechas de captura variables, sin verificar por parcela. NASA Blue Marble solo como contexto sin conexión."}<br />{layer && "Colores de visualización NASA; no se infieren valores numéricos. "}Límites generales geoBoundaries / Natural Earth (2022, dominio público), no catastrales. © NASA EOSDIS GIBS.</div></details>
   </>;
 }

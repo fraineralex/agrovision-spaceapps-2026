@@ -5,15 +5,16 @@ import dynamic from "next/dynamic";
 import { FaoDroughtCard } from "@/components/fao-giews";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceAssistant } from "@/components/voice-assistant";
+import { usePlaceSearch } from "@/lib/place-search";
 import { OfflineStatus } from "@/components/offline";
 import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
 import { Onboarding, type FarmProfile } from "@/components/onboarding";
 import { Fold } from "@/components/fold";
 import { OptionsCard } from "@/components/options-card";
-import { MapPin } from "lucide-react";
+import { ClipboardList, Download, MapPin, Sprout } from "lucide-react";
 import { FarmSwitcher } from "@/components/farm-switcher";
-import { loadFarms, saveFarms, piecesAreaM2, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
+import { loadFarms, saveFarms, piecesAreaM2, piecesToGeoJSON, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
 import { FieldWeek, PlantingPlan, WorkbenchNav } from "@/components/farm-workbench";
@@ -33,10 +34,27 @@ import { findParcel, parcelEvidence, signalLabels } from "@/lib/map/parcels";
 // Main answer weighs water, drought, pests and price equally; the 5-option card shows each goal separately.
 const BALANCED = "balanced";
 const MapPanel = dynamic(() => import("@/components/map").then(module => module.MapPanel), { loading: () => <p role="status">Cargando mapa…</p> });
-const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const rainWord = (mmDay: number) => mmDay * 30 < 50 ? "Poca lluvia" : mmDay * 30 < 120 ? "Lluvia moderada" : "Mucha lluvia";
+const modeKey = "agrovision:view-mode";
+type ViewMode = "farmer" | "supervisor";
+
+function downloadFarmBoundary(farm: Farm) {
+  const data = piecesToGeoJSON(farm.pieces);
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/geo+json" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `parcela-${farm.id}.geojson`;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export default function Home() {
+  const [mode, setMode] = useState<ViewMode>("farmer");
+  const supervisor = mode === "supervisor";
+  const changeMode = (value: ViewMode) => {
+    setMode(value);
+    try { localStorage.setItem(modeKey, value); } catch { /* Mode still works without storage. */ }
+  };
   const [month,setMonth] = useState(new Date().getMonth() + 1);
   const [selectedParcel,setSelectedParcel] = useState("location");
   const [location,setLocation] = useState<Location>(nationalCenter);
@@ -63,6 +81,7 @@ export default function Home() {
   useEffect(() => {
     const { farms: saved, active } = loadFarms();
     const timer = setTimeout(() => {
+      try { if (localStorage.getItem(modeKey) === "supervisor") setMode("supervisor"); } catch { /* Default to farmer mode. */ }
       if (saved.length) { setFarms(saved); const a = saved.find(f => f.id === active) ?? saved[0]; setActiveId(a.id); applyProfile(a); }
     }, 0);
     return () => clearTimeout(timer);
@@ -127,13 +146,18 @@ export default function Home() {
   const saleCrop = activeFarm?.plan?.crop ?? topCrop;
   const selection: VoiceSelection = {parcelId: activeFarm ? "location" : (selectedParcel.startsWith("sj-unit-") ? "location" : selectedParcel) as VoiceSelection["parcelId"],location: activeFarm?.location ?? location,priority:BALANCED,month,irrigation,previousCrop:previous,crops:crops.join(","),farmArea:farmAreaM2?areaLabel(farmAreaM2):undefined,rainAlert:rainSentence,oversupply:glut?.sentence};
   const source = selectedParcel !== "location" ? { url:climate.source.url,period:"2016–2025",scale:"Regional · ~50 km · San Juan",quality:"Sin validación local",method:"Reanálisis histórico" } : context?.key === locationKey ? context.data.source : null;
-  const matches = provinceSearch.trim() ? provinces.filter(p => fold(p.name).includes(fold(provinceSearch.trim()))).slice(0, 6) : [];
+  const { places, loading: placesLoading, unavailable: placesUnavailable } = usePlaceSearch(provinceSearch, 6);
   return <>
     <a className="skip-link" href="#contenido">Saltar al contenido</a>
     {onboarding && <Onboarding key={editing?.id ?? "new"} initial={editing ?? {}} farmCount={farms.length} onDone={finishOnboarding} onSkip={() => { setOnboarding(false); setEditing(null); }}/>}
     <header className="topbar" role="banner"><div className="brand"><span className="brand-mark"><FarmIcon name="soil"/></span>AgroVision</div><OfflineStatus/></header>
     <main id="contenido" className="workspace" tabIndex={-1}>
-      <div className="heading-row"><h1>Mi finca</h1></div>
+      <div className="heading-row"><h1>{supervisor ? "Supervisión de fincas" : "Mi finca"}</h1>
+        <div className="mode-switch" role="group" aria-label="Modo de uso">
+          <button type="button" aria-pressed={!supervisor} onClick={() => changeMode("farmer")}><Sprout aria-hidden="true"/> Agricultor</button>
+          <button type="button" aria-pressed={supervisor} onClick={() => changeMode("supervisor")}><ClipboardList aria-hidden="true"/> Supervisor</button>
+        </div>
+      </div>
 
       {farms.length > 0 && <FarmSwitcher farms={farms} activeId={activeFarm?.id ?? null} onSelect={selectFarm} onAdd={() => { setEditing(null); setOnboarding(true); }} onEdit={f => { setEditing(f); setOnboarding(true); }} onDelete={deleteFarm}/>}
       <WorkbenchNav/>
@@ -145,32 +169,38 @@ export default function Home() {
         {chosen ? <AdvisorCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} priority={BALANCED} crops={crops} onEdit={() => { setEditing(activeFarm); setOnboarding(true); }}/>
           : <button className="workbench-button" type="button" onClick={() => setOnboarding(true)}>Empieza con tu provincia</button>}
       </Fold>
-      {chosen && <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>}
+      {chosen && supervisor && <OptionsCard province={farmProvince} irrigation={irrigation} previous={previous} sowMonth={month} crops={crops}/>}
       {chosen && <ShareButton summary={shareSummary}/>}
       </div>
       <div className="col-side">
       <Fold id="cuanto-me-deja" icon="💵" title="¿A cuánto debo vender?">
         <SaleBudget key={activeFarm?.id ?? "new"}/>
-        <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
+        {supervisor && <details className="workbench-details"><summary>Consultar costos y precios de referencia</summary>
           <ProfitCard key={`${saleCrop}/${activeFarm?.id}`} crops={crops.includes(saleCrop) ? crops : [saleCrop, ...crops]} initialCrop={saleCrop} tareas={farmTareas}/>
-        </details>
+        </details>}
       </Fold>
       <Fold icon="🗺️" title="Tu finca en el mapa" teaser={field ? `Tu parcela: unas ${toTareas(field.areaHa)} tareas` : "Mira tu zona por satélite y toca tu finca"}>
       <section className="card location-card" aria-label="Elige tu zona"><div className="section-row"><h2>Explora el mapa</h2><span className="place">{province ?? "Sin elegir"}</span></div>
         {activeFarm && <p className="note">Explora otras zonas aquí. Para cambiar la ubicación guardada, edita tu finca.</p>}
         <div className="location-controls">
           <button type="button" className="gps-button" onClick={useGps}><MapPin aria-hidden="true"/> Usar mi ubicación</button>
-          <label>Escribe tu provincia<input ref={searchRef} type="search" placeholder="Ej.: San Juan" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
-          {matches.length > 0 && <div className="search-results" role="group" aria-label="Provincias encontradas">{matches.map(p => <button type="button" aria-pressed={province === p.name} key={p.name} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");}}>{p.name}</button>)}</div>}
-          {provinceSearch.trim() && matches.length === 0 && <p role="status">No encontramos esa provincia. Revisa el nombre.</p>}
+          <label>Busca un lugar en RD<input ref={searchRef} type="search" placeholder="Ej.: Pedro Brand" value={provinceSearch} onChange={e => setProvinceSearch(e.target.value)}/></label>
+          {places.length > 0 && <div className="search-results" role="group" aria-label="Lugares encontrados">{places.map(p => <button type="button" key={p.id} onClick={() => {onLocation({longitude:p.longitude,latitude:p.latitude});setProvinceSearch("");setMapOpen(true);}}>{p.name}{p.kind && <small>{p.kind} · {p.province}</small>}</button>)}</div>}
+          {placesLoading && <p role="status">Buscando lugares…</p>}
+          {placesUnavailable && <p role="status">Catálogo temporalmente no disponible. Puedes escoger una provincia.</p>}
+          {provinceSearch.trim().length >= 2 && !places.length && !placesLoading && !placesUnavailable && <p role="status">No encontramos ese lugar.</p>}
           <label>O escoge de la lista<select aria-label="Provincia" value={province ?? ""} onChange={e => {const p = provinces.find(p => p.name === e.target.value);if (p) onLocation({longitude:p.longitude,latitude:p.latitude});}}><option value="" disabled>Selecciona</option>{provinces.map(p => <option key={p.name}>{p.name}</option>)}</select></label>
           {gpsStatus && <p role="status">{gpsStatus}</p>}
         </div>
-        {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
+        {mapOpen ? <MapPanel selected={selectedParcel} onSelect={onSelect} location={location} onLocation={onLocation} onField={onField} advanced={supervisor}/> : <button type="button" className="workbench-button" onClick={() => setMapOpen(true)}>Abrir mapa satelital</button>}
+        {supervisor && activeFarm && <div className="parcel-export">
+          <button type="button" className="link-button" disabled={!activeFarm.pieces.length} onClick={() => downloadFarmBoundary(activeFarm)}><Download aria-hidden="true"/> Descargar parcela (GeoJSON)</button>
+          <p className="note">{activeFarm.pieces.length ? "Límites aproximados guardados en esta finca." : "Marca la finca en el mapa desde Editar para descargar el contorno."}</p>
+        </div>}
         {(field || detectedParcel) && <article className="card parcel-card" aria-label="Tu parcela" aria-live="polite">
           <h3>Tu parcela{field ? `: unas ${toTareas(field.areaHa)} tareas` : detectedParcel ? `: unas ${toTareas(detectedParcel.properties.areaHa)} tareas` : ""}</h3>
           {detectedParcel && <p className="parcel-green"><i className={`light ${detectedParcel.properties.signal === "high" ? "green" : detectedParcel.properties.signal === "mid" ? "amber" : detectedParcel.properties.signal === "low" ? "red" : "gray"}`}/> {signalLabels[detectedParcel.properties.signal]} ({detectedParcel.properties.latestObservedMonth})</p>}
-          <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
+          {supervisor && <details className="evidence-details"><summary>Ver detalles de la parcela</summary>
             {field && <p>Borde aproximado: {field.areaHa.toFixed(2)} ha ({toTareas(field.areaHa)} tareas; 1 tarea = 628,86 m²). {fieldMeta.method} {fieldMeta.limitations} {fieldMeta.attribution}</p>}
             {detectedParcel && <>
               <p>Verdor (NDVI) {detectedParcel.properties.latestNdvi?.toFixed(2) ?? "sin datos"} · {detectedParcel.properties.latestObservedMonth}. Unidad de análisis satelital de {detectedParcel.properties.areaHa} ha.</p>
@@ -178,11 +208,11 @@ export default function Home() {
               <div className="ndvi-bars">{detectedParcel.properties.ndviSeries.slice(-12).map(row => <div key={row.month}><span>{row.month}</span><meter min={-1} max={1} value={row.value ?? -1} aria-label={`Verdor ${row.month}`}/><strong>{row.value?.toFixed(2) ?? "Sin dato"}</strong></div>)}</div>
               <p><a href={parcelEvidence.provenance[0].url}>Fuente Sentinel-2</a> · Contiene datos Copernicus modificados (2024–2026).</p>
             </>}
-          </details>
+          </details>}
         </article>}
       </section>
       </Fold>
-      <details className="card visual-extras"><summary>Mercado y clima regional</summary>
+      {supervisor && <details className="card visual-extras"><summary>Mercado y clima regional</summary>
       <Fold icon="💰" title="Precio y mercado"><MarketCard key={saleCrop} initialCrop={saleCrop}/></Fold>
 
       {province && <Fold icon="☀️" title="Sequía y lluvia" teaser={`${province}: ${droughtSignal(faoProvince(province)).label}`}><FaoDroughtCard province={province}/></Fold>}
@@ -195,13 +225,13 @@ export default function Home() {
         <p className="note">Promedio de 10 años (2016–2025) de un cuadro de unos 50 km. Si ese cuadro incluye lomas, en el llano puede llover menos y hacer más calor.</p>
         <p className="note"><a href={source?.url}>NASA POWER</a> · {source?.period} · {source?.scale}. {source?.method}. {source?.quality}. Media histórica del mes, no pronóstico ni medición de finca. Humedad relativa: {selectedClimate.relativeHumidityPct != null ? Math.round(selectedClimate.relativeHumidityPct) : "—"}%. La lluvia por satélite/reanálisis en el trópico tiene errores; no se usa para la recomendación (la sequía viene de FAO GIEWS).</p></> : <p role="status">{climateStatus || "Sin datos para este punto"}</p>}
       </section></Fold>}
-      </details>
+      </details>}
       </div>
       </div>
 
       <VoiceAssistant selection={selection}/>
 
-      <details className="card landscape-details"><summary>Para técnicos: rotaciones de ejemplo con modelo de riego (San Juan)</summary>
+      {supervisor && <details className="card landscape-details"><summary>Rotaciones de ejemplo y modelo de riego (San Juan)</summary>
         <p>Secuencias ilustrativas con riego neto modelado (NASA POWER + FAO-56) para el Valle de San Juan; en otras provincias, indicador genérico. Iconos: agua, clima, plagas, mercado.</p>
         <div className="scenario-grid">{ordered.map(s => <article key={s.id} className="card scenario-card" data-scenario={s.id}>
           <h3>{s.label}</h3>
@@ -216,12 +246,13 @@ export default function Home() {
             {scoreDefinitions.map(p=><p key={p.id}><strong>{p.label}</strong>: {s.details[p.id]} <a href={s.sourceUrls[p.id]}>Fuente</a></p>)}
           </details>
         </article>)}</div>
-      </details>
+      </details>}
 
       <footer className="provenance about">
         <p><strong>¿Quién hace AgroVision?</strong> Estudiantes de Ingeniería en TIC de UNIBE (Santo Domingo), equipo AgroVision, para el NASA Space Apps Challenge 2026. No vendemos insumos ni semillas.</p>
         <p><strong>Datos:</strong> NASA POWER, NASA GIBS (MODIS, IMERG), Copernicus Sentinel-2, FAO GIEWS, FAO-56, Ministerio de Agricultura (precios, siembras y costos), IDIAF. Es una guía, no sustituye a tu técnico o extensionista.</p>
         <a href="/data/manifest.json">Fuentes y versión de datos</a>
+        <a href="https://www.geonames.org/export/">Lugares de RD · GeoNames (CC BY)</a>
       </footer>
     </main>
   </>;
