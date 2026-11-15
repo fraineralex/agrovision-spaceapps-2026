@@ -452,3 +452,4 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - 2026-11-15, OpenAI GPT-6: tradujo el directorio de fuentes y conservó el idioma al volver, en `web/app/[locale]/fuentes/page.tsx` y `web/lib/i18n/messages.ts`. Revisión por Frainer pendiente.
 - 2026-11-15, OpenAI GPT-6: tradujo navegación, pantalla inicial, controles de ubicación y ayudas en `web/app/[locale]/page.tsx`, `web/components/{farm-workbench,help-tip}.tsx` y `web/lib/i18n/messages.ts`. La revisión de Frainer está pendiente.
 - 2026-11-15, OpenAI GPT-6: añadió una prueba de navegador para preferencia, rutas explícitas y conservación del formulario al cambiar idioma en `web/tests/i18n.spec.ts`. Revisión por Frainer pendiente.
+- 2026-11-15, OpenAI GPT-6: tradujo etiquetas accesibles de estrellas, progreso y mapa en `web/components/field-ui.tsx` y `web/lib/i18n/messages.ts`. Revisión por Frainer pendiente.
