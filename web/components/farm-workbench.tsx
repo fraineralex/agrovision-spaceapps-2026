@@ -13,7 +13,7 @@ import { RainCard, type useRain } from "@/components/rain-card";
 
 export type SectionTab = "siembra" | "lluvia" | "venta" | "mapa" | "preguntar";
 
-export function WorkbenchNav({
+export function BottomNav({
   activeTab,
   onSelectTab,
   weekRainMm,
@@ -26,8 +26,8 @@ export function WorkbenchNav({
     { id: "siembra", label: "Siembra", Icon: Sprout },
     { id: "lluvia", label: "Lluvia", Icon: CloudRain, badge: weekRainMm != null ? `${weekRainMm} mm` : undefined },
     { id: "venta", label: "Venta", Icon: Coins },
-    { id: "mapa", label: "Mapa y clima", Icon: MapPin },
-    { id: "preguntar", label: "Preguntar", Icon: MessageCircle },
+    { id: "mapa", label: "Fincas", Icon: MapPin },
+    { id: "preguntar", label: "Ayuda", Icon: MessageCircle },
   ];
   return (
     <div className="workbench-nav" role="tablist" aria-label="Secciones principales de tu finca">
@@ -40,6 +40,17 @@ export function WorkbenchNav({
             role="tab"
             id={`tab-${id}`}
             aria-selected={selected}
+            tabIndex={selected ? 0 : -1}
+            onKeyDown={event => {
+              const index = tabs.findIndex(tab => tab.id === id);
+              const next = event.key === "ArrowRight" ? (index + 1) % tabs.length
+                : event.key === "ArrowLeft" ? (index - 1 + tabs.length) % tabs.length
+                : event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : -1;
+              if (next < 0) return;
+              event.preventDefault();
+              onSelectTab(tabs[next].id);
+              document.getElementById("tab-" + tabs[next].id)?.focus();
+            }}
             aria-controls={`panel-${id}`}
             className={selected ? "wnav-tab is-active" : "wnav-tab"}
             onClick={() => onSelectTab(id)}

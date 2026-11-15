@@ -7,6 +7,7 @@ import { FaoDroughtCard } from "@/components/fao-giews";
 import { FarmIcon } from "@/components/farm-icon";
 import { VoiceAssistant } from "@/components/voice-assistant";
 import { usePlaceSearch } from "@/lib/place-search";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { OfflineStatus } from "@/components/offline";
 import { AdvisorCard } from "@/components/advisor-card";
 import { MarketCard } from "@/components/market-card";
@@ -18,7 +19,7 @@ import { FarmSwitcher } from "@/components/farm-switcher";
 import { loadFarms, saveFarms, piecesAreaM2, piecesToGeoJSON, areaLabel, m2ToTareas, type Farm } from "@/lib/farms";
 import { useRain } from "@/components/rain-card";
 import { ProfitCard } from "@/components/profit-card";
-import { FieldWeek, PlantingPlan, WorkbenchNav, type SectionTab } from "@/components/farm-workbench";
+import { FieldWeek, PlantingPlan, BottomNav, type SectionTab } from "@/components/farm-workbench";
 import { HelpTip } from "@/components/help-tip";
 import { GuidedSale } from "@/components/guided-sale";
 import { SaleBudget } from "@/components/sale-budget";
@@ -178,13 +179,12 @@ export default function Home() {
           <small className="brand-sub">NASA · FAO · Agricultura RD</small>
         </span>
       </div>
-      <OfflineStatus/>
+      <div className="header-actions"><OfflineStatus/><ThemeToggle/></div>
     </header>
     <main id="contenido" className={activeFarm ? "workspace has-farm" : "workspace"} tabIndex={-1}>
       <div className="heading-row">
         <div className="heading-copy">
-          <span className="eyebrow">Guía agronómica y satelital · RD</span>
-          <h1>{activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
+          <h1>{activeTab === "lluvia" ? "Lluvia" : activeTab === "venta" ? "Venta" : activeTab === "mapa" ? "Fincas" : activeTab === "preguntar" ? "Ayuda" : activeFarm ? activeFarm.name : supervisor ? "Supervisión de fincas" : "¿Qué siembro ahora?"}</h1>
         </div>
         <div className="heading-controls">
           <div className="heading-toolbar">
@@ -212,7 +212,7 @@ export default function Home() {
         </div>
       )}
 
-      <WorkbenchNav activeTab={activeTab} onSelectTab={setActiveTab} weekRainMm={weekRainMm}/>
+      <BottomNav activeTab={activeTab} onSelectTab={tab => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} weekRainMm={weekRainMm}/>
 
       {activeTab === "siembra" && (
         <div id="panel-siembra" role="tabpanel" aria-labelledby="tab-siembra" className="tab-stage" key={`siembra-${activeFarm?.id ?? "none"}`}>

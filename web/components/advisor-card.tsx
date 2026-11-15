@@ -3,6 +3,7 @@
 "use client";
 import { AlertTriangle, CalendarDays, Info, MapPin, Wheat } from "lucide-react";
 import { useMemo, useState } from "react";
+import { HeroRecommendation, MetricTile, RiskPill, ScoreRing, SourceChip, WaterGauge } from "@/components/field-ui";
 import { FarmIcon } from "@/components/farm-icon";
 import { adviseNextCrop, adviceSentence, cropNames, previousCropName, lightFor, monthNames, recommendedCrop, type AdvicePriority, type CropAdvice, type CropId, type Pillar, type PreviousCrop } from "@/lib/advisor";
 
@@ -17,33 +18,6 @@ const pillarInfo: { id: Pillar; label: string; icon: string }[] = [
 ];
 const lightWord: Record<string, string> = { green: "Bien", amber: "Regular", red: "Malo", gray: "Sin dato" };
 const irrigationWord: Record<Irrigation, string> = { irrigated: "con riego", rainfed: "sin riego", unconfirmed: "riego sin confirmar" };
-
-function PillarBars({ a }: { a: CropAdvice }) {
-  return (
-    <div className="pillar-bars" aria-label="Indicadores por pilar">
-      {pillarInfo.map(pi => {
-        const s = a.scores[pi.id];
-        const c = lightFor(s);
-        const pct = s === null ? 14 : Math.max(20, Math.min(100, Math.round((s / 5) * 100)));
-        return (
-          <div key={pi.id} className={`pbar-item ${c} pillar-${pi.id}`} title={`${pi.label}: ${a.words[pi.id]}`}>
-            <div className="pbar-head-row">
-              <span className="pbar-label">
-                <span className={`pbar-icon-chip tone-${pi.id}`} aria-hidden="true"><FarmIcon name={pi.icon} size={14} /></span>
-                <span>{pi.label}</span>
-              </span>
-              <span className={`pbar-status-pill ${c}`}>{lightWord[c]}</span>
-            </div>
-            <div className="pbar-track" aria-hidden="true">
-              <span className={`pbar-fill ${c}`} style={{ width: `${pct}%` }} />
-            </div>
-            <span className="pbar-word">{a.words[pi.id]}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 type Props = {
   province?: string; irrigation: Irrigation; previous: PreviousCrop; sowMonth: number; priority: AdvicePriority; crops: CropId[];
@@ -118,48 +92,48 @@ export function AdvisorCard(p: Props) {
       <span><MapPin aria-hidden="true" size={18} /> {p.province ?? "Sin provincia"} · {irrigationWord[p.irrigation]}</span>
       <button type="button" className="ob-link" onClick={p.onEdit}>Cambiar</button>
     </div>
-    <div className="advisor-head">
-      <h3>Mejor puntaje entre tus opciones</h3>
-      {top && top.overall !== null && (
-        <div className="advisor-score-wrap">
-          <span className={`advisor-score light-${light}`}>{lightWord[light]}</span>
-        </div>
-      )}
-    </div>
-
-    <div className={`verdict visual-verdict ${light}${top ? " has-decision" : ""}`}>
+    <HeroRecommendation tone={"tone-" + light} actions={<>
+      <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={18} /> Oír resumen</button>
+      {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={18} /> Datos y fuentes</button>}
+    </>}>
       {top && top.overall !== null ? <>
-        <div className="decision-overview">
-          <div className="crop-feature">
-            <span className="verdict-crop-badge" aria-hidden="true"><FarmIcon name={top.crop} size={26} /></span>
-            <div>
-              <p className="verdict-text">{top.name}</p>
-              {p.previous !== "unknown" && <small>Después de {previousCropName(p.previous).toLowerCase()}</small>}
-            </div>
+        <div className="recommendation-heading">
+          <div>
+            <span className="recommendation-caption">Mejor puntaje</span>
+            <h2>{top.name}</h2>
+            {p.previous !== "unknown" && <p className="previous-crop">Después de {previousCropName(p.previous).toLowerCase()}</p>}
           </div>
-          <p className="advisor-reason">{reason}</p>
-          <div className="crop-timeline">
-            <div><Wheat aria-hidden="true"/><span><small>Cosecha aprox.</small><strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong></span></div>
+          <span className="crop-illustration" aria-hidden="true"><FarmIcon name={top.crop} size={60} /></span>
+          <div className="recommendation-score">
+            <ScoreRing score={top.overall} label="Puntaje comparativo" />
+            <span>{lightWord[light]}</span>
           </div>
         </div>
-        <div className="decision-check">
-          <h4>Antes de sembrar</h4>
-          <p className="advisor-next">Revisa agua y suelo con tu técnico.</p>
-          <ul className="decision-risks">
-            {loss && <li><strong>Pérdida</strong> al último precio mayorista.</li>}
-            {notes[0] && <li>{notes[0].split(". ")[0]}</li>}
-            {repeat && <li>Riesgo de plagas si repites {repeat.name.toLowerCase()}.</li>}
-          </ul>
+        <p className="advisor-reason">{reason}</p>
+        <div className="recommendation-meta">
+          <span><Wheat aria-hidden="true" size={17} /> <strong>{monthNames[top.harvestMonth - 1]} {harvestYear}</strong><small>Cosecha aprox.</small></span>
+          <SourceChip href={climate.source.url}>NASA POWER</SourceChip>
         </div>
+        <RiskPill>{loss ? "Posible pérdida al precio mayorista" : notes[0]?.split(". ")[0] || "Confirma el agua y suelo"}</RiskPill>
       </> : <p>{sentence}{repeat ? " Evita repetir el cultivo si hay antecedentes de plagas." : ""}</p>}
-      <div className="verdict-actions">
-        <button type="button" className="listen" onClick={() => read(summary)}><FarmIcon name="sound" size={20} /> Oír resumen</button>
-        {top && <button type="button" className="src-button" onClick={() => setSources(top)}><Info aria-hidden="true" size={19} /> Datos y fuentes</button>}
-      </div>
-      {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
-    </div>
-    <p className="note advisor-nasa">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía del puntaje: FAO GIEWS. <a href={climate.source.url}>Ver dato NASA</a></p>
-    {top && <details className="compare-fold"><summary>Agua, sequía, plagas y precio</summary><PillarBars a={top}/>{notes.length > 1 && <ul>{notes.slice(1).map(note => <li key={note}>{note}</li>)}</ul>}</details>}
+    </HeroRecommendation>
+    {top && <div className="metric-tiles" aria-label="Indicadores por pilar">
+      {pillarInfo.map(({ id, label, icon }) => <MetricTile key={id} label={label}
+        icon={<FarmIcon name={icon} size={18} />} tone={"metric-" + id}
+        value={lightWord[lightFor(top.scores[id])]} detail={top.words[id]}>
+        {id === "water" && <WaterGauge value={top.scores.water} />}
+      </MetricTile>)}
+    </div>}
+    {reading && <div className="decision-reading"><p role="status">{reading.status}</p><p>{reading.text}</p>{reading.status === "Leyendo resumen…" && <button type="button" className="src-button" onClick={stop}>Detener lectura</button>}</div>}
+    {top && <details className="compare-fold"><summary>Qué revisar antes de sembrar</summary>
+      <p>Revisa agua y suelo con tu técnico.</p>
+      <ul className="decision-risks">
+        {loss && <li><strong>Pérdida</strong> al último precio mayorista.</li>}
+        {notes.map(note => <li key={note}>{note}</li>)}
+        {repeat && <li>Riesgo de plagas si repites {repeat.name.toLowerCase()}.</li>}
+      </ul>
+      <p className="note">NASA POWER / MERRA-2 · 2016–2025 · ~50 km · San Juan. Sequía del puntaje: FAO GIEWS.</p>
+    </details>}
 
     <details className="compare-fold"><summary><CalendarDays aria-hidden="true"/> Todos los cultivos ({p.crops.length})</summary>
       <ul className="crop-list" aria-label="Comparación de cultivos">{advice.map(a => <CropRow key={a.crop} a={a} top={a === top} onSources={() => setSources(a)} />)}{p.crops.filter(crop => !advice.some(item => item.crop === crop)).map(crop => <li key={crop}>{cropNames[crop]} · sin datos todavía</li>)}</ul>
