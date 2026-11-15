@@ -187,3 +187,7 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 - **Archivos:** `web/lib/map/fields.ts`, `web/components/{farm-picker,map}.tsx`, `web/tests/demo.spec.ts`, `docs/12_field_boundaries_method.md`, `AI_USAGE.md`.
 - **Fuentes:** metadatos del GeoJSON local de San Juan; documentación y términos Esri enlazados en `docs/12_field_boundaries_method.md`.
 - **Límites:** disponibilidad/resolución de tiles no comprobada sistemáticamente por provincia; no hay detecciones verificadas en Azua, La Vega, Monte Cristi, Santiago ni Valverde. Revisión por Frainer y autorización para redistribuir derivados pendientes.
+
+## 2026-11-14 — Verificación del selector provincial
+
+- Codex (OpenAI) corrigió el límite de zoom del selector y adaptó la prueba al flujo de alta de finca. Archivos: `web/components/farm-picker.tsx` y `web/tests/demo.spec.ts`. Pasaron lint, 27 pruebas unitarias, build con Webpack y las cinco pruebas dirigidas en Chrome con WebGL por software. Las pruebas bloquearon las solicitudes externas. Revisión por Frainer pendiente.

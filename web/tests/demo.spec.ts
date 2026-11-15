@@ -84,10 +84,12 @@ test("onboarding: mark farm by tapping, dragging and drawing; then advice, rain,
 
 for (const province of ["Azua", "La Vega", "Monte Cristi", "Santiago", "Valverde"]) {
  test(`farm picker zooms and supports manual field drawing in ${province}`, async ({ page }) => {
- await page.route("https://**", r => r.abort());
- await page.goto("/");
- const ob = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
+  await page.route("https://**", r => r.abort());
+  await page.goto("/");
+  await page.getByRole("button", { name: "Agregar mi finca", exact: true }).click();
+  const ob = page.getByRole("dialog", { name: "Cuéntanos de tu finca" });
   await ob.getByRole("button", { name: province, exact: true }).click();
+  await ob.getByRole("button", { name: "Marcar la finca en el mapa (opcional)" }).click();
   const map = page.getByTestId("farm-picker-map");
   await expect(map).toHaveAttribute("data-ready", "true", { timeout: 20000 });
   await expect(ob.getByRole("status").filter({ hasText: `${province} no hay contornos automáticos verificados` })).toBeVisible();
