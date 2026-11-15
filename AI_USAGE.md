@@ -333,3 +333,4 @@ JSON, GeoJSON, imágenes originales, lockfiles y configuraciones sin comentarios
 
 <!-- AI: Codex (OpenAI), 2026-11-15; revisión por Frainer pendiente. -->
 - 2026-11-15: Codex (OpenAI) revisó el tono y los respaldos de texto y voz con pruebas locales de preguntas de agricultores. Archivos: `web/lib/rag.ts`, `web/lib/voice-context.ts`, `web/lib/voice-server.ts`, `web/app/api/voice/chat/route.ts`, `docs/rag_tone_eval.md`. Revisión de Frainer pendiente; no presentar las respuestas como validación agronómica.
+- 2026-11-15: Codex (OpenAI) ajustó las instrucciones de texto y voz para evitar extrapolaciones de agua, fuentes y selección de finca. Archivos: `web/lib/rag.ts`, `web/lib/voice-context.ts`, `web/app/api/voice/chat/route.ts`. Revisión por Frainer pendiente.
