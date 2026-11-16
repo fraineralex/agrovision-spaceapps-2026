@@ -1,7 +1,55 @@
-<!-- AI assistance: Codex/OpenAI, 2026-11-14. Frainer review pending for MVP continuation; see AI_USAGE.md. -->
+<!-- AI assistance: Codex/OpenAI 2026-11-14 (original README); Claude (Anthropic) 2026-11-15 (introduction rewrite). See AI_USAGE.md. -->
 # AgroVision
 
-An offline-capable rotation explorer for the **San Juan Valley, Dominican Republic**, built for NASA Space Apps 2026, [Field Shift](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/). Compare a rice–bean baseline with two illustrative alternatives across water/soil, climate, pests and market. This is evidence for discussion with a local agricultural technician, not a prescription.
+**NASA data, plain advice on what to plant next.** AgroVision is a mobile-first web app that helps farmers in the Dominican Republic decide what to plant next on their own field. It was built for the NASA Space Apps Challenge 2026 (Santo Domingo), challenge [Field Shift: Adapting Farms with NASA Data](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/).
+
+- **Live app:** https://agrovision-spaceapps-2026.vercel.app (English or Spanish, from the language selector)
+- **Team:** AgroVision, UNIBE, Santo Domingo
+
+## What it does
+
+1. **Mark the farm.** On a satellite map the farmer taps 50 m grid cells, picks satellite-detected approximate parcels, or draws a polygon. The area is shown in *tareas* (the local unit) and hectares. Farms are saved on the phone.
+2. **Tell it about the field.** Last crop, irrigation (yes / rain-fed / not sure), soil texture and soil color, and the crops the farmer is interested in.
+3. **Get a recommendation.** Crops are compared on four pillars: crop water needs (FAO-56), drought in the province (FAO GIEWS), pest and rotation rules (IDIAF/CEDAF), and the wholesale price at harvest (Dominican Ministry of Agriculture). Results are shown as 1–5 stars, never as formulas.
+4. **Understand why.** A plain-language "why this crop and not another" covers what the rotation does for the soil (for example, maize after beans uses the nitrogen the legume leaves), which pests to watch, what the app does not know, and the source behind every point.
+5. **Act on it.**
+   - A 7-day rain alert per farm.
+   - A profit range ("how much will I make?").
+   - An oversupply warning when national sowing is well above previous years.
+   - Sharing to WhatsApp.
+   - A voice assistant that answers only from the app's sourced data.
+   - Offline use with cached data.
+
+## Data
+
+- **NASA POWER:**
+  - Temperature, corrected precipitation and humidity (monthly climatology and recent daily data) for the farm's coordinates.
+  - A 2016–2025 daily cache for the San Juan pilot area.
+- **NASA GIBS:** MODIS NDVI, GPM IMERG precipitation and SMAP soil-moisture layers, used as visual context on the map.
+- **NASA/USGS Landsat 8–9 C2 L2:** an exploratory NDVI point sample.
+- **ESA:**
+  - WorldCover 2021, used to filter approximate parcels.
+  - A Copernicus Sentinel-2 cloudless mosaic (EOX), used as a basemap.
+- **Other sources:**
+  - FAO-56, FAO GIEWS and FAO soil references.
+  - IDIAF / CEDAF crop and pest guides.
+  - Ministry of Agriculture wholesale prices (2017–2026), sowing data and production costs.
+  - Banco Central (BCRD) CPI.
+  - Open-Meteo forecast.
+  - Esri World Imagery.
+
+Full provenance: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) and [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+
+## Honest limits
+
+AgroVision is decision support to discuss with a local agricultural technician, not a guarantee:
+
+- Wholesale prices are a Santo Domingo reference, not farm-gate prices.
+- Satellite parcels are approximate, not cadastral.
+- NASA POWER is a regional grid, not a field measurement.
+- No yield, income or pest outcome has been measured in farms yet.
+
+AI use is documented in [AI_USAGE.md](AI_USAGE.md).
 
 ## Run
 
@@ -18,16 +66,6 @@ npm start
 Open `http://localhost:3000`. Development: `npm run dev`. Checks: `npm run lint`, `npm test`, `npm run test:e2e` (requires Google Chrome, or adapt the Playwright channel). Pipeline checks, from the repository root: `python3 scripts/test_pipeline.py`.
 
 The app retains the previous agent's `web/` implementation and uses Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui button composition, MapLibre GL JS, Zod and Vercel AI SDK. `backend/` and `frontend/` are legacy scaffolding and are not required by this demo. No Turso or other database is necessary.
-
-## What works
-
-- Select three **synthetic approximate demo areas**, through the map or dropdown. No producer identities or real farm boundaries are included.
-- Inspect real NASA POWER regional climate means for any calendar month, using the checked-in 2016–2025 daily cache. Regional grid ~0.5°/~50 km, not parcel measurements; tropical rainfall has limitations and is excluded from scores.
-- Inspect **real Landsat NDVI** from six selected 2024 dates at each demo center (one 30 m pixel). QA-masked dates stay missing. Exploratory vegetation signals are explicitly uncalibrated; no trained classifier, crop identity or irrigation status is claimed.
-- Compare rice → beans, maize → beans and sweet potato → beans. The partial water/soil score uses a transparent FAO-56 coefficient-day proxy, relative 0–5 within this demo, with low local confidence. It is **not irrigation demand, soil health or measured savings**. Open each card for formula, source, publication period, scale and limitations.
-- Water priority changes scenario ordering; other priorities explain the lack of evidence and retain the baseline first. Declared water access changes review guidance; it never fabricates satellite confirmation.
-- View cached NASA GIBS Blue Marble, MODIS NDVI and IMERG imagery offline. Optional online date controls request verified WMTS products/formats/zoom levels; cached imagery remains underneath when remote requests fail. Images are browse context, not numeric measurements extracted from colors.
-- Request an optional explanation through AI SDK / Vercel AI Gateway. A deterministic local explanation works without a key, gateway or network.
 
 ## Offline behavior
 

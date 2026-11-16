@@ -184,6 +184,13 @@ La organización del reto permite el uso de herramientas de inteligencia artific
 
 ---
 
+### Entrega final, README y video demo (`2026-11-15`)
+
+| Fecha | Herramienta | Para qué | Archivos / entregables | Revisión |
+|---|---|---|---|---|
+| 15-11-2026 | Claude (Anthropic), Claude Pro / Claude Code | Reescritura de la introducción del README en inglés; etiqueta visible "Imagen mejorada con IA" en el crédito de la foto de El Cercado; textos en inglés del formulario de envío | `README.md`, `web/lib/i18n/messages.ts`, `AI_USAGE.md` | Pendiente: equipo |
+| 15-11-2026 | Claude (Anthropic); Kokoro-82M TTS (Apache-2.0) | Video demo de 30 s en inglés: gráficos animados programados con asistencia de IA, vista aérea recreada (ilustrativa), voz en off generada por IA, subtítulos en inglés y marca de agua visible "Made with AI assistance · AI voice"; declaración también en los metadatos del archivo | Video demo (fuera del repositorio) | Pendiente: equipo |
+
 ## Notas sobre modelos externos, límites y verificación
 
 ### Proveedores externos configurables
