@@ -6,6 +6,8 @@
 - **Live app:** https://agrovision-spaceapps-2026.vercel.app (English or Spanish, from the language selector)
 - **Team:** AgroVision, UNIBE, Santo Domingo
 
+![AgroVision screens: recommendation, why this crop, and farm onboarding](docs/screenshots/agrovision-screens.jpg)
+
 ## What it does
 
 1. **Mark the farm.** On a satellite map the farmer taps 50 m grid cells, picks satellite-detected approximate parcels, or draws a polygon. The area is shown in *tareas* (the local unit) and hectares. Farms are saved on the phone.
